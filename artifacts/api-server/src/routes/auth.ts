@@ -1,5 +1,5 @@
 import { Router, type Request, type Response, type NextFunction } from "express";
-import { db } from "@workspace/db";
+import { db, isDatabaseAvailable } from "@workspace/db";
 import { sessionsTable } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
 import crypto from "crypto";
@@ -51,6 +51,11 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
       }
       await sessionDel(token);
     } catch { /* fall through to DB */ }
+  }
+
+  if (!isDatabaseAvailable()) {
+    res.status(503).json({ error: "Database unavailable" });
+    return;
   }
 
   const [session] = await db.select().from(sessionsTable)
