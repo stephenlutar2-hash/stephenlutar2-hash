@@ -134,7 +134,9 @@ module frontDoor 'modules/frontdoor.bicep' = {
     wafPolicyName: wafPolicyName
     apiBackendAddress: containerApp.outputs.fqdn
     customDomain: customDomain
+    swaHostnames: [for (app, i) in frontendApps: staticWebApps[i].outputs.defaultHostname]
   }
+  dependsOn: [staticWebApps]
 }
 
 var frontendApps = [

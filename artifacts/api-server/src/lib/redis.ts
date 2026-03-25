@@ -1,6 +1,7 @@
+import type Redis from "ioredis";
 import { logger } from "./logger";
 
-let redisClient: any = null;
+let redisClient: Redis | null = null;
 let redisReady = false;
 
 export async function initRedis(): Promise<void> {
@@ -11,8 +12,9 @@ export async function initRedis(): Promise<void> {
   }
 
   try {
-    const { default: Redis } = await import("ioredis");
-    redisClient = new Redis(redisUrl, {
+    const ioredis = await import("ioredis");
+    const RedisConstructor = ioredis.default;
+    redisClient = new RedisConstructor(redisUrl, {
       tls: redisUrl.startsWith("rediss://") ? { rejectUnauthorized: true } : undefined,
       maxRetriesPerRequest: 3,
       retryStrategy(times: number) {
@@ -42,6 +44,18 @@ export async function initRedis(): Promise<void> {
 }
 
 const memoryStore = new Map<string, { value: string; expiresAt?: number }>();
+
+export async function sessionGet(sessionId: string): Promise<string | null> {
+  return cacheGet(`session:${sessionId}`);
+}
+
+export async function sessionSet(sessionId: string, data: string, ttlSeconds: number): Promise<void> {
+  return cacheSet(`session:${sessionId}`, data, ttlSeconds);
+}
+
+export async function sessionDel(sessionId: string): Promise<void> {
+  return cacheDel(`session:${sessionId}`);
+}
 
 export async function cacheGet(key: string): Promise<string | null> {
   if (redisClient && redisReady) {
@@ -109,6 +123,6 @@ export function isRedisReady(): boolean {
   return redisReady;
 }
 
-export function getRedisClient(): any {
+export function getRedisClient(): Redis | null {
   return redisClient;
 }

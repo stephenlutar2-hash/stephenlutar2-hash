@@ -83,7 +83,8 @@ export async function validateEntraToken(
     }) as jwt.JwtPayload;
 
     return { valid: true, claims };
-  } catch (err: any) {
-    return { valid: false, error: err.message || "Token validation failed" };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Token validation failed";
+    return { valid: false, error: message };
   }
 }

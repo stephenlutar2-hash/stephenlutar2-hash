@@ -1,4 +1,9 @@
-let client: any = null;
+interface TelemetryClient {
+  trackEvent(telemetry: { name: string; properties?: Record<string, string> }): void;
+  trackException(telemetry: { exception: Error }): void;
+}
+
+let client: TelemetryClient | null = null;
 let initialized = false;
 
 export function initAppInsights(): void {
@@ -20,7 +25,7 @@ export function initAppInsights(): void {
       .setUseDiskRetryCaching(true)
       .start();
 
-    client = appInsights.defaultClient;
+    client = appInsights.defaultClient as TelemetryClient;
     initialized = true;
     console.log("[AppInsights] Telemetry initialized successfully");
   } catch (err) {
@@ -32,7 +37,7 @@ export function isAppInsightsConfigured(): boolean {
   return initialized && client !== null;
 }
 
-export function getClient(): any {
+export function getClient(): TelemetryClient | null {
   return client;
 }
 
@@ -44,7 +49,7 @@ export function trackException(error: Error): void {
   client?.trackException({ exception: error });
 }
 
-export function getHealthSummary(): Record<string, any> {
+export function getHealthSummary(): Record<string, unknown> {
   if (!initialized || !client) {
     return {
       configured: false,

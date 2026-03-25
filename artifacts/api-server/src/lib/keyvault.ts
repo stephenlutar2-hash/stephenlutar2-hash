@@ -1,6 +1,7 @@
+import type { SecretClient } from "@azure/keyvault-secrets";
 import { logger } from "./logger";
 
-let kvClient: any = null;
+let kvClient: SecretClient | null = null;
 let kvInitialized = false;
 const secretCache = new Map<string, { value: string; expiresAt: number }>();
 const CACHE_TTL_MS = 5 * 60 * 1000;
@@ -17,9 +18,9 @@ async function initKeyVault(): Promise<void> {
 
   try {
     const { DefaultAzureCredential } = await import("@azure/identity");
-    const { SecretClient } = await import("@azure/keyvault-secrets");
+    const { SecretClient: SC } = await import("@azure/keyvault-secrets");
     const credential = new DefaultAzureCredential();
-    kvClient = new SecretClient(vaultUrl, credential);
+    kvClient = new SC(vaultUrl, credential);
     logger.info({ vaultUrl }, "Azure Key Vault client initialized");
   } catch (err) {
     logger.error({ err }, "Failed to initialize Azure Key Vault client — falling back to env vars");
@@ -42,8 +43,9 @@ export async function getSecret(name: string, envFallback?: string): Promise<str
         secretCache.set(name, { value: secret.value, expiresAt: Date.now() + CACHE_TTL_MS });
         return secret.value;
       }
-    } catch (err: any) {
-      if (err.statusCode !== 404) {
+    } catch (err: unknown) {
+      const statusCode = (err as { statusCode?: number }).statusCode;
+      if (statusCode !== 404) {
         logger.warn({ err, secretName: name }, "Key Vault secret fetch failed — falling back to env");
       }
     }

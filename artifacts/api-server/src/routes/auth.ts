@@ -4,6 +4,7 @@ import { sessionsTable } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
 import crypto from "crypto";
 import { isEntraConfigured, getEntraPublicConfig, validateEntraToken } from "../lib/entra";
+import { sessionGet, sessionSet, sessionDel } from "../lib/redis";
 
 const router = Router();
 
@@ -40,6 +41,18 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     }
   }
 
+  const cached = await sessionGet(token);
+  if (cached) {
+    try {
+      const sessionData = JSON.parse(cached) as { username: string; role: string; expiresAt: string };
+      if (new Date(sessionData.expiresAt) >= new Date()) {
+        (req as any).user = { username: sessionData.username, role: sessionData.role, authMethod: "demo" };
+        return next();
+      }
+      await sessionDel(token);
+    } catch { /* fall through to DB */ }
+  }
+
   const [session] = await db.select().from(sessionsTable)
     .where(eq(sessionsTable.token, token))
     .limit(1);
@@ -49,7 +62,14 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
   }
   const users = getUsers();
   const userInfo = users[session.username];
-  (req as any).user = { username: session.username, role: userInfo?.role || "user", authMethod: "demo" };
+  const role = userInfo?.role || "user";
+
+  const ttlSeconds = Math.floor((new Date(session.expiresAt).getTime() - Date.now()) / 1000);
+  if (ttlSeconds > 0) {
+    await sessionSet(token, JSON.stringify({ username: session.username, role, expiresAt: session.expiresAt }), ttlSeconds);
+  }
+
+  (req as any).user = { username: session.username, role, authMethod: "demo" };
   next();
 }
 
@@ -89,8 +109,9 @@ router.post("/auth/entra-login", async (req, res) => {
       expiresAt: expiresAt.toISOString(),
       authMethod: "entra",
     });
-  } catch (e: any) {
-    return res.status(500).json({ error: e.message || "Entra login failed" });
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : "Entra login failed";
+    return res.status(500).json({ error: message });
   }
 });
 
@@ -105,6 +126,8 @@ router.post("/auth/login", async (req, res) => {
     const token = crypto.randomBytes(32).toString("hex");
     const expiresAt = new Date(Date.now() + SESSION_TTL_HOURS * 60 * 60 * 1000);
     await db.insert(sessionsTable).values({ token, username, expiresAt });
+    const ttlSeconds = SESSION_TTL_HOURS * 60 * 60;
+    await sessionSet(token, JSON.stringify({ username, role: user.role, expiresAt: expiresAt.toISOString() }), ttlSeconds);
     return res.json({ token, username, role: user.role, expiresAt: expiresAt.toISOString(), authMethod: "demo" });
   } catch (e) {
     return res.status(500).json({ error: "Login failed" });
@@ -149,6 +172,7 @@ router.post("/auth/logout", async (req, res) => {
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith("Bearer ")) {
       const token = authHeader.slice(7);
+      await sessionDel(token);
       await db.delete(sessionsTable).where(eq(sessionsTable.token, token));
     }
     return res.json({ success: true });

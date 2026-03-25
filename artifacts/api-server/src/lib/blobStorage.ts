@@ -1,6 +1,7 @@
+import type { BlobServiceClient, StorageSharedKeyCredential as SKC } from "@azure/storage-blob";
 import { logger } from "./logger";
 
-let blobServiceClient: any = null;
+let blobServiceClient: BlobServiceClient | null = null;
 let storageInitialized = false;
 
 async function initBlobStorage(): Promise<void> {
@@ -82,8 +83,9 @@ export async function downloadBlob(
       chunks.push(Buffer.from(chunk));
     }
     return Buffer.concat(chunks);
-  } catch (err: any) {
-    if (err.statusCode === 404) return null;
+  } catch (err: unknown) {
+    const statusCode = (err as { statusCode?: number }).statusCode;
+    if (statusCode === 404) return null;
     logger.error({ err, containerName, blobName }, "Failed to download blob");
     return null;
   }
@@ -101,8 +103,9 @@ export async function deleteBlob(
     const blobClient = containerClient.getBlobClient(blobName);
     await blobClient.delete();
     return true;
-  } catch (err: any) {
-    if (err.statusCode === 404) return true;
+  } catch (err: unknown) {
+    const statusCode = (err as { statusCode?: number }).statusCode;
+    if (statusCode === 404) return true;
     logger.error({ err, containerName, blobName }, "Failed to delete blob");
     return false;
   }
@@ -151,7 +154,7 @@ export async function getBlobUrl(
           permissions: BlobSASPermissions.parse("r"),
           expiresOn: new Date(Date.now() + expiresInMinutes * 60 * 1000),
         },
-        blobServiceClient.credential
+        blobServiceClient.credential as SKC
       ).toString();
       return `${blobClient.url}?${sasToken}`;
     }
