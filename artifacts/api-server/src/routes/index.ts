@@ -14,6 +14,7 @@ import plaidRouter from "./plaid";
 import socialRouter from "./social";
 import firestormRouter from "./firestorm";
 import vesselsRouter from "./vessels";
+import carlotaJoRouter from "./carlota-jo";
 import { auditMiddleware } from "../lib/audit";
 import { requireDatabase } from "../lib/dbGuard";
 
@@ -45,5 +46,6 @@ router.use(plaidRouter);
 router.use(socialRouter);
 router.use(firestormRouter);
 router.use(vesselsRouter);
+router.use(carlotaJoRouter);
 
 export default router;

@@ -31,6 +31,7 @@ The project is built as a pnpm workspace monorepo using Node.js 24, pnpm, and Ty
 - **ALLOYSCAPE**: Infrastructure operations platform — management interface for the Alloy AI engine. Provides orchestration monitoring, system module status, workflow templates, execution logs, service health, connector management, and user/role controls.
 - **ZEUS**: Modular core architecture system.
 - **VESSELS**: Maritime/logistics fleet intelligence platform (ocean-blue/emerald theme).
+- **CARLOTA JO**: Luxury consulting/family-office website — strategic advisory, portfolio optimization, technology transformation, and M&A advisory. Features hero, 6 expandable service areas, founder bio, testimonials, case studies, contact form, and consultation booking flow with session pricing.
 - **Apps Showcase**, **Readiness Report**, and **Career** for public-facing information.
 
 **Authentication:** A unified login system supports:
