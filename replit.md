@@ -61,3 +61,14 @@ The project is built as a pnpm workspace monorepo using Node.js 24, pnpm, and Ty
 - **Plaid**: Financial data aggregation (Lutar).
 - **Meta (Facebook/Instagram)**, **Twitter**, **LinkedIn**: Social media integration for content publishing and analytics (DreamEra).
 - **Azure Application Insights**: For monitoring and telemetry, if `APPLICATIONINSIGHTS_CONNECTION_STRING` is configured.
+- **Azure Key Vault**: Centralized secrets management when `AZURE_KEY_VAULT_URL` is set (falls back to env vars).
+- **Azure Managed Redis**: Session storage and caching when `AZURE_REDIS_URL` is set (falls back to in-memory).
+- **Azure Blob Storage**: File uploads/exports when `AZURE_STORAGE_CONNECTION_STRING` or `AZURE_STORAGE_ACCOUNT_NAME` is set.
+
+## Azure Infrastructure
+
+Infrastructure-as-code (Bicep) templates in `infra/` define the full Azure production stack:
+- Front Door + WAF, Static Web Apps (×11), Container Apps, Key Vault, PostgreSQL Flexible Server, Redis Cache, Blob Storage, Application Insights.
+- Dockerfile at repo root builds the entire monorepo into a single container image.
+- GitHub Actions CI/CD workflow at `.github/workflows/deploy.yml`.
+- See `infra/README.md` for provisioning instructions, parameters, and cost estimates.

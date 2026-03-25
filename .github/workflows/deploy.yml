@@ -1,0 +1,181 @@
+name: Build & Deploy to Azure
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      deploy_infra:
+        description: 'Deploy infrastructure (Bicep)'
+        type: boolean
+        default: false
+      deploy_api:
+        description: 'Deploy API server'
+        type: boolean
+        default: true
+      deploy_frontends:
+        description: 'Deploy frontend apps'
+        type: boolean
+        default: true
+
+env:
+  AZURE_RESOURCE_GROUP: szlholdings-rg
+  ACR_LOGIN_SERVER: szlholdingsacr.azurecr.io
+  API_IMAGE_NAME: szlholdings-api
+  CONTAINER_APP_NAME: szlholdings-api
+  NODE_VERSION: '22'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tags }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: latest
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build all
+        run: pnpm run build
+        env:
+          PORT: 3000
+          DATABASE_URL: postgresql://placeholder:placeholder@localhost:5432/placeholder
+
+      - name: Upload API build
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-server-dist
+          path: artifacts/api-server/dist/
+
+      - name: Upload frontend builds
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: |
+            artifacts/rosie/dist/public/
+            artifacts/aegis/dist/public/
+            artifacts/beacon/dist/public/
+            artifacts/lutar/dist/public/
+            artifacts/nimbus/dist/public/
+            artifacts/firestorm/dist/public/
+            artifacts/dreamera/dist/public/
+            artifacts/zeus/dist/public/
+            artifacts/apps-showcase/dist/public/
+            artifacts/readiness-report/dist/public/
+            artifacts/career/dist/public/
+
+  deploy-infra:
+    if: github.event.inputs.deploy_infra == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy Bicep
+        uses: azure/arm-deploy@v2
+        with:
+          resourceGroupName: ${{ env.AZURE_RESOURCE_GROUP }}
+          template: infra/main.bicep
+          parameters: >
+            pgAdminLogin=${{ secrets.PG_ADMIN_LOGIN }}
+            pgAdminPassword=${{ secrets.PG_ADMIN_PASSWORD }}
+            acrLoginServer=${{ env.ACR_LOGIN_SERVER }}
+          failOnStdErr: false
+
+  deploy-api:
+    needs: build
+    if: always() && (github.event.inputs.deploy_api != 'false')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Login to ACR
+        run: az acr login --name $(echo ${{ env.ACR_LOGIN_SERVER }} | cut -d. -f1)
+
+      - name: Set image tag
+        id: tag
+        run: echo "tag=$(echo $GITHUB_SHA | head -c 7)" >> $GITHUB_OUTPUT
+
+      - name: Build and push container image
+        run: |
+          docker build -t ${{ env.ACR_LOGIN_SERVER }}/${{ env.API_IMAGE_NAME }}:${{ steps.tag.outputs.tag }} .
+          docker build -t ${{ env.ACR_LOGIN_SERVER }}/${{ env.API_IMAGE_NAME }}:latest .
+          docker push ${{ env.ACR_LOGIN_SERVER }}/${{ env.API_IMAGE_NAME }}:${{ steps.tag.outputs.tag }}
+          docker push ${{ env.ACR_LOGIN_SERVER }}/${{ env.API_IMAGE_NAME }}:latest
+
+      - name: Deploy to Container Apps
+        run: |
+          az containerapp update \
+            --name ${{ env.CONTAINER_APP_NAME }} \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --image ${{ env.ACR_LOGIN_SERVER }}/${{ env.API_IMAGE_NAME }}:${{ steps.tag.outputs.tag }}
+
+  deploy-frontends:
+    needs: build
+    if: always() && (github.event.inputs.deploy_frontends != 'false')
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        app:
+          - rosie
+          - aegis
+          - beacon
+          - lutar
+          - nimbus
+          - firestorm
+          - dreamera
+          - zeus
+          - apps-showcase
+          - readiness-report
+          - career
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download frontend builds
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: artifacts/
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy ${{ matrix.app }} to Static Web App
+        uses: azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets[format('SWA_TOKEN_{0}', matrix.app)] }}
+          action: upload
+          app_location: artifacts/${{ matrix.app }}/dist/public
+          skip_app_build: true
+          skip_api_build: true

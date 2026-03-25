@@ -5,6 +5,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import router from "./routes";
 import { logger } from "./lib/logger";
+import { isKeyVaultConfigured } from "./lib/keyvault";
+import { isRedisConfigured, isRedisReady } from "./lib/redis";
+import { isBlobStorageConfigured } from "./lib/blobStorage";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -41,7 +44,14 @@ app.use((req: Request, res: Response, next: Function) => {
 app.use(express.urlencoded({ extended: true }));
 
 app.get("/health", (_req: Request, res: Response) => {
-  res.json({ status: "ok" });
+  res.json({
+    status: "ok",
+    azure: {
+      keyVault: isKeyVaultConfigured(),
+      redis: { configured: isRedisConfigured(), connected: isRedisReady() },
+      blobStorage: isBlobStorageConfigured(),
+    },
+  });
 });
 
 app.use("/api", router);

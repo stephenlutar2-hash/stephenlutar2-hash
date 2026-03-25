@@ -103,6 +103,7 @@ async function buildAll() {
       "applicationinsights",
       "stripe",
       "plaid",
+      "ioredis",
       "playwright",
       "puppeteer",
       "puppeteer-core",

@@ -1,0 +1,15 @@
+node_modules
+.git
+.gitignore
+.local
+.replit
+replit.nix
+*.md
+.github
+infra
+.canvas
+.config
+.upm
+.cache
+*/dist
+*/node_modules

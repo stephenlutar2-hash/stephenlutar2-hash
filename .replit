@@ -29,3 +29,6 @@ timeoutMs = 20000
 
 [userenv.shared]
 SESSION_TTL_HOURS = "24"
+
+[nix]
+channel = "stable-25_05"
