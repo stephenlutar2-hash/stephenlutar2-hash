@@ -1,7 +1,9 @@
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { AnimatePresence, motion } from "framer-motion";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Login from "@/pages/Login";
@@ -10,28 +12,53 @@ import AlloyChat from "@/pages/AlloyChat";
 
 const queryClient = new QueryClient();
 
-function Router() {
+const pageVariants = {
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -12 },
+};
+
+function AnimatedRoute({ component: Component }: { component: React.ComponentType }) {
   return (
-    <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/login" component={Login} />
-      <Route path="/dashboard" component={Dashboard} />
-      <Route path="/alloy" component={AlloyChat} />
-      <Route component={NotFound} />
-    </Switch>
+    <motion.div
+      variants={pageVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      transition={{ duration: 0.25 }}
+    >
+      <Component />
+    </motion.div>
+  );
+}
+
+function Router() {
+  const [location] = useLocation();
+  return (
+    <AnimatePresence mode="wait">
+      <Switch key={location}>
+        <Route path="/">{() => <AnimatedRoute component={Home} />}</Route>
+        <Route path="/login">{() => <AnimatedRoute component={Login} />}</Route>
+        <Route path="/dashboard">{() => <AnimatedRoute component={Dashboard} />}</Route>
+        <Route path="/alloy">{() => <AnimatedRoute component={AlloyChat} />}</Route>
+        <Route component={NotFound} />
+      </Switch>
+    </AnimatePresence>
   );
 }
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-          <Router />
-        </WouterRouter>
-        <Toaster />
-      </TooltipProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+            <Router />
+          </WouterRouter>
+          <Toaster />
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 
