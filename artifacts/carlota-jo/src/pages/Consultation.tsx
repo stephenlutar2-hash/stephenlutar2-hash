@@ -233,7 +233,20 @@ export default function Consultation() {
                       <p className="text-sm text-muted-foreground leading-relaxed">
                         Secure payment processing powered by Stripe. You can pay immediately after submitting your booking request.
                       </p>
-                      <button className="mt-4 w-full py-3 bg-primary text-primary-foreground text-sm font-medium rounded-sm hover:bg-primary/90 transition-colors flex items-center justify-center gap-2">
+                      <button
+                        onClick={async () => {
+                          try {
+                            const res = await fetch(`${import.meta.env.BASE_URL}../api/stripe/checkout`, {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ session: selectedSession, price: selected?.price }),
+                            });
+                            const data = await res.json();
+                            if (data.url) window.location.href = data.url;
+                          } catch {}
+                        }}
+                        className="mt-4 w-full py-3 bg-primary text-primary-foreground text-sm font-medium rounded-sm hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
+                      >
                         <CreditCard className="w-4 h-4" />
                         Pay with Stripe
                       </button>
