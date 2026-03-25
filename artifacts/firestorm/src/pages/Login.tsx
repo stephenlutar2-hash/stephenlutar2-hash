@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { Flame, Lock, User, AlertCircle } from "lucide-react";
+import { Flame, Lock, User, AlertCircle, Shield } from "lucide-react";
 import { PublicClientApplication } from "@azure/msal-browser";
 
 interface EntraConfig {
@@ -22,8 +22,8 @@ export default function Login() {
 
   useEffect(() => {
     fetch("/api/auth/entra-config")
-      .then(r => r.json())
-      .then(c => setEntraConfig(c))
+      .then((r) => r.json())
+      .then((c) => setEntraConfig(c))
       .catch(() => setEntraConfig({ configured: false }))
       .finally(() => setEntraLoading(false));
   }, []);
@@ -92,7 +92,10 @@ export default function Login() {
             <Flame className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-black tracking-wider text-white">FIRESTORM</h1>
-          <p className="text-gray-500 mt-2 text-sm tracking-widest uppercase">Offensive Security Operations</p>
+          <p className="text-gray-500 mt-2 text-sm tracking-widest uppercase">Simulation Command Center</p>
+          <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] font-bold tracking-[0.15em] uppercase">
+            <Shield className="w-3 h-3" /> Lab Mode — Authorized Only
+          </div>
         </div>
 
         <div className="bg-white/5 backdrop-blur-xl border border-orange-500/20 rounded-2xl p-8 space-y-6">
@@ -125,22 +128,22 @@ export default function Login() {
               <label className="block text-xs text-gray-400 uppercase tracking-wider mb-2">Username</label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                <input type="text" value={username} onChange={e => setUsername(e.target.value)} placeholder="Enter username" className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-3 text-white placeholder:text-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/30 transition" />
+                <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Enter username" className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-3 text-white placeholder:text-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/30 transition" />
               </div>
             </div>
             <div>
               <label className="block text-xs text-gray-400 uppercase tracking-wider mb-2">Password</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Enter password" className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-3 text-white placeholder:text-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/30 transition" />
+                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter password" className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-3 text-white placeholder:text-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/30 transition" />
               </div>
             </div>
             <button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold py-3 rounded-lg tracking-wider uppercase text-sm hover:opacity-90 transition disabled:opacity-50">
-              {loading ? "Authenticating..." : "Access Firestorm"}
+              {loading ? "Authenticating..." : "Enter Simulation Lab"}
             </button>
           </form>
 
-          <p className="text-center text-gray-600 text-xs">Clearance Level: OPERATOR</p>
+          <p className="text-center text-gray-600 text-xs">Clearance Level: SIMULATION OPERATOR</p>
         </div>
       </div>
     </div>

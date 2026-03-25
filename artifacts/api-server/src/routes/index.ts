@@ -12,6 +12,7 @@ import monitoringRouter from "./monitoring";
 import stripeRouter from "./stripe";
 import plaidRouter from "./plaid";
 import socialRouter from "./social";
+import firestormRouter from "./firestorm";
 import { auditMiddleware } from "../lib/audit";
 import { requireDatabase } from "../lib/dbGuard";
 
@@ -41,5 +42,6 @@ router.use(monitoringRouter);
 router.use(stripeRouter);
 router.use(plaidRouter);
 router.use(socialRouter);
+router.use(firestormRouter);
 
 export default router;

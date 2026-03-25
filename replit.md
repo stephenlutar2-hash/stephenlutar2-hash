@@ -50,7 +50,7 @@ The project is built as a pnpm workspace monorepo using Node.js 24, pnpm, and Ty
 - `dreamera_content`, `dreamera_campaigns` (DREAMERA).
 - `conversations`, `messages` (Alloy Engine).
 
-**API Routes:** All API routes are prefixed with `/api/` and include endpoints for authentication, platform-specific CRUD operations, Alloy Engine interactions, and monitoring. Write operations on ROSIE are authenticated. Database-backed routes are guarded by `requireDatabase` middleware that returns 503 if `DATABASE_URL` is not configured.
+**API Routes:** All API routes are prefixed with `/api/` and include endpoints for authentication, platform-specific CRUD operations, Alloy Engine interactions, and monitoring. Write operations on ROSIE are authenticated. Database-backed routes are guarded by `requireDatabase` middleware that returns 503 if `DATABASE_URL` is not configured. Firestorm simulation routes (`/api/firestorm/*`) are protected by `requireAuth` — all scenario, event, detection, and report endpoints require a valid session token.
 
 **Production Hardening:**
 - Health endpoints: `/health`, `/healthz` (root level), `/api/health`, `/api/healthz` — all return `{ok, project, timestamp}`.
