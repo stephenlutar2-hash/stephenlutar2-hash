@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "wouter";
-import { Shield, ShieldAlert, ShieldCheck, Activity, LogOut, Search, Zap, AlertTriangle, CheckCircle, Clock, XCircle, Loader2, Bug, Scan } from "lucide-react";
+import { useLocation, Link } from "wouter";
+import { Shield, ShieldAlert, ShieldCheck, Activity, LogOut, Search, Zap, AlertTriangle, CheckCircle, Clock, XCircle, Loader2, Bug, Scan, Bot } from "lucide-react";
 
 interface Threat { id: number; type: string; source: string; target: string; severity: string; status: string; description: string; createdAt: string; }
 interface Incident { id: number; title: string; description: string; severity: string; status: string; assignee: string; platform: string; resolved: boolean; createdAt: string; }
@@ -69,6 +69,7 @@ export default function Dashboard() {
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 text-xs"><span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span><span className="text-emerald-400 tracking-wider font-bold">ALL SYSTEMS NOMINAL</span></div>
+            <Link href="/alloy" className="flex items-center gap-1.5 text-xs text-cyan-400 bg-cyan-500/10 px-3 py-1.5 rounded-lg border border-cyan-500/20 hover:bg-cyan-500/20 transition-colors font-bold tracking-wider"><Bot className="w-3.5 h-3.5" />ALLOY AI</Link>
             <div className="text-xs text-gray-400 bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">{user?.toUpperCase()} <span className="text-cyan-400">// EMPEROR</span></div>
             <button onClick={logout} className="text-gray-400 hover:text-white transition p-2"><LogOut className="w-4 h-4" /></button>
           </div>
