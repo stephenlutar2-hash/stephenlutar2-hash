@@ -10,7 +10,10 @@ param apiBackendAddress string
 @description('Custom domain')
 param customDomain string = 'szlholdings.com'
 
-@description('Static Web App default hostnames (one per frontend)')
+@description('Frontend app names for path-based routing')
+param frontendAppNames array = []
+
+@description('Static Web App default hostnames (one per frontend, matching frontendAppNames order)')
 param swaHostnames array = []
 
 resource wafPolicy 'Microsoft.Network/FrontDoorWebApplicationFirewallPolicies@2024-02-01' = {
@@ -110,9 +113,9 @@ resource apiOrigin 'Microsoft.Cdn/profiles/originGroups/origins@2024-02-01' = {
   }
 }
 
-resource swaOriginGroup 'Microsoft.Cdn/profiles/originGroups@2024-02-01' = if (length(swaHostnames) > 0) {
+resource swaOriginGroups 'Microsoft.Cdn/profiles/originGroups@2024-02-01' = [for (appName, i) in frontendAppNames: {
   parent: frontDoor
-  name: 'swa-origin-group'
+  name: 'swa-${appName}-origin-group'
   properties: {
     loadBalancingSettings: {
       sampleSize: 4
@@ -127,16 +130,16 @@ resource swaOriginGroup 'Microsoft.Cdn/profiles/originGroups@2024-02-01' = if (l
     }
     sessionAffinityState: 'Disabled'
   }
-}
+}]
 
-resource swaOrigins 'Microsoft.Cdn/profiles/originGroups/origins@2024-02-01' = [for (hostname, i) in swaHostnames: if (length(swaHostnames) > 0) {
-  parent: swaOriginGroup
-  name: 'swa-origin-${i}'
+resource swaOrigins 'Microsoft.Cdn/profiles/originGroups/origins@2024-02-01' = [for (appName, i) in frontendAppNames: {
+  parent: swaOriginGroups[i]
+  name: 'swa-${appName}-origin'
   properties: {
-    hostName: hostname
+    hostName: swaHostnames[i]
     httpPort: 80
     httpsPort: 443
-    originHostHeader: hostname
+    originHostHeader: swaHostnames[i]
     priority: 1
     weight: 1000
     enabledState: 'Enabled'
@@ -159,21 +162,21 @@ resource apiRoute 'Microsoft.Cdn/profiles/afdEndpoints/routes@2024-02-01' = {
   dependsOn: [apiOrigin]
 }
 
-resource swaDefaultRoute 'Microsoft.Cdn/profiles/afdEndpoints/routes@2024-02-01' = if (length(swaHostnames) > 0) {
+resource swaRoutes 'Microsoft.Cdn/profiles/afdEndpoints/routes@2024-02-01' = [for (appName, i) in frontendAppNames: {
   parent: endpoint
-  name: 'swa-default-route'
+  name: 'swa-${appName}-route'
   properties: {
     originGroup: {
-      id: swaOriginGroup.id
+      id: swaOriginGroups[i].id
     }
-    patternsToMatch: ['/*']
+    patternsToMatch: appName == 'rosie' ? ['/*'] : ['/${appName}/*']
     forwardingProtocol: 'HttpsOnly'
     httpsRedirect: 'Enabled'
     linkToDefaultDomain: 'Enabled'
     supportedProtocols: ['Http', 'Https']
   }
-  dependsOn: [swaOrigins, apiRoute]
-}
+  dependsOn: [swaOrigins[i], apiRoute]
+}]
 
 resource customDomainResource 'Microsoft.Cdn/profiles/customDomains@2024-02-01' = {
   parent: frontDoor
@@ -205,23 +208,23 @@ resource customDomainApiRoute 'Microsoft.Cdn/profiles/afdEndpoints/routes@2024-0
   dependsOn: [apiOrigin]
 }
 
-resource customDomainSwaRoute 'Microsoft.Cdn/profiles/afdEndpoints/routes@2024-02-01' = if (length(swaHostnames) > 0) {
+resource customDomainSwaRoutes 'Microsoft.Cdn/profiles/afdEndpoints/routes@2024-02-01' = [for (appName, i) in frontendAppNames: {
   parent: endpoint
-  name: 'custom-domain-swa-route'
+  name: 'custom-domain-swa-${appName}-route'
   properties: {
     originGroup: {
-      id: swaOriginGroup.id
+      id: swaOriginGroups[i].id
     }
     customDomains: [
       { id: customDomainResource.id }
     ]
-    patternsToMatch: ['/*']
+    patternsToMatch: appName == 'rosie' ? ['/*'] : ['/${appName}/*']
     forwardingProtocol: 'HttpsOnly'
     httpsRedirect: 'Enabled'
     supportedProtocols: ['Http', 'Https']
   }
-  dependsOn: [swaOrigins, customDomainApiRoute]
-}
+  dependsOn: [swaOrigins[i], customDomainApiRoute]
+}]
 
 resource securityPolicy 'Microsoft.Cdn/profiles/securityPolicies@2024-02-01' = {
   parent: frontDoor

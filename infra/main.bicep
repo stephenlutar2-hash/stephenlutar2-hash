@@ -120,7 +120,7 @@ module containerApp 'modules/containerapp.bicep' = {
     acrLoginServer: acrLoginServer
     imageTag: apiImageTag
     appInsightsConnectionString: appInsights.properties.ConnectionString
-    keyVaultUrl: 'https://${vaultName}${environment().suffixes.keyvaultDns}'
+    keyVaultUrl: 'https://${vaultName}.${environment().suffixes.keyvaultDns}'
     redisHost: '${redisName}.redis.cache.windows.net'
     redisPrimaryKey: redis.outputs.primaryKey
     storageAccountName: storageName
@@ -153,6 +153,7 @@ module frontDoor 'modules/frontdoor.bicep' = {
     wafPolicyName: wafPolicyName
     apiBackendAddress: containerApp.outputs.fqdn
     customDomain: customDomain
+    frontendAppNames: frontendApps
     swaHostnames: [for (app, i) in frontendApps: staticWebApps[i].outputs.defaultHostname]
   }
   dependsOn: [staticWebApps]
