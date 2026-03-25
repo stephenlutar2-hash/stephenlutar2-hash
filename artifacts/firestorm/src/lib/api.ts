@@ -21,11 +21,13 @@ export async function fetchScenarios() {
 
 export async function startScenario(id: string) {
   const res = await fetch(`${API_BASE}/scenarios/${id}/start`, { method: "POST", headers: authHeaders() });
+  if (!res.ok) { handleAuthError(res); return null; }
   return res.json();
 }
 
 export async function stopScenario(id: string) {
   const res = await fetch(`${API_BASE}/scenarios/${id}/stop`, { method: "POST", headers: authHeaders() });
+  if (!res.ok) { handleAuthError(res); return null; }
   return res.json();
 }
 
