@@ -17,8 +17,12 @@ import type {
 } from "@tanstack/react-query";
 
 import type {
+  AlloyConversation,
+  AlloyConversationWithMessages,
+  AlloyHealthReport,
   BeaconMetric,
   BeaconProject,
+  CreateAlloyConversation,
   CreateBeaconMetric,
   CreateBeaconProject,
   CreateDreameraCampaign,
@@ -36,6 +40,7 @@ import type {
   IncaProject,
   NimbusAlert,
   NimbusPrediction,
+  SendAlloyMessage,
   ZeusLog,
   ZeusModule,
 } from "./api.schemas";
@@ -2841,4 +2846,510 @@ export const useDeleteDreameraCampaign = <
   TContext
 > => {
   return useMutation(getDeleteDreameraCampaignMutationOptions(options));
+};
+
+/**
+ * @summary Create a new Alloy Engine conversation
+ */
+export const getCreateAlloyConversationUrl = () => {
+  return `/api/alloy/conversations`;
+};
+
+export const createAlloyConversation = async (
+  createAlloyConversation: CreateAlloyConversation,
+  options?: RequestInit,
+): Promise<AlloyConversation> => {
+  return customFetch<AlloyConversation>(getCreateAlloyConversationUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createAlloyConversation),
+  });
+};
+
+export const getCreateAlloyConversationMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createAlloyConversation>>,
+    TError,
+    { data: BodyType<CreateAlloyConversation> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createAlloyConversation>>,
+  TError,
+  { data: BodyType<CreateAlloyConversation> },
+  TContext
+> => {
+  const mutationKey = ["createAlloyConversation"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createAlloyConversation>>,
+    { data: BodyType<CreateAlloyConversation> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createAlloyConversation(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateAlloyConversationMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createAlloyConversation>>
+>;
+export type CreateAlloyConversationMutationBody =
+  BodyType<CreateAlloyConversation>;
+export type CreateAlloyConversationMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Create a new Alloy Engine conversation
+ */
+export const useCreateAlloyConversation = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createAlloyConversation>>,
+    TError,
+    { data: BodyType<CreateAlloyConversation> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createAlloyConversation>>,
+  TError,
+  { data: BodyType<CreateAlloyConversation> },
+  TContext
+> => {
+  return useMutation(getCreateAlloyConversationMutationOptions(options));
+};
+
+/**
+ * @summary List all Alloy Engine conversations
+ */
+export const getListAlloyConversationsUrl = () => {
+  return `/api/alloy/conversations`;
+};
+
+export const listAlloyConversations = async (
+  options?: RequestInit,
+): Promise<AlloyConversation[]> => {
+  return customFetch<AlloyConversation[]>(getListAlloyConversationsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListAlloyConversationsQueryKey = () => {
+  return [`/api/alloy/conversations`] as const;
+};
+
+export const getListAlloyConversationsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listAlloyConversations>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listAlloyConversations>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getListAlloyConversationsQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listAlloyConversations>>
+  > = ({ signal }) => listAlloyConversations({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listAlloyConversations>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListAlloyConversationsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listAlloyConversations>>
+>;
+export type ListAlloyConversationsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List all Alloy Engine conversations
+ */
+
+export function useListAlloyConversations<
+  TData = Awaited<ReturnType<typeof listAlloyConversations>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listAlloyConversations>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListAlloyConversationsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Get an Alloy Engine conversation with message history
+ */
+export const getGetAlloyConversationUrl = (id: number) => {
+  return `/api/alloy/conversations/${id}`;
+};
+
+export const getAlloyConversation = async (
+  id: number,
+  options?: RequestInit,
+): Promise<AlloyConversationWithMessages> => {
+  return customFetch<AlloyConversationWithMessages>(
+    getGetAlloyConversationUrl(id),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetAlloyConversationQueryKey = (id: number) => {
+  return [`/api/alloy/conversations/${id}`] as const;
+};
+
+export const getGetAlloyConversationQueryOptions = <
+  TData = Awaited<ReturnType<typeof getAlloyConversation>>,
+  TError = ErrorType<unknown>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getAlloyConversation>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetAlloyConversationQueryKey(id);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getAlloyConversation>>
+  > = ({ signal }) => getAlloyConversation(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getAlloyConversation>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetAlloyConversationQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getAlloyConversation>>
+>;
+export type GetAlloyConversationQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get an Alloy Engine conversation with message history
+ */
+
+export function useGetAlloyConversation<
+  TData = Awaited<ReturnType<typeof getAlloyConversation>>,
+  TError = ErrorType<unknown>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getAlloyConversation>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetAlloyConversationQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Delete an Alloy Engine conversation
+ */
+export const getDeleteAlloyConversationUrl = (id: number) => {
+  return `/api/alloy/conversations/${id}`;
+};
+
+export const deleteAlloyConversation = async (
+  id: number,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getDeleteAlloyConversationUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteAlloyConversationMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteAlloyConversation>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteAlloyConversation>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  const mutationKey = ["deleteAlloyConversation"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteAlloyConversation>>,
+    { id: number }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return deleteAlloyConversation(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteAlloyConversationMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteAlloyConversation>>
+>;
+
+export type DeleteAlloyConversationMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Delete an Alloy Engine conversation
+ */
+export const useDeleteAlloyConversation = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteAlloyConversation>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteAlloyConversation>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  return useMutation(getDeleteAlloyConversationMutationOptions(options));
+};
+
+/**
+ * @summary Send a message and stream AI response via SSE
+ */
+export const getSendAlloyMessageUrl = (id: number) => {
+  return `/api/alloy/conversations/${id}/messages`;
+};
+
+export const sendAlloyMessage = async (
+  id: number,
+  sendAlloyMessage: SendAlloyMessage,
+  options?: RequestInit,
+): Promise<string> => {
+  return customFetch<string>(getSendAlloyMessageUrl(id), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(sendAlloyMessage),
+  });
+};
+
+export const getSendAlloyMessageMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof sendAlloyMessage>>,
+    TError,
+    { id: number; data: BodyType<SendAlloyMessage> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof sendAlloyMessage>>,
+  TError,
+  { id: number; data: BodyType<SendAlloyMessage> },
+  TContext
+> => {
+  const mutationKey = ["sendAlloyMessage"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof sendAlloyMessage>>,
+    { id: number; data: BodyType<SendAlloyMessage> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return sendAlloyMessage(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type SendAlloyMessageMutationResult = NonNullable<
+  Awaited<ReturnType<typeof sendAlloyMessage>>
+>;
+export type SendAlloyMessageMutationBody = BodyType<SendAlloyMessage>;
+export type SendAlloyMessageMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Send a message and stream AI response via SSE
+ */
+export const useSendAlloyMessage = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof sendAlloyMessage>>,
+    TError,
+    { id: number; data: BodyType<SendAlloyMessage> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof sendAlloyMessage>>,
+  TError,
+  { id: number; data: BodyType<SendAlloyMessage> },
+  TContext
+> => {
+  return useMutation(getSendAlloyMessageMutationOptions(options));
+};
+
+/**
+ * @summary Trigger autonomous health sweep across all platforms
+ */
+export const getRunAlloyMonitorUrl = () => {
+  return `/api/alloy/monitor`;
+};
+
+export const runAlloyMonitor = async (
+  options?: RequestInit,
+): Promise<AlloyHealthReport> => {
+  return customFetch<AlloyHealthReport>(getRunAlloyMonitorUrl(), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getRunAlloyMonitorMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof runAlloyMonitor>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof runAlloyMonitor>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationKey = ["runAlloyMonitor"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof runAlloyMonitor>>,
+    void
+  > = () => {
+    return runAlloyMonitor(requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type RunAlloyMonitorMutationResult = NonNullable<
+  Awaited<ReturnType<typeof runAlloyMonitor>>
+>;
+
+export type RunAlloyMonitorMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Trigger autonomous health sweep across all platforms
+ */
+export const useRunAlloyMonitor = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof runAlloyMonitor>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof runAlloyMonitor>>,
+  TError,
+  void,
+  TContext
+> => {
+  return useMutation(getRunAlloyMonitorMutationOptions(options));
 };

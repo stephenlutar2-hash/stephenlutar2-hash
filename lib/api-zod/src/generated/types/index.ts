@@ -6,9 +6,18 @@
  * OpenAPI spec version: 1.0.0
  */
 
+export * from "./alloyConversation";
+export * from "./alloyConversationWithMessages";
+export * from "./alloyHealthReport";
+export * from "./alloyHealthReportOverallStatus";
+export * from "./alloyMessage";
+export * from "./alloyPlatformHealth";
+export * from "./alloyPlatformHealthMetrics";
+export * from "./alloyPlatformHealthStatus";
 export * from "./beaconMetric";
 export * from "./beaconProject";
 export * from "./beaconProjectStatus";
+export * from "./createAlloyConversation";
 export * from "./createBeaconMetric";
 export * from "./createBeaconProject";
 export * from "./createBeaconProjectStatus";
@@ -43,6 +52,7 @@ export * from "./nimbusAlert";
 export * from "./nimbusAlertSeverity";
 export * from "./nimbusPrediction";
 export * from "./nimbusPredictionStatus";
+export * from "./sendAlloyMessage";
 export * from "./zeusLog";
 export * from "./zeusLogLevel";
 export * from "./zeusModule";

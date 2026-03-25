@@ -79,6 +79,8 @@ All platforms share a unified login system. Credentials: `slutar` / `Topshelf14@
 - `inca_experiments` - AI experiments linked to projects
 - `dreamera_content` - Media content (articles/videos/podcasts/social)
 - `dreamera_campaigns` - Marketing campaigns with budget/reach
+- `conversations` - Alloy Engine chat conversations
+- `messages` - Alloy Engine conversation messages (cascade delete with conversations)
 
 ## API Routes
 
@@ -112,6 +114,29 @@ All routes served at `/api/` prefix:
 - `GET/POST /api/dreamera/campaigns` - Campaign management
 - `DELETE /api/dreamera/campaigns/:id`
 
+## Alloy Engine (Autonomous AI Agent)
+
+The Alloy Engine is the intelligence core for the AlloyScape platform. It uses OpenAI (via Replit AI Integrations) for conversational AI and autonomous platform management across all SZL platforms.
+
+### API Routes (all require auth)
+- `POST /api/alloy/conversations` — Create a new conversation
+- `GET /api/alloy/conversations` — List all conversations
+- `GET /api/alloy/conversations/:id` — Get conversation with message history
+- `DELETE /api/alloy/conversations/:id` — Delete a conversation
+- `POST /api/alloy/conversations/:id/messages` — Send message, stream AI response (SSE)
+- `POST /api/alloy/monitor` — Trigger autonomous health sweep with AI analysis
+
+### Architecture
+- **Tool Registry** (`routes/alloy/tools.ts`): 40+ tools giving AI agent access to all platform databases (CRUD operations for Rosie, Beacon, Nimbus, Zeus, INCA, DreamEra)
+- **Agent Loop** (`routes/alloy/agent.ts`): OpenAI function-calling loop with streaming — AI decides which tools to call based on user queries
+- **Monitor** (`routes/alloy/monitor.ts`): Autonomous health sweep across all platforms with AI-generated recommendations
+- **Model**: gpt-5.2 with function calling and streaming
+- **DB**: Conversations and messages tables with cascade delete
+
+### Dependencies
+- `@workspace/integrations-openai-ai-server` — OpenAI SDK client (lib/integrations-openai-ai-server)
+- Env vars: `AI_INTEGRATIONS_OPENAI_BASE_URL`, `AI_INTEGRATIONS_OPENAI_API_KEY` (auto-provisioned)
+
 ## User Preferences
 
 - **Username**: slutar
@@ -137,11 +162,11 @@ Run `scripts/node_modules/.bin/tsx artifacts/api-server/src/seed.ts` to populate
 
 ### `artifacts/api-server` (`@workspace/api-server`)
 
-Express 5 API server. Routes: `src/routes/` — auth.ts, rosie.ts, beacon.ts, nimbus.ts, zeus.ts, inca.ts, dreamera.ts, health.ts.
+Express 5 API server. Routes: `src/routes/` — auth.ts, rosie.ts, beacon.ts, nimbus.ts, zeus.ts, inca.ts, dreamera.ts, health.ts, alloy/ (agent, tools, monitor).
 
 ### `lib/db` (`@workspace/db`)
 
-Database layer. Schema files: `src/schema/auth.ts`, `rosie.ts`, `beacon.ts`, `nimbus.ts`, `zeus.ts`, `inca.ts`, `dreamera.ts`.
+Database layer. Schema files: `src/schema/auth.ts`, `rosie.ts`, `beacon.ts`, `nimbus.ts`, `zeus.ts`, `inca.ts`, `dreamera.ts`, `conversations.ts`, `messages.ts`.
 
 ### `lib/api-spec` (`@workspace/api-spec`)
 

@@ -7,6 +7,7 @@ import zeusRouter from "./zeus";
 import incaRouter from "./inca";
 import dreameraRouter from "./dreamera";
 import rosieRouter from "./rosie";
+import alloyRouter from "./alloy";
 
 const router: IRouter = Router();
 
@@ -18,5 +19,6 @@ router.use(zeusRouter);
 router.use(incaRouter);
 router.use(dreameraRouter);
 router.use(rosieRouter);
+router.use(alloyRouter);
 
 export default router;

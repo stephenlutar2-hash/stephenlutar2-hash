@@ -19,6 +19,8 @@ tags:
     description: INCA AI innovation engine operations
   - name: dreamera
     description: Dream Era media platform operations
+  - name: alloy
+    description: Alloy Engine autonomous AI agent operations
 
 paths:
   /healthz:
@@ -594,6 +596,121 @@ paths:
         "204":
           description: Deleted
 
+  # ---- ALLOY ENGINE ----
+  /alloy/conversations:
+    post:
+      operationId: createAlloyConversation
+      tags: [alloy]
+      summary: Create a new Alloy Engine conversation
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAlloyConversation"
+      responses:
+        "201":
+          description: Created conversation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AlloyConversation"
+    get:
+      operationId: listAlloyConversations
+      tags: [alloy]
+      summary: List all Alloy Engine conversations
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of conversations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AlloyConversation"
+
+  /alloy/conversations/{id}:
+    get:
+      operationId: getAlloyConversation
+      tags: [alloy]
+      summary: Get an Alloy Engine conversation with message history
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Conversation with messages
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AlloyConversationWithMessages"
+    delete:
+      operationId: deleteAlloyConversation
+      tags: [alloy]
+      summary: Delete an Alloy Engine conversation
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /alloy/conversations/{id}/messages:
+    post:
+      operationId: sendAlloyMessage
+      tags: [alloy]
+      summary: Send a message and stream AI response via SSE
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendAlloyMessage"
+      responses:
+        "200":
+          description: SSE stream of AI response chunks
+          content:
+            text/event-stream:
+              schema:
+                type: string
+
+  /alloy/monitor:
+    post:
+      operationId: runAlloyMonitor
+      tags: [alloy]
+      summary: Trigger autonomous health sweep across all platforms
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Health report with AI analysis
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AlloyHealthReport"
+
 components:
   schemas:
     HealthStatus:
@@ -997,3 +1114,106 @@ components:
         endDate:
           type: string
       required: [name, description, status, budget, reach, startDate, endDate]
+
+    # Alloy Engine
+    AlloyConversation:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        username:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, title, username, createdAt]
+
+    CreateAlloyConversation:
+      type: object
+      properties:
+        title:
+          type: string
+      required: []
+
+    AlloyMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+        conversationId:
+          type: integer
+        role:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, conversationId, role, content, createdAt]
+
+    AlloyConversationWithMessages:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        username:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/AlloyMessage"
+      required: [id, title, username, createdAt, messages]
+
+    SendAlloyMessage:
+      type: object
+      properties:
+        content:
+          type: string
+      required: [content]
+
+    AlloyPlatformHealth:
+      type: object
+      properties:
+        platform:
+          type: string
+        status:
+          type: string
+          enum: [healthy, warning, critical]
+        issues:
+          type: array
+          items:
+            type: string
+        metrics:
+          type: object
+          additionalProperties:
+            type: number
+      required: [platform, status, issues, metrics]
+
+    AlloyHealthReport:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        overallStatus:
+          type: string
+          enum: [healthy, warning, critical]
+        platforms:
+          type: array
+          items:
+            $ref: "#/components/schemas/AlloyPlatformHealth"
+        aiAnalysis:
+          type: string
+      required: [timestamp, overallStatus, platforms, aiAnalysis]
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer

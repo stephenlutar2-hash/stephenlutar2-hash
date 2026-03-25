@@ -494,3 +494,81 @@ export const CreateDreameraCampaignBody = zod.object({
 export const DeleteDreameraCampaignParams = zod.object({
   id: zod.coerce.number(),
 });
+
+/**
+ * @summary Create a new Alloy Engine conversation
+ */
+export const CreateAlloyConversationBody = zod.object({
+  title: zod.string().optional(),
+});
+
+/**
+ * @summary List all Alloy Engine conversations
+ */
+export const ListAlloyConversationsResponseItem = zod.object({
+  id: zod.number(),
+  title: zod.string(),
+  username: zod.string(),
+  createdAt: zod.date(),
+});
+export const ListAlloyConversationsResponse = zod.array(
+  ListAlloyConversationsResponseItem,
+);
+
+/**
+ * @summary Get an Alloy Engine conversation with message history
+ */
+export const GetAlloyConversationParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const GetAlloyConversationResponse = zod.object({
+  id: zod.number(),
+  title: zod.string(),
+  username: zod.string(),
+  createdAt: zod.date(),
+  messages: zod.array(
+    zod.object({
+      id: zod.number(),
+      conversationId: zod.number(),
+      role: zod.string(),
+      content: zod.string(),
+      createdAt: zod.date(),
+    }),
+  ),
+});
+
+/**
+ * @summary Delete an Alloy Engine conversation
+ */
+export const DeleteAlloyConversationParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+/**
+ * @summary Send a message and stream AI response via SSE
+ */
+export const SendAlloyMessageParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const SendAlloyMessageBody = zod.object({
+  content: zod.string(),
+});
+
+/**
+ * @summary Trigger autonomous health sweep across all platforms
+ */
+export const RunAlloyMonitorResponse = zod.object({
+  timestamp: zod.date(),
+  overallStatus: zod.enum(["healthy", "warning", "critical"]),
+  platforms: zod.array(
+    zod.object({
+      platform: zod.string(),
+      status: zod.enum(["healthy", "warning", "critical"]),
+      issues: zod.array(zod.string()),
+      metrics: zod.record(zod.string(), zod.number()),
+    }),
+  ),
+  aiAnalysis: zod.string(),
+});

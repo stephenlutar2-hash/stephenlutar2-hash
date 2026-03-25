@@ -397,3 +397,68 @@ export interface CreateDreameraCampaign {
   startDate: string;
   endDate: string;
 }
+
+export interface AlloyConversation {
+  id: number;
+  title: string;
+  username: string;
+  createdAt: string;
+}
+
+export interface CreateAlloyConversation {
+  title?: string;
+}
+
+export interface AlloyMessage {
+  id: number;
+  conversationId: number;
+  role: string;
+  content: string;
+  createdAt: string;
+}
+
+export interface AlloyConversationWithMessages {
+  id: number;
+  title: string;
+  username: string;
+  createdAt: string;
+  messages: AlloyMessage[];
+}
+
+export interface SendAlloyMessage {
+  content: string;
+}
+
+export type AlloyPlatformHealthStatus =
+  (typeof AlloyPlatformHealthStatus)[keyof typeof AlloyPlatformHealthStatus];
+
+export const AlloyPlatformHealthStatus = {
+  healthy: "healthy",
+  warning: "warning",
+  critical: "critical",
+} as const;
+
+export type AlloyPlatformHealthMetrics = { [key: string]: number };
+
+export interface AlloyPlatformHealth {
+  platform: string;
+  status: AlloyPlatformHealthStatus;
+  issues: string[];
+  metrics: AlloyPlatformHealthMetrics;
+}
+
+export type AlloyHealthReportOverallStatus =
+  (typeof AlloyHealthReportOverallStatus)[keyof typeof AlloyHealthReportOverallStatus];
+
+export const AlloyHealthReportOverallStatus = {
+  healthy: "healthy",
+  warning: "warning",
+  critical: "critical",
+} as const;
+
+export interface AlloyHealthReport {
+  timestamp: string;
+  overallStatus: AlloyHealthReportOverallStatus;
+  platforms: AlloyPlatformHealth[];
+  aiAnalysis: string;
+}
