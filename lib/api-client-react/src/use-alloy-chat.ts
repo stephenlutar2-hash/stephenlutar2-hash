@@ -186,10 +186,11 @@ export function useAlloyChat(options: UseAlloyChatOptions): UseAlloyChatReturn {
 
         const decoder = new TextDecoder();
         let buffer = "";
+        let streamComplete = false;
 
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
+        while (!streamComplete) {
+          const { done: readerDone, value } = await reader.read();
+          if (readerDone) break;
 
           buffer += decoder.decode(value, { stream: true });
           const lines = buffer.split("\n");
@@ -199,45 +200,45 @@ export function useAlloyChat(options: UseAlloyChatOptions): UseAlloyChatReturn {
             const trimmed = line.trim();
             if (!trimmed.startsWith("data: ")) continue;
 
-            let chunk: AlloyChunk;
+            let parsed: Record<string, unknown>;
             try {
-              chunk = JSON.parse(trimmed.slice(6));
+              parsed = JSON.parse(trimmed.slice(6));
             } catch {
               continue;
             }
 
-            if ("content" in chunk && chunk.content) {
-              setMessages((prev) => {
-                const updated = [...prev];
-                const msg = updated[assistantIdx.current];
-                if (msg) {
-                  updated[assistantIdx.current] = {
-                    ...msg,
-                    content: msg.content + chunk.content,
-                  };
-                }
-                return updated;
-              });
-            } else if ("tool_call" in chunk && chunk.tool_call) {
-              setMessages((prev) => {
-                const updated = [...prev];
-                const msg = updated[assistantIdx.current];
-                if (msg) {
-                  updated[assistantIdx.current] = {
-                    ...msg,
-                    toolCalls: [
-                      ...(msg.toolCalls || []),
-                      chunk.tool_call as {
-                        name: string;
-                        args: Record<string, unknown>;
-                      },
-                    ],
-                  };
-                }
-                return updated;
-              });
-            } else if ("done" in chunk && chunk.done) {
+            if (parsed.done === true) {
+              streamComplete = true;
+              reader.cancel();
               break;
+            }
+
+            if (typeof parsed.content === "string" && parsed.content) {
+              const text = parsed.content;
+              setMessages((prev) => {
+                const updated = [...prev];
+                const msg = updated[assistantIdx.current];
+                if (msg) {
+                  updated[assistantIdx.current] = {
+                    ...msg,
+                    content: msg.content + text,
+                  };
+                }
+                return updated;
+              });
+            } else if (parsed.tool_call && typeof parsed.tool_call === "object") {
+              const tc = parsed.tool_call as { name: string; args: Record<string, unknown> };
+              setMessages((prev) => {
+                const updated = [...prev];
+                const msg = updated[assistantIdx.current];
+                if (msg) {
+                  updated[assistantIdx.current] = {
+                    ...msg,
+                    toolCalls: [...(msg.toolCalls || []), tc],
+                  };
+                }
+                return updated;
+              });
             }
           }
         }
