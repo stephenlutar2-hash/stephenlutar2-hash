@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles, Plus, BookOpen, Map, Star, Clock, Trash2, Edit2, LogOut,
   ChevronRight, Eye, Layers, TrendingUp, Menu, X, Share2, Send,
-  MessageSquare, AlertCircle, CheckCircle2, Globe, Twitter, Linkedin
+  MessageSquare, AlertCircle, CheckCircle2, Globe, Twitter, Linkedin,
+  Link as LinkIcon
 } from "lucide-react";
 
 interface Story {
@@ -207,6 +208,7 @@ export default function Dashboard() {
 interface PlatformStatus {
   platform: string;
   configured: boolean;
+  connected: boolean;
   message: string;
 }
 
@@ -232,7 +234,7 @@ function SocialMediaSection() {
     if (token) headers.Authorization = `Bearer ${token}`;
 
     Promise.all([
-      fetch("/api/social/status").then(r => r.json()),
+      fetch("/api/social/status", { headers }).then(r => r.json()),
       fetch("/api/social/analytics", { headers }).then(r => r.json()).catch(() => ({ analytics: {} })),
     ])
       .then(([statusData, analyticsData]) => {
@@ -241,7 +243,42 @@ function SocialMediaSection() {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
+
+    function handleMessage(e: MessageEvent) {
+      if (e.data === "social-oauth-complete") {
+        const t = localStorage.getItem("szl_token");
+        const h: Record<string, string> = {};
+        if (t) h.Authorization = `Bearer ${t}`;
+        Promise.all([
+          fetch("/api/social/status", { headers: h }).then(r => r.json()),
+          fetch("/api/social/analytics", { headers: h }).then(r => r.json()).catch(() => ({ analytics: {} })),
+        ]).then(([s, a]) => {
+          setPlatforms(s.platforms || []);
+          setAnalytics(a.analytics || {});
+        });
+      }
+    }
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
   }, []);
+
+  async function handleOAuthConnect(platform: string) {
+    try {
+      const token = localStorage.getItem("szl_token");
+      const headers: Record<string, string> = {};
+      if (token) headers.Authorization = `Bearer ${token}`;
+
+      const res = await fetch(`/api/social/oauth/${platform}/authorize`, { headers });
+      const data = await res.json();
+      if (data.authUrl) {
+        window.open(data.authUrl, "_blank", "width=600,height=700");
+      } else {
+        alert(data.error || "Failed to start OAuth");
+      }
+    } catch {
+      alert("Failed to start OAuth flow");
+    }
+  }
 
   async function handlePublish(e: React.FormEvent) {
     e.preventDefault();
@@ -309,17 +346,25 @@ function SocialMediaSection() {
                 <div>
                   <p className="text-sm font-bold text-white">{meta.label}</p>
                   <p className={`text-xs ${p.configured ? "text-green-400" : "text-gray-500"}`}>
-                    {p.configured ? "Connected" : "Not configured"}
+                    {p.connected ? "Connected" : p.configured ? "Ready to connect" : "Not configured"}
                   </p>
                 </div>
               </div>
               {!p.configured && (
                 <p className="text-xs text-gray-600 leading-relaxed">{p.message}</p>
               )}
-              {p.configured && (
+              {p.configured && !p.connected && (
+                <button
+                  onClick={() => handleOAuthConnect(p.platform)}
+                  className="mt-2 px-3 py-1.5 rounded-lg bg-violet-500/10 border border-violet-500/20 text-violet-400 text-xs font-bold hover:bg-violet-500/20 transition inline-flex items-center gap-1.5"
+                >
+                  <LinkIcon className="w-3 h-3" /> Connect Account
+                </button>
+              )}
+              {p.configured && p.connected && (
                 <div className="space-y-1">
                   <div className="flex items-center gap-1 text-xs text-green-400">
-                    <CheckCircle2 className="w-3 h-3" /> Ready to publish
+                    <CheckCircle2 className="w-3 h-3" /> Connected & Ready
                   </div>
                   {analytics[p.platform]?.metrics && p.platform === "twitter" && (
                     <div className="text-xs text-gray-500 space-y-0.5 mt-2">
@@ -327,9 +372,9 @@ function SocialMediaSection() {
                       <p>Tweets: {analytics[p.platform].metrics.tweet_count?.toLocaleString()}</p>
                     </div>
                   )}
-                  {analytics[p.platform]?.followers != null && p.platform === "linkedin" && (
+                  {analytics[p.platform]?.profile && p.platform === "linkedin" && (
                     <div className="text-xs text-gray-500 mt-2">
-                      <p>Connections: {analytics[p.platform].followers?.toLocaleString()}</p>
+                      <p>Profile: {analytics[p.platform].profile.name || "Connected"}</p>
                     </div>
                   )}
                   {analytics[p.platform]?.insights?.length > 0 && p.platform === "meta" && (
