@@ -8,7 +8,7 @@ import {
   Target, Users, Cpu,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { fetchScenarios, startScenario, stopScenario, fetchLiveEvents, fetchDetectionCoverage } from "@/lib/api";
+import { fetchScenarios, startScenario, stopScenario, fetchLiveEvents, fetchDetectionCoverage, downloadExport } from "@/lib/api";
 
 interface Scenario {
   id: string; name: string; category: string; severity: string; description: string;
@@ -317,12 +317,12 @@ export default function Dashboard() {
               <Link href="/reports" className="px-4 py-2 rounded-lg bg-orange-500/10 border border-orange-500/20 text-orange-400 text-sm font-medium hover:bg-orange-500/20 transition flex items-center gap-2">
                 <FileText className="w-4 h-4" /> View Reports
               </Link>
-              <a href="/api/firestorm/reports/export?format=json" className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-gray-400 text-sm font-medium hover:bg-white/10 transition flex items-center gap-2">
+              <button onClick={() => downloadExport("json")} className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-gray-400 text-sm font-medium hover:bg-white/10 transition flex items-center gap-2">
                 <BarChart3 className="w-4 h-4" /> Export JSON
-              </a>
-              <a href="/api/firestorm/reports/export?format=csv" className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-gray-400 text-sm font-medium hover:bg-white/10 transition flex items-center gap-2">
+              </button>
+              <button onClick={() => downloadExport("csv")} className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-gray-400 text-sm font-medium hover:bg-white/10 transition flex items-center gap-2">
                 <BarChart3 className="w-4 h-4" /> Export CSV
-              </a>
+              </button>
             </div>
           </div>
         </div>

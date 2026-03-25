@@ -35,6 +35,16 @@ export async function fetchReports() {
   return res.json();
 }
 
-export function getExportUrl(format: "json" | "csv") {
-  return `${API_BASE}/reports/export?format=${format}`;
+export async function downloadExport(format: "json" | "csv") {
+  const res = await fetch(`${API_BASE}/reports/export?format=${format}`, { headers: authHeaders() });
+  if (!res.ok) throw new Error("Export failed");
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `firestorm-report.${format}`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }

@@ -6,7 +6,7 @@ import {
   Download, BarChart3, Clock, TrendingUp, CheckCircle2, Calendar,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { fetchReports, getExportUrl } from "@/lib/api";
+import { fetchReports, downloadExport } from "@/lib/api";
 
 interface Report {
   id: string; title: string; date: string; status: string;
@@ -78,12 +78,12 @@ export default function Reports() {
             <Badge className="bg-amber-500/10 text-amber-400 border-amber-500/20 hover:bg-amber-500/20">LAB MODE</Badge>
           </div>
           <div className="flex items-center gap-3">
-            <a href={getExportUrl("json")} className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-400 text-xs font-medium hover:bg-white/10 transition flex items-center gap-2">
+            <button onClick={() => downloadExport("json")} className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-400 text-xs font-medium hover:bg-white/10 transition flex items-center gap-2">
               <Download className="w-3.5 h-3.5" /> JSON
-            </a>
-            <a href={getExportUrl("csv")} className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-400 text-xs font-medium hover:bg-white/10 transition flex items-center gap-2">
+            </button>
+            <button onClick={() => downloadExport("csv")} className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-400 text-xs font-medium hover:bg-white/10 transition flex items-center gap-2">
               <Download className="w-3.5 h-3.5" /> CSV
-            </a>
+            </button>
           </div>
         </header>
 
