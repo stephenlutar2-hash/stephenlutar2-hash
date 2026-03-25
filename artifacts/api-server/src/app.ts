@@ -48,6 +48,9 @@ const frontends: Array<{ basePath: string; dir: string }> = [
   { basePath: "/lutar", dir: "lutar" },
   { basePath: "/nimbus", dir: "nimbus" },
   { basePath: "/firestorm", dir: "firestorm" },
+  { basePath: "/dreamera", dir: "dreamera" },
+  { basePath: "/zeus", dir: "zeus" },
+  { basePath: "/apps-showcase", dir: "apps-showcase" },
 ];
 
 for (const fe of frontends) {

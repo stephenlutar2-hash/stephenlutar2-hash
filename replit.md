@@ -28,7 +28,10 @@ artifacts-monorepo/
 │   ├── lutar/              # LUTAR - Personal empire command center (/lutar/)
 │   ├── beacon/             # BEACON - Decision dashboard + Zeus/INCA/DreamEra (/beacon/)
 │   ├── nimbus/             # NIMBUS - Predictive AI platform (/nimbus/)
-│   └── firestorm/          # FIRESTORM - White-hat offensive security (/firestorm/)
+│   ├── firestorm/          # FIRESTORM - White-hat offensive security (/firestorm/)
+│   ├── dreamera/           # DREAMERA - AI storytelling platform (/dreamera/)
+│   ├── zeus/               # ZEUS - Modular core architecture (/zeus/)
+│   └── apps-showcase/      # Apps Showcase - Platform portfolio (/apps-showcase/)
 ├── lib/                    # Shared libraries
 │   ├── api-spec/           # OpenAPI spec + Orval codegen config
 │   ├── api-client-react/   # Generated React Query hooks
@@ -51,9 +54,12 @@ artifacts-monorepo/
 | BEACON | `/beacon/` | Decision analytics dashboard (multi-page) | Full CRUD: metrics, projects |
 | NIMBUS | `/nimbus/` | Predictive AI analytics + alerts | Full CRUD: predictions, alerts |
 | FIRESTORM | `/firestorm/` | White-hat offensive security operations | Landing page (frontend-only) |
-| ZEUS | `/beacon/zeus` | Modular core infrastructure (inside Beacon) | Full CRUD: modules, logs |
+| DREAMERA | `/dreamera/` | AI storytelling & artifact mapping platform | Landing + dashboard (frontend-only, React state) |
+| ZEUS | `/zeus/` | Modular core architecture system | Landing + dashboard (frontend-only, React state) |
+| Apps Showcase | `/apps-showcase/` | Platform portfolio with pricing tiers | Public site (no auth) |
+| ZEUS (in Beacon) | `/beacon/zeus` | Modular core infrastructure (inside Beacon) | Full CRUD: modules, logs |
 | INCA AI | `/beacon/inca` | AI innovation engine (inside Beacon) | Full CRUD: projects, experiments |
-| DREAM ERA | `/beacon/dreamera` | Media & lifestyle platform (inside Beacon) | Full CRUD: content, campaigns |
+| DREAM ERA (in Beacon) | `/beacon/dreamera` | Media & lifestyle platform (inside Beacon) | Full CRUD: content, campaigns |
 
 ## Authentication
 
