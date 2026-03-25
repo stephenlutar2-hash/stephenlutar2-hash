@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/nimbus/"
+title = "Nimbus"
+version = "1.0.0"
+id = "artifacts/nimbus"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/nimbus/" ]
+localPort = 23865
+
+[services.development]
+run = "pnpm --filter @workspace/nimbus run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/nimbus", "run", "build" ]
+publicDir = "artifacts/nimbus/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23865"
+BASE_PATH = "/nimbus/"
