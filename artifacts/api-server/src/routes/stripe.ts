@@ -121,7 +121,7 @@ router.post("/stripe/webhook", async (req, res) => {
         return res.status(400).json({ error: "Missing stripe-signature header" });
       }
       try {
-        const rawBody = typeof req.body === "string" ? req.body : JSON.stringify(req.body);
+        const rawBody = Buffer.isBuffer(req.body) ? req.body : (typeof req.body === "string" ? req.body : JSON.stringify(req.body));
         const event = stripe.webhooks.constructEvent(
           rawBody,
           sig,

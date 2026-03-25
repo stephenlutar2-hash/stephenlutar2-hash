@@ -31,7 +31,13 @@ app.use(
   }),
 );
 app.use(cors());
-app.use(express.json());
+app.use((req: Request, res: Response, next: Function) => {
+  if (req.originalUrl === "/api/stripe/webhook") {
+    express.raw({ type: "application/json" })(req, res, next);
+  } else {
+    express.json()(req, res, next);
+  }
+});
 app.use(express.urlencoded({ extended: true }));
 
 app.get("/health", (_req: Request, res: Response) => {

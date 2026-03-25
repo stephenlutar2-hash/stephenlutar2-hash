@@ -201,15 +201,76 @@ router.get("/social/analytics", requireAuth, async (req, res) => {
     }
 
     if (!platform || platform === "twitter") {
-      analytics.twitter = {
-        configured: status.find((s) => s.platform === "twitter")?.configured || false,
-      };
+      const twitterConfig = status.find((s) => s.platform === "twitter");
+      if (twitterConfig?.configured) {
+        const bearerToken = process.env.TWITTER_BEARER_TOKEN;
+        const twitterUserId = process.env.TWITTER_USER_ID;
+        if (bearerToken && twitterUserId) {
+          try {
+            const response = await fetch(
+              `https://api.twitter.com/2/users/${twitterUserId}?user.fields=public_metrics`,
+              { headers: { Authorization: `Bearer ${bearerToken}` } }
+            );
+            const data = await response.json();
+            analytics.twitter = {
+              configured: true,
+              metrics: data.data?.public_metrics || null,
+              username: data.data?.username,
+            };
+          } catch {
+            analytics.twitter = { configured: true, metrics: null, error: "Failed to fetch" };
+          }
+        } else {
+          analytics.twitter = { configured: true, metrics: null, error: "TWITTER_BEARER_TOKEN and TWITTER_USER_ID required for analytics" };
+        }
+      } else {
+        analytics.twitter = { configured: false };
+      }
     }
 
     if (!platform || platform === "linkedin") {
-      analytics.linkedin = {
-        configured: status.find((s) => s.platform === "linkedin")?.configured || false,
-      };
+      const linkedinConfig = status.find((s) => s.platform === "linkedin");
+      if (linkedinConfig?.configured) {
+        const accessToken = process.env.LINKEDIN_ACCESS_TOKEN;
+        const personUrn = process.env.LINKEDIN_PERSON_URN;
+        if (accessToken && personUrn) {
+          try {
+            const response = await fetch(
+              `https://api.linkedin.com/v2/me?projection=(id,firstName,lastName,vanityName)`,
+              {
+                headers: {
+                  Authorization: `Bearer ${accessToken}`,
+                  "X-Restli-Protocol-Version": "2.0.0",
+                },
+              }
+            );
+            const profileData = await response.json();
+
+            const statsResponse = await fetch(
+              `https://api.linkedin.com/v2/networkSizes/${personUrn}?edgeType=CompanyFollowedByMember`,
+              {
+                headers: {
+                  Authorization: `Bearer ${accessToken}`,
+                  "X-Restli-Protocol-Version": "2.0.0",
+                },
+              }
+            );
+            const statsData = await statsResponse.json();
+
+            analytics.linkedin = {
+              configured: true,
+              profile: profileData,
+              followers: statsData.firstDegreeSize || null,
+            };
+          } catch {
+            analytics.linkedin = { configured: true, profile: null, error: "Failed to fetch" };
+          }
+        } else {
+          analytics.linkedin = { configured: true, profile: null, error: "LINKEDIN_ACCESS_TOKEN and LINKEDIN_PERSON_URN required for analytics" };
+        }
+      } else {
+        analytics.linkedin = { configured: false };
+      }
     }
 
     return res.json({ analytics });

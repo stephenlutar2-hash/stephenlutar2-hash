@@ -218,6 +218,7 @@ const PLATFORM_META = {
 
 function SocialMediaSection() {
   const [platforms, setPlatforms] = useState<PlatformStatus[]>([]);
+  const [analytics, setAnalytics] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
   const [publishContent, setPublishContent] = useState("");
   const [selectedPlatform, setSelectedPlatform] = useState<string>("meta");
@@ -226,9 +227,18 @@ function SocialMediaSection() {
   const [showPublisher, setShowPublisher] = useState(false);
 
   useEffect(() => {
-    fetch("/api/social/status")
-      .then(r => r.json())
-      .then(data => setPlatforms(data.platforms || []))
+    const token = localStorage.getItem("szl_token");
+    const headers: Record<string, string> = {};
+    if (token) headers.Authorization = `Bearer ${token}`;
+
+    Promise.all([
+      fetch("/api/social/status").then(r => r.json()),
+      fetch("/api/social/analytics", { headers }).then(r => r.json()).catch(() => ({ analytics: {} })),
+    ])
+      .then(([statusData, analyticsData]) => {
+        setPlatforms(statusData.platforms || []);
+        setAnalytics(analyticsData.analytics || {});
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
@@ -307,8 +317,26 @@ function SocialMediaSection() {
                 <p className="text-xs text-gray-600 leading-relaxed">{p.message}</p>
               )}
               {p.configured && (
-                <div className="flex items-center gap-1 text-xs text-green-400">
-                  <CheckCircle2 className="w-3 h-3" /> Ready to publish
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1 text-xs text-green-400">
+                    <CheckCircle2 className="w-3 h-3" /> Ready to publish
+                  </div>
+                  {analytics[p.platform]?.metrics && p.platform === "twitter" && (
+                    <div className="text-xs text-gray-500 space-y-0.5 mt-2">
+                      <p>Followers: {analytics[p.platform].metrics.followers_count?.toLocaleString()}</p>
+                      <p>Tweets: {analytics[p.platform].metrics.tweet_count?.toLocaleString()}</p>
+                    </div>
+                  )}
+                  {analytics[p.platform]?.followers != null && p.platform === "linkedin" && (
+                    <div className="text-xs text-gray-500 mt-2">
+                      <p>Connections: {analytics[p.platform].followers?.toLocaleString()}</p>
+                    </div>
+                  )}
+                  {analytics[p.platform]?.insights?.length > 0 && p.platform === "meta" && (
+                    <div className="text-xs text-gray-500 mt-2">
+                      <p>Insights: {analytics[p.platform].insights.length} metrics tracked</p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

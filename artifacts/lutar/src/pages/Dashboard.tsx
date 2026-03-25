@@ -147,6 +147,98 @@ const INITIAL_PROJECTS: ProjectItem[] = [
   },
 ];
 
+function PlaidLinkFlow({ onAccountLinked }: { onAccountLinked: () => void }) {
+  const [linkStatus, setLinkStatus] = useState<"idle" | "creating" | "linking" | "exchanging" | "done" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  async function startPlaidLink() {
+    setLinkStatus("creating");
+    setErrorMsg("");
+    try {
+      const token = localStorage.getItem("szl_token");
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) headers.Authorization = `Bearer ${token}`;
+
+      const res = await fetch("/api/plaid/create-link-token", {
+        method: "POST",
+        headers,
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to create link token");
+      }
+
+      const linkToken = data.linkToken;
+      setLinkStatus("linking");
+
+      if (typeof window !== "undefined" && (window as any).Plaid) {
+        const handler = (window as any).Plaid.create({
+          token: linkToken,
+          onSuccess: async (publicToken: string) => {
+            setLinkStatus("exchanging");
+            try {
+              const exchangeRes = await fetch("/api/plaid/exchange-token", {
+                method: "POST",
+                headers,
+                body: JSON.stringify({ publicToken }),
+              });
+              const exchangeData = await exchangeRes.json();
+              if (!exchangeRes.ok) {
+                throw new Error(exchangeData.error || "Failed to exchange token");
+              }
+              setLinkStatus("done");
+              onAccountLinked();
+            } catch (err: any) {
+              setErrorMsg(err.message);
+              setLinkStatus("error");
+            }
+          },
+          onExit: () => {
+            setLinkStatus("idle");
+          },
+        });
+        handler.open();
+      } else {
+        setLinkStatus("done");
+        setErrorMsg("Plaid Link SDK not loaded. Link token created: " + linkToken.substring(0, 20) + "...");
+        setTimeout(() => onAccountLinked(), 1000);
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message);
+      setLinkStatus("error");
+    }
+  }
+
+  return (
+    <div className="text-center py-8">
+      <Landmark className="w-8 h-8 mx-auto mb-2 text-muted-foreground opacity-30" />
+      <p className="text-sm text-muted-foreground mb-3">No bank accounts linked</p>
+      {linkStatus === "error" && (
+        <div className="mb-3 px-4 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400 max-w-sm mx-auto">
+          {errorMsg}
+        </div>
+      )}
+      {linkStatus === "done" && errorMsg && (
+        <div className="mb-3 px-4 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-sm text-emerald-400 max-w-sm mx-auto">
+          {errorMsg}
+        </div>
+      )}
+      <button
+        onClick={startPlaidLink}
+        disabled={linkStatus === "creating" || linkStatus === "linking" || linkStatus === "exchanging"}
+        className="px-4 py-2 rounded-lg bg-primary/20 text-primary border border-primary/30 text-sm font-semibold hover:bg-primary/30 transition-colors inline-flex items-center gap-2 disabled:opacity-50"
+      >
+        <LinkIcon className="w-4 h-4" />
+        {linkStatus === "creating" ? "Creating Link..." :
+         linkStatus === "linking" ? "Connecting..." :
+         linkStatus === "exchanging" ? "Verifying..." :
+         "Connect Bank Account"}
+      </button>
+    </div>
+  );
+}
+
 interface StripeTxn {
   id: string;
   amount: number;
@@ -288,13 +380,15 @@ function FinancialIntegrationsSection() {
               </div>
             </div>
           ) : plaidAccounts.length === 0 ? (
-            <div className="text-center py-8">
-              <Landmark className="w-8 h-8 mx-auto mb-2 text-muted-foreground opacity-30" />
-              <p className="text-sm text-muted-foreground mb-3">No bank accounts linked</p>
-              <button className="px-4 py-2 rounded-lg bg-primary/20 text-primary border border-primary/30 text-sm font-semibold hover:bg-primary/30 transition-colors inline-flex items-center gap-2">
-                <LinkIcon className="w-4 h-4" /> Connect Bank Account
-              </button>
-            </div>
+            <PlaidLinkFlow onAccountLinked={() => {
+              const token = localStorage.getItem("szl_token");
+              const headers: Record<string, string> = {};
+              if (token) headers.Authorization = `Bearer ${token}`;
+              fetch("/api/plaid/accounts", { headers })
+                .then(r => r.json())
+                .then(data => setPlaidAccounts(data.accounts || []))
+                .catch(() => {});
+            }} />
           ) : (
             <div className="space-y-3">
               {plaidAccounts.map(a => (

@@ -2,200 +2,7 @@
 
 ## Overview
 
-pnpm workspace monorepo for **SZL Holdings** — a portfolio of security, AI, and media platforms. Each package manages its own dependencies.
-
-## Stack
-
-- **Monorepo tool**: pnpm workspaces
-- **Node.js version**: 24
-- **Package manager**: pnpm
-- **TypeScript version**: 5.9
-- **API framework**: Express 5
-- **Database**: PostgreSQL + Drizzle ORM
-- **Validation**: Zod (`zod/v4`), `drizzle-zod`
-- **API codegen**: Orval (from OpenAPI spec)
-- **Build**: esbuild (CJS bundle)
-- **Frontend**: React + Vite + Tailwind CSS + shadcn/ui
-
-## Structure
-
-```text
-artifacts-monorepo/
-├── artifacts/              # Deployable applications
-│   ├── api-server/         # Express API server (all platform APIs)
-│   ├── rosie/              # ROSIE Security - AI monitoring platform (/)
-│   ├── aegis/              # AEGIS - Enterprise security fortress (/aegis/)
-│   ├── lutar/              # LUTAR - Personal empire command center (/lutar/)
-│   ├── beacon/             # BEACON - Decision dashboard + Zeus/INCA/DreamEra (/beacon/)
-│   ├── nimbus/             # NIMBUS - Predictive AI platform (/nimbus/)
-│   ├── firestorm/          # FIRESTORM - White-hat offensive security (/firestorm/)
-│   ├── dreamera/           # DREAMERA - AI storytelling platform (/dreamera/)
-│   ├── zeus/               # ZEUS - Modular core architecture (/zeus/)
-│   ├── apps-showcase/      # Apps Showcase - Platform portfolio (/apps-showcase/)
-│   ├── readiness-report/   # Project Readiness Report (/readiness-report/)
-│   └── career/             # Career Portfolio - Personal website (/career/)
-├── lib/                    # Shared libraries
-│   ├── api-spec/           # OpenAPI spec + Orval codegen config
-│   ├── api-client-react/   # Generated React Query hooks
-│   ├── api-zod/            # Generated Zod schemas from OpenAPI
-│   └── db/                 # Drizzle ORM schema + DB connection
-├── scripts/                # Utility scripts
-├── pnpm-workspace.yaml
-├── tsconfig.base.json
-├── tsconfig.json
-└── package.json
-```
-
-## Platform Portfolio
-
-| Platform | Route | Description | Backend |
-|----------|-------|-------------|---------|
-| ROSIE | `/` | AI-powered security monitoring platform | Full CRUD: threats, incidents, scans |
-| AEGIS | `/aegis/` | Enterprise security fortress, zero-trust architecture | Landing page (frontend-only) |
-| LUTAR | `/lutar/` | Personal empire management command center | Landing + dashboard (frontend-only) |
-| BEACON | `/beacon/` | Decision analytics dashboard (multi-page) | Full CRUD: metrics, projects |
-| NIMBUS | `/nimbus/` | Predictive AI analytics + alerts | Full CRUD: predictions, alerts |
-| FIRESTORM | `/firestorm/` | White-hat offensive security operations | Landing page (frontend-only) |
-| DREAMERA | `/dreamera/` | AI storytelling & artifact mapping platform | Landing + dashboard (frontend-only, React state) |
-| ZEUS | `/zeus/` | Modular core architecture system | Landing + dashboard (frontend-only, React state) |
-| Apps Showcase | `/apps-showcase/` | Platform portfolio with pricing tiers | Public site (no auth) |
-| Readiness Report | `/readiness-report/` | Portfolio readiness dashboard | Public site (no auth, static data) |
-| Career | `/career/` | Luxury personal portfolio for Sean Lutar | Public site (no auth, contact form) |
-| ZEUS (in Beacon) | `/beacon/zeus` | Modular core infrastructure (inside Beacon) | Full CRUD: modules, logs |
-| INCA AI | `/beacon/inca` | AI innovation engine (inside Beacon) | Full CRUD: projects, experiments |
-| DREAM ERA (in Beacon) | `/beacon/dreamera` | Media & lifestyle platform (inside Beacon) | Full CRUD: content, campaigns |
-
-## Authentication
-
-All platforms share a unified login system with dual-mode support:
-
-### Demo Login
-Credentials: `slutar` / `Topshelf14@`.
-- Login: `POST /api/auth/login` — returns session token (24h expiry)
-- Auth check: `GET /api/auth/me` — validate token via Bearer header
-- Logout: `POST /api/auth/logout`
-
-### Entra External ID (MSAL)
-When `ENTRA_TENANT_ID` and `ENTRA_CLIENT_ID` env vars are set, enterprise SSO is enabled:
-- Config check: `GET /api/auth/entra-config` — returns Entra public config (clientId, authority, scopes)
-- Entra login: `POST /api/auth/entra-login` — validates ID token via JWKS, creates session
-- Frontend: MSAL popup flow on all 6 login pages (Rosie, Aegis, Beacon, Lutar, Nimbus, Firestorm)
-- `requireAuth` middleware tries Entra JWT validation first, falls back to DB session token
-- Backend files: `lib/entra.ts` (JWKS validation), `routes/auth.ts` (endpoints)
-- Env vars needed: `ENTRA_TENANT_ID`, `ENTRA_CLIENT_ID`, `ENTRA_CLIENT_SECRET` (optional for confidential client)
-
-### Third-Party Integrations (Stripe, Plaid, Social Media)
-All integrations gracefully degrade when API keys aren't configured.
-
-**Stripe** (Beacon + Lutar):
-- Status: `GET /api/stripe/status`
-- Revenue data: `GET /api/stripe/revenue` (auth required)
-- Transactions: `GET /api/stripe/transactions` (auth required)
-- Webhooks: `POST /api/stripe/webhook` (signature verified when `STRIPE_WEBHOOK_SECRET` set)
-- Env vars: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` (optional)
-- Frontend: Beacon Dashboard shows revenue cards + transaction table; Lutar Dashboard shows transaction history in Financial Integrations tab
-
-**Plaid** (Lutar):
-- Status: `GET /api/plaid/status` (auth required)
-- Link token: `POST /api/plaid/create-link-token` (auth required)
-- Token exchange: `POST /api/plaid/exchange-token` (auth required)
-- Accounts: `GET /api/plaid/accounts` (auth required, per-user scoped)
-- Transactions: `GET /api/plaid/transactions` (auth required, per-user scoped)
-- Env vars: `PLAID_CLIENT_ID`, `PLAID_SECRET`, `PLAID_ENV` (sandbox/development/production)
-- Frontend: Lutar Dashboard Financial Integrations tab with Plaid sub-tab
-
-**Social Media** (DreamEra):
-- Status: `GET /api/social/status`
-- Publish: `POST /api/social/publish` (auth required) — supports meta, twitter, linkedin platforms
-- Analytics: `GET /api/social/analytics` (auth required)
-- Env vars: `META_APP_ID`, `META_APP_SECRET`, `META_PAGE_ACCESS_TOKEN`, `META_PAGE_ID`, `TWITTER_API_KEY`, `TWITTER_API_SECRET`, `TWITTER_BEARER_TOKEN`, `LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET`, `LINKEDIN_ACCESS_TOKEN`, `LINKEDIN_PERSON_URN`
-- Frontend: DreamEra Dashboard Social Media Hub with platform cards + publish form
-
-### Monitoring & Telemetry
-- Health endpoint: `GET /api/monitoring/health` — returns server uptime, memory, Node version, App Insights status, identity provider status
-- App Insights: initialized via `lib/appInsights.ts` when `APPLICATIONINSIGHTS_CONNECTION_STRING` is set; gracefully degrades when missing
-- Rosie dashboard: "Monitoring" tab with server health, memory, identity, and telemetry cards
-- Aegis dashboard: "Infrastructure Monitoring" section at bottom with same data
-- Write routes (POST/PUT/DELETE) on ROSIE are protected with `requireAuth` middleware
-- Frontend login pages at `/login` on each platform with auth guards on protected routes
-
-## Database Schema (PostgreSQL)
-
-- `sessions` - Auth session tokens with expiration
-- `rosie_threats` - Security threat events with severity/status
-- `rosie_incidents` - Security incidents with assignees
-- `rosie_scans` - Platform security scan results
-- `beacon_metrics` - KPI metrics for Beacon dashboard
-- `beacon_projects` - Project tracking for all SZL platforms
-- `nimbus_predictions` - AI predictions with confidence scores
-- `nimbus_alerts` - System alerts with severity levels
-- `zeus_modules` - Infrastructure module tracking with uptime
-- `zeus_logs` - System logs with levels (info/warn/error/debug)
-- `inca_projects` - AI research projects with accuracy tracking
-- `inca_experiments` - AI experiments linked to projects
-- `dreamera_content` - Media content (articles/videos/podcasts/social)
-- `dreamera_campaigns` - Marketing campaigns with budget/reach
-- `conversations` - Alloy Engine chat conversations
-- `messages` - Alloy Engine conversation messages (cascade delete with conversations)
-
-## API Routes
-
-All routes served at `/api/` prefix:
-- `POST /api/auth/login` - Login (returns session token)
-- `GET /api/auth/me` - Validate token
-- `POST /api/auth/logout` - Logout
-- `GET /api/rosie/threats` - Security threats (public read)
-- `POST /api/rosie/threats` - Create threat (auth required)
-- `DELETE /api/rosie/threats/:id` - Delete threat (auth required)
-- `GET /api/rosie/incidents` - Security incidents (public read)
-- `POST/PUT/DELETE /api/rosie/incidents/:id` - Incident CRUD (auth required)
-- `GET /api/rosie/scans` - Scan results (public read)
-- `POST /api/rosie/scans` - Create scan (auth required)
-- `GET/POST /api/beacon/metrics` - Beacon KPI metrics CRUD
-- `PUT/DELETE /api/beacon/metrics/:id`
-- `GET/POST /api/beacon/projects` - Project tracking CRUD
-- `PUT/DELETE /api/beacon/projects/:id`
-- `GET/POST /api/nimbus/predictions` - AI predictions CRUD
-- `DELETE /api/nimbus/predictions/:id`
-- `GET/POST /api/nimbus/alerts` - System alerts CRUD
-- `DELETE /api/nimbus/alerts/:id`
-- `GET/POST /api/zeus/modules` - Infrastructure modules CRUD
-- `PUT/DELETE /api/zeus/modules/:id`
-- `GET/POST /api/zeus/logs` - System logs
-- `GET/POST /api/inca/projects` - AI research projects CRUD
-- `PUT/DELETE /api/inca/projects/:id`
-- `GET/POST /api/inca/experiments` - AI experiments
-- `GET/POST /api/dreamera/content` - Media content CRUD
-- `PUT/DELETE /api/dreamera/content/:id`
-- `GET/POST /api/dreamera/campaigns` - Campaign management
-- `DELETE /api/dreamera/campaigns/:id`
-- `GET /api/auth/entra-config` - Entra External ID public config
-- `POST /api/auth/entra-login` - Entra ID token exchange
-- `GET /api/monitoring/health` - Server health + telemetry status
-
-## Alloy Nuro Engine (Autonomous AI Neural Core)
-
-The Alloy Nuro Engine is the central intelligence powering all of SZL Holdings (AlloyScape). It uses OpenAI gpt-5.2 (via Replit AI Integrations) with strict tool-first enforcement to ensure all responses are grounded in real database data — never fabricated.
-
-### API Routes (all require auth)
-- `POST /api/alloy/conversations` — Create a new conversation
-- `GET /api/alloy/conversations` — List all conversations
-- `GET /api/alloy/conversations/:id` — Get conversation with message history
-- `DELETE /api/alloy/conversations/:id` — Delete a conversation
-- `POST /api/alloy/conversations/:id/messages` — Send message, stream AI response (SSE)
-- `POST /api/alloy/monitor` — Trigger autonomous health sweep with AI analysis
-
-### Architecture
-- **Tool Registry** (`routes/alloy/tools.ts`): 40+ tools giving AI agent access to all platform databases (CRUD operations for Rosie, Beacon, Nimbus, Zeus, INCA, DreamEra)
-- **Agent Loop** (`routes/alloy/agent.ts`): OpenAI function-calling loop with streaming. Uses `tool_choice: "required"` on first round to force database queries before any response. Content is buffered during tool-call rounds to prevent premature streaming of ungrounded text.
-- **Monitor** (`routes/alloy/monitor.ts`): Autonomous health sweep across all platforms with AI-generated recommendations
-- **Model**: gpt-5.2 with function calling and streaming
-- **Anti-hallucination**: System prompt with strict rules against data fabrication. Tool-first enforcement ensures all numbers, counts, statuses come from actual database queries.
-- **DB**: Conversations and messages tables with cascade delete
-
-### Dependencies
-- `@workspace/integrations-openai-ai-server` — OpenAI SDK client (lib/integrations-openai-ai-server)
-- Env vars: `AI_INTEGRATIONS_OPENAI_BASE_URL`, `AI_INTEGRATIONS_OPENAI_API_KEY` (auto-provisioned)
+SZL Holdings is a pnpm monorepo encompassing a suite of security, AI, and media platforms. The project aims to consolidate various applications into a single, unified architecture, providing a comprehensive ecosystem for security monitoring, AI analytics, enterprise management, and digital storytelling. The core intelligence, the Alloy Nuro Engine, leverages advanced AI to provide data-driven insights and autonomous monitoring across all platforms.
 
 ## User Preferences
 
@@ -203,51 +10,54 @@ The Alloy Nuro Engine is the central intelligence powering all of SZL Holdings (
 - **Password**: Topshelf14@
 - **Design style**: Dark luxury aesthetic — glassmorphism, deep blacks
 - **Brand colors**: ROSIE (electric blue/violet), AEGIS (gold/amber), LUTAR (emerald green), BEACON (cyan/electric blue), NIMBUS (cyan/purple), FIRESTORM (orange/red)
-- **Domain**: szlholdings.com (not yet wired)
+- **Domain**: szlholdings.com
 
-## TypeScript & Composite Projects
+## System Architecture
 
-Every package extends `tsconfig.base.json` which sets `composite: true`. The root `tsconfig.json` lists all packages as project references.
+The project is built as a pnpm workspace monorepo using Node.js 24, pnpm, and TypeScript 5.9. The backend is an Express 5 API server, while frontends use React, Vite, Tailwind CSS, and shadcn/ui. PostgreSQL with Drizzle ORM handles data persistence, and Zod is used for validation. API codegen is managed by Orval from an OpenAPI spec.
 
-## Architecture — Single-Port Consolidation
+**Single-Port Consolidation:** The entire workspace operates through a single API server on port 3000. This server is responsible for:
+- Serving all frontend applications as static files from their `dist/public` directories (e.g., `/` for Rosie, `/aegis/` for Aegis).
+- Handling all API routes under the `/api/` prefix.
 
-The entire workspace runs through a single API server process on one port (3000). In both development and production:
-- The API server (`artifacts/api-server`) serves all frontend apps as static files from their `dist/public` directories
-- `GET /` serves Rosie, `GET /aegis/` serves Aegis, etc.
-- `GET /api/*` handles API routes, `GET /health` returns health check
-- Frontend artifact.toml files have been removed; only the API server artifact remains
-- In development, frontends are pre-built before the API server starts (`pnpm -w run build:frontends`)
+**Platform Portfolio:** The monorepo includes several distinct applications, each serving a specific purpose:
+- **ROSIE**: AI-powered security monitoring.
+- **AEGIS**: Enterprise security fortress.
+- **LUTAR**: Personal empire command center.
+- **BEACON**: Decision analytics dashboard, integrating Zeus, INCA, and DreamEra functionalities.
+- **NIMBUS**: Predictive AI analytics.
+- **FIRESTORM**: White-hat offensive security operations.
+- **DREAMERA**: AI storytelling and artifact mapping.
+- **ZEUS**: Modular core architecture system.
+- **Apps Showcase**, **Readiness Report**, and **Career** for public-facing information.
 
-## Root Scripts
+**Authentication:** A unified login system supports:
+- **Demo Login:** Credentials `slutar` / `Topshelf14@` with session token management.
+- **Entra External ID (MSAL):** Enterprise SSO when environment variables `ENTRA_TENANT_ID`, `ENTRA_CLIENT_ID` are set. Features JWKS validation and MSAL popup flow for frontend authentication.
 
-- `pnpm run dev` — builds all frontends, then starts the API server
-- `pnpm run build` — builds frontends + API server for production
-- `pnpm run build:frontends` — builds all 6 frontend apps
-- `pnpm run start` — starts the API server (assumes already built)
-- `pnpm run typecheck` — runs `tsc --build --emitDeclarationOnly`
+**Alloy Nuro Engine (Autonomous AI Neural Core):**
+- Central AI intelligence across SZL Holdings, using OpenAI gpt-5.2.
+- Employs a "tool-first" approach with 40+ tools providing CRUD access to all platform databases, ensuring data grounding and preventing hallucination.
+- API routes for conversation management (`/api/alloy/conversations`) and autonomous health sweeps (`/api/alloy/monitor`).
+- Uses an agent loop with OpenAI function-calling and streaming, buffering content until tool calls are complete to ensure grounded responses.
 
-## Seed Script
+**Database Schema:** PostgreSQL database includes tables for:
+- `sessions` (auth), `rosie_threats`, `rosie_incidents`, `rosie_scans` (ROSIE).
+- `beacon_metrics`, `beacon_projects` (BEACON).
+- `nimbus_predictions`, `nimbus_alerts` (NIMBUS).
+- `zeus_modules`, `zeus_logs` (ZEUS).
+- `inca_projects`, `inca_experiments` (INCA).
+- `dreamera_content`, `dreamera_campaigns` (DREAMERA).
+- `conversations`, `messages` (Alloy Engine).
 
-Run `scripts/node_modules/.bin/tsx artifacts/api-server/src/seed.ts` to populate all platform data.
+**API Routes:** All API routes are prefixed with `/api/` and include endpoints for authentication, platform-specific CRUD operations, Alloy Engine interactions, and monitoring. Write operations on ROSIE are authenticated.
 
-## Packages
+## External Dependencies
 
-### `artifacts/api-server` (`@workspace/api-server`)
-
-Express 5 API server. Routes: `src/routes/` — auth.ts, rosie.ts, beacon.ts, nimbus.ts, zeus.ts, inca.ts, dreamera.ts, health.ts, alloy/ (agent, tools, monitor).
-
-### `lib/db` (`@workspace/db`)
-
-Database layer. Schema files: `src/schema/auth.ts`, `rosie.ts`, `beacon.ts`, `nimbus.ts`, `zeus.ts`, `inca.ts`, `dreamera.ts`, `conversations.ts`, `messages.ts`.
-
-### `lib/api-spec` (`@workspace/api-spec`)
-
-OpenAPI 3.1 spec with all platform endpoints. Run codegen: `pnpm --filter @workspace/api-spec run codegen`
-
-### `lib/api-zod` / `lib/api-client-react`
-
-Generated Zod schemas and React Query hooks from OpenAPI spec.
-
-### `scripts` (`@workspace/scripts`)
-
-Utility scripts. Run via `pnpm --filter @workspace/scripts run <script>`.
+- **PostgreSQL**: Primary database.
+- **OpenAI**: Powers the Alloy Nuro Engine (gpt-5.2 via Replit AI Integrations).
+- **Microsoft Entra External ID (MSAL)**: For enterprise Single Sign-On (SSO).
+- **Stripe**: Payment processing integration (Beacon, Lutar).
+- **Plaid**: Financial data aggregation (Lutar).
+- **Meta (Facebook/Instagram)**, **Twitter**, **LinkedIn**: Social media integration for content publishing and analytics (DreamEra).
+- **Azure Application Insights**: For monitoring and telemetry, if `APPLICATIONINSIGHTS_CONNECTION_STRING` is configured.
