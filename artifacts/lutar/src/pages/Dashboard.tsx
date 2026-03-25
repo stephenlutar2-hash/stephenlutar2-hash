@@ -200,9 +200,8 @@ function PlaidLinkFlow({ onAccountLinked }: { onAccountLinked: () => void }) {
         });
         handler.open();
       } else {
-        setLinkStatus("done");
-        setErrorMsg("Plaid Link SDK not loaded. Link token created: " + linkToken.substring(0, 20) + "...");
-        setTimeout(() => onAccountLinked(), 1000);
+        setLinkStatus("error");
+        setErrorMsg("Plaid Link SDK failed to load. Please refresh the page and try again.");
       }
     } catch (err: any) {
       setErrorMsg(err.message);
