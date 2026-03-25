@@ -31,7 +31,9 @@ artifacts-monorepo/
 │   ├── firestorm/          # FIRESTORM - White-hat offensive security (/firestorm/)
 │   ├── dreamera/           # DREAMERA - AI storytelling platform (/dreamera/)
 │   ├── zeus/               # ZEUS - Modular core architecture (/zeus/)
-│   └── apps-showcase/      # Apps Showcase - Platform portfolio (/apps-showcase/)
+│   ├── apps-showcase/      # Apps Showcase - Platform portfolio (/apps-showcase/)
+│   ├── readiness-report/   # Project Readiness Report (/readiness-report/)
+│   └── career/             # Career Portfolio - Personal website (/career/)
 ├── lib/                    # Shared libraries
 │   ├── api-spec/           # OpenAPI spec + Orval codegen config
 │   ├── api-client-react/   # Generated React Query hooks
@@ -57,6 +59,8 @@ artifacts-monorepo/
 | DREAMERA | `/dreamera/` | AI storytelling & artifact mapping platform | Landing + dashboard (frontend-only, React state) |
 | ZEUS | `/zeus/` | Modular core architecture system | Landing + dashboard (frontend-only, React state) |
 | Apps Showcase | `/apps-showcase/` | Platform portfolio with pricing tiers | Public site (no auth) |
+| Readiness Report | `/readiness-report/` | Portfolio readiness dashboard | Public site (no auth, static data) |
+| Career | `/career/` | Luxury personal portfolio for Sean Lutar | Public site (no auth, contact form) |
 | ZEUS (in Beacon) | `/beacon/zeus` | Modular core infrastructure (inside Beacon) | Full CRUD: modules, logs |
 | INCA AI | `/beacon/inca` | AI innovation engine (inside Beacon) | Full CRUD: projects, experiments |
 | DREAM ERA (in Beacon) | `/beacon/dreamera` | Media & lifestyle platform (inside Beacon) | Full CRUD: content, campaigns |
