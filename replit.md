@@ -28,7 +28,7 @@ artifacts-monorepo/
 │   ├── lutar/              # LUTAR - Personal empire command center (/lutar/)
 │   ├── beacon/             # BEACON - Decision dashboard + Zeus/INCA/DreamEra (/beacon/)
 │   ├── nimbus/             # NIMBUS - Predictive AI platform (/nimbus/)
-│   └── mockup-sandbox/     # Component preview server
+│   └── firestorm/          # FIRESTORM - White-hat offensive security (/firestorm/)
 ├── lib/                    # Shared libraries
 │   ├── api-spec/           # OpenAPI spec + Orval codegen config
 │   ├── api-client-react/   # Generated React Query hooks
@@ -50,6 +50,7 @@ artifacts-monorepo/
 | LUTAR | `/lutar/` | Personal empire management command center | Landing + dashboard (frontend-only) |
 | BEACON | `/beacon/` | Decision analytics dashboard (multi-page) | Full CRUD: metrics, projects |
 | NIMBUS | `/nimbus/` | Predictive AI analytics + alerts | Full CRUD: predictions, alerts |
+| FIRESTORM | `/firestorm/` | White-hat offensive security operations | Landing page (frontend-only) |
 | ZEUS | `/beacon/zeus` | Modular core infrastructure (inside Beacon) | Full CRUD: modules, logs |
 | INCA AI | `/beacon/inca` | AI innovation engine (inside Beacon) | Full CRUD: projects, experiments |
 | DREAM ERA | `/beacon/dreamera` | Media & lifestyle platform (inside Beacon) | Full CRUD: content, campaigns |
@@ -142,7 +143,7 @@ The Alloy Engine is the intelligence core for the AlloyScape platform. It uses O
 - **Username**: slutar
 - **Password**: Topshelf14@
 - **Design style**: Dark luxury aesthetic — glassmorphism, deep blacks
-- **Brand colors**: ROSIE (electric blue/violet), AEGIS (gold/amber), LUTAR (emerald green), BEACON (cyan/electric blue), NIMBUS (cyan/purple)
+- **Brand colors**: ROSIE (electric blue/violet), AEGIS (gold/amber), LUTAR (emerald green), BEACON (cyan/electric blue), NIMBUS (cyan/purple), FIRESTORM (orange/red)
 - **Domain**: szlholdings.com (not yet wired)
 
 ## TypeScript & Composite Projects
