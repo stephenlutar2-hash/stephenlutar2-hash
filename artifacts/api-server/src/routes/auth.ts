@@ -6,24 +6,35 @@ import crypto from "crypto";
 
 const router = Router();
 
-const USERS: Record<string, { password: string; role: string }> = {
-  slutar: { password: "Topshelf14@", role: "emperor" },
-  carlota1: { password: "dorado2020", role: "ceo" },
-};
+const SESSION_TTL_HOURS = parseInt(process.env.SESSION_TTL_HOURS || "24", 10);
+
+function getUsers(): Record<string, { password: string; role: string }> {
+  const username = process.env.DEMO_ADMIN_USERNAME;
+  const password = process.env.DEMO_ADMIN_PASSWORD;
+  if (!username || !password) {
+    return {};
+  }
+  return {
+    [username]: { password, role: "emperor" },
+  };
+}
 
 export async function requireAuth(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ error: "Authentication required" });
+    res.status(401).json({ error: "Authentication required" });
+    return;
   }
   const token = authHeader.slice(7);
   const [session] = await db.select().from(sessionsTable)
     .where(eq(sessionsTable.token, token))
     .limit(1);
   if (!session || new Date(session.expiresAt) < new Date()) {
-    return res.status(401).json({ error: "Invalid or expired token" });
+    res.status(401).json({ error: "Invalid or expired token" });
+    return;
   }
-  const userInfo = USERS[session.username];
+  const users = getUsers();
+  const userInfo = users[session.username];
   (req as any).user = { username: session.username, role: userInfo?.role || "user" };
   next();
 }
@@ -31,16 +42,17 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
 router.post("/auth/login", async (req, res) => {
   try {
     const { username, password } = req.body;
-    const user = USERS[username];
+    const users = getUsers();
+    const user = users[username];
     if (!user || user.password !== password) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
     const token = crypto.randomBytes(32).toString("hex");
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const expiresAt = new Date(Date.now() + SESSION_TTL_HOURS * 60 * 60 * 1000);
     await db.insert(sessionsTable).values({ token, username, expiresAt });
-    res.json({ token, username, role: user.role, expiresAt: expiresAt.toISOString() });
+    return res.json({ token, username, role: user.role, expiresAt: expiresAt.toISOString() });
   } catch (e) {
-    res.status(500).json({ error: "Login failed" });
+    return res.status(500).json({ error: "Login failed" });
   }
 });
 
@@ -57,10 +69,11 @@ router.get("/auth/me", async (req, res) => {
     if (!session || new Date(session.expiresAt) < new Date()) {
       return res.status(401).json({ error: "Invalid or expired token" });
     }
-    const userInfo = USERS[session.username];
-    res.json({ username: session.username, role: userInfo?.role || "user" });
+    const users = getUsers();
+    const userInfo = users[session.username];
+    return res.json({ username: session.username, role: userInfo?.role || "user" });
   } catch (e) {
-    res.status(500).json({ error: "Auth check failed" });
+    return res.status(500).json({ error: "Auth check failed" });
   }
 });
 
@@ -71,9 +84,9 @@ router.post("/auth/logout", async (req, res) => {
       const token = authHeader.slice(7);
       await db.delete(sessionsTable).where(eq(sessionsTable.token, token));
     }
-    res.json({ success: true });
+    return res.json({ success: true });
   } catch (e) {
-    res.status(500).json({ error: "Logout failed" });
+    return res.status(500).json({ error: "Logout failed" });
   }
 });
 

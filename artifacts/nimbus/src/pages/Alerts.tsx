@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { format } from "date-fns";
 import { AlertTriangle, Plus, Trash2, ShieldAlert, Zap, Radio, Circle } from "lucide-react";
 import { motion } from "framer-motion";
-import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import { BarChart, Bar, Cell, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { useAlerts, useDeleteAlert } from "@/hooks/use-alerts";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -82,7 +82,7 @@ export default function Alerts() {
             />
             <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={20}>
               {chartData.map((entry, index) => (
-                <cell key={`cell-${index}`} fill={entry.fill} />
+                <Cell key={`cell-${index}`} fill={entry.fill} />
               ))}
             </Bar>
           </BarChart>

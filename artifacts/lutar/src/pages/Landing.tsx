@@ -23,7 +23,7 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'rec
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
+  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" as const } }
 };
 
 const staggerContainer = {
@@ -51,8 +51,8 @@ const mockChartData = [
 
 export default function Landing() {
   const [, setLocation] = useLocation();
-  const [username, setUsername] = useState("slutar");
-  const [password, setPassword] = useState("Topshelf14@");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const handleLogin = (e: React.FormEvent) => {

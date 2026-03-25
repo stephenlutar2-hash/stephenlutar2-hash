@@ -116,7 +116,7 @@ export default function Home() {
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 1, ease: "easeOut" }}
+            transition={{ duration: 1, ease: "easeOut" as const }}
             className="mb-8"
           >
             <Shield className="w-24 h-24 text-primary drop-shadow-[0_0_30px_rgba(212,175,55,0.5)]" strokeWidth={1} />
@@ -374,8 +374,7 @@ export default function Home() {
           </div>
           
           <div className="text-xs font-mono text-muted-foreground p-3 border border-border rounded bg-card/50">
-            <div><span className="text-primary">Admin:</span> slutar</div>
-            <div><span className="text-primary">Auth:</span> Topshelf14@</div>
+            <div><span className="text-primary">Access:</span> Set via environment variables</div>
           </div>
         </div>
       </footer>

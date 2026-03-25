@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 export function useAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
   const [user, setUser] = useState<{ username: string; role: string } | null>({
-    username: "slutar",
+    username: "admin",
     role: "EMPEROR"
   });
 

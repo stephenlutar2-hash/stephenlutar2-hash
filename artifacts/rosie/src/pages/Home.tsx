@@ -6,7 +6,7 @@ import { DashboardMockup } from "@/components/ui/DashboardMockup";
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" as const } }
 };
 
 const staggerContainer = {
@@ -423,18 +423,8 @@ export default function Home() {
                   <h4 className="font-display font-bold text-white">SYSTEM ACCESS</h4>
                 </div>
                 <p className="text-xs text-muted-foreground mb-4">
-                  Use the following credentials to access the live command center demonstration environment:
+                  Use credentials configured via environment variables to access the live command center demonstration environment.
                 </p>
-                <div className="space-y-3 font-mono text-sm">
-                  <div className="flex justify-between items-center p-3 rounded-lg bg-white/5 border border-white/5">
-                    <span className="text-white/50">Username</span>
-                    <span className="text-primary font-bold">slutar</span>
-                  </div>
-                  <div className="flex justify-between items-center p-3 rounded-lg bg-white/5 border border-white/5">
-                    <span className="text-white/50">Password</span>
-                    <span className="text-primary font-bold">Topshelf14@</span>
-                  </div>
-                </div>
                 <button className="w-full mt-6 py-3 border border-secondary text-secondary rounded-lg font-bold hover:bg-secondary hover:text-white transition-colors">
                   Login to Portal
                 </button>

@@ -13,7 +13,7 @@ export function ArchitectureDiagram() {
 
   const itemVariants = {
     hidden: { opacity: 0, scale: 0.8 },
-    visible: { opacity: 1, scale: 1, transition: { type: "spring", stiffness: 100 } }
+    visible: { opacity: 1, scale: 1, transition: { type: "spring" as const, stiffness: 100 } }
   };
 
   return (
@@ -24,14 +24,14 @@ export function ArchitectureDiagram() {
           initial={{ opacity: 0, scale: 0.5 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
+          transition={{ duration: 1.5, ease: "easeOut" as const }}
           className="w-[80%] aspect-square rounded-full border border-primary/20 absolute animate-[spin_60s_linear_infinite]"
         />
         <motion.div 
           initial={{ opacity: 0, scale: 0.5 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 1.5, ease: "easeOut", delay: 0.2 }}
+          transition={{ duration: 1.5, ease: "easeOut" as const, delay: 0.2 }}
           className="w-[50%] aspect-square rounded-full border border-primary/40 absolute animate-[spin_40s_linear_infinite_reverse]"
         />
       </div>

@@ -130,7 +130,7 @@ export default function Dashboard() {
           >
             <div>
               <p className="text-muted-foreground font-sans mb-1">Welcome back,</p>
-              <h2 className="text-3xl font-display font-bold text-white uppercase tracking-wider">slutar</h2>
+              <h2 className="text-3xl font-display font-bold text-white uppercase tracking-wider">Commander</h2>
             </div>
             <div className="flex items-center gap-2 text-sm text-primary font-mono bg-primary/10 border border-primary/20 px-4 py-2 rounded">
               <TrendingUp size={16} /> All systems operational. Net growth +340%
