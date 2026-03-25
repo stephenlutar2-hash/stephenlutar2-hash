@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShieldAlert, Globe, Activity, ShieldCheck } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface Threat {
   id: string;
