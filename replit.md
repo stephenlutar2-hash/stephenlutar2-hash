@@ -28,6 +28,7 @@ The project is built as a pnpm workspace monorepo using Node.js 24, pnpm, and Ty
 - **NIMBUS**: Predictive AI analytics.
 - **FIRESTORM**: Security simulation lab for defensive strategy testing.
 - **DREAMERA**: AI storytelling and artifact mapping.
+- **ALLOYSCAPE**: Infrastructure operations platform — management interface for the Alloy AI engine. Provides orchestration monitoring, system module status, workflow templates, execution logs, service health, connector management, and user/role controls.
 - **ZEUS**: Modular core architecture system.
 - **Apps Showcase**, **Readiness Report**, and **Career** for public-facing information.
 
