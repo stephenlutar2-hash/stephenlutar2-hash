@@ -19,8 +19,8 @@ const router: IRouter = Router();
 
 router.use(auditMiddleware());
 router.use(healthRouter);
-router.use(authRouter);
 
+router.use("/auth", requireDatabase);
 router.use("/beacon", requireDatabase);
 router.use("/nimbus", requireDatabase);
 router.use("/zeus", requireDatabase);
@@ -29,6 +29,7 @@ router.use("/rosie", requireDatabase);
 router.use("/alloy", requireDatabase);
 router.use("/monitoring", requireDatabase);
 
+router.use(authRouter);
 router.use(beaconRouter);
 router.use(nimbusRouter);
 router.use(zeusRouter);
