@@ -56,7 +56,7 @@ const projects: Project[] = [
   },
   {
     name: "Lutar",
-    description: "Environmental impact tracking and sustainability project management with carbon emissions monitoring.",
+    description: "Personal command center for SZL Holdings. Track projects, assets, financial KPIs, and strategic initiatives across every division.",
     icon: Leaf,
     color: "from-emerald-500 to-green-600",
     status: "Active",

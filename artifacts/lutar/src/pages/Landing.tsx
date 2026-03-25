@@ -374,6 +374,7 @@ export default function Landing() {
               <div className="space-y-2">
                 <label className="text-xs font-sans tracking-widest uppercase text-muted-foreground">Identity</label>
                 <Input 
+                  autoComplete="username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="font-mono text-primary bg-background/50 border-primary/20 focus-visible:ring-primary/50" 
@@ -383,6 +384,7 @@ export default function Landing() {
                 <label className="text-xs font-sans tracking-widest uppercase text-muted-foreground">Passphrase</label>
                 <Input 
                   type="password"
+                  autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="font-mono text-primary bg-background/50 border-primary/20 focus-visible:ring-primary/50" 

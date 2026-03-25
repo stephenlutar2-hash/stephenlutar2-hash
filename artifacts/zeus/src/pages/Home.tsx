@@ -66,7 +66,7 @@ export default function Home() {
               >
                 Access Architecture <ArrowRight className="w-4 h-4" />
               </button>
-              <button className="px-8 py-4 rounded-xl bg-white/5 border border-white/10 text-white font-bold tracking-wider uppercase text-sm hover:bg-white/10 transition">
+              <button onClick={() => setLocation("/login")} className="px-8 py-4 rounded-xl bg-white/5 border border-white/10 text-white font-bold tracking-wider uppercase text-sm hover:bg-white/10 transition">
                 View Documentation
               </button>
             </div>

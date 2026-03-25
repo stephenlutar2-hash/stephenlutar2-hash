@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Link } from "wouter";
+
 import { Shield, Lock, BrainCircuit, Zap, ClipboardCheck, Search, ChevronRight, CheckCircle2, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ArchitectureDiagram } from "@/components/ArchitectureDiagram";
@@ -101,14 +101,14 @@ export default function Home() {
               </a>
             ))}
             <div className="h-px bg-border my-2" />
-            <Button variant="outline" className="w-full">LOGIN</Button>
-            <Button variant="glow" className="w-full">DEPLOY AEGIS</Button>
+            <a href={`${import.meta.env.BASE_URL}login`} className="w-full inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">LOGIN</a>
+            <Button variant="glow" className="w-full" onClick={() => { setMobileMenuOpen(false); document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" }); }}>DEPLOY AEGIS</Button>
           </div>
         )}
       </header>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center pt-20">
+      <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img src={HERO_BG} alt="Aegis Background" className="w-full h-full object-cover opacity-30" />
           <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/80 to-background" />
@@ -128,7 +128,7 @@ export default function Home() {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.8 }}
-            className="text-5xl md:text-7xl lg:text-8xl font-black font-display tracking-tight text-white mb-6 uppercase"
+            className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-black font-display tracking-tight text-white mb-6 uppercase"
           >
             The <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-yellow-200 to-primary text-glow">Unbreakable</span> Shield
           </motion.h1>
@@ -137,7 +137,7 @@ export default function Home() {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.8 }}
-            className="text-xl md:text-2xl text-muted-foreground max-w-3xl mb-12 font-light"
+            className="text-base md:text-2xl text-muted-foreground max-w-3xl mb-12 font-light px-4 md:px-0"
           >
             Enterprise-grade security fortress. Defending your digital empire with autonomous AI threat intelligence and zero-trust architecture.
           </motion.p>

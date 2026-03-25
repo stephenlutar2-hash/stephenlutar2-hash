@@ -93,14 +93,14 @@ export default function Home() {
             transition={{ duration: 0.8, delay: 0.6 }}
             className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto"
           >
-            <button className="px-8 py-4 rounded-xl bg-primary text-primary-foreground font-display font-bold text-lg hover:scale-105 transition-all glow-shadow flex items-center justify-center gap-2 group">
+            <a href="#pricing" className="px-8 py-4 rounded-xl bg-primary text-primary-foreground font-display font-bold text-lg hover:scale-105 transition-all glow-shadow flex items-center justify-center gap-2 group">
               Get Started
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
-            <button className="px-8 py-4 rounded-xl bg-white/5 text-white font-display font-bold text-lg hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all flex items-center justify-center gap-2">
+            </a>
+            <a href="#command-center" className="px-8 py-4 rounded-xl bg-white/5 text-white font-display font-bold text-lg hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all flex items-center justify-center gap-2">
               <Terminal className="w-5 h-5" />
               View Demo
-            </button>
+            </a>
           </motion.div>
         </div>
         
@@ -450,9 +450,9 @@ export default function Home() {
                 <p className="text-xs text-muted-foreground mb-4">
                   Use credentials configured via environment variables to access the live command center demonstration environment.
                 </p>
-                <button className="w-full mt-6 py-3 border border-secondary text-secondary rounded-lg font-bold hover:bg-secondary hover:text-white transition-colors">
+                <a href="login" className="block w-full mt-6 py-3 border border-secondary text-secondary rounded-lg font-bold hover:bg-secondary hover:text-white transition-colors text-center">
                   Login to Portal
-                </button>
+                </a>
               </div>
             </div>
           </div>
