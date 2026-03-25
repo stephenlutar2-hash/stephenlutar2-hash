@@ -13,17 +13,10 @@ paths = ["/", "/api", "/health", "/aegis", "/beacon", "/lutar", "/nimbus", "/fir
 run = "pnpm -w run build:frontends && pnpm --filter @workspace/api-server run dev"
 
 [services.production]
+build = ["pnpm", "run", "build"]
+run = ["node", "--enable-source-maps", "artifacts/api-server/dist/index.mjs"]
 
-[services.production.build]
-args = ["pnpm", "run", "build"]
-
-[services.production.build.env]
-NODE_ENV = "production"
-
-[services.production.run]
-args = ["node", "--enable-source-maps", "artifacts/api-server/dist/index.mjs"]
-
-[services.production.run.env]
+[services.production.env]
 PORT = "3000"
 NODE_ENV = "production"
 
