@@ -9,6 +9,7 @@ import dreameraRouter from "./dreamera";
 import rosieRouter from "./rosie";
 import alloyRouter from "./alloy";
 import agentsRouter from "./agents";
+import monitoringRouter from "./monitoring";
 
 const router: IRouter = Router();
 
@@ -22,5 +23,6 @@ router.use(dreameraRouter);
 router.use(rosieRouter);
 router.use(alloyRouter);
 router.use(agentsRouter);
+router.use(monitoringRouter);
 
 export default router;

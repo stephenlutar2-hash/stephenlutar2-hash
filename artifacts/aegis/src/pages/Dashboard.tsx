@@ -80,6 +80,7 @@ const severityPie = [
 
 export default function Dashboard() {
   const [currentTime, setCurrentTime] = useState("");
+  const [monitoring, setMonitoring] = useState<any>(null);
   const [, setLocation] = useLocation();
 
   useEffect(() => {
@@ -89,6 +90,10 @@ export default function Dashboard() {
         now.toLocaleTimeString("en-US", { hour12: false }) + " UTC"
       );
     }, 1000);
+    fetch("/api/monitoring/health")
+      .then(r => r.json())
+      .then(d => setMonitoring(d))
+      .catch(() => {});
     return () => clearInterval(timer);
   }, []);
 
@@ -672,6 +677,42 @@ export default function Dashboard() {
               </motion.div>
             ))}
           </div>
+
+          {monitoring && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.2 }}
+              className="p-6 rounded-xl border border-amber-500/10 bg-white/[0.02]"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="font-display font-bold text-white tracking-wide uppercase">
+                  Infrastructure Monitoring
+                </h3>
+                <Badge className="bg-amber-500/10 text-amber-500 border-amber-500/20 hover:bg-amber-500/20">
+                  {monitoring.appInsights?.configured ? "TELEMETRY ACTIVE" : "TELEMETRY PENDING"}
+                </Badge>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="p-4 rounded-lg border border-white/5 bg-white/[0.02]">
+                  <p className="text-[10px] tracking-wider text-gray-500 uppercase mb-2">Server Uptime</p>
+                  <p className="text-lg font-display font-bold text-emerald-400">{monitoring.server?.uptimeFormatted || "—"}</p>
+                </div>
+                <div className="p-4 rounded-lg border border-white/5 bg-white/[0.02]">
+                  <p className="text-[10px] tracking-wider text-gray-500 uppercase mb-2">Heap Memory</p>
+                  <p className="text-lg font-display font-bold text-blue-400">{monitoring.server?.memoryUsageMB?.heapUsed || "—"} MB</p>
+                </div>
+                <div className="p-4 rounded-lg border border-white/5 bg-white/[0.02]">
+                  <p className="text-[10px] tracking-wider text-gray-500 uppercase mb-2">Identity Provider</p>
+                  <p className="text-lg font-display font-bold text-amber-500">{monitoring.identity?.configured ? "Entra ID" : "Demo"}</p>
+                </div>
+                <div className="p-4 rounded-lg border border-white/5 bg-white/[0.02]">
+                  <p className="text-[10px] tracking-wider text-gray-500 uppercase mb-2">App Insights</p>
+                  <p className={`text-lg font-display font-bold ${monitoring.appInsights?.configured ? "text-emerald-400" : "text-gray-500"}`}>{monitoring.appInsights?.configured ? "Active" : "Not Set"}</p>
+                </div>
+              </div>
+            </motion.div>
+          )}
         </div>
       </main>
     </div>

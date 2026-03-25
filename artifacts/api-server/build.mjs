@@ -100,6 +100,7 @@ async function buildAll() {
       "wrangler",
       "zeromq",
       "zeromq-prebuilt",
+      "applicationinsights",
       "playwright",
       "puppeteer",
       "puppeteer-core",

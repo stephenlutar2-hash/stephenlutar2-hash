@@ -67,10 +67,28 @@ artifacts-monorepo/
 
 ## Authentication
 
-All platforms share a unified login system. Credentials: `slutar` / `Topshelf14@`.
+All platforms share a unified login system with dual-mode support:
+
+### Demo Login
+Credentials: `slutar` / `Topshelf14@`.
 - Login: `POST /api/auth/login` — returns session token (24h expiry)
 - Auth check: `GET /api/auth/me` — validate token via Bearer header
 - Logout: `POST /api/auth/logout`
+
+### Entra External ID (MSAL)
+When `ENTRA_TENANT_ID` and `ENTRA_CLIENT_ID` env vars are set, enterprise SSO is enabled:
+- Config check: `GET /api/auth/entra-config` — returns Entra public config (clientId, authority, scopes)
+- Entra login: `POST /api/auth/entra-login` — validates ID token via JWKS, creates session
+- Frontend: MSAL popup flow on all 6 login pages (Rosie, Aegis, Beacon, Lutar, Nimbus, Firestorm)
+- `requireAuth` middleware tries Entra JWT validation first, falls back to DB session token
+- Backend files: `lib/entra.ts` (JWKS validation), `routes/auth.ts` (endpoints)
+- Env vars needed: `ENTRA_TENANT_ID`, `ENTRA_CLIENT_ID`, `ENTRA_CLIENT_SECRET` (optional for confidential client)
+
+### Monitoring & Telemetry
+- Health endpoint: `GET /api/monitoring/health` — returns server uptime, memory, Node version, App Insights status, identity provider status
+- App Insights: initialized via `lib/appInsights.ts` when `APPLICATIONINSIGHTS_CONNECTION_STRING` is set; gracefully degrades when missing
+- Rosie dashboard: "Monitoring" tab with server health, memory, identity, and telemetry cards
+- Aegis dashboard: "Infrastructure Monitoring" section at bottom with same data
 - Write routes (POST/PUT/DELETE) on ROSIE are protected with `requireAuth` middleware
 - Frontend login pages at `/login` on each platform with auth guards on protected routes
 
@@ -124,6 +142,9 @@ All routes served at `/api/` prefix:
 - `PUT/DELETE /api/dreamera/content/:id`
 - `GET/POST /api/dreamera/campaigns` - Campaign management
 - `DELETE /api/dreamera/campaigns/:id`
+- `GET /api/auth/entra-config` - Entra External ID public config
+- `POST /api/auth/entra-login` - Entra ID token exchange
+- `GET /api/monitoring/health` - Server health + telemetry status
 
 ## Alloy Nuro Engine (Autonomous AI Neural Core)
 

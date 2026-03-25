@@ -1,3 +1,7 @@
+import { initAppInsights } from "./lib/appInsights";
+
+initAppInsights();
+
 import app from "./app";
 import { logger } from "./lib/logger";
 

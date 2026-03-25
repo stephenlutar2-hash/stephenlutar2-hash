@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation, Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { Shield, ShieldAlert, ShieldCheck, Activity, LogOut, Zap, AlertTriangle, CheckCircle, Clock, XCircle, Loader2, Bug, Scan, Bot, RefreshCw } from "lucide-react";
+import { Shield, ShieldAlert, ShieldCheck, Activity, LogOut, Zap, AlertTriangle, CheckCircle, Clock, XCircle, Loader2, Bug, Scan, Bot, RefreshCw, Server, Cpu, HardDrive } from "lucide-react";
 
 interface Threat { id: number; type: string; source: string; target: string; severity: string; status: string; description: string; createdAt: string; }
 interface Incident { id: number; title: string; description: string; severity: string; status: string; assignee: string; platform: string; resolved: boolean; createdAt: string; }
@@ -56,9 +56,10 @@ export default function Dashboard() {
   const [threats, setThreats] = useState<Threat[]>([]);
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [scans, setScans] = useState<ScanRecord[]>([]);
-  const [tab, setTab] = useState<"threats" | "incidents" | "scans">("threats");
+  const [tab, setTab] = useState<"threats" | "incidents" | "scans" | "monitoring">("threats");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [monitoring, setMonitoring] = useState<any>(null);
   const [, setLocation] = useLocation();
   const user = localStorage.getItem("szl_user");
 
@@ -73,9 +74,17 @@ export default function Dashboard() {
       .catch((err) => { setError(err.message || "Failed to load data"); setLoading(false); });
   }
 
+  function fetchMonitoring() {
+    fetch("/api/monitoring/health")
+      .then(r => r.json())
+      .then(d => setMonitoring(d))
+      .catch(() => {});
+  }
+
   useEffect(() => {
     if (!localStorage.getItem("szl_token")) { setLocation("/login"); return; }
     fetchData();
+    fetchMonitoring();
   }, []);
 
   function logout() {
@@ -156,11 +165,12 @@ export default function Dashboard() {
         </div>
 
         <div className="flex gap-2 mb-6 overflow-x-auto pb-1">
-          {(["threats", "incidents", "scans"] as const).map(t => (
+          {(["threats", "incidents", "scans", "monitoring"] as const).map(t => (
             <button key={t} onClick={() => setTab(t)} className={`relative px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition whitespace-nowrap ${tab === t ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30" : "bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10"}`}>
               {t === "threats" && <ShieldAlert className="w-3.5 h-3.5 inline mr-1.5" />}
               {t === "incidents" && <Bug className="w-3.5 h-3.5 inline mr-1.5" />}
               {t === "scans" && <Scan className="w-3.5 h-3.5 inline mr-1.5" />}
+              {t === "monitoring" && <Server className="w-3.5 h-3.5 inline mr-1.5" />}
               {t}
             </button>
           ))}
@@ -273,6 +283,99 @@ export default function Dashboard() {
                     </div>
                   </motion.div>
                 ))}
+              </div>
+            </motion.div>
+          )}
+          {tab === "monitoring" && (
+            <motion.div key="monitoring" variants={tabVariants} initial="initial" animate="animate" exit="exit">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="bg-white/5 border border-white/10 rounded-xl p-5">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Server className="w-5 h-5 text-cyan-400" />
+                    <h3 className="font-bold text-sm uppercase tracking-wider">Server Status</h3>
+                  </div>
+                  {monitoring?.server ? (
+                    <div className="space-y-3 text-sm">
+                      <div className="flex justify-between"><span className="text-gray-500">Uptime</span><span className="text-emerald-400 font-mono">{monitoring.server.uptimeFormatted}</span></div>
+                      <div className="flex justify-between"><span className="text-gray-500">Node.js</span><span className="text-gray-300 font-mono">{monitoring.server.nodeVersion}</span></div>
+                      <div className="flex justify-between"><span className="text-gray-500">Environment</span><span className="text-cyan-400 font-mono uppercase">{monitoring.server.env}</span></div>
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 text-sm">Loading...</p>
+                  )}
+                </div>
+
+                <div className="bg-white/5 border border-white/10 rounded-xl p-5">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Cpu className="w-5 h-5 text-violet-400" />
+                    <h3 className="font-bold text-sm uppercase tracking-wider">Memory</h3>
+                  </div>
+                  {monitoring?.server?.memoryUsageMB ? (
+                    <div className="space-y-3 text-sm">
+                      <div className="flex justify-between"><span className="text-gray-500">RSS</span><span className="text-gray-300 font-mono">{monitoring.server.memoryUsageMB.rss} MB</span></div>
+                      <div className="flex justify-between"><span className="text-gray-500">Heap Used</span><span className="text-gray-300 font-mono">{monitoring.server.memoryUsageMB.heapUsed} MB</span></div>
+                      <div className="flex justify-between"><span className="text-gray-500">Heap Total</span><span className="text-gray-300 font-mono">{monitoring.server.memoryUsageMB.heapTotal} MB</span></div>
+                      <div className="mt-2">
+                        <div className="flex justify-between text-xs text-gray-500 mb-1"><span>Heap Utilization</span><span>{Math.round((monitoring.server.memoryUsageMB.heapUsed / monitoring.server.memoryUsageMB.heapTotal) * 100)}%</span></div>
+                        <div className="w-full bg-white/5 rounded-full h-2">
+                          <div className="bg-gradient-to-r from-cyan-500 to-violet-500 h-2 rounded-full transition-all" style={{ width: `${Math.round((monitoring.server.memoryUsageMB.heapUsed / monitoring.server.memoryUsageMB.heapTotal) * 100)}%` }} />
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 text-sm">Loading...</p>
+                  )}
+                </div>
+
+                <div className="bg-white/5 border border-white/10 rounded-xl p-5">
+                  <div className="flex items-center gap-2 mb-4">
+                    <HardDrive className="w-5 h-5 text-emerald-400" />
+                    <h3 className="font-bold text-sm uppercase tracking-wider">Telemetry</h3>
+                  </div>
+                  {monitoring?.appInsights ? (
+                    monitoring.appInsights.configured ? (
+                      <div className="space-y-3 text-sm">
+                        <div className="flex justify-between"><span className="text-gray-500">Status</span><span className="text-emerald-400 font-bold uppercase">{monitoring.appInsights.status}</span></div>
+                        <div className="flex justify-between"><span className="text-gray-500">Requests</span><span className={monitoring.appInsights.autoCollection?.requests ? "text-emerald-400" : "text-gray-500"}>{monitoring.appInsights.autoCollection?.requests ? "Collecting" : "Off"}</span></div>
+                        <div className="flex justify-between"><span className="text-gray-500">Exceptions</span><span className={monitoring.appInsights.autoCollection?.exceptions ? "text-emerald-400" : "text-gray-500"}>{monitoring.appInsights.autoCollection?.exceptions ? "Collecting" : "Off"}</span></div>
+                        <div className="flex justify-between"><span className="text-gray-500">Performance</span><span className={monitoring.appInsights.autoCollection?.performance ? "text-emerald-400" : "text-gray-500"}>{monitoring.appInsights.autoCollection?.performance ? "Collecting" : "Off"}</span></div>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-yellow-400 text-sm"><AlertTriangle className="w-4 h-4" /> Not Configured</div>
+                        <p className="text-gray-500 text-xs">{monitoring.appInsights.message}</p>
+                      </div>
+                    )
+                  ) : (
+                    <p className="text-gray-500 text-sm">Loading...</p>
+                  )}
+                </div>
+
+                <div className="bg-white/5 border border-white/10 rounded-xl p-5">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Shield className="w-5 h-5 text-cyan-400" />
+                    <h3 className="font-bold text-sm uppercase tracking-wider">Identity Provider</h3>
+                  </div>
+                  {monitoring?.identity ? (
+                    <div className="space-y-3 text-sm">
+                      <div className="flex justify-between"><span className="text-gray-500">Provider</span><span className="text-gray-300">{monitoring.identity.provider}</span></div>
+                      <div className="flex justify-between"><span className="text-gray-500">Status</span><span className={monitoring.identity.configured ? "text-emerald-400 font-bold" : "text-yellow-400 font-bold"}>{monitoring.identity.configured ? "ACTIVE" : "DEMO MODE"}</span></div>
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 text-sm">Loading...</p>
+                  )}
+                </div>
+
+                <div className="bg-white/5 border border-white/10 rounded-xl p-5 md:col-span-2">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <Activity className="w-5 h-5 text-cyan-400" />
+                      <h3 className="font-bold text-sm uppercase tracking-wider">System Timestamp</h3>
+                    </div>
+                    <button onClick={fetchMonitoring} className="text-xs text-gray-400 hover:text-white flex items-center gap-1 transition"><RefreshCw className="w-3 h-3" /> Refresh</button>
+                  </div>
+                  <p className="text-gray-300 font-mono text-sm">{monitoring?.timestamp || "—"}</p>
+                </div>
               </div>
             </motion.div>
           )}

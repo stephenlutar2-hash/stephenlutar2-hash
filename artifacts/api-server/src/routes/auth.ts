@@ -1,8 +1,9 @@
 import { Router, type Request, type Response, type NextFunction } from "express";
 import { db } from "@workspace/db";
 import { sessionsTable } from "@workspace/db/schema";
-import { eq, gt } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import crypto from "crypto";
+import { isEntraConfigured, getEntraPublicConfig, validateEntraToken } from "../lib/entra";
 
 const router = Router();
 
@@ -26,6 +27,19 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     return;
   }
   const token = authHeader.slice(7);
+
+  if (isEntraConfigured()) {
+    const result = await validateEntraToken(token);
+    if (result.valid) {
+      (req as any).user = {
+        username: result.claims.preferred_username || result.claims.name || result.claims.sub || "entra-user",
+        role: "emperor",
+        authMethod: "entra",
+      };
+      return next();
+    }
+  }
+
   const [session] = await db.select().from(sessionsTable)
     .where(eq(sessionsTable.token, token))
     .limit(1);
@@ -35,9 +49,50 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
   }
   const users = getUsers();
   const userInfo = users[session.username];
-  (req as any).user = { username: session.username, role: userInfo?.role || "user" };
+  (req as any).user = { username: session.username, role: userInfo?.role || "user", authMethod: "demo" };
   next();
 }
+
+router.get("/auth/entra-config", (_req, res) => {
+  const config = getEntraPublicConfig();
+  if (!config) {
+    return res.json({ configured: false });
+  }
+  return res.json({ configured: true, ...config });
+});
+
+router.post("/auth/entra-login", async (req, res) => {
+  try {
+    const idToken = req.body.idToken;
+    if (!idToken) {
+      return res.status(400).json({ error: "ID token required" });
+    }
+
+    if (!isEntraConfigured()) {
+      return res.status(400).json({ error: "Entra External ID is not configured" });
+    }
+
+    const result = await validateEntraToken(idToken);
+    if (!result.valid) {
+      return res.status(401).json({ error: result.error });
+    }
+
+    const username = result.claims.preferred_username || result.claims.name || result.claims.sub || "entra-user";
+    const token = crypto.randomBytes(32).toString("hex");
+    const expiresAt = new Date(Date.now() + SESSION_TTL_HOURS * 60 * 60 * 1000);
+    await db.insert(sessionsTable).values({ token, username, expiresAt });
+
+    return res.json({
+      token,
+      username,
+      role: "emperor",
+      expiresAt: expiresAt.toISOString(),
+      authMethod: "entra",
+    });
+  } catch (e: any) {
+    return res.status(500).json({ error: e.message || "Entra login failed" });
+  }
+});
 
 router.post("/auth/login", async (req, res) => {
   try {
@@ -50,7 +105,7 @@ router.post("/auth/login", async (req, res) => {
     const token = crypto.randomBytes(32).toString("hex");
     const expiresAt = new Date(Date.now() + SESSION_TTL_HOURS * 60 * 60 * 1000);
     await db.insert(sessionsTable).values({ token, username, expiresAt });
-    return res.json({ token, username, role: user.role, expiresAt: expiresAt.toISOString() });
+    return res.json({ token, username, role: user.role, expiresAt: expiresAt.toISOString(), authMethod: "demo" });
   } catch (e) {
     return res.status(500).json({ error: "Login failed" });
   }
@@ -63,6 +118,18 @@ router.get("/auth/me", async (req, res) => {
       return res.status(401).json({ error: "No token provided" });
     }
     const token = authHeader.slice(7);
+
+    if (isEntraConfigured()) {
+      const result = await validateEntraToken(token);
+      if (result.valid) {
+        return res.json({
+          username: result.claims.preferred_username || result.claims.name || result.claims.sub || "entra-user",
+          role: "emperor",
+          authMethod: "entra",
+        });
+      }
+    }
+
     const [session] = await db.select().from(sessionsTable)
       .where(eq(sessionsTable.token, token))
       .limit(1);
