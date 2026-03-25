@@ -484,35 +484,32 @@ export default function Dashboard() {
             </p>
           </div>
 
-          <a
-            href="#"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary transition-colors"
+          <button
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary transition-colors"
           >
             <LayoutDashboard size={18} />
             <span className="font-sans text-sm font-medium">
               Command Center
             </span>
-          </a>
-          <a
-            href="#"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-white/5 hover:text-white transition-colors"
+          </button>
+          <button
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-white/5 hover:text-white transition-colors"
           >
             <Briefcase size={18} />
             <span className="font-sans text-sm font-medium">
               Holdings & Assets
             </span>
-          </a>
-          <a
-            href="#"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-white/5 hover:text-white transition-colors"
+          </button>
+          <button
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-white/5 hover:text-white transition-colors"
           >
             <Target size={18} />
             <span className="font-sans text-sm font-medium">
               Strategic Goals
             </span>
-          </a>
+          </button>
           <a
-            href="#"
+            href="/aegis/"
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-white/5 hover:text-white transition-colors"
           >
             <ShieldCheck size={18} />
@@ -523,13 +520,12 @@ export default function Dashboard() {
         </div>
 
         <div className="p-4 border-t border-border">
-          <a
-            href="#"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-white/5 hover:text-white transition-colors"
+          <button
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-white/5 hover:text-white transition-colors"
           >
             <Settings size={18} />
             <span className="font-sans text-sm font-medium">System Prefs</span>
-          </a>
+          </button>
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-destructive hover:bg-destructive/10 transition-colors mt-1"

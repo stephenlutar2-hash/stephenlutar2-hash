@@ -86,15 +86,14 @@ const platforms = [
     path: "/zeus/",
   },
   {
-    name: "PSEM",
-    tagline: "Platform Security Event Manager",
-    description: "Centralized security event management aggregating signals from every SZL platform into a unified threat intelligence feed.",
+    name: "Lyte",
+    tagline: "Executive Observability",
+    description: "Unified command center for portfolio-wide signals, AI-driven recommendations, and ecosystem health monitoring across all SZL platforms.",
     icon: Globe,
-    color: "from-indigo-500 to-purple-600",
-    accent: "indigo",
-    features: ["Event Aggregation", "Threat Correlation", "Cross-Platform Alerts", "Forensic Analysis"],
-    path: "#",
-    comingSoon: true,
+    color: "from-emerald-400 to-teal-600",
+    accent: "emerald",
+    features: ["Signal Intelligence", "AI Recommendations", "Portfolio Health", "Impact Analysis"],
+    path: "/lyte/",
   },
 ];
 
@@ -227,11 +226,6 @@ export default function Home() {
                     <h3 className="font-display font-bold text-white">{p.name}</h3>
                     <p className="text-xs text-gray-500">{p.tagline}</p>
                   </div>
-                  {(p as Record<string, unknown>).comingSoon && (
-                    <span className="ml-auto px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                      Coming Soon
-                    </span>
-                  )}
                 </div>
                 <p className="text-sm text-gray-400 leading-relaxed mb-4">{p.description}</p>
                 <div className="flex flex-wrap gap-1.5">

@@ -126,51 +126,45 @@ export default function Dashboard() {
             </p>
           </div>
 
-          <a
-            href="#"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-amber-500/10 text-amber-500 transition-colors"
+          <button
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-amber-500/10 text-amber-500 transition-colors"
           >
             <LayoutDashboard size={18} />
             <span className="text-sm font-medium">Threat Overview</span>
-          </a>
-          <a
-            href="#"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-500 hover:bg-white/5 hover:text-white transition-colors"
+          </button>
+          <button
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-500 hover:bg-white/5 hover:text-white transition-colors"
           >
             <ShieldAlert size={18} />
             <span className="text-sm font-medium">Active Threats</span>
-          </a>
-          <a
-            href="#"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-500 hover:bg-white/5 hover:text-white transition-colors"
+          </button>
+          <button
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-500 hover:bg-white/5 hover:text-white transition-colors"
           >
             <Globe size={18} />
             <span className="text-sm font-medium">Network Perimeter</span>
-          </a>
-          <a
-            href="#"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-500 hover:bg-white/5 hover:text-white transition-colors"
+          </button>
+          <button
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-500 hover:bg-white/5 hover:text-white transition-colors"
           >
             <Lock size={18} />
             <span className="text-sm font-medium">Access Control</span>
-          </a>
-          <a
-            href="#"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-500 hover:bg-white/5 hover:text-white transition-colors"
+          </button>
+          <button
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-500 hover:bg-white/5 hover:text-white transition-colors"
           >
             <Eye size={18} />
             <span className="text-sm font-medium">Forensics</span>
-          </a>
+          </button>
         </div>
 
         <div className="p-4 border-t border-amber-500/10">
-          <a
-            href="#"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-500 hover:bg-white/5 hover:text-white transition-colors"
+          <button
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-500 hover:bg-white/5 hover:text-white transition-colors"
           >
             <Settings size={18} />
             <span className="text-sm font-medium">Configuration</span>
-          </a>
+          </button>
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors mt-1"

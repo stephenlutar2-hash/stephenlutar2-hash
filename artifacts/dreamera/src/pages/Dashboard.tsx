@@ -273,10 +273,10 @@ function SocialMediaSection() {
       if (data.authUrl) {
         window.open(data.authUrl, "_blank", "width=600,height=700");
       } else {
-        alert(data.error || "Failed to start OAuth");
+        setPublishResult({ success: false, message: data.error || "Failed to start OAuth" });
       }
     } catch {
-      alert("Failed to start OAuth flow");
+      setPublishResult({ success: false, message: "Failed to start OAuth flow" });
     }
   }
 

@@ -384,9 +384,9 @@ export default function Home() {
           </div>
           
           <div className="text-sm text-muted-foreground flex gap-6">
-            <a href="#" className="hover:text-primary transition-colors">Privacy</a>
-            <a href="#" className="hover:text-primary transition-colors">Terms</a>
-            <a href="#" className="hover:text-primary transition-colors">Documentation</a>
+            <span className="hover:text-primary transition-colors cursor-default">Privacy</span>
+            <span className="hover:text-primary transition-colors cursor-default">Terms</span>
+            <a href="/apps-showcase/catalog" className="hover:text-primary transition-colors">Documentation</a>
           </div>
           
           <div className="text-xs font-mono text-muted-foreground p-3 border border-border rounded bg-card/50">
