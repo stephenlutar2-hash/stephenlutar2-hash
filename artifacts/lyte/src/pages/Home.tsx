@@ -237,6 +237,7 @@ export default function Home() {
     if (activeTab === "settings" && integrations.length === 0 && !loading.integrations) loadIntegrations();
   }, [activeTab, signals.length, recommendations.length, integrations.length, impactMetrics.length, loading, loadSignals, loadRecommendations, loadIntegrations, loadImpact]);
 
+  const platformMode = dashboardSummary?.mode ?? "demo";
   const healthScore = dashboardSummary?.healthScore ?? 0;
   const avgReadiness = dashboardSummary?.avgReadiness ?? Math.round(portfolioProjects.reduce((s, p) => s + p.readiness, 0) / portfolioProjects.length);
   const deployed = dashboardSummary?.deployedProjects ?? portfolioProjects.filter(p => p.status === "deployed").length;
@@ -296,7 +297,7 @@ export default function Home() {
             </div>
             <span className="font-display font-bold text-sm tracking-wider">LYTE</span>
             <span className="text-[10px] text-muted-foreground font-mono hidden sm:inline">COMMAND CENTER</span>
-            <span className="ml-2 px-2 py-0.5 rounded text-[9px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/20">DEMO</span>
+            <span className={`ml-2 px-2 py-0.5 rounded text-[9px] font-bold ${platformMode === "live" ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20" : "bg-amber-500/15 text-amber-400 border border-amber-500/20"}`}>{platformMode.toUpperCase()}</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-[10px] text-muted-foreground font-mono hidden md:inline">{new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
@@ -316,7 +317,7 @@ export default function Home() {
       <div className="max-w-[1500px] mx-auto px-4 sm:px-6 py-6">
         {activeTab === "dashboard" && (loading.dashboard ? <LoadingSpinner /> : errors.dashboard ? <ErrorMessage message={errors.dashboard} onRetry={loadDashboard} /> : <DashboardTab healthScore={healthScore} avgReadiness={avgReadiness} deployed={deployed} criticals={criticals} attentionNeeded={attentionNeeded} activeSignals={activeSignalCount} signals={signals} projects={portfolioProjects} onSignalClick={setDrawerSignal} onProjectClick={setDrawerProject} />)}
         {activeTab === "signals" && (loading.signals ? <LoadingSpinner /> : errors.signals ? <ErrorMessage message={errors.signals} onRetry={loadSignals} /> : <SignalsTab signals={filteredSignals} filter={signalFilter} setFilter={setSignalFilter} search={searchQuery} setSearch={setSearchQuery} onSignalClick={setDrawerSignal} sources={uniqueSources} owners={uniqueOwners} />)}
-        {activeTab === "recommendations" && (loading.recommendations ? <LoadingSpinner /> : errors.recommendations ? <ErrorMessage message={errors.recommendations} onRetry={loadRecommendations} /> : <RecommendationsTab recommendations={recommendations} actionStates={actionStates} onAction={handleAction} />)}
+        {activeTab === "recommendations" && (loading.recommendations ? <LoadingSpinner /> : errors.recommendations ? <ErrorMessage message={errors.recommendations} onRetry={loadRecommendations} /> : <RecommendationsTab recommendations={recommendations} actionStates={actionStates} onAction={handleAction} mode={platformMode} />)}
         {activeTab === "impact" && (loading.impact ? <LoadingSpinner /> : errors.impact ? <ErrorMessage message={errors.impact} onRetry={loadImpact} /> : <ImpactTab metrics={impactMetrics} />)}
         {activeTab === "portfolio" && <PortfolioTab projects={sortedProjects} sort={portfolioSort} setSort={setPortfolioSort} filter={portfolioFilter} setFilter={setPortfolioFilter} onProjectClick={setDrawerProject} />}
         {activeTab === "integrations" && (loading.integrations ? <LoadingSpinner /> : errors.integrations ? <ErrorMessage message={errors.integrations} onRetry={loadIntegrations} /> : <IntegrationsTab integrations={integrations} />)}
@@ -604,9 +605,10 @@ interface RecommendationsTabProps {
   recommendations: Recommendation[];
   actionStates: Record<string, string>;
   onAction: (id: string, action: string) => void;
+  mode: string;
 }
 
-function RecommendationsTab({ recommendations, actionStates, onAction }: RecommendationsTabProps) {
+function RecommendationsTab({ recommendations, actionStates, onAction, mode }: RecommendationsTabProps) {
   return (
     <>
       <Section className="mb-4">
@@ -614,7 +616,7 @@ function RecommendationsTab({ recommendations, actionStates, onAction }: Recomme
           <div className="flex items-center gap-3 mb-1">
             <Sparkles className="w-5 h-5 text-primary" />
             <h2 className="text-sm font-semibold">AI-Assisted Recommendations</h2>
-            <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/20">DEMO MODE</span>
+            <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${mode === "live" ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20" : "bg-amber-500/15 text-amber-400 border border-amber-500/20"}`}>{mode.toUpperCase()} MODE</span>
           </div>
           <p className="text-xs text-muted-foreground">Prioritized actions ranked by urgency and projected business impact. In production, recommendations are generated by analyzing live signals.</p>
         </div>
