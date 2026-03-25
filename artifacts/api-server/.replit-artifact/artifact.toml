@@ -7,7 +7,7 @@ id = "3B4_FFSkEVBkAeYMFRJ2e"
 [[services]]
 localPort = 3000
 name = "API Server"
-paths = ["/", "/api", "/health", "/aegis", "/beacon", "/lutar", "/nimbus", "/firestorm", "/dreamera", "/dreamscape", "/zeus", "/apps-showcase", "/readiness-report", "/career", "/lyte", "/alloyscape", "/carlota-jo", "/vessels"]
+paths = ["/", "/api", "/health", "/aegis", "/beacon", "/lutar", "/nimbus", "/firestorm", "/dreamera", "/dreamscape", "/zeus", "/apps-showcase", "/readiness-report", "/career", "/lyte", "/alloyscape", "/carlota-jo", "/vessels", "/inca"]
 
 [services.development]
 run = "pnpm -w run build:frontends && pnpm --filter @workspace/api-server run dev"
