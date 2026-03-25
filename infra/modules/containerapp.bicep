@@ -13,6 +13,9 @@ param logAnalyticsId string
 @description('ACR login server')
 param acrLoginServer string
 
+@description('Container image name')
+param imageName string = 'szlholdings-api'
+
 @description('Container image tag')
 param imageTag string = 'latest'
 
@@ -67,6 +70,16 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
     managedEnvironmentId: cae.id
     configuration: {
       activeRevisionsMode: 'Single'
+      secrets: [
+        {
+          name: 'redis-url'
+          value: 'rediss://:${redisPrimaryKey}@${redisHost}:6380'
+        }
+        {
+          name: 'database-url'
+          value: 'postgresql://${pgAdminLogin}:${pgAdminPassword}@${pgHost}:5432/szlholdings?sslmode=require'
+        }
+      ]
       ingress: {
         external: true
         targetPort: 3000
@@ -90,7 +103,7 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
       containers: [
         {
           name: 'api-server'
-          image: '${acrLoginServer}/szlholdings-api:${imageTag}'
+          image: '${acrLoginServer}/${imageName}:${imageTag}'
           resources: {
             cpu: json('0.5')
             memory: '1Gi'
@@ -100,9 +113,9 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
             { name: 'PORT', value: '3000' }
             { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', value: appInsightsConnectionString }
             { name: 'AZURE_KEY_VAULT_URL', value: keyVaultUrl }
-            { name: 'AZURE_REDIS_URL', value: 'rediss://:${redisPrimaryKey}@${redisHost}:6380' }
+            { name: 'AZURE_REDIS_URL', secretRef: 'redis-url' }
             { name: 'AZURE_STORAGE_ACCOUNT_NAME', value: storageAccountName }
-            { name: 'DATABASE_URL', value: 'postgresql://${pgAdminLogin}:${pgAdminPassword}@${pgHost}:5432/szlholdings?sslmode=require' }
+            { name: 'DATABASE_URL', secretRef: 'database-url' }
           ]
         }
       ]
