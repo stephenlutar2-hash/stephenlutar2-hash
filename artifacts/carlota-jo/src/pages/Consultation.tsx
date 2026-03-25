@@ -1,10 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "wouter";
 import {
   ArrowLeft, ArrowRight, CheckCircle2, Clock, Calendar,
   Briefcase, BarChart3, Crown, CreditCard
 } from "lucide-react";
+
+function useStripeConfigured() {
+  const [configured, setConfigured] = useState(false);
+  useEffect(() => {
+    fetch(`${import.meta.env.BASE_URL}../api/stripe/status`)
+      .then(r => r.json())
+      .then(d => setConfigured(d?.configured === true))
+      .catch(() => setConfigured(false));
+  }, []);
+  return configured;
+}
 
 const sessionTypes = [
   {
@@ -91,6 +102,7 @@ export default function Consultation() {
     setStep("confirmed");
   };
 
+  const stripeConfigured = useStripeConfigured();
   const selected = sessionTypes.find((s) => s.id === selectedSession);
 
   return (
@@ -216,14 +228,28 @@ export default function Consultation() {
                     <CreditCard className="w-5 h-5 text-primary" />
                     <h4 className="font-medium text-sm">Payment</h4>
                   </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Payment will be arranged after your consultation request is confirmed by our team.
-                    We accept wire transfer, ACH, and major credit cards. Invoicing available for retainer engagements.
-                  </p>
-                  <a href="mailto:inquiries@carlotajo.com?subject=Payment%20Inquiry%20-%20Consultation%20Booking" className="mt-4 w-full py-3 border border-primary/20 text-primary text-sm font-medium rounded-sm hover:bg-primary/5 transition-colors flex items-center justify-center gap-2">
-                    <Mail className="w-4 h-4" />
-                    Contact to Arrange Payment
-                  </a>
+                  {stripeConfigured ? (
+                    <>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        Secure payment processing powered by Stripe. You can pay immediately after submitting your booking request.
+                      </p>
+                      <button className="mt-4 w-full py-3 bg-primary text-primary-foreground text-sm font-medium rounded-sm hover:bg-primary/90 transition-colors flex items-center justify-center gap-2">
+                        <CreditCard className="w-4 h-4" />
+                        Pay with Stripe
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        Payment will be arranged after your consultation request is confirmed by our team.
+                        We accept wire transfer, ACH, and major credit cards. Invoicing available for retainer engagements.
+                      </p>
+                      <a href="mailto:inquiries@carlotajo.com?subject=Payment%20Inquiry%20-%20Consultation%20Booking" className="mt-4 w-full py-3 border border-primary/20 text-primary text-sm font-medium rounded-sm hover:bg-primary/5 transition-colors flex items-center justify-center gap-2">
+                        <Mail className="w-4 h-4" />
+                        Contact to Book
+                      </a>
+                    </>
+                  )}
                 </div>
               </div>
 

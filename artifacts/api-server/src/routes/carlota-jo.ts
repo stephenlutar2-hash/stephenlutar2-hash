@@ -52,4 +52,9 @@ router.get("/carlota-jo/inquiries", requireAuth, (req, res) => {
   res.json({ inquiries, total: inquiries.length });
 });
 
+router.get("/stripe/status", (_req, res) => {
+  const configured = !!(process.env.STRIPE_SECRET_KEY && process.env.STRIPE_PUBLISHABLE_KEY);
+  res.json({ configured });
+});
+
 export default router;

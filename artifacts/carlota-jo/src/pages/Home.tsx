@@ -143,6 +143,12 @@ export default function Home() {
   const [contactForm, setContactForm] = useState({ name: "", email: "", service: "", budget: "", timeline: "", message: "" });
   const [contactSubmitted, setContactSubmitted] = useState(false);
   const [contactLoading, setContactLoading] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+
+  const showToast = (message: string, type: "success" | "error") => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 5000);
+  };
 
   const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -155,8 +161,12 @@ export default function Home() {
       });
       if (res.ok) {
         setContactSubmitted(true);
+        showToast("Your inquiry has been submitted successfully. We'll be in touch within 24 hours.", "success");
+      } else {
+        showToast("Something went wrong. Please try again or email us directly.", "error");
       }
     } catch {
+      showToast("Network error. Please check your connection and try again.", "error");
     } finally {
       setContactLoading(false);
     }
@@ -166,6 +176,18 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      {toast && (
+        <div className={`fixed top-6 right-6 z-[100] max-w-md px-5 py-4 rounded-lg shadow-2xl border backdrop-blur-md transition-all animate-in slide-in-from-top-2 fade-in duration-300 ${
+          toast.type === "success"
+            ? "bg-emerald-950/90 border-emerald-500/30 text-emerald-100"
+            : "bg-red-950/90 border-red-500/30 text-red-100"
+        }`}>
+          <div className="flex items-start gap-3">
+            <CheckCircle2 className={`w-5 h-5 mt-0.5 flex-shrink-0 ${toast.type === "success" ? "text-emerald-400" : "text-red-400"}`} />
+            <p className="text-sm leading-relaxed">{toast.message}</p>
+          </div>
+        </div>
+      )}
       <header className="fixed top-0 left-0 right-0 z-50 glass-panel">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <a href="#hero" className="flex items-center gap-3">
@@ -669,12 +691,12 @@ export default function Home() {
                 Building lasting value through disciplined analysis and visionary strategy.
               </p>
               <div className="flex gap-3 mt-6">
-                <span className="w-9 h-9 rounded-full border border-border flex items-center justify-center text-muted-foreground/40">
+                <a href="https://linkedin.com/company/carlota-jo-consulting" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/30 transition-colors">
                   <Linkedin className="w-4 h-4" />
-                </span>
-                <span className="w-9 h-9 rounded-full border border-border flex items-center justify-center text-muted-foreground/40">
+                </a>
+                <a href="https://twitter.com/carlotajoconsulting" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/30 transition-colors">
                   <Twitter className="w-4 h-4" />
-                </span>
+                </a>
               </div>
             </div>
 
