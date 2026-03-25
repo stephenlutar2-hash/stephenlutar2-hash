@@ -1,0 +1,14 @@
+packages:
+  "framer-motion": "For premium enterprise animations and live threat feed simulation"
+  "clsx": "Utility for constructing className strings conditionally"
+  "tailwind-merge": "Utility for merging tailwind classes safely"
+  "lucide-react": "For crisp, modern icons"
+
+images:
+  - path: "artifacts/aegis/public/images/aegis-hero-bg.png"
+    description: "Luxurious abstract dark charcoal background with metallic gold geometric lines, subtle glowing dust particles, deep shadows, and an elite enterprise corporate security theme."
+    aspect_ratio: "16:9"
+
+notes:
+  - "Frontend-only landing page showcase for Aegis Security"
+  - "Using framer-motion for all CSS/SVG animations as requested for premium feel"

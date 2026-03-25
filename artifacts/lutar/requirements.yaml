@@ -1,0 +1,18 @@
+packages:
+  "framer-motion": "For premium cinematic scroll animations and micro-interactions"
+  "recharts": "For the dashboard growth and analytics charts"
+  "clsx": "For conditional class names in UI components"
+  "tailwind-merge": "For merging tailwind classes safely in UI components"
+
+images:
+  - path: "artifacts/lutar/public/images/lutar-hero.png"
+    description: "Ultra-luxury dark cinematic background, deep onyx blacks with subtle glowing emerald green smoke and platinum geometric lines. Abstract, prestigious, feeling of immense power and wealth."
+    aspect_ratio: "16:9"
+  - path: "artifacts/lutar/public/images/szl-logo.png"
+    description: "Minimalist platinum silver and emerald green geometric logo mark on a transparent or pure black background. Sleek, corporate, elite."
+    aspect_ratio: "1:1"
+
+notes:
+  - Mock authentication implemented via local state to allow access to the dashboard.
+  - Recharts used for the Dashboard growth chart.
+  - Framer Motion used extensively for the high-end luxury feel.

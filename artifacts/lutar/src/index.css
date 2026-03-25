@@ -1,0 +1,96 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme inline {
+  --font-display: 'Cinzel', serif;
+  --font-sans: 'Outfit', sans-serif;
+
+  --color-background: hsl(160 10% 3%);
+  --color-foreground: hsl(0 0% 98%);
+  
+  --color-primary: hsl(158 84% 39%);
+  --color-primary-foreground: hsl(0 0% 100%);
+  
+  --color-secondary: hsl(220 15% 80%);
+  --color-secondary-foreground: hsl(160 10% 5%);
+  
+  --color-muted: hsl(160 10% 10%);
+  --color-muted-foreground: hsl(160 10% 60%);
+  
+  --color-accent: hsl(158 84% 39%);
+  --color-accent-foreground: hsl(0 0% 100%);
+  
+  --color-destructive: hsl(0 84% 60%);
+  --color-destructive-foreground: hsl(0 0% 100%);
+  
+  --color-border: hsl(160 15% 15%);
+  --color-ring: hsl(158 84% 39%);
+  
+  --color-card: hsl(160 10% 6%);
+  --color-card-foreground: hsl(0 0% 98%);
+}
+
+:root {
+  --background: 160 10% 3%;
+  --foreground: 0 0% 98%;
+  --primary: 158 84% 39%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 220 15% 80%;
+  --secondary-foreground: 160 10% 5%;
+  --muted: 160 10% 10%;
+  --muted-foreground: 160 10% 60%;
+  --accent: 158 84% 39%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 160 15% 15%;
+  --ring: 158 84% 39%;
+  --card: 160 10% 6%;
+  --card-foreground: 0 0% 98%;
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased font-sans overflow-x-hidden;
+    background-image: 
+      radial-gradient(circle at 50% 0%, hsl(158 84% 39% / 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 100% 100%, hsl(220 15% 80% / 0.03) 0%, transparent 50%);
+    background-attachment: fixed;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    @apply tracking-wide;
+  }
+
+  /* Custom scrollbar for luxury feel */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: hsl(160 10% 3%);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(160 15% 20%);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(158 84% 39% / 0.5);
+  }
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply bg-card/60 backdrop-blur-xl border border-border/50 shadow-2xl;
+  }
+  .text-glow {
+    text-shadow: 0 0 20px hsl(158 84% 39% / 0.5);
+  }
+  .luxury-gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-secondary via-white to-secondary;
+  }
+}
