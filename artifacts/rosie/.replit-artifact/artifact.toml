@@ -1,5 +1,5 @@
 kind = "web"
-previewPath = "/rosie/"
+previewPath = "/"
 title = "Rosie Security"
 version = "1.0.0"
 id = "artifacts/rosie"
@@ -11,7 +11,7 @@ version = "1.0.0"
 
 [[services]]
 name = "web"
-paths = [ "/rosie/" ]
+paths = [ "/" ]
 localPort = 25263
 
 [services.development]
@@ -28,4 +28,4 @@ to = "/index.html"
 
 [services.env]
 PORT = "25263"
-BASE_PATH = "/rosie/"
+BASE_PATH = "/"
