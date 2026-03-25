@@ -45,7 +45,7 @@ artifacts-monorepo/
 
 | Platform | Route | Description | Backend |
 |----------|-------|-------------|---------|
-| ROSIE | `/` | AI-powered security monitoring platform | Full CRUD: threats, incidents, scans |
+| ROSIE | `/rosie/` | AI-powered security monitoring platform | Full CRUD: threats, incidents, scans |
 | AEGIS | `/aegis/` | Enterprise security fortress, zero-trust architecture | Landing page (frontend-only) |
 | LUTAR | `/lutar/` | Personal empire management command center | Landing + dashboard (frontend-only) |
 | BEACON | `/beacon/` | Decision analytics dashboard (multi-page) | Full CRUD: metrics, projects |
