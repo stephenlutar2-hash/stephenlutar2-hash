@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { format } from "date-fns";
-import { AlertTriangle, Plus, Trash2, ShieldAlert, Zap, Radio, Circle } from "lucide-react";
+import { AlertTriangle, Plus, Trash2, ShieldAlert, Zap, Radio, Circle, RefreshCw } from "lucide-react";
 import { motion } from "framer-motion";
 import { BarChart, Bar, Cell, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { useAlerts, useDeleteAlert } from "@/hooks/use-alerts";
@@ -36,7 +36,7 @@ function ConfirmDialog({ isOpen, onClose, onConfirm, name }: { isOpen: boolean; 
 }
 
 export default function Alerts() {
-  const { data: alerts, isLoading } = useAlerts();
+  const { data: alerts, isLoading, error: alertsError, refetch } = useAlerts();
   const deleteMutation = useDeleteAlert();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; id: number; name: string }>({ isOpen: false, id: 0, name: "" });
@@ -79,6 +79,15 @@ export default function Alerts() {
 
   return (
     <div className="space-y-8">
+      {alertsError && (
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3 bg-destructive/10 border border-destructive/20 rounded-xl px-5 py-3 text-destructive text-sm">
+          <AlertTriangle className="w-5 h-5 shrink-0" />
+          <span className="flex-1">Failed to load alert data.</span>
+          <button onClick={() => refetch()} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 hover:bg-destructive/20 border border-destructive/20 text-xs font-bold uppercase tracking-wider transition-colors">
+            <RefreshCw className="w-3.5 h-3.5" /> Retry
+          </button>
+        </motion.div>
+      )}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-secondary to-white">

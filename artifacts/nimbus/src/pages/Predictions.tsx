@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { format } from "date-fns";
-import { Plus, Target, Trash2, Brain, Activity, Clock, AlertTriangle } from "lucide-react";
+import { Plus, Target, Trash2, Brain, Activity, Clock, AlertTriangle, RefreshCw } from "lucide-react";
 import { motion } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { usePredictions, useDeletePrediction } from "@/hooks/use-predictions";
@@ -37,7 +37,7 @@ function ConfirmDialog({ isOpen, onClose, onConfirm, name }: { isOpen: boolean; 
 }
 
 export default function Predictions() {
-  const { data: predictions, isLoading } = usePredictions();
+  const { data: predictions, isLoading, error: predictionsError, refetch } = usePredictions();
   const deleteMutation = useDeletePrediction();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; id: number; name: string }>({ isOpen: false, id: 0, name: "" });
@@ -75,6 +75,15 @@ export default function Predictions() {
 
   return (
     <div className="space-y-8">
+      {predictionsError && (
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3 bg-destructive/10 border border-destructive/20 rounded-xl px-5 py-3 text-destructive text-sm">
+          <AlertTriangle className="w-5 h-5 shrink-0" />
+          <span className="flex-1">Failed to load prediction data.</span>
+          <button onClick={() => refetch()} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 hover:bg-destructive/20 border border-destructive/20 text-xs font-bold uppercase tracking-wider transition-colors">
+            <RefreshCw className="w-3.5 h-3.5" /> Retry
+          </button>
+        </motion.div>
+      )}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-white/60">

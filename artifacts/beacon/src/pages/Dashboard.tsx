@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { useMetrics, useMutateMetrics, useProjects, useMutateProjects } from "@/hooks/use-beacon";
 import { Layout } from "@/components/Layout";
 import { Modal } from "@/components/Modal";
-import { Plus, TrendingUp, TrendingDown, Edit2, Trash2, AlertTriangle, BarChart3, FolderOpen } from "lucide-react";
+import { Plus, TrendingUp, TrendingDown, Edit2, Trash2, AlertTriangle, BarChart3, FolderOpen, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { BeaconMetric, BeaconProject } from "@workspace/api-client-react";
 
@@ -41,8 +41,8 @@ function formatMetricValue(value: number, unit: string) {
 }
 
 export default function Dashboard() {
-  const { data: metrics, isLoading: loadingMetrics } = useMetrics();
-  const { data: projects, isLoading: loadingProjects } = useProjects();
+  const { data: metrics, isLoading: loadingMetrics, error: metricsError, refetch: refetchMetrics } = useMetrics();
+  const { data: projects, isLoading: loadingProjects, error: projectsError, refetch: refetchProjects } = useProjects();
   const { create: createMetric, update: updateMetric, remove: removeMetric } = useMutateMetrics();
   const { create: createProject, update: updateProject, remove: removeProject } = useMutateProjects();
 
@@ -99,6 +99,15 @@ export default function Dashboard() {
   return (
     <Layout>
       <div className="space-y-8">
+        {(metricsError || projectsError) && (
+          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3 bg-destructive/10 border border-destructive/20 rounded-xl px-5 py-3 text-destructive text-sm">
+            <AlertTriangle className="w-5 h-5 shrink-0" />
+            <span className="flex-1">{metricsError ? "Failed to load telemetry data." : "Failed to load initiative data."}</span>
+            <button onClick={() => { if (metricsError) refetchMetrics(); if (projectsError) refetchProjects(); }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 hover:bg-destructive/20 border border-destructive/20 text-xs font-bold uppercase tracking-wider transition-colors">
+              <RefreshCw className="w-3.5 h-3.5" /> Retry
+            </button>
+          </motion.div>
+        )}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h2 className="text-2xl sm:text-3xl font-display font-bold glow-text">Overview Telemetry</h2>
