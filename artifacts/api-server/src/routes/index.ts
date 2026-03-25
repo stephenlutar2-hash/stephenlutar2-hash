@@ -8,6 +8,7 @@ import incaRouter from "./inca";
 import dreameraRouter from "./dreamera";
 import rosieRouter from "./rosie";
 import alloyRouter from "./alloy";
+import agentsRouter from "./agents";
 
 const router: IRouter = Router();
 
@@ -20,5 +21,6 @@ router.use(incaRouter);
 router.use(dreameraRouter);
 router.use(rosieRouter);
 router.use(alloyRouter);
+router.use(agentsRouter);
 
 export default router;

@@ -1,5 +1,6 @@
 import { Switch, Route, Router as WouterRouter } from "wouter";
 import Home from "@/pages/Home";
+import AgentChat from "@/components/AgentChat";
 
 function Router() {
   return (
@@ -18,6 +19,7 @@ function App() {
   return (
     <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
       <Router />
+      <AgentChat />
     </WouterRouter>
   );
 }
