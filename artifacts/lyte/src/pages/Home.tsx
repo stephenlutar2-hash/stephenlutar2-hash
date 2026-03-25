@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import {
   Activity, AlertTriangle, ArrowUpRight, BarChart3, Bell, CheckCircle,
@@ -81,6 +81,29 @@ interface PortfolioProject {
   lastDeploy: string;
 }
 
+interface DashboardSummary {
+  healthScore: number;
+  totalProjects: number;
+  deployedProjects: number;
+  avgReadiness: number;
+  criticalSignals: number;
+  highSignals: number;
+  activeSignals: number;
+  attentionQueue: SignalItem[];
+  mode: string;
+}
+
+interface SignalFilter {
+  severity: string;
+  domain: string;
+  status: string;
+}
+
+interface PortfolioSort {
+  field: string;
+  dir: "asc" | "desc";
+}
+
 const portfolioProjects: PortfolioProject[] = [
   { name: "ROSIE", route: "/", readiness: 96, status: "deployed", category: "Security", owner: "Stephen L.", blockers: 0, nextAction: "Complete load testing", attentionLevel: "none", dns: true, tls: true, environment: "production", uptime: 99.97, lastDeploy: "2 hours ago" },
   { name: "Aegis", route: "/aegis/", readiness: 88, status: "deployed", category: "Security", owner: "Stephen L.", blockers: 1, nextAction: "Fix API rate limiting", attentionLevel: "watch", dns: true, tls: true, environment: "production", uptime: 99.95, lastDeploy: "1 day ago" },
@@ -99,47 +122,6 @@ const portfolioProjects: PortfolioProject[] = [
   { name: "Readiness Report", route: "/readiness-report/", readiness: 87, status: "deployed", category: "Operations", owner: "Stephen L.", blockers: 0, nextAction: "—", attentionLevel: "none", dns: true, tls: true, environment: "production", uptime: 99.90, lastDeploy: "Just now" },
   { name: "Career", route: "/career/", readiness: 83, status: "deployed", category: "Branding", owner: "Stephen L.", blockers: 0, nextAction: "—", attentionLevel: "none", dns: true, tls: true, environment: "production", uptime: 99.85, lastDeploy: "1 hour ago" },
   { name: "Lyte", route: "/lyte/", readiness: 90, status: "deployed", category: "Observability", owner: "Stephen L.", blockers: 0, nextAction: "—", attentionLevel: "none", dns: true, tls: true, environment: "production", uptime: 99.95, lastDeploy: "Just now" },
-];
-
-const demoSignals: SignalItem[] = [
-  { id: "sig-001", title: "Firestorm response time exceeds 200ms SLA threshold", description: "Average response time has been above 200ms for 3 consecutive intervals.", domain: "performance", source: "Telemetry Adapter", severity: "high", status: "active", confidence: 94, freshness: "live", businessImpact: "Degraded UX affecting ~2,400 daily active sessions", recommendedAction: "Investigate backend query optimization; consider caching layer", owner: "Backend Team", timestamp: "2026-03-25T14:23:00Z" },
-  { id: "sig-002", title: "PSEM project has no assigned development team", description: "PSEM remains in not-started status with critical blockers.", domain: "operations", source: "Project Status Adapter", severity: "critical", status: "active", confidence: 100, freshness: "live", businessImpact: "$180K projected revenue at risk if Q3 deadline missed", recommendedAction: "Escalate to leadership; assign team", owner: "Management", timestamp: "2026-03-25T08:00:00Z" },
-  { id: "sig-003", title: "Lutar TLS certificate expiring in 34 days", description: "Auto-renewal is not configured for szlholdings.com/lutar.", domain: "security", source: "Security Feed Adapter", severity: "medium", status: "active", confidence: 100, freshness: "live", businessImpact: "Service interruption risk", recommendedAction: "Schedule TLS renewal; configure auto-renewal", owner: "Infrastructure", timestamp: "2026-03-25T06:00:00Z" },
-  { id: "sig-004", title: "DreamEra neural synthesis accuracy below target", description: "Current accuracy at 84.2%, below the 90% threshold.", domain: "operations", source: "Internal API Adapter", severity: "high", status: "active", confidence: 88, freshness: "recent", businessImpact: "User satisfaction down 12%", recommendedAction: "Retrain model with expanded dataset", owner: "ML Team", timestamp: "2026-03-25T10:15:00Z" },
-  { id: "sig-005", title: "AIS data feed intermittent delays — Vessels", description: "15-30s delays in 8% of requests from upstream provider.", domain: "logistics", source: "Logistics Adapter", severity: "medium", status: "acknowledged", confidence: 82, freshness: "recent", businessImpact: "Fleet position accuracy degraded", recommendedAction: "Implement local caching buffer", owner: "Data Eng", timestamp: "2026-03-25T11:30:00Z" },
-  { id: "sig-006", title: "Dreamscape AI generation pipeline >5s latency", description: "Averaging 6.2s per request. GPU queue saturation suspected.", domain: "performance", source: "Telemetry Adapter", severity: "high", status: "active", confidence: 91, freshness: "live", businessImpact: "User drop-off rate +18% on generation flows", recommendedAction: "Scale GPU allocation", owner: "ML Team", timestamp: "2026-03-25T13:45:00Z" },
-  { id: "sig-007", title: "Zeus chaos engineering tests 78% complete", description: "Remaining: network partition, cascade failure, data corruption.", domain: "deployment", source: "Project Status Adapter", severity: "low", status: "active", confidence: 95, freshness: "recent", businessImpact: "Resilience validation incomplete", recommendedAction: "Complete remaining 3 chaos scenarios", owner: "Stephen L.", timestamp: "2026-03-25T09:00:00Z" },
-  { id: "sig-008", title: "Stripe webhook verification healthy", description: "All payment flow webhooks passing. Nominal across Carlota Jo.", domain: "integration", source: "Integration Adapter", severity: "info", status: "resolved", confidence: 100, freshness: "live", businessImpact: "Revenue pipeline healthy — $12.4K/week", recommendedAction: "No action required", owner: "Stephen L.", timestamp: "2026-03-25T14:00:00Z" },
-  { id: "sig-009", title: "Aegis compliance module rate limited", description: "3 of 12 scan batches throttled in last cycle.", domain: "security", source: "Security Feed Adapter", severity: "medium", status: "active", confidence: 87, freshness: "recent", businessImpact: "Compliance scan coverage at 75%", recommendedAction: "Implement exponential backoff", owner: "DevOps", timestamp: "2026-03-25T12:20:00Z" },
-  { id: "sig-010", title: "ROSIE load testing in progress", description: "Stable performance up to 10K concurrent. Targeting 15K.", domain: "deployment", source: "Telemetry Adapter", severity: "info", status: "active", confidence: 96, freshness: "live", businessImpact: "Production readiness on track", recommendedAction: "Continue to 15K target", owner: "Stephen L.", timestamp: "2026-03-25T14:10:00Z" },
-  { id: "sig-011", title: "Database connection pool at 62%", description: "Normal operating range. Alert threshold at 85%.", domain: "performance", source: "Telemetry Adapter", severity: "info", status: "resolved", confidence: 98, freshness: "live", businessImpact: "Operating within normal parameters", recommendedAction: "Continue monitoring", owner: "Infrastructure", timestamp: "2026-03-25T14:25:00Z" },
-  { id: "sig-012", title: "AlloyScape workflow templates 60% complete", description: "12 of 20 planned templates completed.", domain: "operations", source: "Project Status Adapter", severity: "low", status: "active", confidence: 90, freshness: "recent", businessImpact: "Manual workflows costing ~8 hrs/week", recommendedAction: "Prioritize CI/CD templates", owner: "Stephen L.", timestamp: "2026-03-25T08:30:00Z" },
-];
-
-const demoRecommendations: Recommendation[] = [
-  { id: "rec-001", title: "Assign development team to PSEM", reasoning: "Only portfolio project with no team. $180K Q3 revenue at risk.", projectedImpact: "Unblock $180K revenue; close security gap", priority: 1, actionType: "escalate", suggestedActions: ["Assign 2-person team", "Complete requirements in 2 weeks", "Configure DNS & TLS"], relatedSignals: ["sig-002"], owner: "Management" },
-  { id: "rec-002", title: "Optimize Firestorm API response times", reasoning: "Response times above 200ms SLA. Unoptimized queries + no caching.", projectedImpact: "Restore SLA; improve 2,400 daily sessions", priority: 2, actionType: "investigate", suggestedActions: ["Profile top 5 slowest endpoints", "Implement Redis caching", "Optimize scenario builder queries"], relatedSignals: ["sig-001"], owner: "Backend Team" },
-  { id: "rec-003", title: "Scale Dreamscape GPU allocation", reasoning: "AI pipeline at 6.2s vs 5s target. GPU queue saturated.", projectedImpact: "Reduce to <4s; recover 18% drop-off", priority: 3, actionType: "deploy", suggestedActions: ["Request GPU quota increase", "Implement request batching", "Deploy model quantization"], relatedSignals: ["sig-006"], owner: "ML Team" },
-  { id: "rec-004", title: "Renew Lutar TLS & enable auto-renewal", reasoning: "Certificate expires in 34 days. Manual renewal is operational risk.", projectedImpact: "Eliminate recurring TLS risk", priority: 4, actionType: "schedule", suggestedActions: ["Renew certificate", "Configure cert-manager", "Audit all portfolio certs"], relatedSignals: ["sig-003"], owner: "Infrastructure" },
-  { id: "rec-005", title: "Retrain DreamEra synthesis model", reasoning: "84.2% accuracy vs 90% target. Expanded dataset available.", projectedImpact: "Achieve >90% accuracy; recover satisfaction", priority: 5, actionType: "automate", suggestedActions: ["Prepare 2x training dataset", "A/B test improved model", "Set up monthly retraining"], relatedSignals: ["sig-004"], owner: "ML Team" },
-];
-
-const demoIntegrations: IntegrationStatus[] = [
-  { id: "int-001", name: "Telemetry Engine", adapter: "TelemetryAdapter", status: "connected", mode: "demo", lastSync: "2 min ago", freshness: "fresh", details: "Performance metrics across 16 services" },
-  { id: "int-002", name: "Security Feed", adapter: "SecurityFeedAdapter", status: "connected", mode: "demo", lastSync: "5 min ago", freshness: "fresh", details: "TLS, DNS, vuln scans, compliance" },
-  { id: "int-003", name: "Logistics Hub", adapter: "LogisticsAdapter", status: "degraded", mode: "demo", lastSync: "18 min ago", freshness: "stale", details: "AIS feed intermittent delays" },
-  { id: "int-004", name: "Project Status", adapter: "ProjectStatusAdapter", status: "connected", mode: "demo", lastSync: "1 min ago", freshness: "fresh", details: "Readiness & milestones for 16 projects" },
-  { id: "int-005", name: "Internal API", adapter: "InternalApiAdapter", status: "connected", mode: "demo", lastSync: "3 min ago", freshness: "fresh", details: "Health checks from api-server" },
-  { id: "int-006", name: "AI Insight Engine", adapter: "AiInsightAdapter", status: "disconnected", mode: "demo", lastSync: "—", freshness: "expired", details: "No AI provider — deterministic responses" },
-];
-
-const demoImpact: ImpactMetric[] = [
-  { id: "imp-001", title: "Portfolio Operational Savings", category: "efficiency", value: "$42K/mo", trend: "up", narrative: "Automation across AlloyScape and Zeus saves 520 engineering hours monthly.", relatedProjects: ["AlloyScape", "Zeus"] },
-  { id: "imp-002", title: "Revenue at Risk — PSEM", category: "risk", value: "$180K", trend: "stable", narrative: "PSEM delay threatens $180K Q3 security consulting revenue.", relatedProjects: ["PSEM"] },
-  { id: "imp-003", title: "Infrastructure Cost Reduction", category: "cost", value: "-15%", trend: "down", narrative: "Auto-scaling and predictive allocation reduced costs 15% QoQ.", relatedProjects: ["Zeus", "Nimbus"] },
-  { id: "imp-004", title: "Consulting Pipeline", category: "revenue", value: "$84K", trend: "up", narrative: "Carlota Jo generated $84K in bookings this quarter.", relatedProjects: ["Carlota Jo"] },
-  { id: "imp-005", title: "Latency Impact", category: "risk", value: "18% drop-off", trend: "up", narrative: "Dreamscape + Firestorm latency affecting 4,200 sessions/day.", relatedProjects: ["Dreamscape", "Firestorm"] },
-  { id: "imp-006", title: "Security Posture", category: "efficiency", value: "91/100", trend: "stable", narrative: "Portfolio security score 91/100. Gap: PSEM not started.", relatedProjects: ["ROSIE", "Aegis", "Firestorm"] },
 ];
 
 const severityConfig: Record<Severity, { color: string; bg: string; border: string }> = {
@@ -167,6 +149,14 @@ const actionTypeConfig: Record<string, { label: string; color: string; bg: strin
   deploy: { label: "Deploy", color: "text-purple-400", bg: "bg-purple-500/10" },
 };
 
+const API_BASE = `${import.meta.env.BASE_URL}../api`;
+
+async function apiFetch<T>(path: string): Promise<T> {
+  const res = await fetch(`${API_BASE}${path}`);
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  return res.json();
+}
+
 function getReadinessColor(score: number) {
   if (score >= 90) return "text-emerald-400";
   if (score >= 70) return "text-amber-400";
@@ -188,7 +178,7 @@ function AnimatedCounter({ value, suffix = "" }: { value: number; suffix?: strin
 
   useEffect(() => {
     if (!isInView) return;
-    let start = 0;
+    const start = 0;
     const duration = 1200;
     const startTime = performance.now();
     function animate(now: number) {
@@ -231,26 +221,118 @@ function Section({ children, className = "", delay = 0 }: { children: React.Reac
   );
 }
 
+function LoadingSpinner() {
+  return (
+    <div className="flex items-center justify-center py-12">
+      <RefreshCw className="w-5 h-5 text-primary animate-spin" />
+      <span className="ml-2 text-sm text-muted-foreground">Loading data...</span>
+    </div>
+  );
+}
+
+function ErrorMessage({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-12 gap-3">
+      <AlertCircle className="w-6 h-6 text-red-400" />
+      <p className="text-sm text-muted-foreground">{message}</p>
+      <button onClick={onRetry} className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition flex items-center gap-1.5">
+        <RefreshCw className="w-3 h-3" /> Retry
+      </button>
+    </div>
+  );
+}
+
 type ActiveTab = "dashboard" | "signals" | "recommendations" | "impact" | "portfolio" | "integrations" | "settings";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<ActiveTab>("dashboard");
-  const [signalFilter, setSignalFilter] = useState<{ severity: string; domain: string; status: string }>({ severity: "all", domain: "all", status: "all" });
+  const [signalFilter, setSignalFilter] = useState<SignalFilter>({ severity: "all", domain: "all", status: "all" });
   const [searchQuery, setSearchQuery] = useState("");
   const [drawerSignal, setDrawerSignal] = useState<SignalItem | null>(null);
   const [drawerProject, setDrawerProject] = useState<PortfolioProject | null>(null);
-  const [portfolioSort, setPortfolioSort] = useState<{ field: string; dir: "asc" | "desc" }>({ field: "readiness", dir: "desc" });
+  const [portfolioSort, setPortfolioSort] = useState<PortfolioSort>({ field: "readiness", dir: "desc" });
   const [portfolioFilter, setPortfolioFilter] = useState<string>("all");
   const [actionStates, setActionStates] = useState<Record<string, string>>({});
 
-  const healthScore = 87;
-  const avgReadiness = Math.round(portfolioProjects.reduce((s, p) => s + p.readiness, 0) / portfolioProjects.length);
-  const deployed = portfolioProjects.filter(p => p.status === "deployed").length;
-  const criticals = demoSignals.filter(s => s.severity === "critical" && s.status === "active").length;
-  const attentionNeeded = portfolioProjects.filter(p => p.attentionLevel === "action" || p.attentionLevel === "critical").length;
-  const activeSignals = demoSignals.filter(s => s.status === "active").length;
+  const [signals, setSignals] = useState<SignalItem[]>([]);
+  const [dashboardSummary, setDashboardSummary] = useState<DashboardSummary | null>(null);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+  const [integrations, setIntegrations] = useState<IntegrationStatus[]>([]);
+  const [impactMetrics, setImpactMetrics] = useState<ImpactMetric[]>([]);
+  const [loading, setLoading] = useState<Record<string, boolean>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const filteredSignals = demoSignals.filter(s => {
+  const fetchData = useCallback(async (key: string, fetcher: () => Promise<void>) => {
+    setLoading(prev => ({ ...prev, [key]: true }));
+    setErrors(prev => { const next = { ...prev }; delete next[key]; return next; });
+    try {
+      await fetcher();
+    } catch (err) {
+      setErrors(prev => ({ ...prev, [key]: err instanceof Error ? err.message : "Failed to load" }));
+    } finally {
+      setLoading(prev => ({ ...prev, [key]: false }));
+    }
+  }, []);
+
+  const loadDashboard = useCallback(() => {
+    return fetchData("dashboard", async () => {
+      const [dashRes, sigRes] = await Promise.all([
+        apiFetch<DashboardSummary>("/lyte/dashboard/summary"),
+        apiFetch<{ signals: SignalItem[] }>("/lyte/signals"),
+      ]);
+      setDashboardSummary(dashRes);
+      setSignals(sigRes.signals);
+    });
+  }, [fetchData]);
+
+  const loadSignals = useCallback(() => {
+    return fetchData("signals", async () => {
+      const res = await apiFetch<{ signals: SignalItem[] }>("/lyte/signals");
+      setSignals(res.signals);
+    });
+  }, [fetchData]);
+
+  const loadRecommendations = useCallback(() => {
+    return fetchData("recommendations", async () => {
+      const res = await apiFetch<{ recommendations: Recommendation[] }>("/lyte/actions/recommendations");
+      setRecommendations(res.recommendations);
+    });
+  }, [fetchData]);
+
+  const loadIntegrations = useCallback(() => {
+    return fetchData("integrations", async () => {
+      const res = await apiFetch<{ integrations: IntegrationStatus[] }>("/lyte/integrations/status");
+      setIntegrations(res.integrations);
+    });
+  }, [fetchData]);
+
+  const loadImpact = useCallback(() => {
+    return fetchData("impact", async () => {
+      const res = await apiFetch<{ metrics: ImpactMetric[] }>("/lyte/impact/summary");
+      setImpactMetrics(res.metrics);
+    });
+  }, [fetchData]);
+
+  useEffect(() => {
+    loadDashboard();
+  }, [loadDashboard]);
+
+  useEffect(() => {
+    if (activeTab === "signals" && signals.length === 0 && !loading.signals) loadSignals();
+    if (activeTab === "recommendations" && recommendations.length === 0 && !loading.recommendations) loadRecommendations();
+    if (activeTab === "integrations" && integrations.length === 0 && !loading.integrations) loadIntegrations();
+    if (activeTab === "impact" && impactMetrics.length === 0 && !loading.impact) loadImpact();
+    if (activeTab === "settings" && integrations.length === 0 && !loading.integrations) loadIntegrations();
+  }, [activeTab, signals.length, recommendations.length, integrations.length, impactMetrics.length, loading, loadSignals, loadRecommendations, loadIntegrations, loadImpact]);
+
+  const healthScore = dashboardSummary?.healthScore ?? 0;
+  const avgReadiness = dashboardSummary?.avgReadiness ?? Math.round(portfolioProjects.reduce((s, p) => s + p.readiness, 0) / portfolioProjects.length);
+  const deployed = dashboardSummary?.deployedProjects ?? portfolioProjects.filter(p => p.status === "deployed").length;
+  const criticals = dashboardSummary?.criticalSignals ?? 0;
+  const attentionNeeded = portfolioProjects.filter(p => p.attentionLevel === "action" || p.attentionLevel === "critical").length;
+  const activeSignalCount = dashboardSummary?.activeSignals ?? 0;
+
+  const filteredSignals = signals.filter(s => {
     if (signalFilter.severity !== "all" && s.severity !== signalFilter.severity) return false;
     if (signalFilter.domain !== "all" && s.domain !== signalFilter.domain) return false;
     if (signalFilter.status !== "all" && s.status !== signalFilter.status) return false;
@@ -272,9 +354,9 @@ export default function Home() {
     return portfolioSort.dir === "desc" ? -cmp : cmp;
   });
 
-  const handleAction = (id: string, label: string) => {
-    setActionStates(prev => ({ ...prev, [id]: "executing" }));
-    setTimeout(() => setActionStates(prev => ({ ...prev, [id]: "done" })), 1800);
+  const handleAction = (id: string, action: string) => {
+    setActionStates(prev => ({ ...prev, [`${id}-${action}`]: "executing" }));
+    setTimeout(() => setActionStates(prev => ({ ...prev, [`${id}-${action}`]: "done" })), 1800);
   };
 
   const tabs: { id: ActiveTab; label: string; icon: typeof Activity }[] = [
@@ -315,28 +397,41 @@ export default function Home() {
       </nav>
 
       <div className="max-w-[1500px] mx-auto px-4 sm:px-6 py-6">
-        {activeTab === "dashboard" && <DashboardTab healthScore={healthScore} avgReadiness={avgReadiness} deployed={deployed} criticals={criticals} attentionNeeded={attentionNeeded} activeSignals={activeSignals} signals={demoSignals} projects={portfolioProjects} onSignalClick={setDrawerSignal} onProjectClick={setDrawerProject} />}
-        {activeTab === "signals" && <SignalsTab signals={filteredSignals} filter={signalFilter} setFilter={setSignalFilter} search={searchQuery} setSearch={setSearchQuery} onSignalClick={setDrawerSignal} />}
-        {activeTab === "recommendations" && <RecommendationsTab recommendations={demoRecommendations} actionStates={actionStates} onAction={handleAction} />}
-        {activeTab === "impact" && <ImpactTab metrics={demoImpact} />}
+        {activeTab === "dashboard" && (loading.dashboard ? <LoadingSpinner /> : errors.dashboard ? <ErrorMessage message={errors.dashboard} onRetry={loadDashboard} /> : <DashboardTab healthScore={healthScore} avgReadiness={avgReadiness} deployed={deployed} criticals={criticals} attentionNeeded={attentionNeeded} activeSignals={activeSignalCount} signals={signals} projects={portfolioProjects} onSignalClick={setDrawerSignal} onProjectClick={setDrawerProject} />)}
+        {activeTab === "signals" && (loading.signals ? <LoadingSpinner /> : errors.signals ? <ErrorMessage message={errors.signals} onRetry={loadSignals} /> : <SignalsTab signals={filteredSignals} filter={signalFilter} setFilter={setSignalFilter} search={searchQuery} setSearch={setSearchQuery} onSignalClick={setDrawerSignal} />)}
+        {activeTab === "recommendations" && (loading.recommendations ? <LoadingSpinner /> : errors.recommendations ? <ErrorMessage message={errors.recommendations} onRetry={loadRecommendations} /> : <RecommendationsTab recommendations={recommendations} actionStates={actionStates} onAction={handleAction} />)}
+        {activeTab === "impact" && (loading.impact ? <LoadingSpinner /> : errors.impact ? <ErrorMessage message={errors.impact} onRetry={loadImpact} /> : <ImpactTab metrics={impactMetrics} />)}
         {activeTab === "portfolio" && <PortfolioTab projects={sortedProjects} sort={portfolioSort} setSort={setPortfolioSort} filter={portfolioFilter} setFilter={setPortfolioFilter} onProjectClick={setDrawerProject} />}
-        {activeTab === "integrations" && <IntegrationsTab integrations={demoIntegrations} />}
-        {activeTab === "settings" && <SettingsTab integrations={demoIntegrations} />}
+        {activeTab === "integrations" && (loading.integrations ? <LoadingSpinner /> : errors.integrations ? <ErrorMessage message={errors.integrations} onRetry={loadIntegrations} /> : <IntegrationsTab integrations={integrations} />)}
+        {activeTab === "settings" && <SettingsTab integrations={integrations} />}
       </div>
 
       <AnimatePresence>
         {drawerSignal && (
-          <SignalDrawer signal={drawerSignal} onClose={() => setDrawerSignal(null)} />
+          <SignalDrawer signal={drawerSignal} onClose={() => setDrawerSignal(null)} onAction={handleAction} actionStates={actionStates} />
         )}
         {drawerProject && (
-          <ProjectDrawer project={drawerProject} signals={demoSignals} onClose={() => setDrawerProject(null)} />
+          <ProjectDrawer project={drawerProject} signals={signals} onClose={() => setDrawerProject(null)} />
         )}
       </AnimatePresence>
     </div>
   );
 }
 
-function DashboardTab({ healthScore, avgReadiness, deployed, criticals, attentionNeeded, activeSignals, signals, projects, onSignalClick, onProjectClick }: any) {
+interface DashboardTabProps {
+  healthScore: number;
+  avgReadiness: number;
+  deployed: number;
+  criticals: number;
+  attentionNeeded: number;
+  activeSignals: number;
+  signals: SignalItem[];
+  projects: PortfolioProject[];
+  onSignalClick: (signal: SignalItem) => void;
+  onProjectClick: (project: PortfolioProject) => void;
+}
+
+function DashboardTab({ healthScore, avgReadiness, deployed, criticals, attentionNeeded, activeSignals, signals, projects, onSignalClick, onProjectClick }: DashboardTabProps) {
   return (
     <>
       <Section className="mb-6">
@@ -390,7 +485,7 @@ function DashboardTab({ healthScore, avgReadiness, deployed, criticals, attentio
               <span className="text-[10px] text-muted-foreground font-mono">Priority ranked</span>
             </div>
             <div className="space-y-2">
-              {signals.filter((s: SignalItem) => (s.severity === "critical" || s.severity === "high") && s.status === "active").map((sig: SignalItem, i: number) => (
+              {signals.filter((s) => (s.severity === "critical" || s.severity === "high") && s.status === "active").map((sig, i) => (
                 <motion.div key={sig.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 + i * 0.06 }} onClick={() => onSignalClick(sig)} className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-muted/20 transition ${severityConfig[sig.severity].bg} ${severityConfig[sig.severity].border}`}>
                   <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded ${severityConfig[sig.severity].color} ${severityConfig[sig.severity].bg}`}>{sig.severity}</span>
                   <div className="flex-1 min-w-0">
@@ -500,9 +595,18 @@ function DashboardTab({ healthScore, avgReadiness, deployed, criticals, attentio
   );
 }
 
-function SignalsTab({ signals, filter, setFilter, search, setSearch, onSignalClick }: any) {
+interface SignalsTabProps {
+  signals: SignalItem[];
+  filter: SignalFilter;
+  setFilter: (filter: SignalFilter) => void;
+  search: string;
+  setSearch: (search: string) => void;
+  onSignalClick: (signal: SignalItem) => void;
+}
+
+function SignalsTab({ signals, filter, setFilter, search, setSearch, onSignalClick }: SignalsTabProps) {
   const grouped: Record<string, SignalItem[]> = {};
-  signals.forEach((s: SignalItem) => {
+  signals.forEach((s) => {
     if (!grouped[s.domain]) grouped[s.domain] = [];
     grouped[s.domain].push(s);
   });
@@ -545,7 +649,7 @@ function SignalsTab({ signals, filter, setFilter, search, setSearch, onSignalCli
                 <span className="text-[10px] text-muted-foreground font-mono ml-auto">{sigs.length}</span>
               </div>
               <div className="divide-y divide-border/30">
-                {sigs.map((sig: SignalItem) => (
+                {sigs.map((sig) => (
                   <div key={sig.id} onClick={() => onSignalClick(sig)} className="flex items-center gap-3 px-4 py-3 hover:bg-muted/20 transition cursor-pointer">
                     <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded border ${severityConfig[sig.severity].color} ${severityConfig[sig.severity].bg} ${severityConfig[sig.severity].border}`}>{sig.severity}</span>
                     <div className="flex-1 min-w-0">
@@ -569,7 +673,13 @@ function SignalsTab({ signals, filter, setFilter, search, setSearch, onSignalCli
   );
 }
 
-function RecommendationsTab({ recommendations, actionStates, onAction }: any) {
+interface RecommendationsTabProps {
+  recommendations: Recommendation[];
+  actionStates: Record<string, string>;
+  onAction: (id: string, action: string) => void;
+}
+
+function RecommendationsTab({ recommendations, actionStates, onAction }: RecommendationsTabProps) {
   return (
     <>
       <Section className="mb-4">
@@ -584,9 +694,11 @@ function RecommendationsTab({ recommendations, actionStates, onAction }: any) {
       </Section>
 
       <div className="space-y-4">
-        {recommendations.map((rec: Recommendation, i: number) => {
+        {recommendations.map((rec, i) => {
           const atConfig = actionTypeConfig[rec.actionType];
-          const state = actionStates[rec.id];
+          const executeState = actionStates[`${rec.id}-execute`];
+          const escalateState = actionStates[`${rec.id}-escalate`];
+          const assignState = actionStates[`${rec.id}-assign`];
           return (
             <Section key={rec.id} delay={i * 0.06}>
               <div className="glass-card-hover rounded-xl p-5">
@@ -610,7 +722,7 @@ function RecommendationsTab({ recommendations, actionStates, onAction }: any) {
                 <div className="mb-3">
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5">Suggested Actions</p>
                   <div className="space-y-1">
-                    {rec.suggestedActions.map((a: string, ai: number) => (
+                    {rec.suggestedActions.map((a, ai) => (
                       <div key={ai} className="flex items-center gap-2">
                         <ArrowRight className="w-3 h-3 text-primary shrink-0" />
                         <span className="text-xs text-foreground">{a}</span>
@@ -619,14 +731,14 @@ function RecommendationsTab({ recommendations, actionStates, onAction }: any) {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <button onClick={() => onAction(rec.id, "execute")} disabled={state === "executing" || state === "done"} className={`px-3 py-1.5 rounded-lg text-[10px] font-semibold transition flex items-center gap-1.5 ${state === "done" ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20" : state === "executing" ? "bg-muted text-muted-foreground border border-border" : "bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20"}`}>
-                    {state === "done" ? <><CheckCircle className="w-3 h-3" /> Marked</> : state === "executing" ? <><RefreshCw className="w-3 h-3 animate-spin" /> Processing...</> : <><Play className="w-3 h-3" /> Execute</>}
+                  <button onClick={() => onAction(rec.id, "execute")} disabled={executeState === "executing" || executeState === "done"} className={`px-3 py-1.5 rounded-lg text-[10px] font-semibold transition flex items-center gap-1.5 ${executeState === "done" ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20" : executeState === "executing" ? "bg-muted text-muted-foreground border border-border" : "bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20"}`}>
+                    {executeState === "done" ? <><CheckCircle className="w-3 h-3" /> Marked</> : executeState === "executing" ? <><RefreshCw className="w-3 h-3 animate-spin" /> Processing...</> : <><Play className="w-3 h-3" /> Execute</>}
                   </button>
-                  <button className="px-3 py-1.5 rounded-lg text-[10px] font-semibold bg-muted text-muted-foreground border border-border hover:text-foreground transition flex items-center gap-1.5">
-                    <Mail className="w-3 h-3" /> Escalate
+                  <button onClick={() => onAction(rec.id, "escalate")} disabled={escalateState === "executing" || escalateState === "done"} className={`px-3 py-1.5 rounded-lg text-[10px] font-semibold transition flex items-center gap-1.5 ${escalateState === "done" ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20" : escalateState === "executing" ? "bg-muted text-muted-foreground border border-border" : "bg-muted text-muted-foreground border border-border hover:text-foreground"}`}>
+                    {escalateState === "done" ? <><CheckCircle className="w-3 h-3" /> Escalated</> : escalateState === "executing" ? <><RefreshCw className="w-3 h-3 animate-spin" /> Sending...</> : <><Mail className="w-3 h-3" /> Escalate</>}
                   </button>
-                  <button className="px-3 py-1.5 rounded-lg text-[10px] font-semibold bg-muted text-muted-foreground border border-border hover:text-foreground transition flex items-center gap-1.5">
-                    <Bell className="w-3 h-3" /> Assign
+                  <button onClick={() => onAction(rec.id, "assign")} disabled={assignState === "executing" || assignState === "done"} className={`px-3 py-1.5 rounded-lg text-[10px] font-semibold transition flex items-center gap-1.5 ${assignState === "done" ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20" : assignState === "executing" ? "bg-muted text-muted-foreground border border-border" : "bg-muted text-muted-foreground border border-border hover:text-foreground"}`}>
+                    {assignState === "done" ? <><CheckCircle className="w-3 h-3" /> Assigned</> : assignState === "executing" ? <><RefreshCw className="w-3 h-3 animate-spin" /> Assigning...</> : <><Bell className="w-3 h-3" /> Assign</>}
                   </button>
                 </div>
               </div>
@@ -683,7 +795,7 @@ function ImpactTab({ metrics }: { metrics: ImpactMetric[] }) {
                 </div>
                 <p className="text-xs text-muted-foreground mb-3">{m.narrative}</p>
                 <div className="flex items-center gap-2 flex-wrap">
-                  {m.relatedProjects.map((p: string) => (
+                  {m.relatedProjects.map((p) => (
                     <span key={p} className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border/50">{p}</span>
                   ))}
                 </div>
@@ -696,7 +808,16 @@ function ImpactTab({ metrics }: { metrics: ImpactMetric[] }) {
   );
 }
 
-function PortfolioTab({ projects, sort, setSort, filter, setFilter, onProjectClick }: any) {
+interface PortfolioTabProps {
+  projects: PortfolioProject[];
+  sort: PortfolioSort;
+  setSort: (sort: PortfolioSort) => void;
+  filter: string;
+  setFilter: (filter: string) => void;
+  onProjectClick: (project: PortfolioProject) => void;
+}
+
+function PortfolioTab({ projects, sort, setSort, filter, setFilter, onProjectClick }: PortfolioTabProps) {
   const toggleSort = (field: string) => {
     if (sort.field === field) setSort({ field, dir: sort.dir === "asc" ? "desc" : "asc" });
     else setSort({ field, dir: "desc" });
@@ -731,7 +852,7 @@ function PortfolioTab({ projects, sort, setSort, filter, setFilter, onProjectCli
           <div className="hidden lg:grid grid-cols-[1fr_60px_80px_60px_60px_80px_60px_100px] gap-3 px-4 py-2.5 border-b border-border/50 text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
             <span>Project</span><span className="text-center">Score</span><span className="text-center">Status</span><span className="text-center">DNS</span><span className="text-center">TLS</span><span className="text-center">Blockers</span><span className="text-center">Attn</span><span>Next Action</span>
           </div>
-          {projects.map((p: PortfolioProject, i: number) => {
+          {projects.map((p, i) => {
             const statusColors: Record<string, string> = { deployed: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20", staging: "text-amber-400 bg-amber-500/10 border-amber-500/20", development: "text-blue-400 bg-blue-500/10 border-blue-500/20", "not-started": "text-gray-400 bg-gray-500/10 border-gray-500/20" };
             const attnColors: Record<string, string> = { none: "", watch: "text-amber-400", action: "text-orange-400", critical: "text-red-400" };
             return (
@@ -779,7 +900,7 @@ function IntegrationsTab({ integrations }: { integrations: IntegrationStatus[] }
       </Section>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {integrations.map((int: IntegrationStatus, i: number) => {
+        {integrations.map((int, i) => {
           const sc = statusColors[int.status];
           return (
             <Section key={int.id} delay={i * 0.05}>
@@ -879,7 +1000,7 @@ function SettingsTab({ integrations }: { integrations: IntegrationStatus[] }) {
           <div className="glass-card rounded-xl p-5">
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Integration Adapter Summary</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-              {integrations.map((int: IntegrationStatus) => (
+              {integrations.map((int) => (
                 <div key={int.id} className="p-3 rounded-lg bg-muted/20 border border-border/50 text-center">
                   <div className={`w-2 h-2 rounded-full mx-auto mb-2 ${int.status === "connected" ? "bg-emerald-400" : int.status === "degraded" ? "bg-amber-400" : "bg-red-400"}`} />
                   <p className="text-[10px] font-semibold text-foreground">{int.name}</p>
@@ -894,9 +1015,19 @@ function SettingsTab({ integrations }: { integrations: IntegrationStatus[] }) {
   );
 }
 
-function SignalDrawer({ signal, onClose }: { signal: SignalItem; onClose: () => void }) {
+interface SignalDrawerProps {
+  signal: SignalItem;
+  onClose: () => void;
+  onAction: (id: string, action: string) => void;
+  actionStates: Record<string, string>;
+}
+
+function SignalDrawer({ signal, onClose, onAction, actionStates }: SignalDrawerProps) {
   const cfg = domainConfig[signal.domain];
   const DomainIcon = cfg.icon;
+  const resolveState = actionStates[`${signal.id}-resolve`];
+  const escalateState = actionStates[`${signal.id}-escalate`];
+  const assignState = actionStates[`${signal.id}-assign`];
   return (
     <>
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" onClick={onClose} />
@@ -939,14 +1070,14 @@ function SignalDrawer({ signal, onClose }: { signal: SignalItem; onClose: () => 
           </div>
 
           <div className="flex items-center gap-2">
-            <button className="px-4 py-2 rounded-lg text-xs font-semibold bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition flex items-center gap-1.5">
-              <CheckCircle className="w-3.5 h-3.5" /> Mark Resolved
+            <button onClick={() => onAction(signal.id, "resolve")} disabled={resolveState === "executing" || resolveState === "done"} className={`px-4 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 ${resolveState === "done" ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20" : resolveState === "executing" ? "bg-muted text-muted-foreground border border-border" : "bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20"}`}>
+              {resolveState === "done" ? <><CheckCircle className="w-3.5 h-3.5" /> Resolved</> : resolveState === "executing" ? <><RefreshCw className="w-3.5 h-3.5 animate-spin" /> Resolving...</> : <><CheckCircle className="w-3.5 h-3.5" /> Mark Resolved</>}
             </button>
-            <button className="px-4 py-2 rounded-lg text-xs font-semibold bg-muted text-muted-foreground border border-border hover:text-foreground transition flex items-center gap-1.5">
-              <Mail className="w-3.5 h-3.5" /> Escalate
+            <button onClick={() => onAction(signal.id, "escalate")} disabled={escalateState === "executing" || escalateState === "done"} className={`px-4 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 ${escalateState === "done" ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20" : escalateState === "executing" ? "bg-muted text-muted-foreground border border-border" : "bg-muted text-muted-foreground border border-border hover:text-foreground"}`}>
+              {escalateState === "done" ? <><CheckCircle className="w-3.5 h-3.5" /> Escalated</> : escalateState === "executing" ? <><RefreshCw className="w-3.5 h-3.5 animate-spin" /> Sending...</> : <><Mail className="w-3.5 h-3.5" /> Escalate</>}
             </button>
-            <button className="px-4 py-2 rounded-lg text-xs font-semibold bg-muted text-muted-foreground border border-border hover:text-foreground transition flex items-center gap-1.5">
-              <Users className="w-3.5 h-3.5" /> Assign
+            <button onClick={() => onAction(signal.id, "assign")} disabled={assignState === "executing" || assignState === "done"} className={`px-4 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 ${assignState === "done" ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20" : assignState === "executing" ? "bg-muted text-muted-foreground border border-border" : "bg-muted text-muted-foreground border border-border hover:text-foreground"}`}>
+              {assignState === "done" ? <><CheckCircle className="w-3.5 h-3.5" /> Assigned</> : assignState === "executing" ? <><RefreshCw className="w-3.5 h-3.5 animate-spin" /> Assigning...</> : <><Users className="w-3.5 h-3.5" /> Assign</>}
             </button>
           </div>
         </div>
@@ -956,7 +1087,7 @@ function SignalDrawer({ signal, onClose }: { signal: SignalItem; onClose: () => 
 }
 
 function ProjectDrawer({ project, signals, onClose }: { project: PortfolioProject; signals: SignalItem[]; onClose: () => void }) {
-  const relatedSignals = signals.filter((s: SignalItem) => s.title.toLowerCase().includes(project.name.toLowerCase()));
+  const relatedSignals = signals.filter((s) => s.title.toLowerCase().includes(project.name.toLowerCase()));
   return (
     <>
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" onClick={onClose} />
@@ -1005,7 +1136,7 @@ function ProjectDrawer({ project, signals, onClose }: { project: PortfolioProjec
             <div className="mb-4">
               <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">Related Signals</p>
               <div className="space-y-2">
-                {relatedSignals.map((s: SignalItem) => (
+                {relatedSignals.map((s) => (
                   <div key={s.id} className={`p-3 rounded-lg border ${severityConfig[s.severity].bg} ${severityConfig[s.severity].border}`}>
                     <div className="flex items-center gap-2 mb-1">
                       <span className={`text-[9px] font-bold uppercase ${severityConfig[s.severity].color}`}>{s.severity}</span>
