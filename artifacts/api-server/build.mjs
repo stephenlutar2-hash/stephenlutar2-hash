@@ -101,6 +101,8 @@ async function buildAll() {
       "zeromq",
       "zeromq-prebuilt",
       "applicationinsights",
+      "stripe",
+      "plaid",
       "playwright",
       "puppeteer",
       "puppeteer-core",

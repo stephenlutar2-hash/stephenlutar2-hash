@@ -10,6 +10,9 @@ import rosieRouter from "./rosie";
 import alloyRouter from "./alloy";
 import agentsRouter from "./agents";
 import monitoringRouter from "./monitoring";
+import stripeRouter from "./stripe";
+import plaidRouter from "./plaid";
+import socialRouter from "./social";
 
 const router: IRouter = Router();
 
@@ -24,5 +27,8 @@ router.use(rosieRouter);
 router.use(alloyRouter);
 router.use(agentsRouter);
 router.use(monitoringRouter);
+router.use(stripeRouter);
+router.use(plaidRouter);
+router.use(socialRouter);
 
 export default router;

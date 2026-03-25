@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles, Plus, BookOpen, Map, Star, Clock, Trash2, Edit2, LogOut,
-  ChevronRight, Eye, Layers, TrendingUp, Menu, X
+  ChevronRight, Eye, Layers, TrendingUp, Menu, X, Share2, Send,
+  MessageSquare, AlertCircle, CheckCircle2, Globe, Twitter, Linkedin
 } from "lucide-react";
 
 interface Story {
@@ -196,7 +197,176 @@ export default function Dashboard() {
             </div>
           )}
         </div>
+
+        <SocialMediaSection />
       </main>
+    </div>
+  );
+}
+
+interface PlatformStatus {
+  platform: string;
+  configured: boolean;
+  message: string;
+}
+
+const PLATFORM_META = {
+  meta: { label: "Meta", icon: Globe, color: "from-blue-500 to-blue-600", textColor: "text-blue-400", bgColor: "bg-blue-500/10", borderColor: "border-blue-500/20" },
+  twitter: { label: "X (Twitter)", icon: Twitter, color: "from-gray-600 to-gray-700", textColor: "text-gray-300", bgColor: "bg-gray-500/10", borderColor: "border-gray-500/20" },
+  linkedin: { label: "LinkedIn", icon: Linkedin, color: "from-blue-600 to-blue-700", textColor: "text-blue-400", bgColor: "bg-blue-600/10", borderColor: "border-blue-600/20" },
+} as const;
+
+function SocialMediaSection() {
+  const [platforms, setPlatforms] = useState<PlatformStatus[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [publishContent, setPublishContent] = useState("");
+  const [selectedPlatform, setSelectedPlatform] = useState<string>("meta");
+  const [publishing, setPublishing] = useState(false);
+  const [publishResult, setPublishResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [showPublisher, setShowPublisher] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/social/status")
+      .then(r => r.json())
+      .then(data => setPlatforms(data.platforms || []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  async function handlePublish(e: React.FormEvent) {
+    e.preventDefault();
+    if (!publishContent.trim()) return;
+    setPublishing(true);
+    setPublishResult(null);
+    try {
+      const token = localStorage.getItem("szl_token");
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) headers.Authorization = `Bearer ${token}`;
+
+      const res = await fetch("/api/social/publish", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ platform: selectedPlatform, content: publishContent }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setPublishResult({ success: true, message: `Published to ${selectedPlatform} successfully!` });
+        setPublishContent("");
+      } else {
+        setPublishResult({ success: false, message: data.error || "Failed to publish" });
+      }
+    } catch (err: any) {
+      setPublishResult({ success: false, message: err.message || "Network error" });
+    } finally {
+      setPublishing(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="p-6 rounded-2xl bg-white/[0.03] border border-white/5 animate-pulse">
+        <div className="h-5 bg-white/5 rounded w-48 mb-4" />
+        <div className="grid grid-cols-3 gap-4">
+          {[1,2,3].map(i => <div key={i} className="h-24 bg-white/5 rounded" />)}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl sm:text-3xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-blue-400">Social Media Hub</h2>
+          <p className="text-sm text-muted-foreground mt-1">Publish stories and track engagement across platforms</p>
+        </div>
+        <button onClick={() => setShowPublisher(!showPublisher)}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-400 text-sm font-bold hover:bg-violet-500/20 transition">
+          <Share2 className="w-4 h-4" /> {showPublisher ? "Close" : "Publish"}
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {platforms.map(p => {
+          const meta = PLATFORM_META[p.platform as keyof typeof PLATFORM_META];
+          if (!meta) return null;
+          return (
+            <div key={p.platform} className={`p-4 rounded-2xl bg-white/[0.03] border ${p.configured ? meta.borderColor : "border-white/5"}`}>
+              <div className="flex items-center gap-3 mb-3">
+                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${meta.color} flex items-center justify-center`}>
+                  <meta.icon className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-white">{meta.label}</p>
+                  <p className={`text-xs ${p.configured ? "text-green-400" : "text-gray-500"}`}>
+                    {p.configured ? "Connected" : "Not configured"}
+                  </p>
+                </div>
+              </div>
+              {!p.configured && (
+                <p className="text-xs text-gray-600 leading-relaxed">{p.message}</p>
+              )}
+              {p.configured && (
+                <div className="flex items-center gap-1 text-xs text-green-400">
+                  <CheckCircle2 className="w-3 h-3" /> Ready to publish
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <AnimatePresence>
+        {showPublisher && (
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+            <form onSubmit={handlePublish} className="p-6 rounded-2xl bg-violet-500/5 border border-violet-500/20 space-y-4">
+              <h3 className="text-lg font-display font-bold text-white">Publish Content</h3>
+              <div className="flex gap-2">
+                {platforms.map(p => {
+                  const meta = PLATFORM_META[p.platform as keyof typeof PLATFORM_META];
+                  if (!meta) return null;
+                  return (
+                    <button key={p.platform} type="button" onClick={() => setSelectedPlatform(p.platform)}
+                      className={`px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider border transition-colors flex items-center gap-1.5 ${
+                        selectedPlatform === p.platform
+                          ? `${meta.bgColor} ${meta.textColor} ${meta.borderColor}`
+                          : "bg-white/5 text-gray-500 border-white/10 hover:border-white/20"
+                      }`}
+                      disabled={!p.configured}>
+                      <meta.icon className="w-3 h-3" />{meta.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <textarea
+                value={publishContent}
+                onChange={e => setPublishContent(e.target.value)}
+                placeholder="Write your content..."
+                rows={4}
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder:text-gray-600 focus:outline-none focus:border-violet-500/50 transition text-sm resize-none"
+              />
+              {publishResult && (
+                <div className={`flex items-center gap-2 text-sm px-4 py-2 rounded-lg ${
+                  publishResult.success ? "bg-green-500/10 text-green-400 border border-green-500/20" : "bg-red-500/10 text-red-400 border border-red-500/20"
+                }`}>
+                  {publishResult.success ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+                  {publishResult.message}
+                </div>
+              )}
+              <div className="flex gap-3">
+                <button type="submit" disabled={publishing || !publishContent.trim()}
+                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-violet-500 to-blue-600 text-white font-bold text-sm hover:opacity-90 transition disabled:opacity-50 flex items-center gap-2">
+                  <Send className="w-4 h-4" /> {publishing ? "Publishing..." : "Publish Now"}
+                </button>
+                <button type="button" onClick={() => { setShowPublisher(false); setPublishResult(null); }}
+                  className="px-6 py-2.5 rounded-xl bg-white/5 border border-white/10 text-gray-400 text-sm hover:bg-white/10 transition">
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

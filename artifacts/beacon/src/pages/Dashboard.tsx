@@ -1,11 +1,151 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useMetrics, useMutateMetrics, useProjects, useMutateProjects } from "@/hooks/use-beacon";
 import { Layout } from "@/components/Layout";
 import { Modal } from "@/components/Modal";
-import { Plus, TrendingUp, TrendingDown, Edit2, Trash2, AlertTriangle, BarChart3, FolderOpen, RefreshCw } from "lucide-react";
+import { Plus, TrendingUp, TrendingDown, Edit2, Trash2, AlertTriangle, BarChart3, FolderOpen, RefreshCw, CreditCard, DollarSign, ArrowUpRight, ArrowDownRight, Receipt, Wallet, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { BeaconMetric, BeaconProject } from "@workspace/api-client-react";
+
+interface StripeRevenue {
+  configured: boolean;
+  totalRevenue: number;
+  mrr: number;
+  transactionCount: number;
+  balanceAvailable?: number;
+  balancePending?: number;
+  currency?: string;
+}
+
+interface StripeTransaction {
+  id: string;
+  amount: number;
+  currency: string;
+  status: string;
+  description: string;
+  customer: string;
+  created: string;
+  receiptUrl?: string;
+}
+
+function StripeRevenueSection() {
+  const [revenue, setRevenue] = useState<StripeRevenue | null>(null);
+  const [transactions, setTransactions] = useState<StripeTransaction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const token = localStorage.getItem("szl_token");
+    const headers: Record<string, string> = {};
+    if (token) headers.Authorization = `Bearer ${token}`;
+
+    Promise.all([
+      fetch("/api/stripe/revenue", { headers }).then(r => r.json()),
+      fetch("/api/stripe/transactions?limit=10", { headers }).then(r => r.json()),
+    ])
+      .then(([rev, txns]) => {
+        setRevenue(rev);
+        setTransactions(txns.transactions || []);
+      })
+      .catch(e => setError(e.message))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="glass-panel rounded-xl p-6 animate-pulse space-y-4">
+        <div className="h-5 bg-white/5 rounded w-48" />
+        <div className="grid grid-cols-4 gap-4">
+          {[1,2,3,4].map(i => <div key={i} className="h-20 bg-white/5 rounded" />)}
+        </div>
+      </div>
+    );
+  }
+
+  if (!revenue?.configured) {
+    return (
+      <div className="glass-panel rounded-xl p-6 border border-yellow-500/20">
+        <div className="flex items-center gap-3 mb-2">
+          <CreditCard className="w-5 h-5 text-yellow-400" />
+          <h3 className="text-lg font-display font-bold text-white">Stripe Revenue</h3>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-yellow-400/80">
+          <AlertCircle className="w-4 h-4" />
+          <span>Stripe is not configured. Set STRIPE_SECRET_KEY in environment to enable revenue tracking.</span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <CreditCard className="w-5 h-5 text-primary" />
+          <h3 className="text-xl font-display font-bold text-white">Stripe Revenue</h3>
+        </div>
+        <span className="text-xs text-green-400 bg-green-500/10 border border-green-500/20 px-3 py-1 rounded-full font-bold uppercase tracking-wider">Live</span>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: "Total Revenue (30d)", value: `$${revenue.totalRevenue.toLocaleString()}`, icon: DollarSign, color: "text-green-400", bg: "bg-green-500/10", border: "border-green-500/20" },
+          { label: "Monthly Recurring", value: `$${revenue.mrr.toLocaleString()}`, icon: Wallet, color: "text-cyan-400", bg: "bg-cyan-500/10", border: "border-cyan-500/20" },
+          { label: "Transactions", value: revenue.transactionCount.toString(), icon: Receipt, color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20" },
+          { label: "Available Balance", value: `$${(revenue.balanceAvailable || 0).toLocaleString()}`, icon: CreditCard, color: "text-primary", bg: "bg-primary/10", border: "border-primary/20" },
+        ].map((s, i) => (
+          <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
+            className={`glass-panel rounded-xl p-5 ${s.border} border`}>
+            <div className="flex justify-between items-start mb-3">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">{s.label}</p>
+              <s.icon className={`w-4 h-4 ${s.color}`} />
+            </div>
+            <p className={`text-2xl font-display font-bold ${s.color}`}>{s.value}</p>
+          </motion.div>
+        ))}
+      </div>
+
+      {transactions.length > 0 && (
+        <div className="glass-panel rounded-xl overflow-hidden">
+          <div className="px-5 py-4 border-b border-border flex items-center justify-between">
+            <h4 className="font-display font-bold text-white text-sm uppercase tracking-wider">Recent Transactions</h4>
+            <span className="text-xs text-muted-foreground">{transactions.length} shown</span>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left min-w-[600px]">
+              <thead className="bg-white/5">
+                <tr>
+                  <th className="px-5 py-3 text-xs text-muted-foreground uppercase tracking-wider">Customer</th>
+                  <th className="px-5 py-3 text-xs text-muted-foreground uppercase tracking-wider">Description</th>
+                  <th className="px-5 py-3 text-xs text-muted-foreground uppercase tracking-wider">Amount</th>
+                  <th className="px-5 py-3 text-xs text-muted-foreground uppercase tracking-wider">Status</th>
+                  <th className="px-5 py-3 text-xs text-muted-foreground uppercase tracking-wider">Date</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/50">
+                {transactions.map(t => (
+                  <tr key={t.id} className="hover:bg-white/[0.02] transition-colors">
+                    <td className="px-5 py-3 text-sm text-white">{t.customer}</td>
+                    <td className="px-5 py-3 text-sm text-muted-foreground">{t.description}</td>
+                    <td className="px-5 py-3 text-sm font-mono text-green-400">${t.amount.toFixed(2)}</td>
+                    <td className="px-5 py-3">
+                      <span className={cn("px-2 py-0.5 text-xs rounded-full border font-bold uppercase",
+                        t.status === "succeeded" ? "text-green-400 bg-green-500/10 border-green-500/20" :
+                        t.status === "pending" ? "text-yellow-400 bg-yellow-500/10 border-yellow-500/20" :
+                        "text-red-400 bg-red-500/10 border-red-500/20"
+                      )}>{t.status}</span>
+                    </td>
+                    <td className="px-5 py-3 text-sm text-muted-foreground font-mono">{new Date(t.created).toLocaleDateString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function ConfirmDialog({ isOpen, onClose, onConfirm, title, message }: { isOpen: boolean; onClose: () => void; onConfirm: () => void; title: string; message: string }) {
   if (!isOpen) return null;
@@ -166,6 +306,10 @@ export default function Dashboard() {
             )}
           </div>
         )}
+
+        <div className="pt-8">
+          <StripeRevenueSection />
+        </div>
 
         <div className="pt-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">

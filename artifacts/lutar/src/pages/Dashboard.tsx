@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
   Briefcase,
@@ -22,7 +22,16 @@ import {
   ExternalLink,
   CheckCircle2,
   Clock,
-  DollarSign
+  DollarSign,
+  CreditCard,
+  Landmark,
+  AlertCircle,
+  ArrowUpRight,
+  ArrowDownRight,
+  Wallet,
+  Building2,
+  RefreshCw,
+  LinkIcon
 } from "lucide-react";
 import {
   AreaChart,
@@ -137,6 +146,181 @@ const INITIAL_PROJECTS: ProjectItem[] = [
     borderColor: "border-yellow-500/20",
   },
 ];
+
+interface StripeTxn {
+  id: string;
+  amount: number;
+  currency: string;
+  status: string;
+  description: string;
+  customer: string;
+  created: string;
+}
+
+interface PlaidAccount {
+  id: string;
+  name: string;
+  type: string;
+  subtype: string;
+  balanceCurrent: number | null;
+  balanceAvailable: number | null;
+  currency: string;
+  mask: string;
+}
+
+function FinancialIntegrationsSection() {
+  const [stripeConfigured, setStripeConfigured] = useState(false);
+  const [plaidConfigured, setPlaidConfigured] = useState(false);
+  const [stripeTxns, setStripeTxns] = useState<StripeTxn[]>([]);
+  const [plaidAccounts, setPlaidAccounts] = useState<PlaidAccount[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<"stripe" | "plaid">("stripe");
+
+  useEffect(() => {
+    const token = localStorage.getItem("szl_token");
+    const headers: Record<string, string> = {};
+    if (token) headers.Authorization = `Bearer ${token}`;
+
+    Promise.all([
+      fetch("/api/stripe/status").then(r => r.json()),
+      fetch("/api/stripe/transactions?limit=15", { headers }).then(r => r.json()),
+      fetch("/api/plaid/status", { headers }).then(r => r.json()),
+      fetch("/api/plaid/accounts", { headers }).then(r => r.json()),
+    ])
+      .then(([stripeStatus, txns, plaidStatus, accounts]) => {
+        setStripeConfigured(stripeStatus.configured);
+        setStripeTxns(txns.transactions || []);
+        setPlaidConfigured(plaidStatus.configured);
+        setPlaidAccounts(accounts.accounts || []);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.85 }}
+        className="p-6 rounded-xl border border-border bg-card animate-pulse">
+        <div className="h-5 bg-white/5 rounded w-48 mb-4" />
+        <div className="space-y-3">
+          {[1,2,3].map(i => <div key={i} className="h-12 bg-white/5 rounded" />)}
+        </div>
+      </motion.div>
+    );
+  }
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.85 }}
+      className="p-6 rounded-xl border border-border bg-card">
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="font-display font-bold text-white tracking-wide uppercase">
+          Financial Integrations
+        </h3>
+        <div className="flex gap-1 bg-white/5 rounded-lg p-1">
+          <button onClick={() => setActiveTab("stripe")}
+            className={`px-3 py-1.5 rounded text-xs font-bold uppercase tracking-wider transition-colors ${
+              activeTab === "stripe" ? "bg-primary/20 text-primary" : "text-muted-foreground hover:text-white"
+            }`}>
+            <CreditCard className="w-3 h-3 inline mr-1.5" />Stripe
+          </button>
+          <button onClick={() => setActiveTab("plaid")}
+            className={`px-3 py-1.5 rounded text-xs font-bold uppercase tracking-wider transition-colors ${
+              activeTab === "plaid" ? "bg-primary/20 text-primary" : "text-muted-foreground hover:text-white"
+            }`}>
+            <Landmark className="w-3 h-3 inline mr-1.5" />Plaid
+          </button>
+        </div>
+      </div>
+
+      {activeTab === "stripe" && (
+        <div>
+          {!stripeConfigured ? (
+            <div className="flex items-center gap-3 p-4 rounded-lg bg-yellow-500/5 border border-yellow-500/20">
+              <AlertCircle className="w-5 h-5 text-yellow-400 shrink-0" />
+              <div>
+                <p className="text-sm text-yellow-400 font-semibold">Stripe Not Connected</p>
+                <p className="text-xs text-yellow-400/60 mt-0.5">Set STRIPE_SECRET_KEY to enable payment tracking and transaction history.</p>
+              </div>
+            </div>
+          ) : stripeTxns.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <CreditCard className="w-8 h-8 mx-auto mb-2 opacity-30" />
+              <p className="text-sm">No transactions found</p>
+            </div>
+          ) : (
+            <div className="space-y-2 max-h-[400px] overflow-y-auto">
+              {stripeTxns.map(t => (
+                <div key={t.id} className="flex items-center justify-between p-3 rounded-lg bg-white/[0.02] hover:bg-white/[0.04] transition-colors">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                      t.status === "succeeded" ? "bg-emerald-500/10" : "bg-yellow-500/10"
+                    }`}>
+                      {t.status === "succeeded" ? (
+                        <ArrowUpRight className="w-4 h-4 text-emerald-400" />
+                      ) : (
+                        <Clock className="w-4 h-4 text-yellow-400" />
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm text-white truncate">{t.description || t.customer}</p>
+                      <p className="text-xs text-muted-foreground">{new Date(t.created).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                  <div className="text-right shrink-0 ml-4">
+                    <p className="text-sm font-mono text-emerald-400">${t.amount.toFixed(2)}</p>
+                    <p className="text-[10px] uppercase text-muted-foreground">{t.currency}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === "plaid" && (
+        <div>
+          {!plaidConfigured ? (
+            <div className="flex items-center gap-3 p-4 rounded-lg bg-yellow-500/5 border border-yellow-500/20">
+              <AlertCircle className="w-5 h-5 text-yellow-400 shrink-0" />
+              <div>
+                <p className="text-sm text-yellow-400 font-semibold">Plaid Not Connected</p>
+                <p className="text-xs text-yellow-400/60 mt-0.5">Set PLAID_CLIENT_ID, PLAID_SECRET, and PLAID_ENV to enable bank account linking.</p>
+              </div>
+            </div>
+          ) : plaidAccounts.length === 0 ? (
+            <div className="text-center py-8">
+              <Landmark className="w-8 h-8 mx-auto mb-2 text-muted-foreground opacity-30" />
+              <p className="text-sm text-muted-foreground mb-3">No bank accounts linked</p>
+              <button className="px-4 py-2 rounded-lg bg-primary/20 text-primary border border-primary/30 text-sm font-semibold hover:bg-primary/30 transition-colors inline-flex items-center gap-2">
+                <LinkIcon className="w-4 h-4" /> Connect Bank Account
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {plaidAccounts.map(a => (
+                <div key={a.id} className="p-4 rounded-lg bg-white/[0.02] border border-white/5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Building2 className="w-5 h-5 text-primary" />
+                      <div>
+                        <p className="text-sm font-semibold text-white">{a.name}</p>
+                        <p className="text-xs text-muted-foreground capitalize">{a.type} · {a.subtype} · ****{a.mask}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-lg font-mono text-emerald-400">${(a.balanceCurrent || 0).toLocaleString()}</p>
+                      <p className="text-[10px] text-muted-foreground uppercase">{a.currency} balance</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </motion.div>
+  );
+}
 
 export default function Dashboard() {
   const [currentTime, setCurrentTime] = useState("");
@@ -626,6 +810,8 @@ export default function Dashboard() {
               ))}
             </div>
           </motion.div>
+
+          <FinancialIntegrationsSection />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <motion.div

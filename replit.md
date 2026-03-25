@@ -84,6 +84,33 @@ When `ENTRA_TENANT_ID` and `ENTRA_CLIENT_ID` env vars are set, enterprise SSO is
 - Backend files: `lib/entra.ts` (JWKS validation), `routes/auth.ts` (endpoints)
 - Env vars needed: `ENTRA_TENANT_ID`, `ENTRA_CLIENT_ID`, `ENTRA_CLIENT_SECRET` (optional for confidential client)
 
+### Third-Party Integrations (Stripe, Plaid, Social Media)
+All integrations gracefully degrade when API keys aren't configured.
+
+**Stripe** (Beacon + Lutar):
+- Status: `GET /api/stripe/status`
+- Revenue data: `GET /api/stripe/revenue` (auth required)
+- Transactions: `GET /api/stripe/transactions` (auth required)
+- Webhooks: `POST /api/stripe/webhook` (signature verified when `STRIPE_WEBHOOK_SECRET` set)
+- Env vars: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` (optional)
+- Frontend: Beacon Dashboard shows revenue cards + transaction table; Lutar Dashboard shows transaction history in Financial Integrations tab
+
+**Plaid** (Lutar):
+- Status: `GET /api/plaid/status` (auth required)
+- Link token: `POST /api/plaid/create-link-token` (auth required)
+- Token exchange: `POST /api/plaid/exchange-token` (auth required)
+- Accounts: `GET /api/plaid/accounts` (auth required, per-user scoped)
+- Transactions: `GET /api/plaid/transactions` (auth required, per-user scoped)
+- Env vars: `PLAID_CLIENT_ID`, `PLAID_SECRET`, `PLAID_ENV` (sandbox/development/production)
+- Frontend: Lutar Dashboard Financial Integrations tab with Plaid sub-tab
+
+**Social Media** (DreamEra):
+- Status: `GET /api/social/status`
+- Publish: `POST /api/social/publish` (auth required) — supports meta, twitter, linkedin platforms
+- Analytics: `GET /api/social/analytics` (auth required)
+- Env vars: `META_APP_ID`, `META_APP_SECRET`, `META_PAGE_ACCESS_TOKEN`, `META_PAGE_ID`, `TWITTER_API_KEY`, `TWITTER_API_SECRET`, `TWITTER_BEARER_TOKEN`, `LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET`, `LINKEDIN_ACCESS_TOKEN`, `LINKEDIN_PERSON_URN`
+- Frontend: DreamEra Dashboard Social Media Hub with platform cards + publish form
+
 ### Monitoring & Telemetry
 - Health endpoint: `GET /api/monitoring/health` — returns server uptime, memory, Node version, App Insights status, identity provider status
 - App Insights: initialized via `lib/appInsights.ts` when `APPLICATIONINSIGHTS_CONNECTION_STRING` is set; gracefully degrades when missing

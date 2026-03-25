@@ -33,7 +33,9 @@
     "jsonwebtoken": "^9.0.3",
     "jwks-rsa": "^4.0.1",
     "pino": "^9",
-    "pino-http": "^10"
+    "pino-http": "^10",
+    "plaid": "^41.4.0",
+    "stripe": "^20.4.1"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.10",
