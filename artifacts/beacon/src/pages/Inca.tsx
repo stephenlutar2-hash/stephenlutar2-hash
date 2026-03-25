@@ -3,7 +3,7 @@ import { useIncaProjects, useMutateIncaProjects, useExperiments, useMutateExperi
 import { Layout } from "@/components/Layout";
 import { Modal } from "@/components/Modal";
 import { Plus, Edit2, Trash2, Brain, FlaskConical, ChevronRight } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@workspace/ui";
 import type { IncaProject } from "@workspace/api-client-react";
 
 export default function Inca() {

@@ -12,6 +12,13 @@ SZL Holdings is a pnpm monorepo encompassing a suite of security, AI, and media 
 - **Brand colors**: ROSIE (electric blue/violet), AEGIS (gold/amber), LUTAR (emerald green), BEACON (cyan/electric blue), NIMBUS (cyan/purple), FIRESTORM (orange/red), VESSELS (ocean-blue/emerald)
 - **Domain**: szlholdings.com
 
+## Shared Design System
+
+The monorepo uses three shared workspace packages under `lib/`:
+- **`@workspace/ui`** (`lib/ui`): All shared shadcn/ui components (55+), the `cn()` utility, and hooks (`useIsMobile`, `useToast`, `toast`). Apps import from `@workspace/ui` instead of maintaining local copies.
+- **`@workspace/branding`** (`lib/branding`): Shared CSS variable contract (theme-contract.css), base layer styles (base.css), utility classes (utilities.css — glass-panel, text-gradient, glow-shadow, etc.), and TypeScript theme types. See `lib/branding/THEME_REFERENCE.md` for creating new app themes.
+- **`@workspace/platform`** (`lib/platform`): Shared `ErrorBoundary`, `AuthGuard`/`AuthProvider`/`useAuth` (with `redirectComponent` prop for router-agnostic redirects), `LayoutShell` (sidebar/topbar variants with breadcrumbs, page transitions via framer-motion), `PageTransition`, loading/empty/error state components, and environment validation helpers.
+
 ## System Architecture
 
 The project is built as a pnpm workspace monorepo using Node.js 24, pnpm, and TypeScript 5.9. The backend is an Express 5 API server, while frontends use React, Vite, Tailwind CSS, and shadcn/ui. PostgreSQL with Drizzle ORM handles data persistence, and Zod is used for validation. API codegen is managed by Orval from an OpenAPI spec.

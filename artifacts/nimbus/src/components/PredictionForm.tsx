@@ -2,9 +2,9 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Button } from "./ui/Button";
-import { Input } from "./ui/Input";
-import { Select } from "./ui/Select";
+import { Button } from "@workspace/ui";
+import { Input } from "@workspace/ui";
+import { NativeSelect as Select } from "./ui/native-select";
 import { useCreatePrediction } from "@/hooks/use-predictions";
 
 const formSchema = z.object({
@@ -92,11 +92,10 @@ export function PredictionForm({ onSuccess }: { onSuccess: () => void }) {
       <div className="pt-4 flex justify-end gap-2">
         <Button 
           type="submit" 
-          variant="glow" 
-          isLoading={createMutation.isPending}
+          disabled={createMutation.isPending}
           className="w-full"
         >
-          Compute Prediction
+          {createMutation.isPending ? "Computing..." : "Compute Prediction"}
         </Button>
       </div>
     </form>

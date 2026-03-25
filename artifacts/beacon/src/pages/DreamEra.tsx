@@ -4,7 +4,7 @@ import { useContent, useMutateContent, useCampaigns, useMutateCampaigns } from "
 import { Layout } from "@/components/Layout";
 import { Modal } from "@/components/Modal";
 import { Plus, Edit2, Trash2, MonitorPlay, FileVideo, Eye, Heart } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@workspace/ui";
 import type { DreameraContent } from "@workspace/api-client-react";
 
 export default function DreamEra() {

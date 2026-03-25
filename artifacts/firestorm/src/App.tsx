@@ -1,7 +1,8 @@
 import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
+import { AuthGuard } from "@workspace/platform";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@workspace/ui";
+import { TooltipProvider } from "@workspace/ui";
 import { LabBanner } from "@/components/LabBanner";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
@@ -14,21 +15,15 @@ import Reports from "@/pages/Reports";
 
 const queryClient = new QueryClient();
 
-function AuthGuard({ component: Component }: { component: React.ComponentType }) {
-  const token = localStorage.getItem("szl_token");
-  if (!token) return <Redirect to="/login" />;
-  return <Component />;
-}
-
 function Router() {
   return (
     <Switch>
       <Route path="/login" component={Login} />
-      <Route path="/dashboard">{() => <AuthGuard component={Dashboard} />}</Route>
-      <Route path="/scenarios">{() => <AuthGuard component={Scenarios} />}</Route>
-      <Route path="/detections">{() => <AuthGuard component={Detections} />}</Route>
-      <Route path="/response-trainer">{() => <AuthGuard component={ResponseTrainer} />}</Route>
-      <Route path="/reports">{() => <AuthGuard component={Reports} />}</Route>
+      <Route path="/dashboard">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Dashboard /></AuthGuard>}</Route>
+      <Route path="/scenarios">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Scenarios /></AuthGuard>}</Route>
+      <Route path="/detections">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Detections /></AuthGuard>}</Route>
+      <Route path="/response-trainer">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><ResponseTrainer /></AuthGuard>}</Route>
+      <Route path="/reports">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Reports /></AuthGuard>}</Route>
       <Route path="/" component={Home} />
       <Route component={NotFound} />
     </Switch>

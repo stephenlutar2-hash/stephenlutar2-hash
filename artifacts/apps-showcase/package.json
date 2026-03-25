@@ -24,6 +24,9 @@
     "react-dom": "catalog:",
     "tailwindcss": "catalog:",
     "vite": "catalog:",
-    "wouter": "^3.3.5"
+    "wouter": "^3.3.5",
+    "@workspace/ui": "workspace:*",
+    "@workspace/branding": "workspace:*",
+    "@workspace/platform": "workspace:*"
   }
 }

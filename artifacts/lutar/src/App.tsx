@@ -1,7 +1,8 @@
 import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
+import { AuthGuard } from "@workspace/platform";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@workspace/ui";
+import { TooltipProvider } from "@workspace/ui";
 import Landing from "@/pages/Landing";
 import Dashboard from "@/pages/Dashboard";
 import Login from "@/pages/Login";
@@ -9,18 +10,12 @@ import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
 
-function AuthGuard({ component: Component }: { component: React.ComponentType }) {
-  const token = localStorage.getItem("szl_token");
-  if (!token) return <Redirect to="/login" />;
-  return <Component />;
-}
-
 function Router() {
   return (
     <Switch>
       <Route path="/login" component={Login} />
       <Route path="/" component={Landing} />
-      <Route path="/dashboard">{() => <AuthGuard component={Dashboard} />}</Route>
+      <Route path="/dashboard">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Dashboard /></AuthGuard>}</Route>
       <Route component={NotFound} />
     </Switch>
   );

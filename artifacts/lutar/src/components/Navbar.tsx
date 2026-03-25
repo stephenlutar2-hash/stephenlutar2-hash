@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@workspace/ui";
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);

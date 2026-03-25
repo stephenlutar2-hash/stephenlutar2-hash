@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Crosshair, Globe, Activity, ShieldCheck } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@workspace/ui";
 
 interface Operation {
   id: string;

@@ -1,9 +1,9 @@
 import { Switch, Route, Router as WouterRouter, Redirect, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { Toaster } from "@workspace/ui";
+import { TooltipProvider } from "@workspace/ui";
+import { ErrorBoundary, AuthGuard } from "@workspace/platform";
 import NotFound from "@/pages/not-found";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
@@ -19,7 +19,7 @@ const pageVariants = {
   exit: { opacity: 0, y: -12 },
 };
 
-function AnimatedRoute({ component: Component }: { component: React.ComponentType }) {
+function AnimatedRoute({ children }: { children: React.ReactNode }) {
   return (
     <motion.div
       variants={pageVariants}
@@ -28,15 +28,9 @@ function AnimatedRoute({ component: Component }: { component: React.ComponentTyp
       exit="exit"
       transition={{ duration: 0.25 }}
     >
-      <Component />
+      {children}
     </motion.div>
   );
-}
-
-function AuthGuard({ component: Component }: { component: React.ComponentType }) {
-  const token = localStorage.getItem("szl_token");
-  if (!token) return <Redirect to="/login" />;
-  return <AnimatedRoute component={Component} />;
 }
 
 function Router() {
@@ -44,11 +38,11 @@ function Router() {
   return (
     <AnimatePresence mode="wait">
       <Switch key={location}>
-        <Route path="/login">{() => <AnimatedRoute component={Login} />}</Route>
-        <Route path="/">{() => <AuthGuard component={Dashboard} />}</Route>
-        <Route path="/zeus">{() => <AuthGuard component={Zeus} />}</Route>
-        <Route path="/inca">{() => <AuthGuard component={Inca} />}</Route>
-        <Route path="/dreamera">{() => <AuthGuard component={DreamEra} />}</Route>
+        <Route path="/login">{() => <AnimatedRoute><Login /></AnimatedRoute>}</Route>
+        <Route path="/">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><AnimatedRoute><Dashboard /></AnimatedRoute></AuthGuard>}</Route>
+        <Route path="/zeus">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><AnimatedRoute><Zeus /></AnimatedRoute></AuthGuard>}</Route>
+        <Route path="/inca">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><AnimatedRoute><Inca /></AnimatedRoute></AuthGuard>}</Route>
+        <Route path="/dreamera">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><AnimatedRoute><DreamEra /></AnimatedRoute></AuthGuard>}</Route>
         <Route component={NotFound} />
       </Switch>
     </AnimatePresence>

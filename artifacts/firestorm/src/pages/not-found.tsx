@@ -1,6 +1,6 @@
 import { Flame } from "lucide-react";
 import { Link } from "wouter";
-import { Button } from "@/components/ui/button";
+import { Button } from "@workspace/ui";
 
 export default function NotFound() {
   return (

@@ -13,10 +13,10 @@ import {
   Database,
   Cpu
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Input } from "@/components/ui/input";
+import { Button } from "@workspace/ui";
+import { Badge } from "@workspace/ui";
+import { Progress } from "@workspace/ui";
+import { Input } from "@workspace/ui";
 import { Navbar } from "@/components/Navbar";
 import { useState } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';

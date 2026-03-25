@@ -4,7 +4,7 @@ import { useModules, useMutateModules, useLogs, useMutateLogs } from "@/hooks/us
 import { Layout } from "@/components/Layout";
 import { Modal } from "@/components/Modal";
 import { Plus, Edit2, Trash2, Cpu, ActivitySquare } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@workspace/ui";
 import type { ZeusModule } from "@workspace/api-client-react";
 
 export default function Zeus() {

@@ -4,7 +4,7 @@ import { useMetrics, useMutateMetrics, useProjects, useMutateProjects } from "@/
 import { Layout } from "@/components/Layout";
 import { Modal } from "@/components/Modal";
 import { Plus, TrendingUp, TrendingDown, Edit2, Trash2, AlertTriangle, BarChart3, FolderOpen, RefreshCw, CreditCard, DollarSign, ArrowUpRight, ArrowDownRight, Receipt, Wallet, AlertCircle } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@workspace/ui";
 import type { BeaconMetric, BeaconProject } from "@workspace/api-client-react";
 
 interface StripeRevenue {

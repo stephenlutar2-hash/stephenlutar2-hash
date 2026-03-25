@@ -4,8 +4,8 @@ import {
   Flame, Shield, Activity, BarChart3, Crosshair, Users,
   ChevronRight, CheckCircle2, Menu, X, Play, Eye, FileText, Zap,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Button } from "@workspace/ui";
+import { cn } from "@workspace/ui";
 
 const BASE = import.meta.env.BASE_URL;
 

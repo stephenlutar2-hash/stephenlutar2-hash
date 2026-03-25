@@ -4,9 +4,9 @@ import { AlertTriangle, Plus, Trash2, ShieldAlert, Zap, Radio, Circle, RefreshCw
 import { motion } from "framer-motion";
 import { BarChart, Bar, Cell, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { useAlerts, useDeleteAlert } from "@/hooks/use-alerts";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
-import { Dialog } from "@/components/ui/Dialog";
+import { Button } from "@workspace/ui";
+import { Badge } from "@workspace/ui";
+import { Dialog } from "@workspace/ui";
 import { AlertForm } from "@/components/AlertForm";
 
 function ConfirmDialog({ isOpen, onClose, onConfirm, name }: { isOpen: boolean; onClose: () => void; onConfirm: () => void; name: string }) {

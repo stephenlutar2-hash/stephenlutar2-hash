@@ -2,9 +2,9 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Button } from "./ui/Button";
-import { Input } from "./ui/Input";
-import { Select } from "./ui/Select";
+import { Button } from "@workspace/ui";
+import { Input } from "@workspace/ui";
+import { NativeSelect as Select } from "./ui/native-select";
 import { useCreateAlert } from "@/hooks/use-alerts";
 
 const formSchema = z.object({
@@ -73,11 +73,10 @@ export function AlertForm({ onSuccess }: { onSuccess: () => void }) {
       <div className="pt-4 flex justify-end gap-2">
         <Button 
           type="submit" 
-          variant="glow" 
-          isLoading={createMutation.isPending}
+          disabled={createMutation.isPending}
           className="w-full bg-secondary/10 border-secondary/50 text-secondary shadow-[0_0_15px_rgba(139,92,246,0.3)] hover:shadow-[0_0_25px_rgba(139,92,246,0.6)]"
         >
-          Broadcast Alert
+          {createMutation.isPending ? "Submitting..." : "Broadcast Alert"}
         </Button>
       </div>
     </form>
