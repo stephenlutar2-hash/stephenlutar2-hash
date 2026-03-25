@@ -194,6 +194,7 @@ export default function Dashboard() {
         </header>
 
         <div className="p-8 space-y-8">
+          {activeTab === "overview" && (<>
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -694,6 +695,156 @@ export default function Dashboard() {
                   <p className="text-[10px] tracking-wider text-gray-500 uppercase mb-2">App Insights</p>
                   <p className={`text-lg font-display font-bold ${monitoring.appInsights?.configured ? "text-emerald-400" : "text-gray-500"}`}>{monitoring.appInsights?.configured ? "Active" : "Not Set"}</p>
                 </div>
+              </div>
+            </motion.div>
+          )}
+          </>)}
+
+          {activeTab === "threats" && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+              <h2 className="text-2xl font-display font-bold text-white uppercase tracking-wider">Active Threat Intelligence</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {[
+                  { title: "DDoS Attack — Mitigated", source: "192.168.x.x (RU)", severity: "Critical", time: "12 min ago", icon: XCircle, color: "text-red-500", desc: "Volumetric attack at 45Gbps peak. Auto-mitigated by edge WAF." },
+                  { title: "SQL Injection — Blocked", source: "203.0.113.x (CN)", severity: "High", time: "34 min ago", icon: AlertTriangle, color: "text-amber-500", desc: "Attempted payload on /api/users endpoint. WAF Rule #4521 triggered." },
+                  { title: "Brute Force — Contained", source: "Botnet Cluster", severity: "High", time: "1 hr ago", icon: AlertTriangle, color: "text-amber-500", desc: "2,847 login attempts detected. IP range banned automatically." },
+                  { title: "Zero-Day Signature", source: "CVE-2026-1847", severity: "Medium", time: "5 hrs ago", icon: ShieldAlert, color: "text-blue-400", desc: "Patch applied to WAF rules automatically. No exploitation detected." },
+                ].map((t, i) => (
+                  <div key={i} className="p-6 rounded-xl border border-white/10 bg-white/[0.02]">
+                    <div className="flex items-start gap-3 mb-3">
+                      <t.icon className={`w-5 h-5 mt-0.5 ${t.color}`} />
+                      <div className="flex-1">
+                        <div className="flex justify-between items-start">
+                          <h4 className="text-sm font-semibold text-white">{t.title}</h4>
+                          <span className="text-[10px] text-gray-500 font-mono">{t.time}</span>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">Source: {t.source}</p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-2">{t.desc}</p>
+                    <Badge className="mt-3 bg-white/5 text-gray-400 border-white/10">{t.severity}</Badge>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === "perimeter" && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+              <h2 className="text-2xl font-display font-bold text-white uppercase tracking-wider">Network Perimeter</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {[
+                  { label: "Edge Nodes", value: "24", status: "All Online", statusColor: "text-emerald-400" },
+                  { label: "Firewall Rules", value: "1,847", status: "12 Updated Today", statusColor: "text-amber-500" },
+                  { label: "GeoBlocked Regions", value: "7", status: "Active Enforcement", statusColor: "text-red-400" },
+                ].map((item, i) => (
+                  <div key={i} className="p-6 rounded-xl border border-white/10 bg-white/[0.02]">
+                    <p className="text-xs tracking-wider text-gray-500 uppercase">{item.label}</p>
+                    <p className="text-3xl font-display font-bold text-white mt-2">{item.value}</p>
+                    <p className={`text-xs mt-1 ${item.statusColor}`}>{item.status}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="p-6 rounded-xl border border-white/10 bg-white/[0.02]">
+                <h3 className="font-display font-bold text-white tracking-wide uppercase mb-4">Perimeter Zones</h3>
+                <div className="space-y-3">
+                  {["DMZ (Public-facing services)", "Internal Zone (Core infrastructure)", "Restricted Zone (Data stores)", "Management Zone (Admin services)"].map((zone, i) => (
+                    <div key={i} className="flex items-center justify-between p-3 rounded-lg border border-white/5 bg-white/[0.01]">
+                      <span className="text-sm text-gray-300">{zone}</span>
+                      <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20">Secured</Badge>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === "access" && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+              <h2 className="text-2xl font-display font-bold text-white uppercase tracking-wider">Access Control</h2>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {[
+                  { label: "Active Sessions", value: "142", color: "text-blue-400" },
+                  { label: "MFA Enforced", value: "100%", color: "text-emerald-400" },
+                  { label: "Failed Logins (24h)", value: "2,847", color: "text-red-400" },
+                  { label: "Service Accounts", value: "38", color: "text-amber-500" },
+                ].map((item, i) => (
+                  <div key={i} className="p-5 rounded-xl border border-white/10 bg-white/[0.02]">
+                    <p className="text-xs tracking-wider text-gray-500 uppercase">{item.label}</p>
+                    <p className={`text-2xl font-display font-bold mt-2 ${item.color}`}>{item.value}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="p-6 rounded-xl border border-white/10 bg-white/[0.02]">
+                <h3 className="font-display font-bold text-white tracking-wide uppercase mb-4">Role-Based Access</h3>
+                <div className="space-y-3">
+                  {[
+                    { role: "Emperor", users: 1, perms: "Full System Access" },
+                    { role: "Commander", users: 4, perms: "Operations & Monitoring" },
+                    { role: "Analyst", users: 12, perms: "Read-Only Intelligence" },
+                    { role: "Service", users: 38, perms: "API Access Only" },
+                  ].map((r, i) => (
+                    <div key={i} className="flex items-center justify-between p-3 rounded-lg border border-white/5 bg-white/[0.01]">
+                      <div>
+                        <span className="text-sm font-medium text-white">{r.role}</span>
+                        <span className="text-xs text-gray-500 ml-3">{r.perms}</span>
+                      </div>
+                      <span className="text-xs text-gray-400">{r.users} users</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === "forensics" && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+              <h2 className="text-2xl font-display font-bold text-white uppercase tracking-wider">Forensics & Analysis</h2>
+              <div className="p-6 rounded-xl border border-white/10 bg-white/[0.02]">
+                <h3 className="font-display font-bold text-white tracking-wide uppercase mb-4">Recent Investigations</h3>
+                <div className="space-y-4">
+                  {[
+                    { id: "FOR-2026-0847", title: "Lateral Movement Attempt", status: "Closed", date: "2026-03-22", finding: "Contained to sandbox. No data exfiltration." },
+                    { id: "FOR-2026-0839", title: "Anomalous DNS Queries", status: "Active", date: "2026-03-24", finding: "Under investigation. Pattern matches known C2 framework." },
+                    { id: "FOR-2026-0831", title: "Privilege Escalation", status: "Closed", date: "2026-03-19", finding: "Misconfigured service account. Remediated." },
+                  ].map((inv, i) => (
+                    <div key={i} className="p-4 rounded-lg border border-white/5 bg-white/[0.01]">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <span className="text-xs font-mono text-amber-500">{inv.id}</span>
+                          <h4 className="text-sm font-medium text-white mt-1">{inv.title}</h4>
+                        </div>
+                        <Badge className={inv.status === "Active" ? "bg-amber-500/10 text-amber-500 border-amber-500/20" : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"}>{inv.status}</Badge>
+                      </div>
+                      <p className="text-xs text-gray-500">{inv.finding}</p>
+                      <p className="text-[10px] text-gray-600 mt-2 font-mono">{inv.date}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === "config" && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+              <h2 className="text-2xl font-display font-bold text-white uppercase tracking-wider">Configuration</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {[
+                  { title: "WAF Rules Engine", desc: "1,847 active rules. Last updated 3 hours ago.", status: "Active" },
+                  { title: "DDoS Mitigation", desc: "Auto-scaling enabled. Threshold: 10Gbps.", status: "Active" },
+                  { title: "SSL/TLS Settings", desc: "TLS 1.3 enforced. HSTS enabled. Certificate valid.", status: "Active" },
+                  { title: "Log Retention", desc: "90-day retention policy. 847GB stored.", status: "Active" },
+                  { title: "Alerting Channels", desc: "Slack, PagerDuty, Email configured.", status: "Active" },
+                  { title: "Backup & Recovery", desc: "Daily snapshots. RPO: 1hr, RTO: 15min.", status: "Active" },
+                ].map((cfg, i) => (
+                  <div key={i} className="p-5 rounded-xl border border-white/10 bg-white/[0.02]">
+                    <div className="flex justify-between items-start mb-2">
+                      <h4 className="text-sm font-semibold text-white">{cfg.title}</h4>
+                      <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20">{cfg.status}</Badge>
+                    </div>
+                    <p className="text-xs text-gray-500">{cfg.desc}</p>
+                  </div>
+                ))}
               </div>
             </motion.div>
           )}

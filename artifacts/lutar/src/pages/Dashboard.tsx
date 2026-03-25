@@ -141,7 +141,7 @@ const INITIAL_PROJECTS: ProjectItem[] = [
     status: "Building",
     progress: 68,
     icon: Zap,
-    url: "#",
+    url: "/zeus/",
     color: "text-yellow-400",
     borderColor: "border-yellow-500/20",
   },
@@ -562,6 +562,7 @@ export default function Dashboard() {
         </header>
 
         <div className="p-8 space-y-8">
+          {activeTab === "command" && (<>
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -1056,6 +1057,92 @@ export default function Dashboard() {
               </motion.div>
             ))}
           </div>
+          </>)}
+
+          {activeTab === "holdings" && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+              <h2 className="text-2xl font-display font-bold text-white uppercase tracking-wider">Holdings & Assets</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {[
+                  { name: "ROSIE", desc: "Autonomous Operations System", value: "$4.2M ARR", status: "Operational", color: "text-red-400" },
+                  { name: "Aegis", desc: "Enterprise Security Fortress", value: "$2.8M ARR", status: "Operational", color: "text-amber-500" },
+                  { name: "Beacon", desc: "Distributed Intelligence Platform", value: "$1.9M ARR", status: "Operational", color: "text-cyan-400" },
+                  { name: "Nimbus", desc: "Cloud Infrastructure Management", value: "$3.1M ARR", status: "Operational", color: "text-blue-400" },
+                  { name: "Firestorm", desc: "Real-Time Analytics Engine", value: "$2.4M ARR", status: "Operational", color: "text-orange-400" },
+                  { name: "DreamEra", desc: "AI-Powered Creative Suite", value: "$1.6M ARR", status: "Operational", color: "text-purple-400" },
+                ].map((asset, i) => (
+                  <div key={i} className="p-5 rounded-xl border border-border bg-card">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <h4 className={`text-lg font-display font-bold ${asset.color}`}>{asset.name}</h4>
+                        <p className="text-xs text-muted-foreground">{asset.desc}</p>
+                      </div>
+                      <Badge variant="outline" className="border-primary/30 text-primary bg-primary/5">{asset.status}</Badge>
+                    </div>
+                    <p className="text-xl font-display font-bold text-white mt-3">{asset.value}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="p-6 rounded-xl border border-border bg-card">
+                <h3 className="font-display font-bold text-white tracking-wide uppercase mb-2">Total Portfolio Valuation</h3>
+                <p className="text-4xl font-display font-bold text-primary">$16.0M ARR</p>
+                <p className="text-xs text-muted-foreground mt-1">Combined annual recurring revenue across all holdings</p>
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === "goals" && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+              <h2 className="text-2xl font-display font-bold text-white uppercase tracking-wider">Strategic Goals</h2>
+              <div className="space-y-4">
+                {[
+                  { goal: "Launch PSEM v1.0", deadline: "Q2 2026", progress: 25, priority: "Critical" },
+                  { goal: "Achieve $20M ARR", deadline: "Q4 2026", progress: 80, priority: "High" },
+                  { goal: "SOC 2 Type II Certification", deadline: "Q3 2026", progress: 65, priority: "High" },
+                  { goal: "Expand to 3 new markets", deadline: "Q4 2026", progress: 30, priority: "Medium" },
+                  { goal: "Complete INCA Experiment Framework", deadline: "Q2 2026", progress: 72, priority: "High" },
+                ].map((item, i) => (
+                  <div key={i} className="p-5 rounded-xl border border-border bg-card">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h4 className="text-sm font-semibold text-white">{item.goal}</h4>
+                        <p className="text-xs text-muted-foreground mt-1">Deadline: {item.deadline}</p>
+                      </div>
+                      <Badge variant="outline" className={item.priority === "Critical" ? "border-red-500/30 text-red-400" : item.priority === "High" ? "border-amber-500/30 text-amber-400" : "border-blue-500/30 text-blue-400"}>{item.priority}</Badge>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Progress value={item.progress} className="flex-1 h-2" />
+                      <span className="text-xs font-mono text-muted-foreground">{item.progress}%</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === "settings" && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+              <h2 className="text-2xl font-display font-bold text-white uppercase tracking-wider">System Preferences</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {[
+                  { title: "Authentication", desc: "Entra ID SSO with MFA enforced. Session timeout: 8 hours.", status: "Configured" },
+                  { title: "Notifications", desc: "Slack, Email, PagerDuty. Critical alerts: immediate.", status: "Active" },
+                  { title: "Data Retention", desc: "90-day log retention. Automated archival to cold storage.", status: "Active" },
+                  { title: "API Rate Limits", desc: "1,000 req/min per key. Burst: 5,000. Auto-throttle enabled.", status: "Enforced" },
+                  { title: "Audit Logging", desc: "All actions logged with user, timestamp, and IP. SIEM export enabled.", status: "Active" },
+                  { title: "Backup Schedule", desc: "Daily at 03:00 UTC. Weekly full backup. 30-day retention.", status: "Active" },
+                ].map((cfg, i) => (
+                  <div key={i} className="p-5 rounded-xl border border-border bg-card">
+                    <div className="flex justify-between items-start mb-2">
+                      <h4 className="text-sm font-semibold text-white">{cfg.title}</h4>
+                      <Badge variant="outline" className="border-primary/30 text-primary bg-primary/5">{cfg.status}</Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">{cfg.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
         </div>
       </main>
 
