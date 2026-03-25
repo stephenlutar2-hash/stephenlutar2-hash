@@ -9,7 +9,7 @@ SZL Holdings is a pnpm monorepo encompassing a suite of security, AI, and media 
 - **Username**: slutar
 - **Password**: Topshelf14@
 - **Design style**: Dark luxury aesthetic — glassmorphism, deep blacks
-- **Brand colors**: ROSIE (electric blue/violet), AEGIS (gold/amber), LUTAR (emerald green), BEACON (cyan/electric blue), NIMBUS (cyan/purple), FIRESTORM (orange/red)
+- **Brand colors**: ROSIE (electric blue/violet), AEGIS (gold/amber), LUTAR (emerald green), BEACON (cyan/electric blue), NIMBUS (cyan/purple), FIRESTORM (orange/red), VESSELS (ocean-blue/emerald)
 - **Domain**: szlholdings.com
 
 ## System Architecture
@@ -30,6 +30,7 @@ The project is built as a pnpm workspace monorepo using Node.js 24, pnpm, and Ty
 - **DREAMERA**: AI storytelling and artifact mapping.
 - **ALLOYSCAPE**: Infrastructure operations platform — management interface for the Alloy AI engine. Provides orchestration monitoring, system module status, workflow templates, execution logs, service health, connector management, and user/role controls.
 - **ZEUS**: Modular core architecture system.
+- **VESSELS**: Maritime/logistics fleet intelligence platform (ocean-blue/emerald theme).
 - **Apps Showcase**, **Readiness Report**, and **Career** for public-facing information.
 
 **Authentication:** A unified login system supports:
@@ -51,7 +52,7 @@ The project is built as a pnpm workspace monorepo using Node.js 24, pnpm, and Ty
 - `dreamera_content`, `dreamera_campaigns` (DREAMERA).
 - `conversations`, `messages` (Alloy Engine).
 
-**API Routes:** All API routes are prefixed with `/api/` and include endpoints for authentication, platform-specific CRUD operations, Alloy Engine interactions, and monitoring. Write operations on ROSIE are authenticated. Database-backed routes are guarded by `requireDatabase` middleware that returns 503 if `DATABASE_URL` is not configured. Firestorm simulation routes (`/api/firestorm/*`) are protected by `requireAuth` — all scenario, event, detection, and report endpoints require a valid session token.
+**API Routes:** All API routes are prefixed with `/api/` and include endpoints for authentication, platform-specific CRUD operations, Alloy Engine interactions, and monitoring. Write operations on ROSIE are authenticated. Database-backed routes are guarded by `requireDatabase` middleware that returns 503 if `DATABASE_URL` is not configured. Firestorm simulation routes (`/api/firestorm/*`) are protected by `requireAuth` — all scenario, event, detection, and report endpoints require a valid session token. Vessels routes (`/api/vessels/*`) serve in-memory mock fleet/route/asset/alert/intelligence data.
 
 **Production Hardening:**
 - Health endpoints: `/health`, `/healthz` (root level), `/api/health`, `/api/healthz` — all return `{ok, project, timestamp}`.
