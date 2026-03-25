@@ -290,97 +290,122 @@ export default function Home() {
 
       {/* 7. PRICING SECTION */}
       <section id="pricing" className="py-32 relative z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="absolute inset-0 z-0">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-cyan-500/5 rounded-full blur-[200px]"></div>
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-20">
-            <h2 className="text-sm font-mono text-secondary uppercase tracking-widest mb-4">Deployment Plans</h2>
-            <h3 className="text-3xl md:text-5xl font-display font-bold">SCALE YOUR SECURITY</h3>
+            <h2 className="text-sm font-mono text-cyan-400 uppercase tracking-[0.3em] mb-4">Deployment Plans</h2>
+            <h3 className="text-3xl md:text-5xl font-display font-black tracking-tight">CHOOSE YOUR DEFENSE TIER</h3>
+            <p className="text-muted-foreground mt-4 max-w-xl mx-auto">Enterprise-grade protection scaled to your operation. Every plan includes 24/7 AI monitoring and instant threat response.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {/* Starter */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto items-stretch">
+            {/* SHIELD */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="glass-panel p-8 rounded-3xl border-white/10 flex flex-col relative"
+              transition={{ delay: 0 }}
+              className="group relative rounded-2xl border border-cyan-500/20 bg-white/[0.03] backdrop-blur-sm p-8 flex flex-col hover:border-cyan-500/40 hover:bg-white/[0.05] transition-all duration-300"
             >
-              <div className="mb-8">
-                <h4 className="text-xl font-display font-bold text-white mb-2">Starter</h4>
-                <p className="text-sm text-muted-foreground mb-6">For single applications and small teams.</p>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-display font-bold text-white">$499</span>
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+              <div className="relative z-10 flex flex-col h-full">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                    <Shield className="w-5 h-5 text-cyan-400" />
+                  </div>
+                  <h4 className="text-xl font-display font-bold text-white">Shield</h4>
+                </div>
+                <p className="text-sm text-muted-foreground mb-6">Essential protection for startups and single-app teams.</p>
+                <div className="flex items-baseline gap-1 mb-8">
+                  <span className="text-5xl font-display font-black text-white">$499</span>
                   <span className="text-muted-foreground text-sm">/mo</span>
                 </div>
+                <ul className="space-y-3.5 flex-1 mb-8">
+                  {['1 Project Coverage', 'Standard AI Threat Detection', 'Email & Dashboard Alerts', '7-Day Log Retention', 'Community Support'].map((feat, i) => (
+                    <li key={i} className="flex items-start gap-3 text-sm text-white/80">
+                      <CheckCircle2 className="w-4 h-4 text-cyan-400 mt-0.5 shrink-0" />
+                      {feat}
+                    </li>
+                  ))}
+                </ul>
+                <button className="w-full py-3.5 rounded-xl bg-white/5 hover:bg-cyan-500/10 border border-white/10 hover:border-cyan-500/30 text-white font-semibold transition-all duration-300">
+                  Deploy Shield
+                </button>
               </div>
-              <ul className="space-y-4 flex-1 mb-8">
-                {['1 Project Coverage', 'Standard AI Detection', 'Email Alerts', '7-Day Log Retention'].map((feat, i) => (
-                  <li key={i} className="flex items-center gap-3 text-sm text-white/80">
-                    <CheckCircle2 className="w-4 h-4 text-primary" />
-                    {feat}
-                  </li>
-                ))}
-              </ul>
-              <button className="w-full py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium transition-colors">
-                Deploy Starter
-              </button>
             </motion.div>
 
-            {/* Accelerator (Featured) */}
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              className="glass-panel p-8 rounded-3xl border-primary/50 relative transform md:-translate-y-4 glow-shadow flex flex-col"
-            >
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-1 bg-primary text-primary-foreground text-xs font-bold rounded-full tracking-wider">
-                RECOMMENDED
-              </div>
-              <div className="mb-8">
-                <h4 className="text-xl font-display font-bold text-primary mb-2">Accelerator</h4>
-                <p className="text-sm text-muted-foreground mb-6">For growing tech empires and platforms.</p>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-display font-bold text-white">$1,499</span>
-                  <span className="text-muted-foreground text-sm">/mo</span>
-                </div>
-              </div>
-              <ul className="space-y-4 flex-1 mb-8">
-                {['Up to 5 Projects', 'Advanced Behavioral AI', 'SMS & Slack Alerts', '30-Day Log Retention', 'Self-Healing Infra'].map((feat, i) => (
-                  <li key={i} className="flex items-center gap-3 text-sm text-white/80">
-                    <CheckCircle2 className="w-4 h-4 text-primary" />
-                    {feat}
-                  </li>
-                ))}
-              </ul>
-              <button className="w-full py-3 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-bold transition-colors shadow-lg shadow-primary/25">
-                Deploy Accelerator
-              </button>
-            </motion.div>
-
-            {/* Enterprise */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
+            {/* FORTRESS (Featured) */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="glass-panel p-8 rounded-3xl border-white/10 flex flex-col relative"
+              transition={{ delay: 0.1 }}
+              className="group relative rounded-2xl border border-amber-500/40 bg-white/[0.04] backdrop-blur-sm p-8 flex flex-col md:scale-105 md:-my-3 shadow-[0_0_40px_rgba(245,158,11,0.08)] hover:shadow-[0_0_60px_rgba(245,158,11,0.12)] hover:border-amber-500/60 transition-all duration-300"
             >
-              <div className="mb-8">
-                <h4 className="text-xl font-display font-bold text-white mb-2">Enterprise</h4>
-                <p className="text-sm text-muted-foreground mb-6">Custom architecture for global scale.</p>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-display font-bold text-white">Custom</span>
-                </div>
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-amber-500/8 to-transparent pointer-events-none"></div>
+              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-20">
+                <span className="px-4 py-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold rounded-full tracking-widest uppercase shadow-lg shadow-amber-500/30">Most Popular</span>
               </div>
-              <ul className="space-y-4 flex-1 mb-8">
-                {['Unlimited Projects', 'Dedicated Neural Nodes', 'Priority Webhooks', '1-Year Log Retention', 'Dedicated Security Rep'].map((feat, i) => (
-                  <li key={i} className="flex items-center gap-3 text-sm text-white/80">
-                    <CheckCircle2 className="w-4 h-4 text-secondary" />
-                    {feat}
-                  </li>
-                ))}
-              </ul>
-              <button className="w-full py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium transition-colors">
-                Contact Sales
-              </button>
+              <div className="relative z-10 flex flex-col h-full">
+                <div className="flex items-center gap-3 mb-2 mt-2">
+                  <div className="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/25 flex items-center justify-center">
+                    <Shield className="w-5 h-5 text-amber-400" />
+                  </div>
+                  <h4 className="text-xl font-display font-bold text-amber-400">Fortress</h4>
+                </div>
+                <p className="text-sm text-muted-foreground mb-6">Full-spectrum defense for scaling digital empires.</p>
+                <div className="flex items-baseline gap-1 mb-8">
+                  <span className="text-5xl font-display font-black text-white">$1,499</span>
+                  <span className="text-muted-foreground text-sm">/mo</span>
+                </div>
+                <ul className="space-y-3.5 flex-1 mb-8">
+                  {['Up to 5 Projects', 'Advanced Behavioral AI Engine', 'SMS, Slack & Webhook Alerts', '30-Day Log Retention', 'Self-Healing Infrastructure', 'Priority Response SLA', 'Dedicated Onboarding'].map((feat, i) => (
+                    <li key={i} className="flex items-start gap-3 text-sm text-white/90">
+                      <CheckCircle2 className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
+                      {feat}
+                    </li>
+                  ))}
+                </ul>
+                <button className="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-bold transition-all duration-300 shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30">
+                  Deploy Fortress
+                </button>
+              </div>
+            </motion.div>
+
+            {/* CITADEL */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="group relative rounded-2xl border border-indigo-500/20 bg-white/[0.03] backdrop-blur-sm p-8 flex flex-col hover:border-indigo-500/40 hover:bg-white/[0.05] transition-all duration-300"
+            >
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+              <div className="relative z-10 flex flex-col h-full">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
+                    <Shield className="w-5 h-5 text-indigo-400" />
+                  </div>
+                  <h4 className="text-xl font-display font-bold text-white">Citadel</h4>
+                </div>
+                <p className="text-sm text-muted-foreground mb-6">Bespoke architecture for global enterprise operations.</p>
+                <div className="flex items-baseline gap-1 mb-8">
+                  <span className="text-5xl font-display font-black text-white">Custom</span>
+                </div>
+                <ul className="space-y-3.5 flex-1 mb-8">
+                  {['Unlimited Projects', 'Dedicated Neural Compute Nodes', 'Priority Webhooks & API Access', '1-Year Log Retention', 'Dedicated Security Architect', 'Custom Compliance Reporting', 'White-Glove 24/7 Support'].map((feat, i) => (
+                    <li key={i} className="flex items-start gap-3 text-sm text-white/80">
+                      <CheckCircle2 className="w-4 h-4 text-indigo-400 mt-0.5 shrink-0" />
+                      {feat}
+                    </li>
+                  ))}
+                </ul>
+                <button className="w-full py-3.5 rounded-xl bg-transparent hover:bg-indigo-500/10 border border-indigo-500/30 hover:border-indigo-500/50 text-indigo-300 hover:text-indigo-200 font-semibold transition-all duration-300">
+                  Contact Sales
+                </button>
+              </div>
             </motion.div>
           </div>
         </div>
