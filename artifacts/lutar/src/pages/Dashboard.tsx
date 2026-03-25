@@ -41,7 +41,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 
-const revenueData = [
+const INITIAL_REVENUE_DATA = [
   { month: "Jan", revenue: 2.1, expenses: 1.4 },
   { month: "Feb", revenue: 2.8, expenses: 1.6 },
   { month: "Mar", revenue: 3.2, expenses: 1.8 },
@@ -56,7 +56,7 @@ const revenueData = [
   { month: "Dec", revenue: 18.5, expenses: 4.5 },
 ];
 
-const divisionData = [
+const INITIAL_DIVISION_DATA = [
   { name: "Security", value: 42 },
   { name: "Technology", value: 28 },
   { name: "Media", value: 18 },
@@ -64,7 +64,18 @@ const divisionData = [
 ];
 const PIE_COLORS = ["#10b981", "#3b82f6", "#f59e0b", "#8b5cf6"];
 
-const projectsData = [
+interface ProjectItem {
+  name: string;
+  desc: string;
+  status: string;
+  progress: number;
+  icon: React.ComponentType<any>;
+  url: string;
+  color: string;
+  borderColor: string;
+}
+
+const INITIAL_PROJECTS: ProjectItem[] = [
   {
     name: "ROSIE",
     desc: "Autonomous AI Security Platform",
@@ -130,6 +141,12 @@ const projectsData = [
 export default function Dashboard() {
   const [currentTime, setCurrentTime] = useState("");
   const [, setLocation] = useLocation();
+  const [revenueData, setRevenueData] = useState(INITIAL_REVENUE_DATA);
+  const [divisionData, setDivisionData] = useState(INITIAL_DIVISION_DATA);
+  const [projects, setProjects] = useState<ProjectItem[]>(INITIAL_PROJECTS);
+  const [editingProject, setEditingProject] = useState<number | null>(null);
+  const [editStatus, setEditStatus] = useState("");
+  const [editProgress, setEditProgress] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -145,6 +162,24 @@ export default function Dashboard() {
     localStorage.removeItem("szl_token");
     localStorage.removeItem("szl_user");
     setLocation("/login");
+  }
+
+  function openEditProject(index: number) {
+    setEditingProject(index);
+    setEditStatus(projects[index].status);
+    setEditProgress(projects[index].progress);
+  }
+
+  function saveProjectEdit() {
+    if (editingProject === null) return;
+    setProjects((prev) =>
+      prev.map((p, i) =>
+        i === editingProject
+          ? { ...p, status: editStatus, progress: editProgress }
+          : p
+      )
+    );
+    setEditingProject(null);
   }
 
   const username = localStorage.getItem("szl_user") || "Commander";
@@ -517,14 +552,14 @@ export default function Dashboard() {
                 Empire Projects
               </h3>
               <span className="text-xs text-muted-foreground font-mono">
-                {projectsData.filter((p) => p.status === "Active").length} Active
-                / {projectsData.length} Total
+                {projects.filter((p) => p.status === "Active").length} Active
+                / {projects.length} Total
               </span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {projectsData.map((project, i) => (
+              {projects.map((project, i) => (
                 <motion.div
-                  key={i}
+                  key={project.name}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.7 + i * 0.08 }}
@@ -550,7 +585,8 @@ export default function Dashboard() {
                       variant={
                         project.status === "Active" ? "default" : "secondary"
                       }
-                      className="text-[10px]"
+                      className="text-[10px] cursor-pointer"
+                      onClick={() => openEditProject(i)}
                     >
                       {project.status}
                     </Badge>
@@ -570,14 +606,22 @@ export default function Dashboard() {
                     </div>
                     <Progress value={project.progress} className="h-1.5" />
                   </div>
-                  {project.url !== "#" && (
-                    <a
-                      href={project.url}
-                      className="mt-3 flex items-center gap-1 text-xs text-primary hover:text-emerald-400 transition-colors"
+                  <div className="mt-3 flex items-center gap-3">
+                    {project.url !== "#" && (
+                      <a
+                        href={project.url}
+                        className="flex items-center gap-1 text-xs text-primary hover:text-emerald-400 transition-colors"
+                      >
+                        Open <ExternalLink size={10} />
+                      </a>
+                    )}
+                    <button
+                      onClick={() => openEditProject(i)}
+                      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-white transition-colors ml-auto"
                     >
-                      Open <ExternalLink size={10} />
-                    </a>
-                  )}
+                      <Settings size={10} /> Edit
+                    </button>
+                  </div>
                 </motion.div>
               ))}
             </div>
@@ -745,6 +789,62 @@ export default function Dashboard() {
           </div>
         </div>
       </main>
+
+      {editingProject !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-card border border-border rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl"
+          >
+            <h3 className="font-display font-bold text-white text-lg mb-4">
+              Edit {projects[editingProject].name}
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs text-muted-foreground block mb-1">Status</label>
+                <select
+                  value={editStatus}
+                  onChange={(e) => setEditStatus(e.target.value)}
+                  className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  <option value="Active">Active</option>
+                  <option value="Building">Building</option>
+                  <option value="Paused">Paused</option>
+                  <option value="Completed">Completed</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground block mb-1">
+                  Progress: {editProgress}%
+                </label>
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={editProgress}
+                  onChange={(e) => setEditProgress(Number(e.target.value))}
+                  className="w-full accent-emerald-500"
+                />
+              </div>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setEditingProject(null)}
+                className="flex-1 px-4 py-2 rounded-lg border border-border text-sm text-muted-foreground hover:text-white transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={saveProjectEdit}
+                className="flex-1 px-4 py-2 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-emerald-600 transition-colors"
+              >
+                Save
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

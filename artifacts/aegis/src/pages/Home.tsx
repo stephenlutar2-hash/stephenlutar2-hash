@@ -12,6 +12,8 @@ const HERO_BG = `${import.meta.env.BASE_URL}images/aegis-hero-bg.png`;
 
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [contactEmail, setContactEmail] = useState("");
+  const [contactSubmitted, setContactSubmitted] = useState(false);
 
   const navLinks = [
     { name: "Platform", href: "#" },
@@ -82,7 +84,7 @@ export default function Home() {
 
           <div className="hidden md:flex items-center gap-4">
             <Button variant="ghost" className="font-bold tracking-widest" onClick={() => window.location.href = `${import.meta.env.BASE_URL}login`}>LOGIN</Button>
-            <Button variant="glow" onClick={() => window.location.href = `${import.meta.env.BASE_URL}login`}>DEPLOY AEGIS</Button>
+            <Button variant="glow" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>DEPLOY AEGIS</Button>
           </div>
 
           <button className="md:hidden text-foreground" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
@@ -146,7 +148,7 @@ export default function Home() {
             transition={{ delay: 0.7, duration: 0.8 }}
             className="flex flex-col sm:flex-row gap-6 w-full sm:w-auto"
           >
-            <Button variant="glow" size="lg" className="w-full sm:w-auto text-lg px-12" onClick={() => window.location.href = `${import.meta.env.BASE_URL}login`}>
+            <Button variant="glow" size="lg" className="w-full sm:w-auto text-lg px-12" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>
               Deploy Aegis
             </Button>
             <Button variant="outline" size="lg" className="w-full sm:w-auto text-lg px-12 bg-background/50 backdrop-blur-sm" onClick={() => document.getElementById('architecture')?.scrollIntoView({ behavior: 'smooth'})}>
@@ -327,9 +329,9 @@ export default function Home() {
                 <Button 
                   variant={tier.highlight ? "glow" : "outline"} 
                   className="w-full mt-auto"
-                  onClick={() => window.location.href = `${import.meta.env.BASE_URL}login`}
+                  onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
                 >
-                  {tier.price === "Custom" ? "Contact Sales" : "Start Trial"}
+                  {tier.price === "Custom" ? "Contact Sales" : "Request Access"}
                 </Button>
               </motion.div>
             ))}
@@ -337,25 +339,39 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-24 relative">
+      {/* Contact / CTA Section */}
+      <section id="contact" className="py-24 relative">
         <div className="absolute inset-0 bg-primary/5" />
         <div className="relative max-w-4xl mx-auto px-6 text-center">
           <Shield className="w-16 h-16 text-primary mx-auto mb-8" />
           <h2 className="text-4xl md:text-6xl font-display font-bold text-white mb-6 uppercase tracking-tight">Ready to Secure Your Empire?</h2>
           <p className="text-xl text-muted-foreground mb-10">Join the elite organizations that trust Aegis with their perimeter.</p>
           
-          <form className="flex flex-col sm:flex-row gap-4 max-w-xl mx-auto" onSubmit={(e) => { e.preventDefault(); window.location.href = `${import.meta.env.BASE_URL}login`; }}>
-            <input 
-              type="email" 
-              placeholder="Enter your corporate email" 
-              required
-              className="flex-grow h-14 bg-background border border-primary/30 rounded-md px-6 text-white placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-            />
-            <Button type="submit" variant="glow" size="lg" className="h-14 px-8 shrink-0">
-              Request Access <ChevronRight className="w-4 h-4 ml-2" />
-            </Button>
-          </form>
+          {contactSubmitted ? (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="max-w-xl mx-auto p-8 rounded-2xl border border-primary/30 bg-primary/5"
+            >
+              <CheckCircle2 className="w-12 h-12 text-primary mx-auto mb-4" />
+              <h3 className="text-xl font-display font-bold text-white mb-2">Request Received</h3>
+              <p className="text-muted-foreground">We'll reach out to <span className="text-white">{contactEmail}</span> within 24 hours to schedule your demo.</p>
+            </motion.div>
+          ) : (
+            <form className="flex flex-col sm:flex-row gap-4 max-w-xl mx-auto" onSubmit={(e) => { e.preventDefault(); setContactSubmitted(true); }}>
+              <input 
+                type="email" 
+                placeholder="Enter your corporate email" 
+                required
+                value={contactEmail}
+                onChange={(e) => setContactEmail(e.target.value)}
+                className="flex-grow h-14 bg-background border border-primary/30 rounded-md px-6 text-white placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+              />
+              <Button type="submit" variant="glow" size="lg" className="h-14 px-8 shrink-0">
+                Request Access <ChevronRight className="w-4 h-4 ml-2" />
+              </Button>
+            </form>
+          )}
         </div>
       </section>
 
