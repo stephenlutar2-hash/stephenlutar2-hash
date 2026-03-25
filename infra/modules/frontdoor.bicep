@@ -87,7 +87,7 @@ resource apiOriginGroup 'Microsoft.Cdn/profiles/originGroups@2024-02-01' = {
       additionalLatencyInMilliseconds: 50
     }
     healthProbeSettings: {
-      probePath: '/health'
+      probePath: '/api/health'
       probeRequestType: 'HEAD'
       probeProtocol: 'Https'
       probeIntervalInSeconds: 30
@@ -159,12 +159,12 @@ resource apiRoute 'Microsoft.Cdn/profiles/afdEndpoints/routes@2024-02-01' = {
   dependsOn: [apiOrigin]
 }
 
-resource defaultRoute 'Microsoft.Cdn/profiles/afdEndpoints/routes@2024-02-01' = {
+resource swaDefaultRoute 'Microsoft.Cdn/profiles/afdEndpoints/routes@2024-02-01' = if (length(swaHostnames) > 0) {
   parent: endpoint
-  name: 'default-route'
+  name: 'swa-default-route'
   properties: {
     originGroup: {
-      id: apiOriginGroup.id
+      id: swaOriginGroup.id
     }
     patternsToMatch: ['/*']
     forwardingProtocol: 'HttpsOnly'
@@ -172,7 +172,7 @@ resource defaultRoute 'Microsoft.Cdn/profiles/afdEndpoints/routes@2024-02-01' = 
     linkToDefaultDomain: 'Enabled'
     supportedProtocols: ['Http', 'Https']
   }
-  dependsOn: [apiOrigin, apiRoute]
+  dependsOn: [swaOrigins, apiRoute]
 }
 
 resource customDomainResource 'Microsoft.Cdn/profiles/customDomains@2024-02-01' = {
@@ -205,12 +205,12 @@ resource customDomainApiRoute 'Microsoft.Cdn/profiles/afdEndpoints/routes@2024-0
   dependsOn: [apiOrigin]
 }
 
-resource customDomainDefaultRoute 'Microsoft.Cdn/profiles/afdEndpoints/routes@2024-02-01' = {
+resource customDomainSwaRoute 'Microsoft.Cdn/profiles/afdEndpoints/routes@2024-02-01' = if (length(swaHostnames) > 0) {
   parent: endpoint
-  name: 'custom-domain-default-route'
+  name: 'custom-domain-swa-route'
   properties: {
     originGroup: {
-      id: apiOriginGroup.id
+      id: swaOriginGroup.id
     }
     customDomains: [
       { id: customDomainResource.id }
@@ -220,7 +220,7 @@ resource customDomainDefaultRoute 'Microsoft.Cdn/profiles/afdEndpoints/routes@20
     httpsRedirect: 'Enabled'
     supportedProtocols: ['Http', 'Https']
   }
-  dependsOn: [apiOrigin, customDomainApiRoute]
+  dependsOn: [swaOrigins, customDomainApiRoute]
 }
 
 resource securityPolicy 'Microsoft.Cdn/profiles/securityPolicies@2024-02-01' = {

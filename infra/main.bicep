@@ -23,6 +23,9 @@ param apiImageTag string = 'latest'
 @description('Azure Container Registry login server')
 param acrLoginServer string = '${baseName}acr.azurecr.io'
 
+@description('Azure Container Registry name (for role assignment)')
+param acrName string = '${baseName}acr'
+
 @description('SKU for Redis Cache')
 @allowed(['Basic', 'Standard', 'Premium'])
 param redisSku string = 'Basic'
@@ -124,6 +127,22 @@ module containerApp 'modules/containerapp.bicep' = {
     pgHost: '${pgServerName}.postgres.database.azure.com'
     pgAdminLogin: pgAdminLogin
     pgAdminPassword: pgAdminPassword
+  }
+}
+
+resource acr 'Microsoft.ContainerRegistry/registries@2023-07-01' existing = {
+  name: acrName
+}
+
+var acrPullRoleId = '7f951dda-4ed3-4680-a7ca-43fe172d538d'
+
+resource acrPullRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(acr.id, containerApp.outputs.principalId, acrPullRoleId)
+  scope: acr
+  properties: {
+    principalId: containerApp.outputs.principalId
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', acrPullRoleId)
+    principalType: 'ServicePrincipal'
   }
 }
 
