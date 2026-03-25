@@ -40,6 +40,7 @@ The project is built as a pnpm workspace monorepo using Node.js 24, pnpm, and Ty
 - **ZEUS**: Modular core architecture system.
 - **VESSELS**: Maritime/logistics fleet intelligence platform (ocean-blue/emerald theme).
 - **CARLOTA JO**: Luxury consulting/family-office website — strategic advisory, portfolio optimization, technology transformation, and M&A advisory. Features hero, 6 expandable service areas, founder bio, testimonials, case studies, contact form, and consultation booking flow with session pricing.
+- **LYTE**: Executive observability command center — premium dark glass-card design with blue/cyan palette. Features 7 tabs: Command Dashboard (hero health score, KPI strip, attention queue, strategic highlights, risk/drift, ownership map, environment health), Signals (grouped by domain, search/filter), AI Actions (recommendations with execute/escalate), Impact (economic intelligence), Portfolio (sortable grid with readiness rings), Integrations (adapter status), Settings (system health). In-memory demo data (no DB), 6 API endpoints at `/api/lyte/*`.
 - **Apps Showcase**, **Readiness Report**, and **Career** for public-facing information.
 
 **Authentication:** A unified login system supports:

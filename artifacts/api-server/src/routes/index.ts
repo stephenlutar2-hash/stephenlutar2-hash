@@ -15,6 +15,7 @@ import socialRouter from "./social";
 import firestormRouter from "./firestorm";
 import vesselsRouter from "./vessels";
 import carlotaJoRouter from "./carlota-jo";
+import lyteRouter from "./lyte";
 import { auditMiddleware } from "../lib/audit";
 import { requireDatabase } from "../lib/dbGuard";
 
@@ -47,5 +48,6 @@ router.use(socialRouter);
 router.use(firestormRouter);
 router.use(vesselsRouter);
 router.use(carlotaJoRouter);
+router.use(lyteRouter);
 
 export default router;
