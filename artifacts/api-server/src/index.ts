@@ -8,6 +8,7 @@ import { initRedis, isRedisConfigured } from "./lib/redis";
 import { isKeyVaultConfigured } from "./lib/keyvault";
 import { isBlobStorageConfigured } from "./lib/blobStorage";
 import { getEnabledFeatures } from "./lib/featureFlags";
+import path from "path";
 
 const rawPort = process.env["PORT"] || "3000";
 const port = Number(rawPort);
@@ -29,11 +30,14 @@ async function start() {
     }
 
     const features = getEnabledFeatures();
+    const buildPath = path.resolve(__dirname, "..", "..");
+
     logger.info({
       project: "SZL Holdings",
       mode: process.env.NODE_ENV || "development",
       port,
       host: "0.0.0.0",
+      buildPath,
       services: {
         database: !!process.env.DATABASE_URL,
         keyVault: isKeyVaultConfigured(),

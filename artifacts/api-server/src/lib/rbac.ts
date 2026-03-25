@@ -20,13 +20,12 @@ export function requireRole(...allowedRoles: Role[]) {
       return;
     }
 
-    const userRole = (user.role || "operator") as Role;
-
-    if (allowedRoles.length === 0) {
+    if (allowedRoles.length === 0 || !user.role) {
       next();
       return;
     }
 
+    const userRole = user.role as Role;
     const userLevel = ROLE_HIERARCHY[userRole] ?? 0;
     const hasAccess = allowedRoles.some((r) => userLevel >= (ROLE_HIERARCHY[r] ?? 0));
 

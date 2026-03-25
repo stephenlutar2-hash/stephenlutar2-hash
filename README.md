@@ -23,19 +23,19 @@ pnpm run dev                  # builds all frontends, starts API server on :3000
 
 ## App Inventory
 
-| App              | Path                 | Description                                            |
-|------------------|----------------------|--------------------------------------------------------|
-| ROSIE            | `/`                  | AI-powered security monitoring command center          |
-| Aegis            | `/aegis/`            | Enterprise defensive security suite                    |
-| Beacon           | `/beacon/`           | Telemetry dashboard for KPIs and project metrics       |
-| Lutar            | `/lutar/`            | Environmental impact and sustainability tracking       |
-| Nimbus           | `/nimbus/`           | Predictive AI analytics with confidence scoring        |
-| Firestorm        | `/firestorm/`        | Security simulation lab for defensive strategy testing |
-| DreamEra         | `/dreamera/`         | AI storytelling and artifact mapping engine             |
-| Zeus             | `/zeus/`             | Modular core architecture backbone                     |
-| Apps Showcase    | `/apps-showcase/`    | Public portfolio showcase with project catalog         |
-| Readiness Report | `/readiness-report/` | Operational readiness assessment                       |
-| Career           | `/career/`           | Personal portfolio and career highlights               |
+| App              | Path                 | Status     | Description                                            |
+|------------------|----------------------|------------|--------------------------------------------------------|
+| ROSIE            | `/`                  | Production | AI-powered security monitoring command center          |
+| Aegis            | `/aegis/`            | Production | Enterprise defensive security suite                    |
+| Beacon           | `/beacon/`           | Production | Telemetry dashboard for KPIs and project metrics       |
+| Lutar            | `/lutar/`            | Production | Environmental impact and sustainability tracking       |
+| Nimbus           | `/nimbus/`           | Production | Predictive AI analytics with confidence scoring        |
+| Firestorm        | `/firestorm/`        | Beta       | Security simulation lab for defensive strategy testing |
+| DreamEra         | `/dreamera/`         | Beta       | AI storytelling and artifact mapping engine             |
+| Zeus             | `/zeus/`             | Production | Modular core architecture backbone                     |
+| Apps Showcase    | `/apps-showcase/`    | Production | Public portfolio showcase with project catalog         |
+| Readiness Report | `/readiness-report/` | Production | Operational readiness assessment                       |
+| Career           | `/career/`           | Production | Personal portfolio and career highlights               |
 
 ## Architecture
 
