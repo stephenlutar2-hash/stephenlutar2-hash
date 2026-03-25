@@ -123,6 +123,36 @@ resource apiRoute 'Microsoft.Cdn/profiles/afdEndpoints/routes@2024-02-01' = {
   dependsOn: [apiOrigin]
 }
 
+resource customDomainResource 'Microsoft.Cdn/profiles/customDomains@2024-02-01' = {
+  parent: frontDoor
+  name: replace(customDomain, '.', '-')
+  properties: {
+    hostName: customDomain
+    tlsSettings: {
+      certificateType: 'ManagedCertificate'
+      minimumTlsVersion: 'TLS12'
+    }
+  }
+}
+
+resource apiRouteWithDomain 'Microsoft.Cdn/profiles/afdEndpoints/routes@2024-02-01' = {
+  parent: endpoint
+  name: 'custom-domain-route'
+  properties: {
+    originGroup: {
+      id: apiOriginGroup.id
+    }
+    customDomains: [
+      { id: customDomainResource.id }
+    ]
+    patternsToMatch: ['/*']
+    forwardingProtocol: 'HttpsOnly'
+    httpsRedirect: 'Enabled'
+    supportedProtocols: ['Http', 'Https']
+  }
+  dependsOn: [apiOrigin]
+}
+
 resource securityPolicy 'Microsoft.Cdn/profiles/securityPolicies@2024-02-01' = {
   parent: frontDoor
   name: 'waf-security-policy'
@@ -136,6 +166,7 @@ resource securityPolicy 'Microsoft.Cdn/profiles/securityPolicies@2024-02-01' = {
         {
           domains: [
             { id: endpoint.id }
+            { id: customDomainResource.id }
           ]
           patternsToMatch: ['/*']
         }
@@ -145,4 +176,5 @@ resource securityPolicy 'Microsoft.Cdn/profiles/securityPolicies@2024-02-01' = {
 }
 
 output endpointHostName string = endpoint.properties.hostName
+output customDomainValidationToken string = customDomainResource.properties.validationProperties.validationToken
 output frontDoorId string = frontDoor.id

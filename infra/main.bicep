@@ -119,6 +119,7 @@ module containerApp 'modules/containerapp.bicep' = {
     appInsightsConnectionString: appInsights.properties.ConnectionString
     keyVaultUrl: 'https://${vaultName}${environment().suffixes.keyvaultDns}'
     redisHost: '${redisName}.redis.cache.windows.net'
+    redisPrimaryKey: redis.outputs.primaryKey
     storageAccountName: storageName
     pgHost: '${pgServerName}.postgres.database.azure.com'
     pgAdminLogin: pgAdminLogin

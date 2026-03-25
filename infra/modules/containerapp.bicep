@@ -25,6 +25,10 @@ param keyVaultUrl string
 @description('Redis host')
 param redisHost string
 
+@description('Redis primary key')
+@secure()
+param redisPrimaryKey string
+
 @description('Storage account name')
 param storageAccountName string
 
@@ -96,7 +100,7 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
             { name: 'PORT', value: '3000' }
             { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', value: appInsightsConnectionString }
             { name: 'AZURE_KEY_VAULT_URL', value: keyVaultUrl }
-            { name: 'AZURE_REDIS_URL', value: 'rediss://:@${redisHost}:6380' }
+            { name: 'AZURE_REDIS_URL', value: 'rediss://:${redisPrimaryKey}@${redisHost}:6380' }
             { name: 'AZURE_STORAGE_ACCOUNT_NAME', value: storageAccountName }
             { name: 'DATABASE_URL', value: 'postgresql://${pgAdminLogin}:${pgAdminPassword}@${pgHost}:5432/szlholdings?sslmode=require' }
           ]
