@@ -5,7 +5,10 @@ WORKDIR /app
 FROM base AS deps
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY lib/db/package.json lib/db/
-COPY lib/integrations/openai-ai-server/package.json lib/integrations/openai-ai-server/
+COPY lib/integrations-openai-ai-server/package.json lib/integrations-openai-ai-server/
+COPY lib/api-zod/package.json lib/api-zod/
+COPY lib/api-spec/package.json lib/api-spec/
+COPY lib/api-client-react/package.json lib/api-client-react/
 COPY artifacts/api-server/package.json artifacts/api-server/
 COPY artifacts/rosie/package.json artifacts/rosie/
 COPY artifacts/aegis/package.json artifacts/aegis/
@@ -18,7 +21,6 @@ COPY artifacts/zeus/package.json artifacts/zeus/
 COPY artifacts/apps-showcase/package.json artifacts/apps-showcase/
 COPY artifacts/readiness-report/package.json artifacts/readiness-report/
 COPY artifacts/career/package.json artifacts/career/
-COPY lib/api-zod/package.json lib/api-zod/
 RUN pnpm install --frozen-lockfile
 
 FROM base AS build

@@ -65,18 +65,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: frontend-dist
-          path: |
-            artifacts/rosie/dist/public/
-            artifacts/aegis/dist/public/
-            artifacts/beacon/dist/public/
-            artifacts/lutar/dist/public/
-            artifacts/nimbus/dist/public/
-            artifacts/firestorm/dist/public/
-            artifacts/dreamera/dist/public/
-            artifacts/zeus/dist/public/
-            artifacts/apps-showcase/dist/public/
-            artifacts/readiness-report/dist/public/
-            artifacts/career/dist/public/
+          path: artifacts/
+          include-hidden-files: false
 
   deploy-infra:
     if: github.event.inputs.deploy_infra == 'true'
@@ -162,7 +152,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: frontend-dist
-          path: artifacts/
+          path: build-output/
 
       - name: Azure Login
         uses: azure/login@v2
@@ -176,6 +166,6 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets[format('SWA_TOKEN_{0}', matrix.app)] }}
           action: upload
-          app_location: artifacts/${{ matrix.app }}/dist/public
+          app_location: build-output/${{ matrix.app }}/dist/public
           skip_app_build: true
           skip_api_build: true
