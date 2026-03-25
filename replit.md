@@ -2,7 +2,7 @@
 
 ## Overview
 
-pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
+pnpm workspace monorepo for **SZL Holdings** — a portfolio of security, AI, and media platforms. Each package manages its own dependencies.
 
 ## Stack
 
@@ -15,82 +15,119 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 - **Validation**: Zod (`zod/v4`), `drizzle-zod`
 - **API codegen**: Orval (from OpenAPI spec)
 - **Build**: esbuild (CJS bundle)
+- **Frontend**: React + Vite + Tailwind CSS + shadcn/ui
 
 ## Structure
 
 ```text
 artifacts-monorepo/
 ├── artifacts/              # Deployable applications
-│   └── api-server/         # Express API server
+│   ├── api-server/         # Express API server (all platform APIs)
+│   ├── rosie/              # ROSIE Security - AI monitoring platform (/)
+│   ├── aegis/              # AEGIS - Enterprise security fortress (/aegis/)
+│   ├── lutar/              # LUTAR - Personal empire command center (/lutar/)
+│   ├── beacon/             # BEACON - Decision dashboard + Zeus/INCA/DreamEra (/beacon/)
+│   ├── nimbus/             # NIMBUS - Predictive AI platform (/nimbus/)
+│   └── mockup-sandbox/     # Component preview server
 ├── lib/                    # Shared libraries
 │   ├── api-spec/           # OpenAPI spec + Orval codegen config
 │   ├── api-client-react/   # Generated React Query hooks
 │   ├── api-zod/            # Generated Zod schemas from OpenAPI
 │   └── db/                 # Drizzle ORM schema + DB connection
-├── scripts/                # Utility scripts (single workspace package)
-│   └── src/                # Individual .ts scripts, run via `pnpm --filter @workspace/scripts run <script>`
-├── pnpm-workspace.yaml     # pnpm workspace (artifacts/*, lib/*, lib/integrations/*, scripts)
-├── tsconfig.base.json      # Shared TS options (composite, bundler resolution, es2022)
-├── tsconfig.json           # Root TS project references
-└── package.json            # Root package with hoisted devDeps
+├── scripts/                # Utility scripts
+├── pnpm-workspace.yaml
+├── tsconfig.base.json
+├── tsconfig.json
+└── package.json
 ```
+
+## Platform Portfolio
+
+| Platform | Route | Description | Backend |
+|----------|-------|-------------|---------|
+| ROSIE | `/` | AI-powered security monitoring platform | Landing page (frontend-only) |
+| AEGIS | `/aegis/` | Enterprise security fortress, zero-trust architecture | Landing page (frontend-only) |
+| LUTAR | `/lutar/` | Personal empire management command center | Landing + dashboard (frontend-only) |
+| BEACON | `/beacon/` | Decision analytics dashboard (multi-page) | Full CRUD: metrics, projects |
+| NIMBUS | `/nimbus/` | Predictive AI analytics + alerts | Full CRUD: predictions, alerts |
+| ZEUS | `/beacon/zeus` | Modular core infrastructure (inside Beacon) | Full CRUD: modules, logs |
+| INCA AI | `/beacon/inca` | AI innovation engine (inside Beacon) | Full CRUD: projects, experiments |
+| DREAM ERA | `/beacon/dreamera` | Media & lifestyle platform (inside Beacon) | Full CRUD: content, campaigns |
+
+## Database Schema (PostgreSQL)
+
+- `beacon_metrics` - KPI metrics for Beacon dashboard
+- `beacon_projects` - Project tracking for all SZL platforms
+- `nimbus_predictions` - AI predictions with confidence scores
+- `nimbus_alerts` - System alerts with severity levels
+- `zeus_modules` - Infrastructure module tracking with uptime
+- `zeus_logs` - System logs with levels (info/warn/error/debug)
+- `inca_projects` - AI research projects with accuracy tracking
+- `inca_experiments` - AI experiments linked to projects
+- `dreamera_content` - Media content (articles/videos/podcasts/social)
+- `dreamera_campaigns` - Marketing campaigns with budget/reach
+
+## API Routes
+
+All routes served at `/api/` prefix:
+- `GET/POST /api/beacon/metrics` - Beacon KPI metrics CRUD
+- `PUT/DELETE /api/beacon/metrics/:id`
+- `GET/POST /api/beacon/projects` - Project tracking CRUD
+- `PUT/DELETE /api/beacon/projects/:id`
+- `GET/POST /api/nimbus/predictions` - AI predictions CRUD
+- `DELETE /api/nimbus/predictions/:id`
+- `GET/POST /api/nimbus/alerts` - System alerts CRUD
+- `DELETE /api/nimbus/alerts/:id`
+- `GET/POST /api/zeus/modules` - Infrastructure modules CRUD
+- `PUT/DELETE /api/zeus/modules/:id`
+- `GET/POST /api/zeus/logs` - System logs
+- `GET/POST /api/inca/projects` - AI research projects CRUD
+- `PUT/DELETE /api/inca/projects/:id`
+- `GET/POST /api/inca/experiments` - AI experiments
+- `GET/POST /api/dreamera/content` - Media content CRUD
+- `PUT/DELETE /api/dreamera/content/:id`
+- `GET/POST /api/dreamera/campaigns` - Campaign management
+- `DELETE /api/dreamera/campaigns/:id`
+
+## User Preferences
+
+- **Username**: slutar
+- **Password**: Topshelf14@
+- **Design style**: Dark luxury aesthetic — glassmorphism, deep blacks
+- **Brand colors**: ROSIE (electric blue/violet), AEGIS (gold/amber), LUTAR (emerald green), BEACON (cyan/electric blue), NIMBUS (cyan/purple)
+- **Domain**: szlholdings.com (not yet wired)
 
 ## TypeScript & Composite Projects
 
-Every package extends `tsconfig.base.json` which sets `composite: true`. The root `tsconfig.json` lists all packages as project references. This means:
-
-- **Always typecheck from the root** — run `pnpm run typecheck` (which runs `tsc --build --emitDeclarationOnly`). This builds the full dependency graph so that cross-package imports resolve correctly. Running `tsc` inside a single package will fail if its dependencies haven't been built yet.
-- **`emitDeclarationOnly`** — we only emit `.d.ts` files during typecheck; actual JS bundling is handled by esbuild/tsx/vite...etc, not `tsc`.
-- **Project references** — when package A depends on package B, A's `tsconfig.json` must list B in its `references` array. `tsc --build` uses this to determine build order and skip up-to-date packages.
+Every package extends `tsconfig.base.json` which sets `composite: true`. The root `tsconfig.json` lists all packages as project references.
 
 ## Root Scripts
 
-- `pnpm run build` — runs `typecheck` first, then recursively runs `build` in all packages that define it
-- `pnpm run typecheck` — runs `tsc --build --emitDeclarationOnly` using project references
+- `pnpm run build` — runs `typecheck` first, then recursively runs `build` in all packages
+- `pnpm run typecheck` — runs `tsc --build --emitDeclarationOnly`
+
+## Seed Script
+
+Run `scripts/node_modules/.bin/tsx artifacts/api-server/src/seed.ts` to populate all platform data.
 
 ## Packages
 
 ### `artifacts/api-server` (`@workspace/api-server`)
 
-Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` for request and response validation and `@workspace/db` for persistence.
-
-- Entry: `src/index.ts` — reads `PORT`, starts Express
-- App setup: `src/app.ts` — mounts CORS, JSON/urlencoded parsing, routes at `/api`
-- Routes: `src/routes/index.ts` mounts sub-routers; `src/routes/health.ts` exposes `GET /health` (full path: `/api/health`)
-- Depends on: `@workspace/db`, `@workspace/api-zod`
-- `pnpm --filter @workspace/api-server run dev` — run the dev server
-- `pnpm --filter @workspace/api-server run build` — production esbuild bundle (`dist/index.cjs`)
-- Build bundles an allowlist of deps (express, cors, pg, drizzle-orm, zod, etc.) and externalizes the rest
+Express 5 API server. Routes: `src/routes/` — beacon.ts, nimbus.ts, zeus.ts, inca.ts, dreamera.ts, health.ts.
 
 ### `lib/db` (`@workspace/db`)
 
-Database layer using Drizzle ORM with PostgreSQL. Exports a Drizzle client instance and schema models.
-
-- `src/index.ts` — creates a `Pool` + Drizzle instance, exports schema
-- `src/schema/index.ts` — barrel re-export of all models
-- `src/schema/<modelname>.ts` — table definitions with `drizzle-zod` insert schemas (no models definitions exist right now)
-- `drizzle.config.ts` — Drizzle Kit config (requires `DATABASE_URL`, automatically provided by Replit)
-- Exports: `.` (pool, db, schema), `./schema` (schema only)
-
-Production migrations are handled by Replit when publishing. In development, we just use `pnpm --filter @workspace/db run push`, and we fallback to `pnpm --filter @workspace/db run push-force`.
+Database layer. Schema files: `src/schema/beacon.ts`, `nimbus.ts`, `zeus.ts`, `inca.ts`, `dreamera.ts`.
 
 ### `lib/api-spec` (`@workspace/api-spec`)
 
-Owns the OpenAPI 3.1 spec (`openapi.yaml`) and the Orval config (`orval.config.ts`). Running codegen produces output into two sibling packages:
+OpenAPI 3.1 spec with all platform endpoints. Run codegen: `pnpm --filter @workspace/api-spec run codegen`
 
-1. `lib/api-client-react/src/generated/` — React Query hooks + fetch client
-2. `lib/api-zod/src/generated/` — Zod schemas
+### `lib/api-zod` / `lib/api-client-react`
 
-Run codegen: `pnpm --filter @workspace/api-spec run codegen`
-
-### `lib/api-zod` (`@workspace/api-zod`)
-
-Generated Zod schemas from the OpenAPI spec (e.g. `HealthCheckResponse`). Used by `api-server` for response validation.
-
-### `lib/api-client-react` (`@workspace/api-client-react`)
-
-Generated React Query hooks and fetch client from the OpenAPI spec (e.g. `useHealthCheck`, `healthCheck`).
+Generated Zod schemas and React Query hooks from OpenAPI spec.
 
 ### `scripts` (`@workspace/scripts`)
 
-Utility scripts package. Each script is a `.ts` file in `src/` with a corresponding npm script in `package.json`. Run scripts via `pnpm --filter @workspace/scripts run <script>`. Scripts can import any workspace package (e.g., `@workspace/db`) by adding it as a dependency in `scripts/package.json`.
+Utility scripts. Run via `pnpm --filter @workspace/scripts run <script>`.
