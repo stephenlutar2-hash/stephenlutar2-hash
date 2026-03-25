@@ -94,7 +94,7 @@ export default function Home() {
             <p className="text-xs uppercase tracking-[0.3em] text-gold/70 mb-4 font-medium">Architect &middot; Engineer &middot; Leader</p>
 
             <h1 className="font-display text-5xl sm:text-7xl font-bold leading-[1.1] mb-6">
-              <span className="text-foreground">Sean</span>
+              <span className="text-foreground">Stephen</span>
               <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold to-amber-300">Lutar</span>
             </h1>
@@ -267,7 +267,7 @@ export default function Home() {
 
           <div className="flex flex-wrap justify-center gap-6 mb-12">
             {[
-              { icon: Mail, label: "sean@szlholdings.com", href: "mailto:sean@szlholdings.com" },
+              { icon: Mail, label: "stephen@szlholdings.com", href: "mailto:stephen@szlholdings.com" },
               { icon: MapPin, label: "Remote — Worldwide", href: "#" },
               { icon: Linkedin, label: "LinkedIn", href: "#" },
               { icon: Github, label: "GitHub", href: "#" },
@@ -339,7 +339,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <span className="font-display text-lg font-bold text-gold">SL</span>
-            <span className="text-xs text-muted-foreground">Sean Lutar — Portfolio</span>
+            <span className="text-xs text-muted-foreground">Stephen Lutar — Portfolio</span>
           </div>
           <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} All rights reserved.</p>
         </div>

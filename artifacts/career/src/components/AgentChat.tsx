@@ -8,10 +8,10 @@ interface Message {
 }
 
 const SUGGESTIONS = [
-  "Tell me about Sean's background",
-  "What platforms has Sean built?",
-  "What are Sean's core technical skills?",
-  "How can I get in touch with Sean?",
+  "Tell me about Stephen's background",
+  "What platforms has Stephen built?",
+  "What are Stephen's core technical skills?",
+  "How can I get in touch with Stephen?",
 ];
 
 export default function AgentChat() {
@@ -139,7 +139,7 @@ export default function AgentChat() {
                     <Bot className="w-6 h-6 text-amber-400/60" />
                   </div>
                   <p className="text-sm font-semibold text-white mb-1" style={{ fontFamily: "'Playfair Display', serif" }}>Portfolio Concierge</p>
-                  <p className="text-xs text-gray-500 mb-4 max-w-[260px]">Welcome. I can tell you about Sean's experience, projects, skills, or how to connect.</p>
+                  <p className="text-xs text-gray-500 mb-4 max-w-[260px]">Welcome. I can tell you about Stephen's experience, projects, skills, or how to connect.</p>
                   <div className="space-y-1.5 w-full">
                     {SUGGESTIONS.map(s => (
                       <button
