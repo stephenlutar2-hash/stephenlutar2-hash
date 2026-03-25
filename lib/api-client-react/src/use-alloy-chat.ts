@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 
 export interface AlloyContentChunk {
   type: "content";
@@ -56,6 +56,12 @@ export function useAlloyChat(options: UseAlloyChatOptions): UseAlloyChatReturn {
     Array<{ id: number; title: string; createdAt: string }>
   >([]);
   const abortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort();
+    };
+  }, []);
 
   const clearError = useCallback(() => setError(null), []);
 
