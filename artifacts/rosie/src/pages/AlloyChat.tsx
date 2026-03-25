@@ -92,17 +92,15 @@ export default function AlloyChat() {
     const content = input.trim();
     if (!content || isStreaming) return;
 
+    setInput("");
+
     if (!conversationId) {
       const id = await createConversation(content.slice(0, 50));
       if (!id) return;
-      setInput("");
-      setTimeout(() => {
-        sendMessage(content);
-      }, 100);
+      await sendMessage(content, id);
       return;
     }
 
-    setInput("");
     await sendMessage(content);
   }, [input, isStreaming, conversationId, createConversation, sendMessage]);
 

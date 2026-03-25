@@ -32,7 +32,7 @@ export interface UseAlloyChatReturn {
   error: string | null;
   conversationId: number | null;
   conversations: Array<{ id: number; title: string; createdAt: string }>;
-  sendMessage: (content: string) => Promise<void>;
+  sendMessage: (content: string, explicitConversationId?: number) => Promise<void>;
   createConversation: (title?: string) => Promise<number | null>;
   loadConversation: (id: number) => Promise<void>;
   loadConversations: () => Promise<void>;
@@ -141,8 +141,9 @@ export function useAlloyChat(options: UseAlloyChatOptions): UseAlloyChatReturn {
   );
 
   const sendMessage = useCallback(
-    async (content: string) => {
-      if (!conversationId) {
+    async (content: string, explicitConversationId?: number) => {
+      const targetId = explicitConversationId ?? conversationId;
+      if (!targetId) {
         setError("No active conversation");
         return;
       }
@@ -164,7 +165,7 @@ export function useAlloyChat(options: UseAlloyChatOptions): UseAlloyChatReturn {
 
       try {
         const res = await fetch(
-          `/api/alloy/conversations/${conversationId}/messages`,
+          `/api/alloy/conversations/${targetId}/messages`,
           {
             method: "POST",
             headers: authHeaders(getToken()),
