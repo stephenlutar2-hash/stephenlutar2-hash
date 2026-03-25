@@ -25,10 +25,11 @@ RUN pnpm install --frozen-lockfile
 
 FROM base AS build
 COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/artifacts/*/node_modules ./artifacts/
-COPY --from=deps /app/lib/*/node_modules ./lib/
+COPY --from=deps /app/package.json ./package.json
+COPY --from=deps /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
+COPY --from=deps /app/pnpm-lock.yaml ./pnpm-lock.yaml
 COPY . .
-RUN pnpm run build
+RUN pnpm install --frozen-lockfile && pnpm run build
 
 FROM node:22-alpine AS runtime
 RUN corepack enable && corepack prepare pnpm@latest --activate
