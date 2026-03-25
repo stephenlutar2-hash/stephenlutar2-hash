@@ -142,4 +142,31 @@ router.post("/stripe/webhook", async (req, res) => {
   }
 });
 
+router.post("/stripe/checkout", async (req, res) => {
+  const stripe = getStripeClient();
+  if (!stripe) {
+    return res.status(503).json({ error: "Stripe is not configured" });
+  }
+  try {
+    const { session: sessionType, price } = req.body;
+    const checkoutSession = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: [{
+        price_data: {
+          currency: "usd",
+          product_data: { name: `Carlota Jo Consultation: ${sessionType || "Session"}` },
+          unit_amount: parseInt(String(price || "0").replace(/[^0-9]/g, "")) * 100,
+        },
+        quantity: 1,
+      }],
+      mode: "payment",
+      success_url: `${req.headers.origin || ""}/carlota-jo/consultation?success=true`,
+      cancel_url: `${req.headers.origin || ""}/carlota-jo/consultation?canceled=true`,
+    });
+    return res.json({ url: checkoutSession.url });
+  } catch (e: any) {
+    return res.status(500).json({ error: e.message });
+  }
+});
+
 export default router;

@@ -80,12 +80,13 @@ export default function Consultation() {
     description: "",
   });
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await fetch(`${import.meta.env.BASE_URL}../api/carlota-jo/inquiries`, {
+      const res = await fetch(`${import.meta.env.BASE_URL}../api/carlota-jo/inquiries`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -94,8 +95,14 @@ export default function Consultation() {
           type: "consultation_booking",
         }),
       });
+      if (!res.ok) {
+        setLoading(false);
+        setSubmitError("Something went wrong. Please try again.");
+        return;
+      }
     } catch {
       setLoading(false);
+      setSubmitError("Network error. Please check your connection and try again.");
       return;
     }
     setLoading(false);
@@ -333,12 +340,15 @@ export default function Consultation() {
                   />
                 </div>
 
+                {submitError && (
+                  <p className="text-sm text-red-400 bg-red-950/50 border border-red-500/20 rounded px-3 py-2">{submitError}</p>
+                )}
                 <button
                   type="submit"
                   disabled={loading}
                   className="w-full py-3.5 bg-primary text-primary-foreground font-medium text-sm tracking-wider uppercase rounded-sm hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                  {loading ? "Submitting..." : "Request Consultation"}
+                  {loading ? "Submitting..." : submitError ? "Try Again" : "Request Consultation"}
                   {!loading && <ArrowRight className="w-4 h-4" />}
                 </button>
               </form>
