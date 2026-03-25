@@ -71,6 +71,7 @@ const frontends: Array<{ basePath: string; dir: string }> = [
   { basePath: "/nimbus", dir: "nimbus" },
   { basePath: "/firestorm", dir: "firestorm" },
   { basePath: "/dreamera", dir: "dreamera" },
+  { basePath: "/dreamscape", dir: "dreamscape" },
   { basePath: "/zeus", dir: "zeus" },
   { basePath: "/apps-showcase", dir: "apps-showcase" },
   { basePath: "/readiness-report", dir: "readiness-report" },
