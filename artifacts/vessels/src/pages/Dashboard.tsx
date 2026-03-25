@@ -1,95 +1,199 @@
 import { useState } from "react";
 import { useRoute, useLocation } from "wouter";
-import { Anchor, BarChart3, Navigation, Box, Bell, Brain, Map, LogOut, ChevronRight } from "lucide-react";
-import OperationsView from "@/components/OperationsView";
-import RoutesView from "@/components/RoutesView";
-import AssetsView from "@/components/AssetsView";
-import AlertsView from "@/components/AlertsView";
-import IntelligenceView from "@/components/IntelligenceView";
-import MapView from "@/components/MapView";
+import {
+  Anchor,
+  LayoutDashboard,
+  Activity,
+  Server,
+  ScrollText,
+  Users,
+  ShieldCheck,
+  Brain,
+  LogOut,
+  Bell,
+  ChevronLeft,
+  ChevronRight,
+  Menu,
+  X,
+} from "lucide-react";
+import CommandCenter from "./CommandCenter";
+import FleetAPM from "./FleetAPM";
+import Infrastructure from "./Infrastructure";
+import Logs from "./Logs";
+import DigitalExperience from "./DigitalExperience";
+import Synthetics from "./Synthetics";
+import AppliedIntelligence from "./AppliedIntelligence";
 
-const navItems = [
-  { key: "operations", label: "Operations", icon: BarChart3 },
-  { key: "routes", label: "Routes", icon: Navigation },
-  { key: "assets", label: "Assets", icon: Box },
-  { key: "map", label: "Map", icon: Map },
-  { key: "alerts", label: "Alerts", icon: Bell },
-  { key: "intelligence", label: "Intelligence", icon: Brain },
+type Section = "command-center" | "apm" | "infrastructure" | "logs" | "experience" | "synthetics" | "intelligence";
+
+const SECTIONS: { id: Section; label: string; icon: any; color: string }[] = [
+  { id: "command-center", label: "Command Center", icon: LayoutDashboard, color: "text-cyan-400" },
+  { id: "apm", label: "Fleet APM", icon: Activity, color: "text-emerald-400" },
+  { id: "infrastructure", label: "Infrastructure", icon: Server, color: "text-orange-400" },
+  { id: "logs", label: "Logs", icon: ScrollText, color: "text-blue-400" },
+  { id: "experience", label: "Digital Experience", icon: Users, color: "text-purple-400" },
+  { id: "synthetics", label: "Synthetics", icon: ShieldCheck, color: "text-amber-400" },
+  { id: "intelligence", label: "Applied Intelligence", icon: Brain, color: "text-rose-400" },
 ];
 
+const SECTION_MAP: Record<Section, React.ComponentType> = {
+  "command-center": CommandCenter,
+  apm: FleetAPM,
+  infrastructure: Infrastructure,
+  logs: Logs,
+  experience: DigitalExperience,
+  synthetics: Synthetics,
+  intelligence: AppliedIntelligence,
+};
+
 export default function Dashboard() {
-  const [, params] = useRoute("/dashboard/:view?");
+  const [, params] = useRoute("/dashboard/:section");
   const [, setLocation] = useLocation();
-  const activeView = params?.view || "operations";
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const currentSection = (params?.section as Section) || "command-center";
+  const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const ActivePage = SECTION_MAP[currentSection] || CommandCenter;
+  const activeInfo = SECTIONS.find(s => s.id === currentSection) || SECTIONS[0];
+  const username = localStorage.getItem("szl_user") || "Operator";
 
   function handleLogout() {
     localStorage.removeItem("szl_token");
     localStorage.removeItem("szl_user");
-    setLocation("/");
+    setLocation("/login");
   }
 
-  const views: Record<string, React.ReactNode> = {
-    operations: <OperationsView />,
-    routes: <RoutesView />,
-    assets: <AssetsView />,
-    map: <MapView />,
-    alerts: <AlertsView />,
-    intelligence: <IntelligenceView />,
-  };
+  function navTo(id: Section) {
+    setLocation(`/dashboard/${id}`);
+    setMobileOpen(false);
+  }
 
   return (
-    <div className="min-h-screen flex">
-      <aside className={`${sidebarOpen ? "w-56" : "w-16"} shrink-0 glass-panel border-r border-white/5 flex flex-col transition-all duration-200`}>
-        <div className="h-16 flex items-center gap-3 px-4 border-b border-white/5">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center shrink-0">
-            <Anchor className="w-4 h-4 text-white" />
-          </div>
-          {sidebarOpen && <span className="font-display font-bold text-sm tracking-wider">VESSELS</span>}
+    <div className="min-h-screen flex bg-[#080b12] text-white overflow-hidden">
+      <aside className={`${collapsed ? "w-[72px]" : "w-64"} border-r border-cyan-500/10 bg-[#0a0e17] flex-col hidden md:flex transition-all duration-300`}>
+        <div className={`h-16 flex items-center ${collapsed ? "justify-center" : "px-5"} border-b border-cyan-500/10`}>
+          {collapsed ? (
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center">
+              <Anchor className="w-5 h-5 text-white" />
+            </div>
+          ) : (
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.3)]">
+                <Anchor className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <span className="font-display font-bold text-lg tracking-[0.15em] text-white">VESSELS</span>
+                <p className="text-[10px] text-cyan-500/60 tracking-widest uppercase -mt-0.5">Six Pillars</p>
+              </div>
+            </div>
+          )}
         </div>
 
-        <nav className="flex-1 py-3 px-2 space-y-1">
-          {navItems.map(item => {
-            const active = activeView === item.key;
-            return (
-              <button
-                key={item.key}
-                onClick={() => setLocation(`/dashboard/${item.key}`)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition ${
-                  active
-                    ? "bg-cyan-500/15 text-cyan-400"
-                    : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-                }`}
-              >
-                <item.icon className="w-4 h-4 shrink-0" />
-                {sidebarOpen && <span>{item.label}</span>}
-                {sidebarOpen && active && <ChevronRight className="w-3 h-3 ml-auto" />}
-              </button>
-            );
-          })}
-        </nav>
+        <div className="p-2 flex-1 space-y-0.5 overflow-y-auto">
+          {!collapsed && (
+            <div className="px-3 mb-3 mt-2">
+              <p className="text-[10px] tracking-[0.2em] text-gray-600 uppercase">Observability</p>
+            </div>
+          )}
 
-        <div className="p-2 border-t border-white/5">
+          {SECTIONS.map(item => (
+            <button
+              key={item.id}
+              onClick={() => navTo(item.id)}
+              title={collapsed ? item.label : undefined}
+              className={`w-full flex items-center gap-3 ${collapsed ? "justify-center px-0 py-2.5" : "px-3 py-2.5"} rounded-lg transition-all duration-200 ${
+                currentSection === item.id
+                  ? "bg-white/[0.08] border border-white/10"
+                  : "text-gray-500 hover:bg-white/[0.04] hover:text-gray-300 border border-transparent"
+              }`}
+            >
+              <item.icon size={18} className={currentSection === item.id ? item.color : ""} />
+              {!collapsed && (
+                <span className={`text-sm font-medium ${currentSection === item.id ? "text-white" : ""}`}>{item.label}</span>
+              )}
+            </button>
+          ))}
+        </div>
+
+        <div className="p-2 border-t border-cyan-500/10 space-y-0.5">
           <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-white/5 transition"
+            onClick={() => setCollapsed(!collapsed)}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 hover:bg-white/[0.04] hover:text-gray-400 transition-colors"
           >
-            <ChevronRight className={`w-4 h-4 shrink-0 transition ${sidebarOpen ? "rotate-180" : ""}`} />
-            {sidebarOpen && <span>Collapse</span>}
+            {collapsed ? <ChevronRight size={18} /> : <><ChevronLeft size={18} /><span className="text-sm">Collapse</span></>}
           </button>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition"
+            className={`w-full flex items-center gap-3 ${collapsed ? "justify-center px-0" : "px-3"} py-2.5 rounded-lg text-red-400/60 hover:bg-red-500/10 hover:text-red-400 transition-colors`}
           >
-            <LogOut className="w-4 h-4 shrink-0" />
-            {sidebarOpen && <span>Sign Out</span>}
+            <LogOut size={18} />
+            {!collapsed && <span className="text-sm font-medium">Disconnect</span>}
           </button>
         </div>
       </aside>
 
-      <main className="flex-1 overflow-auto">
-        <div className="p-6 max-w-[1440px] mx-auto">
-          {views[activeView] || views.operations}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
+          <aside className="absolute left-0 top-0 bottom-0 w-64 bg-[#0a0e17] border-r border-cyan-500/10 flex flex-col z-10">
+            <div className="h-16 flex items-center justify-between px-5 border-b border-cyan-500/10">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center">
+                  <Anchor className="w-5 h-5 text-white" />
+                </div>
+                <span className="font-display font-bold text-lg tracking-[0.15em]">VESSELS</span>
+              </div>
+              <button onClick={() => setMobileOpen(false)} className="text-gray-500">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-2 flex-1 space-y-0.5">
+              {SECTIONS.map(item => (
+                <button
+                  key={item.id}
+                  onClick={() => navTo(item.id)}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${
+                    currentSection === item.id ? "bg-white/[0.08] border border-white/10" : "text-gray-500 hover:bg-white/[0.04] border border-transparent"
+                  }`}
+                >
+                  <item.icon size={18} className={currentSection === item.id ? item.color : ""} />
+                  <span className={`text-sm font-medium ${currentSection === item.id ? "text-white" : ""}`}>{item.label}</span>
+                </button>
+              ))}
+            </div>
+          </aside>
+        </div>
+      )}
+
+      <main className="flex-1 flex flex-col h-screen overflow-y-auto">
+        <header className="h-14 border-b border-cyan-500/10 bg-[#0a0e17]/80 backdrop-blur-md sticky top-0 z-10 flex items-center justify-between px-4 md:px-6">
+          <div className="flex items-center gap-3">
+            <button onClick={() => setMobileOpen(true)} className="md:hidden text-gray-400 hover:text-white">
+              <Menu size={20} />
+            </button>
+            <h1 className="text-base font-display font-semibold text-white tracking-wide">
+              {activeInfo.label}
+            </h1>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="hidden md:flex items-center text-[11px] font-mono text-gray-500 bg-white/[0.03] px-3 py-1.5 rounded border border-white/5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-2 animate-pulse" />
+              LIVE
+            </div>
+            <button className="text-gray-500 hover:text-white transition-colors relative">
+              <Bell size={18} />
+              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
+            </button>
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center">
+              <span className="font-display font-bold text-xs text-white">
+                {username[0]?.toUpperCase()}
+              </span>
+            </div>
+          </div>
+        </header>
+
+        <div className="flex-1 p-4 md:p-6 overflow-x-hidden">
+          <ActivePage />
         </div>
       </main>
     </div>
