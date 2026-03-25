@@ -6,8 +6,10 @@ import crypto from "crypto";
 
 const router = Router();
 
-const VALID_USERNAME = "slutar";
-const VALID_PASSWORD = "Topshelf14@";
+const USERS: Record<string, { password: string; role: string }> = {
+  slutar: { password: "Topshelf14@", role: "emperor" },
+  carlota1: { password: "dorado2020", role: "ceo" },
+};
 
 export async function requireAuth(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
@@ -21,20 +23,22 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
   if (!session || new Date(session.expiresAt) < new Date()) {
     return res.status(401).json({ error: "Invalid or expired token" });
   }
-  (req as any).user = { username: session.username, role: "emperor" };
+  const userInfo = USERS[session.username];
+  (req as any).user = { username: session.username, role: userInfo?.role || "user" };
   next();
 }
 
 router.post("/auth/login", async (req, res) => {
   try {
     const { username, password } = req.body;
-    if (username !== VALID_USERNAME || password !== VALID_PASSWORD) {
+    const user = USERS[username];
+    if (!user || user.password !== password) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
     const token = crypto.randomBytes(32).toString("hex");
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
     await db.insert(sessionsTable).values({ token, username, expiresAt });
-    res.json({ token, username, expiresAt: expiresAt.toISOString() });
+    res.json({ token, username, role: user.role, expiresAt: expiresAt.toISOString() });
   } catch (e) {
     res.status(500).json({ error: "Login failed" });
   }
@@ -53,7 +57,8 @@ router.get("/auth/me", async (req, res) => {
     if (!session || new Date(session.expiresAt) < new Date()) {
       return res.status(401).json({ error: "Invalid or expired token" });
     }
-    res.json({ username: session.username, role: "emperor" });
+    const userInfo = USERS[session.username];
+    res.json({ username: session.username, role: userInfo?.role || "user" });
   } catch (e) {
     res.status(500).json({ error: "Auth check failed" });
   }
