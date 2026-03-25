@@ -415,6 +415,8 @@ function FinancialIntegrationsSection() {
   );
 }
 
+type LutarTab = "command" | "holdings" | "goals" | "security" | "settings";
+
 export default function Dashboard() {
   const [currentTime, setCurrentTime] = useState("");
   const [, setLocation] = useLocation();
@@ -424,6 +426,7 @@ export default function Dashboard() {
   const [editingProject, setEditingProject] = useState<number | null>(null);
   const [editStatus, setEditStatus] = useState("");
   const [editProgress, setEditProgress] = useState(0);
+  const [activeTab, setActiveTab] = useState<LutarTab>("command");
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -484,30 +487,20 @@ export default function Dashboard() {
             </p>
           </div>
 
-          <button
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary transition-colors"
-          >
-            <LayoutDashboard size={18} />
-            <span className="font-sans text-sm font-medium">
-              Command Center
-            </span>
-          </button>
-          <button
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-white/5 hover:text-white transition-colors"
-          >
-            <Briefcase size={18} />
-            <span className="font-sans text-sm font-medium">
-              Holdings & Assets
-            </span>
-          </button>
-          <button
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-white/5 hover:text-white transition-colors"
-          >
-            <Target size={18} />
-            <span className="font-sans text-sm font-medium">
-              Strategic Goals
-            </span>
-          </button>
+          {([
+            { id: "command" as LutarTab, icon: LayoutDashboard, label: "Command Center" },
+            { id: "holdings" as LutarTab, icon: Briefcase, label: "Holdings & Assets" },
+            { id: "goals" as LutarTab, icon: Target, label: "Strategic Goals" },
+          ]).map(item => (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id)}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === item.id ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-white/5 hover:text-white"}`}
+            >
+              <item.icon size={18} />
+              <span className="font-sans text-sm font-medium">{item.label}</span>
+            </button>
+          ))}
           <a
             href="/aegis/"
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-white/5 hover:text-white transition-colors"
@@ -521,7 +514,8 @@ export default function Dashboard() {
 
         <div className="p-4 border-t border-border">
           <button
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-white/5 hover:text-white transition-colors"
+            onClick={() => setActiveTab("settings")}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === "settings" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-white/5 hover:text-white"}`}
           >
             <Settings size={18} />
             <span className="font-sans text-sm font-medium">System Prefs</span>
@@ -540,7 +534,7 @@ export default function Dashboard() {
         <header className="h-20 border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-10 flex items-center justify-between px-8">
           <div className="flex items-center gap-4">
             <h1 className="text-xl font-display font-semibold text-white tracking-wide">
-              Command Center
+              {{ command: "Command Center", holdings: "Holdings & Assets", goals: "Strategic Goals", security: "Security", settings: "System Preferences" }[activeTab]}
             </h1>
             <Badge
               variant="outline"

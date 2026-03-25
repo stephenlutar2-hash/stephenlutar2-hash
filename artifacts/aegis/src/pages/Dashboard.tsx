@@ -78,10 +78,13 @@ const severityPie = [
   { name: "Low", value: 156 },
 ];
 
+type SidebarTab = "overview" | "threats" | "perimeter" | "access" | "forensics" | "config";
+
 export default function Dashboard() {
   const [currentTime, setCurrentTime] = useState("");
   const [monitoring, setMonitoring] = useState<any>(null);
   const [, setLocation] = useLocation();
+  const [activeTab, setActiveTab] = useState<SidebarTab>("overview");
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -126,41 +129,28 @@ export default function Dashboard() {
             </p>
           </div>
 
-          <button
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-amber-500/10 text-amber-500 transition-colors"
-          >
-            <LayoutDashboard size={18} />
-            <span className="text-sm font-medium">Threat Overview</span>
-          </button>
-          <button
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-500 hover:bg-white/5 hover:text-white transition-colors"
-          >
-            <ShieldAlert size={18} />
-            <span className="text-sm font-medium">Active Threats</span>
-          </button>
-          <button
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-500 hover:bg-white/5 hover:text-white transition-colors"
-          >
-            <Globe size={18} />
-            <span className="text-sm font-medium">Network Perimeter</span>
-          </button>
-          <button
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-500 hover:bg-white/5 hover:text-white transition-colors"
-          >
-            <Lock size={18} />
-            <span className="text-sm font-medium">Access Control</span>
-          </button>
-          <button
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-500 hover:bg-white/5 hover:text-white transition-colors"
-          >
-            <Eye size={18} />
-            <span className="text-sm font-medium">Forensics</span>
-          </button>
+          {([
+            { id: "overview" as SidebarTab, icon: LayoutDashboard, label: "Threat Overview" },
+            { id: "threats" as SidebarTab, icon: ShieldAlert, label: "Active Threats" },
+            { id: "perimeter" as SidebarTab, icon: Globe, label: "Network Perimeter" },
+            { id: "access" as SidebarTab, icon: Lock, label: "Access Control" },
+            { id: "forensics" as SidebarTab, icon: Eye, label: "Forensics" },
+          ]).map(item => (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id)}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === item.id ? "bg-amber-500/10 text-amber-500" : "text-gray-500 hover:bg-white/5 hover:text-white"}`}
+            >
+              <item.icon size={18} />
+              <span className="text-sm font-medium">{item.label}</span>
+            </button>
+          ))}
         </div>
 
         <div className="p-4 border-t border-amber-500/10">
           <button
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-500 hover:bg-white/5 hover:text-white transition-colors"
+            onClick={() => setActiveTab("config")}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === "config" ? "bg-amber-500/10 text-amber-500" : "text-gray-500 hover:bg-white/5 hover:text-white"}`}
           >
             <Settings size={18} />
             <span className="text-sm font-medium">Configuration</span>
@@ -179,7 +169,7 @@ export default function Dashboard() {
         <header className="h-20 border-b border-amber-500/10 bg-[#0a0a0a]/80 backdrop-blur-md sticky top-0 z-10 flex items-center justify-between px-8">
           <div className="flex items-center gap-4">
             <h1 className="text-xl font-display font-semibold text-white tracking-wide">
-              Threat Overview
+              {{ overview: "Threat Overview", threats: "Active Threats", perimeter: "Network Perimeter", access: "Access Control", forensics: "Forensics", config: "Configuration" }[activeTab]}
             </h1>
             <Badge className="hidden sm:inline-flex bg-amber-500/10 text-amber-500 border-amber-500/20 hover:bg-amber-500/20">
               FORTRESS MODE
