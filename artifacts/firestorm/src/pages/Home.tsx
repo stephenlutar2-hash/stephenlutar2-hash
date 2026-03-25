@@ -74,7 +74,7 @@ export default function Home() {
               <a key={link.name} href={link.href} className="p-2 font-semibold text-muted-foreground" onClick={() => setMobileMenuOpen(false)}>{link.name}</a>
             ))}
             <Button variant="outline" className="w-full" onClick={() => window.location.href = `${BASE}login`}>LOGIN</Button>
-            <Button className="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold">ENTER LAB</Button>
+            <Button className="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold" onClick={() => window.location.href = `${BASE}login`}>ENTER LAB</Button>
           </div>
         )}
       </header>
@@ -94,10 +94,8 @@ export default function Home() {
           </motion.div>
           <motion.h1 initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3, duration: 0.8 }} className="text-4xl md:text-6xl lg:text-7xl font-black font-display tracking-tight text-white mb-6 uppercase">
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-amber-400 to-red-600 text-glow">Firestorm</span>
+            <span className="block text-xl md:text-2xl font-display font-bold tracking-[0.15em] text-white/80 mt-4">Authorized Simulation Command Center</span>
           </motion.h1>
-          <motion.h2 initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.4, duration: 0.8 }} className="text-xl md:text-2xl font-display font-bold tracking-[0.15em] text-white/80 uppercase mb-6">
-            Authorized Simulation Command Center
-          </motion.h2>
           <motion.p initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.5, duration: 0.8 }} className="text-lg md:text-xl text-muted-foreground max-w-3xl mb-12 font-light">
             Validate your defensive capabilities through controlled security simulations. Test detection rules, train response teams, and measure readiness — all in a safe lab environment with synthetic data only.
           </motion.p>

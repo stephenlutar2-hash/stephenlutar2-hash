@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import {
   Flame, Shield, Eye, FileText, LayoutDashboard, Target, LogOut,
-  Download, BarChart3, Clock, TrendingUp, CheckCircle2, Calendar,
+  Download, BarChart3, Clock, TrendingUp, CheckCircle2, Calendar, AlertTriangle,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { fetchReports, downloadExport } from "@/lib/api";
@@ -143,24 +143,74 @@ export default function Reports() {
           </div>
 
           {summary && (
-            <div className="p-6 rounded-xl border border-orange-500/20 bg-orange-500/5">
-              <h3 className="font-display font-bold text-white tracking-wide uppercase text-sm mb-4">Platform Summary</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <div>
-                  <p className="text-[10px] tracking-widest text-gray-500 uppercase mb-1">Total Scenarios</p>
-                  <p className="text-2xl font-display font-bold text-white">{summary.totalScenarios}</p>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="p-6 rounded-xl border border-cyan-500/20 bg-cyan-500/5">
+                <h3 className="font-display font-bold text-cyan-400 tracking-wide uppercase text-sm mb-4 flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4" /> Executive Summary
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-gray-400">Total Scenarios Available</span>
+                    <span className="text-sm font-bold text-white">{summary.totalScenarios}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-gray-400">Currently Running</span>
+                    <span className="text-sm font-bold text-orange-400">{summary.runningScenarios}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-gray-400">Completed This Period</span>
+                    <span className="text-sm font-bold text-emerald-400">{summary.completedScenarios}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-gray-400">Avg Detection Rate</span>
+                    <span className="text-sm font-bold text-cyan-400">{summary.avgDetectionRate}%</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-gray-400">Avg Response Time</span>
+                    <span className="text-sm font-bold text-amber-400">{summary.avgResponseTime}</span>
+                  </div>
+                  <div className="pt-2 border-t border-white/5">
+                    <p className="text-xs text-gray-500 leading-relaxed">Overall platform readiness score of <span className="text-emerald-400 font-bold">{summary.overallReadiness}%</span> based on detection coverage, response times, and scenario completion across all drill categories.</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-[10px] tracking-widest text-gray-500 uppercase mb-1">Currently Running</p>
-                  <p className="text-2xl font-display font-bold text-orange-400">{summary.runningScenarios}</p>
+              </div>
+
+              <div className="p-6 rounded-xl border border-red-500/20 bg-red-500/5">
+                <h3 className="font-display font-bold text-red-400 tracking-wide uppercase text-sm mb-4 flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4" /> Missed Detections
+                </h3>
+                <div className="space-y-3">
+                  {reports.map((r) => (
+                    <div key={r.id} className="flex justify-between items-center">
+                      <span className="text-xs text-gray-400 truncate max-w-[160px]">{r.title}</span>
+                      <span className={`text-sm font-bold ${r.missedDetections <= 2 ? "text-emerald-400" : r.missedDetections <= 4 ? "text-amber-400" : "text-red-400"}`}>{r.missedDetections} missed</span>
+                    </div>
+                  ))}
+                  <div className="pt-2 border-t border-white/5">
+                    <p className="text-xs text-gray-500 leading-relaxed">Total missed detections across all drills: <span className="text-red-400 font-bold">{reports.reduce((sum, r) => sum + r.missedDetections, 0)}</span>. Review scenario-specific results to identify detection gaps.</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-[10px] tracking-widest text-gray-500 uppercase mb-1">Completed</p>
-                  <p className="text-2xl font-display font-bold text-emerald-400">{summary.completedScenarios}</p>
-                </div>
-                <div>
-                  <p className="text-[10px] tracking-widest text-gray-500 uppercase mb-1">Total Events</p>
-                  <p className="text-2xl font-display font-bold text-cyan-400">{summary.totalEvents}</p>
+              </div>
+
+              <div className="p-6 rounded-xl border border-emerald-500/20 bg-emerald-500/5">
+                <h3 className="font-display font-bold text-emerald-400 tracking-wide uppercase text-sm mb-4 flex items-center gap-2">
+                  <Shield className="w-4 h-4" /> Response Readiness
+                </h3>
+                <div className="space-y-3">
+                  {reports.map((r) => (
+                    <div key={r.id}>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-xs text-gray-400 truncate max-w-[160px]">{r.title}</span>
+                        <span className={`text-xs font-bold ${r.responseReadiness >= 85 ? "text-emerald-400" : r.responseReadiness >= 70 ? "text-amber-400" : "text-red-400"}`}>{r.responseReadiness}%</span>
+                      </div>
+                      <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                        <div className={`h-full rounded-full ${r.responseReadiness >= 85 ? "bg-emerald-500" : r.responseReadiness >= 70 ? "bg-amber-500" : "bg-red-500"}`} style={{ width: `${r.responseReadiness}%` }} />
+                      </div>
+                    </div>
+                  ))}
+                  <div className="pt-2 border-t border-white/5">
+                    <p className="text-xs text-gray-500 leading-relaxed">Overall readiness: <span className="text-emerald-400 font-bold">{summary.overallReadiness}%</span> — {summary.overallReadiness >= 85 ? "Strong defensive posture." : summary.overallReadiness >= 70 ? "Adequate but gaps remain." : "Significant improvement needed."}</p>
+                  </div>
                 </div>
               </div>
             </div>

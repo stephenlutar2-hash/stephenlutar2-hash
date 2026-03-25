@@ -71,6 +71,8 @@ export default function ResponseTrainer() {
   const [score, setScore] = useState(0);
   const [completed, setCompleted] = useState(false);
   const [notes, setNotes] = useState("");
+  const [timelineEntries, setTimelineEntries] = useState<{ time: string; action: string }[]>([]);
+  const [newTimelineAction, setNewTimelineAction] = useState("");
   const [, setLocation] = useLocation();
 
   function handleDecision(index: number) {
@@ -91,6 +93,12 @@ export default function ResponseTrainer() {
     }
   }
 
+  function addTimelineEntry() {
+    if (!newTimelineAction.trim()) return;
+    setTimelineEntries((prev) => [...prev, { time: new Date().toLocaleTimeString("en-US", { hour12: false }), action: newTimelineAction.trim() }]);
+    setNewTimelineAction("");
+  }
+
   function handleReset() {
     setCurrentStep(0);
     setSelectedDecision(null);
@@ -98,6 +106,8 @@ export default function ResponseTrainer() {
     setScore(0);
     setCompleted(false);
     setNotes("");
+    setTimelineEntries([]);
+    setNewTimelineAction("");
   }
 
   function handleLogout() {
@@ -227,12 +237,86 @@ export default function ResponseTrainer() {
                 </AnimatePresence>
               </motion.div>
 
-              <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
-                <div className="flex items-center gap-2 mb-3">
-                  <MessageSquare className="w-4 h-4 text-gray-500" />
-                  <h3 className="text-xs tracking-widest uppercase text-gray-500">Incident Notes</h3>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Clock className="w-4 h-4 text-cyan-400" />
+                    <h3 className="text-xs tracking-widest uppercase text-gray-500">Incident Timeline Builder</h3>
+                  </div>
+                  <div className="space-y-2 max-h-40 overflow-y-auto mb-3">
+                    {timelineEntries.length === 0 ? (
+                      <p className="text-xs text-gray-600">No entries yet. Add timeline events as you progress through the drill.</p>
+                    ) : (
+                      timelineEntries.map((entry, i) => (
+                        <div key={i} className="flex items-start gap-2 px-3 py-2 rounded-lg bg-white/[0.03] border border-white/5">
+                          <span className="text-[10px] font-mono text-cyan-400 shrink-0 mt-0.5">{entry.time}</span>
+                          <span className="text-xs text-gray-300">{entry.action}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <input value={newTimelineAction} onChange={(e) => setNewTimelineAction(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addTimelineEntry()} placeholder="Add timeline event..." className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder:text-gray-600 focus:outline-none focus:border-cyan-500/30" />
+                    <button onClick={addTimelineEntry} className="px-3 py-2 rounded-lg bg-cyan-500/20 text-cyan-400 text-xs font-bold hover:bg-cyan-500/30 transition border border-cyan-500/30">Add</button>
+                  </div>
                 </div>
-                <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Document your observations, timeline entries, and reasoning..." className="w-full bg-transparent border-0 text-sm text-gray-300 placeholder:text-gray-600 resize-none focus:outline-none min-h-[80px]" />
+
+                <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+                  <div className="flex items-center gap-2 mb-3">
+                    <MessageSquare className="w-4 h-4 text-gray-500" />
+                    <h3 className="text-xs tracking-widest uppercase text-gray-500">Incident Notes</h3>
+                  </div>
+                  <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Document your observations and reasoning..." className="w-full bg-transparent border-0 text-sm text-gray-300 placeholder:text-gray-600 resize-none focus:outline-none min-h-[80px]" />
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl border border-orange-500/20 bg-orange-500/5">
+                <div className="flex items-center gap-2 mb-3">
+                  <ChevronRight className="w-4 h-4 text-orange-400" />
+                  <h3 className="text-xs tracking-widest uppercase text-orange-400 font-bold">Recommended Next Steps</h3>
+                </div>
+                <div className="space-y-2">
+                  {currentStep === 0 && [
+                    "Gather all available alert data from IDS, SIEM, and network logs",
+                    "Identify the source and scope of the suspicious activity",
+                    "Determine if this matches any known authorized operations",
+                  ].map((step, i) => (
+                    <div key={i} className="flex items-start gap-2 text-xs text-gray-300">
+                      <span className="text-orange-400 shrink-0 mt-0.5">{i + 1}.</span>
+                      <span>{step}</span>
+                    </div>
+                  ))}
+                  {currentStep === 1 && [
+                    "Validate the compromise hypothesis with EDR telemetry",
+                    "Check for additional IOCs across the affected subnet",
+                    "Notify the incident response team lead",
+                  ].map((step, i) => (
+                    <div key={i} className="flex items-start gap-2 text-xs text-gray-300">
+                      <span className="text-orange-400 shrink-0 mt-0.5">{i + 1}.</span>
+                      <span>{step}</span>
+                    </div>
+                  ))}
+                  {currentStep === 2 && [
+                    "Initiate network isolation for the compromised host",
+                    "Preserve volatile memory and disk images for forensics",
+                    "Block known C2 IPs at the firewall perimeter",
+                  ].map((step, i) => (
+                    <div key={i} className="flex items-start gap-2 text-xs text-gray-300">
+                      <span className="text-orange-400 shrink-0 mt-0.5">{i + 1}.</span>
+                      <span>{step}</span>
+                    </div>
+                  ))}
+                  {currentStep === 3 && [
+                    "Create a comprehensive incident report with full IOC listing",
+                    "Schedule a post-incident review meeting within 48 hours",
+                    "Update detection rules based on observed gaps",
+                  ].map((step, i) => (
+                    <div key={i} className="flex items-start gap-2 text-xs text-gray-300">
+                      <span className="text-orange-400 shrink-0 mt-0.5">{i + 1}.</span>
+                      <span>{step}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}

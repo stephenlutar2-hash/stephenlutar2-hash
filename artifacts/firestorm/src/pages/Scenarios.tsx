@@ -37,6 +37,8 @@ export default function Scenarios() {
   const [replaySpeed, setReplaySpeed] = useState(1);
   const [replayRunning, setReplayRunning] = useState(false);
   const [filter, setFilter] = useState("all");
+  const [showNormal, setShowNormal] = useState(true);
+  const [showAnomalous, setShowAnomalous] = useState(true);
   const [, setLocation] = useLocation();
 
   const loadData = useCallback(async () => {
@@ -174,12 +176,20 @@ export default function Scenarios() {
                 <div className="p-6 rounded-xl border border-white/10 bg-white/[0.02]">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="font-display font-bold text-white tracking-wide uppercase text-sm">Telemetry Replay</h3>
-                    <div className="flex items-center gap-2">
-                      {[1, 2, 5].map((speed) => (
-                        <button key={speed} onClick={() => setReplaySpeed(speed)} className={`px-2 py-0.5 rounded text-[10px] font-bold tracking-wider transition ${replaySpeed === speed ? "bg-orange-500/20 text-orange-400 border border-orange-500/30" : "bg-white/5 text-gray-500 border border-white/5"}`}>
-                          {speed}x
-                        </button>
-                      ))}
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] text-gray-500 uppercase tracking-wider">Density</span>
+                        <button onClick={() => setShowNormal(!showNormal)} className={`px-2 py-0.5 rounded text-[10px] font-bold tracking-wider transition ${showNormal ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "bg-white/5 text-gray-600 border border-white/5 line-through"}`}>Normal</button>
+                        <button onClick={() => setShowAnomalous(!showAnomalous)} className={`px-2 py-0.5 rounded text-[10px] font-bold tracking-wider transition ${showAnomalous ? "bg-red-500/20 text-red-400 border border-red-500/30" : "bg-white/5 text-gray-600 border border-white/5 line-through"}`}>Anomalous</button>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] text-gray-500 uppercase tracking-wider">Speed</span>
+                        {[1, 2, 5].map((speed) => (
+                          <button key={speed} onClick={() => setReplaySpeed(speed)} className={`px-2 py-0.5 rounded text-[10px] font-bold tracking-wider transition ${replaySpeed === speed ? "bg-orange-500/20 text-orange-400 border border-orange-500/30" : "bg-white/5 text-gray-500 border border-white/5"}`}>
+                            {speed}x
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 mb-4">
@@ -195,19 +205,24 @@ export default function Scenarios() {
                     <span className="text-[10px] font-mono text-gray-500">{replayIndex + 1}/{selected.timelineEvents.length}</span>
                   </div>
                   <div className="space-y-2">
-                    {selected.timelineEvents.map((evt, i) => (
-                      <motion.div key={i} initial={{ opacity: 0.3 }} animate={{ opacity: i <= replayIndex ? 1 : 0.3 }} className={`flex items-start gap-3 px-4 py-3 rounded-lg border transition-all ${i <= replayIndex ? (evt.type === "anomalous" ? "border-red-500/30 bg-red-500/5" : "border-emerald-500/30 bg-emerald-500/5") : "border-white/5 bg-white/[0.01]"}`}>
-                        <span className="text-[10px] font-mono text-gray-500 shrink-0 w-12 mt-0.5">{evt.time}</span>
-                        <div className="flex-1">
-                          <p className={`text-sm ${i <= replayIndex ? "text-white" : "text-gray-600"}`}>{evt.event}</p>
-                        </div>
-                        {i <= replayIndex && (
-                          <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase border ${evt.type === "anomalous" ? "bg-red-500/20 text-red-400 border-red-500/30" : "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"}`}>
-                            {evt.type}
-                          </span>
-                        )}
-                      </motion.div>
-                    ))}
+                    {selected.timelineEvents
+                      .filter((evt) => (evt.type === "normal" && showNormal) || (evt.type === "anomalous" && showAnomalous))
+                      .map((evt, i) => {
+                        const originalIndex = selected.timelineEvents.indexOf(evt);
+                        return (
+                          <motion.div key={originalIndex} initial={{ opacity: 0.3 }} animate={{ opacity: originalIndex <= replayIndex ? 1 : 0.3 }} className={`flex items-start gap-3 px-4 py-3 rounded-lg border transition-all ${originalIndex <= replayIndex ? (evt.type === "anomalous" ? "border-red-500/30 bg-red-500/5" : "border-emerald-500/30 bg-emerald-500/5") : "border-white/5 bg-white/[0.01]"}`}>
+                            <span className="text-[10px] font-mono text-gray-500 shrink-0 w-12 mt-0.5">{evt.time}</span>
+                            <div className="flex-1">
+                              <p className={`text-sm ${originalIndex <= replayIndex ? "text-white" : "text-gray-600"}`}>{evt.event}</p>
+                            </div>
+                            {originalIndex <= replayIndex && (
+                              <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase border ${evt.type === "anomalous" ? "bg-red-500/20 text-red-400 border-red-500/30" : "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"}`}>
+                                {evt.type}
+                              </span>
+                            )}
+                          </motion.div>
+                        );
+                      })}
                   </div>
                 </div>
               </div>
