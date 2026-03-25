@@ -12,7 +12,8 @@
     "dev": "pnpm run build:frontends && pnpm --filter @workspace/api-server run dev",
     "dev:mockup": "pnpm --filter @workspace/mockup-sandbox dev",
     "seed": "pnpm --filter @workspace/api-server seed",
-    "seed:rosie": "pnpm --filter @workspace/api-server seed:rosie"
+    "seed:rosie": "pnpm --filter @workspace/api-server seed:rosie",
+    "lint": "prettier --check \"artifacts/*/src/**/*.{ts,tsx}\" && pnpm run typecheck"
   },
   "private": true,
   "devDependencies": {

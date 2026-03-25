@@ -26,7 +26,7 @@ The project is built as a pnpm workspace monorepo using Node.js 24, pnpm, and Ty
 - **LUTAR**: Personal empire command center.
 - **BEACON**: Decision analytics dashboard, integrating Zeus, INCA, and DreamEra functionalities.
 - **NIMBUS**: Predictive AI analytics.
-- **FIRESTORM**: White-hat offensive security operations.
+- **FIRESTORM**: Security simulation lab for defensive strategy testing.
 - **DREAMERA**: AI storytelling and artifact mapping.
 - **ZEUS**: Modular core architecture system.
 - **Apps Showcase**, **Readiness Report**, and **Career** for public-facing information.
@@ -50,7 +50,17 @@ The project is built as a pnpm workspace monorepo using Node.js 24, pnpm, and Ty
 - `dreamera_content`, `dreamera_campaigns` (DREAMERA).
 - `conversations`, `messages` (Alloy Engine).
 
-**API Routes:** All API routes are prefixed with `/api/` and include endpoints for authentication, platform-specific CRUD operations, Alloy Engine interactions, and monitoring. Write operations on ROSIE are authenticated.
+**API Routes:** All API routes are prefixed with `/api/` and include endpoints for authentication, platform-specific CRUD operations, Alloy Engine interactions, and monitoring. Write operations on ROSIE are authenticated. Database-backed routes are guarded by `requireDatabase` middleware that returns 503 if `DATABASE_URL` is not configured.
+
+**Production Hardening:**
+- Health endpoints: `/health`, `/healthz` (root level), `/api/health`, `/api/healthz` — all return `{ok, project, timestamp}`.
+- RBAC: `lib/rbac.ts` with `requireRole()` middleware supporting emperor/admin/operator/client/user hierarchy.
+- Feature flags: `lib/featureFlags.ts` reads `FEATURE_*` env vars.
+- Audit logging: `lib/audit.ts` structured pino audit middleware on auth/payment/social routes.
+- DB graceful fallback: `@workspace/db` warns on missing `DATABASE_URL` instead of crashing; `isDatabaseAvailable()` export + `requireDatabase` middleware.
+- Apps Showcase: `/catalog` page with grouped project cards, PSEM marked "Coming Soon".
+- SEO: Open Graph meta tags and descriptions on ROSIE, apps-showcase, and career HTML.
+- Accessibility: Skip-to-content links on apps-showcase pages.
 
 ## External Dependencies
 

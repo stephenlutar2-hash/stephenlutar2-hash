@@ -4,7 +4,6 @@ import authRouter from "./auth";
 import beaconRouter from "./beacon";
 import nimbusRouter from "./nimbus";
 import zeusRouter from "./zeus";
-import incaRouter from "./inca";
 import dreameraRouter from "./dreamera";
 import rosieRouter from "./rosie";
 import alloyRouter from "./alloy";
@@ -13,15 +12,26 @@ import monitoringRouter from "./monitoring";
 import stripeRouter from "./stripe";
 import plaidRouter from "./plaid";
 import socialRouter from "./social";
+import { auditMiddleware } from "../lib/audit";
+import { requireDatabase } from "../lib/dbGuard";
 
 const router: IRouter = Router();
 
+router.use(auditMiddleware());
 router.use(healthRouter);
 router.use(authRouter);
+
+router.use("/beacon", requireDatabase);
+router.use("/nimbus", requireDatabase);
+router.use("/zeus", requireDatabase);
+router.use("/dreamera", requireDatabase);
+router.use("/rosie", requireDatabase);
+router.use("/alloy", requireDatabase);
+router.use("/monitoring", requireDatabase);
+
 router.use(beaconRouter);
 router.use(nimbusRouter);
 router.use(zeusRouter);
-router.use(incaRouter);
 router.use(dreameraRouter);
 router.use(rosieRouter);
 router.use(alloyRouter);

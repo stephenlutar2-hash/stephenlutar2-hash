@@ -45,13 +45,19 @@ app.use(express.urlencoded({ extended: true }));
 
 app.get("/health", (_req: Request, res: Response) => {
   res.json({
-    status: "ok",
+    ok: true,
+    project: "SZL Holdings",
+    timestamp: new Date().toISOString(),
     azure: {
       keyVault: isKeyVaultConfigured(),
       redis: { configured: isRedisConfigured(), connected: isRedisReady() },
       blobStorage: isBlobStorageConfigured(),
     },
   });
+});
+
+app.get("/healthz", (_req: Request, res: Response) => {
+  res.json({ ok: true, project: "SZL Holdings", timestamp: new Date().toISOString() });
 });
 
 app.use("/api", router);

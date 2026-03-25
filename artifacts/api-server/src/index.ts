@@ -4,7 +4,10 @@ initAppInsights();
 
 import { loadSecretsFromKeyVault } from "./lib/config";
 import { logger } from "./lib/logger";
-import { initRedis } from "./lib/redis";
+import { initRedis, isRedisConfigured } from "./lib/redis";
+import { isKeyVaultConfigured } from "./lib/keyvault";
+import { isBlobStorageConfigured } from "./lib/blobStorage";
+import { getEnabledFeatures } from "./lib/featureFlags";
 
 const rawPort = process.env["PORT"] || "3000";
 const port = Number(rawPort);
@@ -25,7 +28,23 @@ async function start() {
       process.exit(1);
     }
 
-    logger.info({ port }, "Server listening on 0.0.0.0");
+    const features = getEnabledFeatures();
+    logger.info({
+      project: "SZL Holdings",
+      mode: process.env.NODE_ENV || "development",
+      port,
+      host: "0.0.0.0",
+      services: {
+        database: !!process.env.DATABASE_URL,
+        keyVault: isKeyVaultConfigured(),
+        redis: isRedisConfigured(),
+        blobStorage: isBlobStorageConfigured(),
+        stripe: !!process.env.STRIPE_SECRET_KEY,
+        plaid: !!process.env.PLAID_CLIENT_ID,
+        openai: !!process.env.OPENAI_API_KEY,
+      },
+      featureFlags: features.length > 0 ? features : "none",
+    }, "SZL Holdings API Server started");
   });
 }
 
