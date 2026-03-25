@@ -142,20 +142,30 @@ router.post("/stripe/webhook", async (req, res) => {
   }
 });
 
+const CONSULTATION_PRICES: Record<string, { name: string; amount: number }> = {
+  strategy: { name: "Strategy Session", amount: 250000 },
+  portfolio: { name: "Portfolio Review", amount: 850000 },
+  retainer: { name: "Advisory Retainer", amount: 2500000 },
+};
+
 router.post("/stripe/checkout", async (req, res) => {
   const stripe = getStripeClient();
   if (!stripe) {
     return res.status(503).json({ error: "Stripe is not configured" });
   }
   try {
-    const { session: sessionType, price } = req.body;
+    const { session: sessionType } = req.body;
+    const sessionConfig = CONSULTATION_PRICES[sessionType];
+    if (!sessionConfig) {
+      return res.status(400).json({ error: "Invalid session type" });
+    }
     const checkoutSession = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [{
         price_data: {
           currency: "usd",
-          product_data: { name: `Carlota Jo Consultation: ${sessionType || "Session"}` },
-          unit_amount: parseInt(String(price || "0").replace(/[^0-9]/g, "")) * 100,
+          product_data: { name: `Carlota Jo Consultation: ${sessionConfig.name}` },
+          unit_amount: sessionConfig.amount,
         },
         quantity: 1,
       }],

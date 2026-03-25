@@ -246,11 +246,17 @@ export default function Consultation() {
                             const res = await fetch(`${import.meta.env.BASE_URL}../api/stripe/checkout`, {
                               method: "POST",
                               headers: { "Content-Type": "application/json" },
-                              body: JSON.stringify({ session: selectedSession, price: selected?.price }),
+                              body: JSON.stringify({ session: selectedSession }),
                             });
                             const data = await res.json();
-                            if (data.url) window.location.href = data.url;
-                          } catch {}
+                            if (data.url) {
+                              window.location.href = data.url;
+                            } else {
+                              setSubmitError(data.error || "Unable to initiate payment. Please try again.");
+                            }
+                          } catch {
+                            setSubmitError("Network error. Please check your connection and try again.");
+                          }
                         }}
                         className="mt-4 w-full py-3 bg-primary text-primary-foreground text-sm font-medium rounded-sm hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
                       >
