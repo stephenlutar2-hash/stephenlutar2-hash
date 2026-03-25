@@ -132,7 +132,7 @@ export default function AlloyChat() {
               </div>
               <div>
                 <h1 className="text-sm font-bold tracking-wider">ALLOY</h1>
-                <p className="text-[10px] text-gray-500 uppercase tracking-widest">AI Engine</p>
+                <p className="text-[10px] text-gray-500 uppercase tracking-widest">Nuro Engine</p>
               </div>
             </div>
             <button
@@ -202,7 +202,7 @@ export default function AlloyChat() {
             <ChevronLeft className={`w-4 h-4 transition-transform ${!sidebarOpen ? "rotate-180" : ""}`} />
           </button>
           <Bot className="w-5 h-5 text-cyan-400" />
-          <h2 className="text-sm font-bold tracking-wider">ALLOY ENGINE</h2>
+          <h2 className="text-sm font-bold tracking-wider">ALLOY NURO ENGINE</h2>
           {isStreaming && (
             <div className="flex items-center gap-1.5 ml-auto">
               <Loader2 className="w-3.5 h-3.5 text-cyan-400 animate-spin" />
@@ -227,16 +227,17 @@ export default function AlloyChat() {
               <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-violet-600/20 border border-white/5 flex items-center justify-center mb-6">
                 <Bot className="w-10 h-10 text-cyan-400/60" />
               </div>
-              <h3 className="text-xl font-bold mb-2">Alloy AI Engine</h3>
+              <h3 className="text-xl font-bold mb-1">Alloy Nuro Engine</h3>
+              <p className="text-xs text-cyan-400/60 font-mono tracking-widest mb-2">SZL HOLDINGS NEURAL CORE</p>
               <p className="text-gray-500 text-sm max-w-md mb-8">
-                Your autonomous AI assistant for managing SZL Holdings platforms. Ask about threats, metrics, system health, or give commands.
+                Your autonomous neural engine with direct database access to every SZL platform. All answers are grounded in real-time data — never fabricated.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-lg w-full">
                 {[
-                  "Show me all critical threats",
-                  "Run a health sweep across all platforms",
-                  "What's the latest Beacon KPI data?",
-                  "List active ROSIE security incidents",
+                  "Show me all active ROSIE security threats right now",
+                  "Give me a full system health report across every platform",
+                  "What are the current Beacon KPI metrics and project statuses?",
+                  "How many Nimbus predictions are pending and what's their confidence?",
                 ].map((prompt) => (
                   <button
                     key={prompt}
@@ -297,7 +298,7 @@ export default function AlloyChat() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask Alloy anything..."
+                placeholder="Query the Nuro Engine..."
                 rows={1}
                 className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-gray-600 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/30 resize-none text-sm transition-colors"
                 style={{ minHeight: "44px", maxHeight: "120px" }}
@@ -320,7 +321,7 @@ export default function AlloyChat() {
               </button>
             </div>
             <p className="text-[10px] text-gray-600 mt-2 text-center">
-              Alloy has access to all SZL Holdings platform data. Responses stream in real-time.
+              Alloy Nuro Engine queries live platform data. Every response is grounded in real-time database records.
             </p>
           </div>
         </div>

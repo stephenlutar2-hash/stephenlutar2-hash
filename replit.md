@@ -115,9 +115,9 @@ All routes served at `/api/` prefix:
 - `GET/POST /api/dreamera/campaigns` - Campaign management
 - `DELETE /api/dreamera/campaigns/:id`
 
-## Alloy Engine (Autonomous AI Agent)
+## Alloy Nuro Engine (Autonomous AI Neural Core)
 
-The Alloy Engine is the intelligence core for the AlloyScape platform. It uses OpenAI (via Replit AI Integrations) for conversational AI and autonomous platform management across all SZL platforms.
+The Alloy Nuro Engine is the central intelligence powering all of SZL Holdings (AlloyScape). It uses OpenAI gpt-5.2 (via Replit AI Integrations) with strict tool-first enforcement to ensure all responses are grounded in real database data — never fabricated.
 
 ### API Routes (all require auth)
 - `POST /api/alloy/conversations` — Create a new conversation
@@ -129,9 +129,10 @@ The Alloy Engine is the intelligence core for the AlloyScape platform. It uses O
 
 ### Architecture
 - **Tool Registry** (`routes/alloy/tools.ts`): 40+ tools giving AI agent access to all platform databases (CRUD operations for Rosie, Beacon, Nimbus, Zeus, INCA, DreamEra)
-- **Agent Loop** (`routes/alloy/agent.ts`): OpenAI function-calling loop with streaming — AI decides which tools to call based on user queries
+- **Agent Loop** (`routes/alloy/agent.ts`): OpenAI function-calling loop with streaming. Uses `tool_choice: "required"` on first round to force database queries before any response. Content is buffered during tool-call rounds to prevent premature streaming of ungrounded text.
 - **Monitor** (`routes/alloy/monitor.ts`): Autonomous health sweep across all platforms with AI-generated recommendations
 - **Model**: gpt-5.2 with function calling and streaming
+- **Anti-hallucination**: System prompt with strict rules against data fabrication. Tool-first enforcement ensures all numbers, counts, statuses come from actual database queries.
 - **DB**: Conversations and messages tables with cascade delete
 
 ### Dependencies
