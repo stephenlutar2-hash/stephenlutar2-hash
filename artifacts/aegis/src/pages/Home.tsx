@@ -81,8 +81,8 @@ export default function Home() {
           </nav>
 
           <div className="hidden md:flex items-center gap-4">
-            <Button variant="ghost" className="font-bold tracking-widest" onClick={() => alert("Login Portal Triggered")}>LOGIN</Button>
-            <Button variant="glow" onClick={() => alert("Deploy Aegis Triggered")}>DEPLOY AEGIS</Button>
+            <Button variant="ghost" className="font-bold tracking-widest" onClick={() => window.location.href = `${import.meta.env.BASE_URL}login`}>LOGIN</Button>
+            <Button variant="glow" onClick={() => window.location.href = `${import.meta.env.BASE_URL}login`}>DEPLOY AEGIS</Button>
           </div>
 
           <button className="md:hidden text-foreground" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
@@ -146,7 +146,7 @@ export default function Home() {
             transition={{ delay: 0.7, duration: 0.8 }}
             className="flex flex-col sm:flex-row gap-6 w-full sm:w-auto"
           >
-            <Button variant="glow" size="lg" className="w-full sm:w-auto text-lg px-12" onClick={() => alert('Initiating Deployment...')}>
+            <Button variant="glow" size="lg" className="w-full sm:w-auto text-lg px-12" onClick={() => window.location.href = `${import.meta.env.BASE_URL}login`}>
               Deploy Aegis
             </Button>
             <Button variant="outline" size="lg" className="w-full sm:w-auto text-lg px-12 bg-background/50 backdrop-blur-sm" onClick={() => document.getElementById('architecture')?.scrollIntoView({ behavior: 'smooth'})}>
@@ -327,7 +327,7 @@ export default function Home() {
                 <Button 
                   variant={tier.highlight ? "glow" : "outline"} 
                   className="w-full mt-auto"
-                  onClick={() => alert(`Selected ${tier.name} Tier`)}
+                  onClick={() => window.location.href = `${import.meta.env.BASE_URL}login`}
                 >
                   {tier.price === "Custom" ? "Contact Sales" : "Start Trial"}
                 </Button>
@@ -345,7 +345,7 @@ export default function Home() {
           <h2 className="text-4xl md:text-6xl font-display font-bold text-white mb-6 uppercase tracking-tight">Ready to Secure Your Empire?</h2>
           <p className="text-xl text-muted-foreground mb-10">Join the elite organizations that trust Aegis with their perimeter.</p>
           
-          <form className="flex flex-col sm:flex-row gap-4 max-w-xl mx-auto" onSubmit={(e) => { e.preventDefault(); alert("Access Requested"); }}>
+          <form className="flex flex-col sm:flex-row gap-4 max-w-xl mx-auto" onSubmit={(e) => { e.preventDefault(); window.location.href = `${import.meta.env.BASE_URL}login`; }}>
             <input 
               type="email" 
               placeholder="Enter your corporate email" 

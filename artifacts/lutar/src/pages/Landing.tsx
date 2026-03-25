@@ -55,13 +55,31 @@ export default function Landing() {
   const [password, setPassword] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const [loginError, setLoginError] = useState("");
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoginError("");
     setIsLoggingIn(true);
-    // Simulate auth delay
-    setTimeout(() => {
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+      if (!res.ok) {
+        setLoginError("Invalid credentials");
+        return;
+      }
+      const data = await res.json();
+      localStorage.setItem("szl_token", data.token);
+      localStorage.setItem("szl_user", data.username);
       setLocation("/dashboard");
-    }, 1200);
+    } catch {
+      setLoginError("Connection failed");
+    } finally {
+      setIsLoggingIn(false);
+    }
   };
 
   return (
@@ -348,6 +366,11 @@ export default function Landing() {
             </div>
 
             <form onSubmit={handleLogin} className="space-y-5">
+              {loginError && (
+                <div className="flex items-center gap-2 text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3 text-sm">
+                  {loginError}
+                </div>
+              )}
               <div className="space-y-2">
                 <label className="text-xs font-sans tracking-widest uppercase text-muted-foreground">Identity</label>
                 <Input 

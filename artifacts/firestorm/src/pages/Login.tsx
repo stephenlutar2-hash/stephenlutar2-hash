@@ -23,7 +23,7 @@ export default function Login() {
       const data = await res.json();
       localStorage.setItem("szl_token", data.token);
       localStorage.setItem("szl_user", data.username);
-      setLocation("/");
+      setLocation("/dashboard");
     } catch { setError("Connection failed"); }
     finally { setLoading(false); }
   }

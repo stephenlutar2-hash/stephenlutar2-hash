@@ -76,7 +76,7 @@ export default function Home() {
 
           <div className="hidden md:flex items-center gap-4">
             <Button variant="ghost" className="font-bold tracking-widest text-white hover:text-primary" onClick={() => window.location.href = `${import.meta.env.BASE_URL}login`}>LOGIN</Button>
-            <Button className="bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold tracking-widest hover:opacity-90 border-0" onClick={() => alert("Engage Firestorm Triggered")}>ENGAGE</Button>
+            <Button className="bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold tracking-widest hover:opacity-90 border-0" onClick={() => window.location.href = `${import.meta.env.BASE_URL}login`}>ENGAGE</Button>
           </div>
 
           <button className="md:hidden text-foreground" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
@@ -139,7 +139,7 @@ export default function Home() {
             transition={{ delay: 0.7, duration: 0.8 }}
             className="flex flex-col sm:flex-row gap-6 w-full sm:w-auto"
           >
-            <Button size="lg" className="w-full sm:w-auto text-lg px-12 bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold hover:opacity-90 border-0" onClick={() => alert('Initiating Engagement...')}>
+            <Button size="lg" className="w-full sm:w-auto text-lg px-12 bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold hover:opacity-90 border-0" onClick={() => window.location.href = `${import.meta.env.BASE_URL}login`}>
               Engage Firestorm
             </Button>
             <Button variant="outline" size="lg" className="w-full sm:w-auto text-lg px-12 bg-background/50 backdrop-blur-sm border-orange-500/30 text-white hover:bg-orange-500/10" onClick={() => document.getElementById('capabilities')?.scrollIntoView({ behavior: 'smooth'})}>
@@ -309,7 +309,7 @@ export default function Home() {
                       ? "bg-gradient-to-r from-orange-500 to-red-600 text-white hover:opacity-90 border-0" 
                       : "bg-transparent border border-orange-500/30 text-white hover:bg-orange-500/10"
                   )}
-                  onClick={() => alert(`Selected ${tier.name} Engagement`)}
+                  onClick={() => window.location.href = `${import.meta.env.BASE_URL}login`}
                 >
                   {tier.price === "Custom" ? "Contact Operations" : "Start Engagement"}
                 </Button>
@@ -326,7 +326,7 @@ export default function Home() {
           <h2 className="text-4xl md:text-6xl font-display font-bold text-white mb-6 uppercase tracking-tight">Ready to Go on the Offensive?</h2>
           <p className="text-xl text-muted-foreground mb-10">Join elite organizations that trust Firestorm to proactively protect their communities.</p>
           
-          <form className="flex flex-col sm:flex-row gap-4 max-w-xl mx-auto" onSubmit={(e) => { e.preventDefault(); alert("Engagement Requested"); }}>
+          <form className="flex flex-col sm:flex-row gap-4 max-w-xl mx-auto" onSubmit={(e) => { e.preventDefault(); window.location.href = `${import.meta.env.BASE_URL}login`; }}>
             <input 
               type="email" 
               placeholder="Enter your corporate email" 
