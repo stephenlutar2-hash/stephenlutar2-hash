@@ -3,9 +3,42 @@ import { motion } from "framer-motion";
 import { useMetrics, useMutateMetrics, useProjects, useMutateProjects } from "@/hooks/use-beacon";
 import { Layout } from "@/components/Layout";
 import { Modal } from "@/components/Modal";
-import { Plus, TrendingUp, TrendingDown, Edit2, Trash2 } from "lucide-react";
+import { Plus, TrendingUp, TrendingDown, Edit2, Trash2, AlertTriangle, BarChart3, FolderOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { BeaconMetric, BeaconProject } from "@workspace/api-client-react";
+
+function ConfirmDialog({ isOpen, onClose, onConfirm, title, message }: { isOpen: boolean; onClose: () => void; onConfirm: () => void; title: string; message: string }) {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center">
+      <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={onClose} />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="relative z-10 w-full max-w-sm glass-panel rounded-2xl p-6 border border-destructive/20 mx-4"
+      >
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center">
+            <AlertTriangle className="w-5 h-5 text-destructive" />
+          </div>
+          <h3 className="text-lg font-display font-bold text-white">{title}</h3>
+        </div>
+        <p className="text-sm text-muted-foreground mb-6">{message}</p>
+        <div className="flex gap-3 justify-end">
+          <button onClick={onClose} className="px-4 py-2 text-sm text-muted-foreground hover:text-white transition-colors">Cancel</button>
+          <button onClick={() => { onConfirm(); onClose(); }} className="px-4 py-2 text-sm bg-destructive/20 text-destructive border border-destructive/30 rounded-lg hover:bg-destructive/30 transition-colors font-semibold">Delete</button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function formatMetricValue(value: number, unit: string) {
+  if (unit === "%" || unit === "ms" || unit === "s") return `${value.toLocaleString()}`;
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
+  if (value >= 1_000) return `${(value / 1_000).toFixed(1)}K`;
+  return value.toLocaleString();
+}
 
 export default function Dashboard() {
   const { data: metrics, isLoading: loadingMetrics } = useMetrics();
@@ -15,6 +48,7 @@ export default function Dashboard() {
 
   const [metricModal, setMetricModal] = useState<{ isOpen: boolean; data?: BeaconMetric }>({ isOpen: false });
   const [projectModal, setProjectModal] = useState<{ isOpen: boolean; data?: BeaconProject }>({ isOpen: false });
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; type: "metric" | "project"; id: number; name: string }>({ isOpen: false, type: "metric", id: 0, name: "" });
 
   const handleMetricSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -54,68 +88,82 @@ export default function Dashboard() {
     setProjectModal({ isOpen: false });
   };
 
+  const handleDeleteConfirm = () => {
+    if (deleteConfirm.type === "metric") {
+      removeMetric.mutate({ id: deleteConfirm.id });
+    } else {
+      removeProject.mutate({ id: deleteConfirm.id });
+    }
+  };
+
   return (
     <Layout>
       <div className="space-y-8">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-3xl font-display font-bold glow-text">Overview Telemetry</h2>
-            <p className="text-muted-foreground mt-1">Aggregated global metrics across all active holdings.</p>
+            <h2 className="text-2xl sm:text-3xl font-display font-bold glow-text">Overview Telemetry</h2>
+            <p className="text-muted-foreground mt-1 text-sm">Aggregated global metrics across all active holdings.</p>
           </div>
           <button 
             onClick={() => setMetricModal({ isOpen: true })}
-            className="flex items-center gap-2 px-4 py-2 bg-primary/20 text-primary border border-primary/50 rounded-lg hover:bg-primary hover:text-primary-foreground transition-all glow-border"
+            className="flex items-center gap-2 px-4 py-2 bg-primary/20 text-primary border border-primary/50 rounded-lg hover:bg-primary hover:text-primary-foreground transition-all glow-border self-start sm:self-auto"
           >
             <Plus className="w-4 h-4" />
             <span>Add Metric</span>
           </button>
         </div>
 
-        {/* METRICS GRID */}
         {loadingMetrics ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map(i => <div key={i} className="h-32 glass-panel rounded-xl animate-pulse" />)}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} className="glass-panel rounded-xl p-6 animate-pulse space-y-4">
+                <div className="h-3 bg-white/5 rounded w-2/3" />
+                <div className="h-8 bg-white/5 rounded w-1/2" />
+                <div className="h-3 bg-white/5 rounded w-1/3" />
+              </div>
+            ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {metrics?.map((metric, i) => (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
                 key={metric.id} 
-                className="glass-panel rounded-xl p-6 group relative overflow-hidden"
+                className="glass-panel rounded-xl p-5 sm:p-6 group relative overflow-hidden"
               >
-                <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+                <div className="absolute top-3 right-3 sm:top-4 sm:right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
                   <button onClick={() => setMetricModal({ isOpen: true, data: metric })} className="text-muted-foreground hover:text-white"><Edit2 className="w-4 h-4" /></button>
-                  <button onClick={() => removeMetric.mutate({ id: metric.id })} className="text-destructive hover:text-red-400"><Trash2 className="w-4 h-4" /></button>
+                  <button onClick={() => setDeleteConfirm({ isOpen: true, type: "metric", id: metric.id, name: metric.name })} className="text-destructive hover:text-red-400"><Trash2 className="w-4 h-4" /></button>
                 </div>
-                <p className="text-sm font-mono text-muted-foreground mb-4">{metric.category} // {metric.name}</p>
+                <p className="text-xs sm:text-sm font-mono text-muted-foreground mb-3 sm:mb-4">{metric.category} // {metric.name}</p>
                 <div className="flex items-end gap-2">
-                  <span className="text-4xl font-display font-bold text-white">{metric.value}</span>
-                  <span className="text-lg text-muted-foreground mb-1">{metric.unit}</span>
+                  <span className="text-3xl sm:text-4xl font-display font-bold text-white">{formatMetricValue(metric.value, metric.unit)}</span>
+                  <span className="text-base sm:text-lg text-muted-foreground mb-1">{metric.unit}</span>
                 </div>
-                <div className={cn("mt-4 flex items-center gap-1.5 text-sm font-medium", metric.change >= 0 ? "text-green-400" : "text-destructive")}>
+                <div className={cn("mt-3 sm:mt-4 flex items-center gap-1.5 text-sm font-medium", metric.change >= 0 ? "text-green-400" : "text-destructive")}>
                   {metric.change >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-                  <span>{Math.abs(metric.change)}% from last cycle</span>
+                  <span>{metric.change >= 0 ? "+" : ""}{Math.abs(metric.change)}% from last cycle</span>
                 </div>
               </motion.div>
             ))}
             {(!metrics || metrics.length === 0) && (
               <div className="col-span-full py-12 text-center text-muted-foreground glass-panel rounded-xl">
-                No telemetry metrics deployed.
+                <BarChart3 className="w-12 h-12 mx-auto mb-3 opacity-20" />
+                <p className="text-sm font-medium mb-1">No telemetry metrics deployed</p>
+                <p className="text-xs text-muted-foreground/60">Click "Add Metric" to deploy your first data point.</p>
               </div>
             )}
           </div>
         )}
 
-        {/* PROJECTS SECTION */}
         <div className="pt-8">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <h3 className="text-xl font-display font-bold text-white">Active Initiatives</h3>
             <button 
               onClick={() => setProjectModal({ isOpen: true })}
-              className="flex items-center gap-2 px-4 py-2 bg-white/5 text-white border border-white/10 rounded-lg hover:bg-white/10 transition-all"
+              className="flex items-center gap-2 px-4 py-2 bg-white/5 text-white border border-white/10 rounded-lg hover:bg-white/10 transition-all self-start sm:self-auto"
             >
               <Plus className="w-4 h-4" />
               <span>New Initiative</span>
@@ -123,67 +171,88 @@ export default function Dashboard() {
           </div>
 
           <div className="glass-panel rounded-xl overflow-hidden">
-            <table className="w-full text-left">
-              <thead className="bg-white/5 border-b border-border">
-                <tr>
-                  <th className="px-6 py-4 font-display tracking-wider text-xs text-muted-foreground uppercase">Project</th>
-                  <th className="px-6 py-4 font-display tracking-wider text-xs text-muted-foreground uppercase">Platform</th>
-                  <th className="px-6 py-4 font-display tracking-wider text-xs text-muted-foreground uppercase">Status</th>
-                  <th className="px-6 py-4 font-display tracking-wider text-xs text-muted-foreground uppercase">Progress</th>
-                  <th className="px-6 py-4 font-display tracking-wider text-xs text-muted-foreground uppercase text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border/50">
-                {loadingProjects ? (
-                  <tr><td colSpan={5} className="px-6 py-8 text-center text-muted-foreground animate-pulse">Loading initiatives...</td></tr>
-                ) : projects?.length === 0 ? (
-                  <tr><td colSpan={5} className="px-6 py-8 text-center text-muted-foreground">No active initiatives found.</td></tr>
-                ) : (
-                  projects?.map((project) => (
-                    <tr key={project.id} className="hover:bg-white/[0.02] transition-colors">
-                      <td className="px-6 py-4">
-                        <div className="font-semibold text-white">{project.name}</div>
-                        <div className="text-sm text-muted-foreground mt-1 line-clamp-1">{project.description}</div>
-                      </td>
-                      <td className="px-6 py-4 font-mono text-sm text-primary">{project.platform}</td>
-                      <td className="px-6 py-4">
-                        <span className={cn(
-                          "px-3 py-1 text-xs rounded-full border font-bold tracking-wider uppercase",
-                          project.status === 'active' ? "bg-green-500/10 text-green-400 border-green-500/20" :
-                          project.status === 'building' ? "bg-primary/10 text-primary border-primary/20" :
-                          project.status === 'planning' ? "bg-purple-500/10 text-purple-400 border-purple-500/20" :
-                          "bg-zinc-500/10 text-zinc-400 border-zinc-500/20"
-                        )}>
-                          {project.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 w-48">
-                        <div className="flex items-center gap-3">
-                          <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
-                            <div 
-                              className="h-full bg-primary rounded-full transition-all duration-1000 relative"
-                              style={{ width: `${project.progress}%` }}
-                            >
-                              <div className="absolute inset-0 bg-white/20 w-full animate-[shimmer_2s_infinite]" />
+            <div className="overflow-x-auto">
+              <table className="w-full text-left min-w-[700px]">
+                <thead className="bg-white/5 border-b border-border">
+                  <tr>
+                    <th className="px-4 sm:px-6 py-4 font-display tracking-wider text-xs text-muted-foreground uppercase">Project</th>
+                    <th className="px-4 sm:px-6 py-4 font-display tracking-wider text-xs text-muted-foreground uppercase">Platform</th>
+                    <th className="px-4 sm:px-6 py-4 font-display tracking-wider text-xs text-muted-foreground uppercase">Status</th>
+                    <th className="px-4 sm:px-6 py-4 font-display tracking-wider text-xs text-muted-foreground uppercase">Progress</th>
+                    <th className="px-4 sm:px-6 py-4 font-display tracking-wider text-xs text-muted-foreground uppercase text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/50">
+                  {loadingProjects ? (
+                    Array.from({ length: 3 }).map((_, i) => (
+                      <tr key={i} className="animate-pulse">
+                        <td className="px-4 sm:px-6 py-4"><div className="h-4 bg-white/5 rounded w-32" /><div className="h-3 bg-white/5 rounded w-48 mt-2" /></td>
+                        <td className="px-4 sm:px-6 py-4"><div className="h-4 bg-white/5 rounded w-20" /></td>
+                        <td className="px-4 sm:px-6 py-4"><div className="h-4 bg-white/5 rounded w-16" /></td>
+                        <td className="px-4 sm:px-6 py-4"><div className="h-2 bg-white/5 rounded w-full" /></td>
+                        <td className="px-4 sm:px-6 py-4"><div className="h-4 bg-white/5 rounded w-16 ml-auto" /></td>
+                      </tr>
+                    ))
+                  ) : projects?.length === 0 ? (
+                    <tr><td colSpan={5} className="px-6 py-12 text-center text-muted-foreground">
+                      <FolderOpen className="w-12 h-12 mx-auto mb-3 opacity-20" />
+                      <p className="text-sm font-medium mb-1">No active initiatives found</p>
+                      <p className="text-xs text-muted-foreground/60">Click "New Initiative" to start tracking a project.</p>
+                    </td></tr>
+                  ) : (
+                    projects?.map((project) => (
+                      <tr key={project.id} className="hover:bg-white/[0.02] transition-colors">
+                        <td className="px-4 sm:px-6 py-4">
+                          <div className="font-semibold text-white">{project.name}</div>
+                          <div className="text-sm text-muted-foreground mt-1 line-clamp-1">{project.description}</div>
+                        </td>
+                        <td className="px-4 sm:px-6 py-4 font-mono text-sm text-primary">{project.platform}</td>
+                        <td className="px-4 sm:px-6 py-4">
+                          <span className={cn(
+                            "px-3 py-1 text-xs rounded-full border font-bold tracking-wider uppercase",
+                            project.status === 'active' ? "bg-green-500/10 text-green-400 border-green-500/20" :
+                            project.status === 'building' ? "bg-primary/10 text-primary border-primary/20" :
+                            project.status === 'planning' ? "bg-purple-500/10 text-purple-400 border-purple-500/20" :
+                            "bg-zinc-500/10 text-zinc-400 border-zinc-500/20"
+                          )}>
+                            {project.status}
+                          </span>
+                        </td>
+                        <td className="px-4 sm:px-6 py-4 w-48">
+                          <div className="flex items-center gap-3">
+                            <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
+                              <motion.div 
+                                className="h-full bg-primary rounded-full"
+                                initial={{ width: 0 }}
+                                animate={{ width: `${project.progress}%` }}
+                                transition={{ duration: 1, ease: "easeOut" }}
+                              />
                             </div>
+                            <span className="text-sm font-mono text-muted-foreground w-10 text-right">{project.progress}%</span>
                           </div>
-                          <span className="text-sm font-mono text-muted-foreground">{project.progress}%</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <button onClick={() => setProjectModal({ isOpen: true, data: project })} className="p-2 text-muted-foreground hover:text-white transition-colors inline-block"><Edit2 className="w-4 h-4" /></button>
-                        <button onClick={() => removeProject.mutate({ id: project.id })} className="p-2 text-muted-foreground hover:text-destructive transition-colors inline-block ml-2"><Trash2 className="w-4 h-4" /></button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                        </td>
+                        <td className="px-4 sm:px-6 py-4 text-right">
+                          <button onClick={() => setProjectModal({ isOpen: true, data: project })} className="p-2 text-muted-foreground hover:text-white transition-colors inline-block"><Edit2 className="w-4 h-4" /></button>
+                          <button onClick={() => setDeleteConfirm({ isOpen: true, type: "project", id: project.id, name: project.name })} className="p-2 text-muted-foreground hover:text-destructive transition-colors inline-block ml-1"><Trash2 className="w-4 h-4" /></button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* MODALS */}
+      <ConfirmDialog
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm(d => ({ ...d, isOpen: false }))}
+        onConfirm={handleDeleteConfirm}
+        title={`Delete ${deleteConfirm.type === "metric" ? "Metric" : "Initiative"}`}
+        message={`Are you sure you want to delete "${deleteConfirm.name}"? This action cannot be undone.`}
+      />
+
       <Modal isOpen={metricModal.isOpen} onClose={() => setMetricModal({ isOpen: false })} title={metricModal.data ? "Edit Metric" : "Deploy New Metric"}>
         <form onSubmit={handleMetricSubmit} className="space-y-4">
           <div className="space-y-2">
