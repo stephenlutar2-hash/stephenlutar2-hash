@@ -16,7 +16,7 @@ export default function Home() {
   const [contactSubmitted, setContactSubmitted] = useState(false);
 
   const navLinks = [
-    { name: "Platform", href: "#" },
+    { name: "Platform", href: "#platform" },
     { name: "Architecture", href: "#architecture" },
     { name: "Live Intel", href: "#intel" },
     { name: "Pricing", href: "#pricing" },
@@ -175,7 +175,7 @@ export default function Home() {
       </section>
 
       {/* Core Capabilities */}
-      <section className="py-24 bg-card/30 relative">
+      <section id="platform" className="py-24 bg-card/30 relative">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-display font-bold text-white mb-4 uppercase tracking-wider">Core Capabilities</h2>
