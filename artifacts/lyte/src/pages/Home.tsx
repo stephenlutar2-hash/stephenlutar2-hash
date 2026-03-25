@@ -158,7 +158,7 @@ type ActiveTab = "dashboard" | "signals" | "recommendations" | "impact" | "portf
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<ActiveTab>("dashboard");
-  const [signalFilter, setSignalFilter] = useState<SignalFilter>({ severity: "all", domain: "all", status: "all", source: "all", owner: "all" });
+  const [signalFilter, setSignalFilter] = useState<SignalFilter>({ severity: "all", domain: "all", status: "all", freshness: "all", source: "all", owner: "all" });
   const [searchQuery, setSearchQuery] = useState("");
   const [drawerSignal, setDrawerSignal] = useState<SignalItem | null>(null);
   const [drawerProject, setDrawerProject] = useState<PortfolioProject | null>(null);
@@ -252,6 +252,7 @@ export default function Home() {
     if (signalFilter.severity !== "all" && s.severity !== signalFilter.severity) return false;
     if (signalFilter.domain !== "all" && s.domain !== signalFilter.domain) return false;
     if (signalFilter.status !== "all" && s.status !== signalFilter.status) return false;
+    if (signalFilter.freshness !== "all" && s.freshness !== signalFilter.freshness) return false;
     if (signalFilter.source !== "all" && s.source !== signalFilter.source) return false;
     if (signalFilter.owner !== "all" && s.owner !== signalFilter.owner) return false;
     if (searchQuery && !s.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
@@ -554,6 +555,12 @@ function SignalsTab({ signals, filter, setFilter, search, setSearch, onSignalCli
             <option value="acknowledged">Acknowledged</option>
             <option value="resolved">Resolved</option>
           </select>
+          <select value={filter.freshness} onChange={e => setFilter({ ...filter, freshness: e.target.value })} className="bg-muted border border-border rounded-lg px-3 py-2 text-xs text-foreground focus:outline-none">
+            <option value="all">All Freshness</option>
+            <option value="live">Live</option>
+            <option value="recent">Recent</option>
+            <option value="stale">Stale</option>
+          </select>
           <select value={filter.source} onChange={e => setFilter({ ...filter, source: e.target.value })} className="bg-muted border border-border rounded-lg px-3 py-2 text-xs text-foreground focus:outline-none">
             <option value="all">All Sources</option>
             {sources.map(s => <option key={s} value={s}>{s}</option>)}
@@ -670,6 +677,9 @@ function RecommendationsTab({ recommendations, actionStates, onAction, mode }: R
                   <button onClick={() => onAction(rec.id, "assign")} disabled={assignState === "executing" || assignState === "done"} className={`px-3 py-1.5 rounded-lg text-[10px] font-semibold transition flex items-center gap-1.5 ${assignState === "done" ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20" : assignState === "executing" ? "bg-muted text-muted-foreground border border-border" : "bg-muted text-muted-foreground border border-border hover:text-foreground"}`}>
                     {assignState === "done" ? <><CheckCircle className="w-3 h-3" /> Assigned</> : assignState === "executing" ? <><RefreshCw className="w-3 h-3 animate-spin" /> Assigning...</> : <><Bell className="w-3 h-3" /> Assign</>}
                   </button>
+                  <button onClick={() => onAction(rec.id, "report")} disabled={actionStates[`${rec.id}-report`] === "executing" || actionStates[`${rec.id}-report`] === "done"} className={`px-3 py-1.5 rounded-lg text-[10px] font-semibold transition flex items-center gap-1.5 ${actionStates[`${rec.id}-report`] === "done" ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20" : actionStates[`${rec.id}-report`] === "executing" ? "bg-muted text-muted-foreground border border-border" : "bg-muted text-muted-foreground border border-border hover:text-foreground"}`}>
+                    {actionStates[`${rec.id}-report`] === "done" ? <><CheckCircle className="w-3 h-3" /> Generated</> : actionStates[`${rec.id}-report`] === "executing" ? <><RefreshCw className="w-3 h-3 animate-spin" /> Generating...</> : <><BarChart3 className="w-3 h-3" /> Generate Report</>}
+                  </button>
                 </div>
               </div>
             </Section>
@@ -688,6 +698,12 @@ function ImpactTab({ metrics }: { metrics: ImpactMetric[] }) {
     revenue: { icon: TrendingUp, color: "text-emerald-400", label: "Revenue" },
   };
 
+  const scenarios = [
+    { id: "scen-001", title: "PSEM On-Time Launch", description: "If PSEM team is assigned within 2 weeks and launches on schedule in Q3:", inputs: ["Team size: 2 engineers", "Ramp time: 3 weeks", "Launch: Q3 2026"], outcomes: [{ label: "Revenue unlock", value: "+$180K/yr", positive: true }, { label: "Security gap closed", value: "91 → 95/100", positive: true }, { label: "Investment required", value: "$45K", positive: false }] },
+    { id: "scen-002", title: "Firestorm + Dreamscape Latency Fix", description: "If both latency issues are resolved via caching + GPU scaling:", inputs: ["Redis cache: $200/mo", "GPU scale: $1,200/mo"], outcomes: [{ label: "User drop-off recovery", value: "-18% → baseline", positive: true }, { label: "Sessions recovered", value: "+4,200/day", positive: true }, { label: "Monthly cost increase", value: "+$1,400/mo", positive: false }] },
+    { id: "scen-003", title: "Full Portfolio Automation", description: "Completing AlloyScape templates + Zeus chaos suite unlocks:", inputs: ["Templates: 8 remaining", "Chaos tests: 3 remaining"], outcomes: [{ label: "Manual work saved", value: "8 → 0 hrs/wk", positive: true }, { label: "Resilience score", value: "78% → 100%", positive: true }, { label: "Deployment confidence", value: "High", positive: true }] },
+  ];
+
   return (
     <>
       <Section className="mb-4">
@@ -697,7 +713,7 @@ function ImpactTab({ metrics }: { metrics: ImpactMetric[] }) {
         </div>
       </Section>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         {metrics.map((m, i) => {
           const cat = catConfig[m.category];
           const CatIcon = cat.icon;
@@ -734,6 +750,48 @@ function ImpactTab({ metrics }: { metrics: ImpactMetric[] }) {
           );
         })}
       </div>
+
+      <Section className="mb-4" delay={0.2}>
+        <div className="glass-card rounded-xl p-5 glow-blue">
+          <h2 className="text-sm font-semibold flex items-center gap-2 mb-1"><Target className="w-4 h-4 text-primary" /> Scenario Modeling</h2>
+          <p className="text-xs text-muted-foreground mb-4">Deterministic what-if projections based on current portfolio signals. Each scenario shows inputs, projected outcomes, and investment trade-offs.</p>
+        </div>
+      </Section>
+
+      <div className="space-y-4">
+        {scenarios.map((s, si) => (
+          <Section key={s.id} delay={0.25 + si * 0.05}>
+            <div className="glass-card-hover rounded-xl p-5">
+              <h3 className="text-sm font-semibold mb-1">{s.title}</h3>
+              <p className="text-xs text-muted-foreground mb-3">{s.description}</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">Inputs / Assumptions</p>
+                  <div className="space-y-1.5">
+                    {s.inputs.map((inp, j) => (
+                      <div key={j} className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <ArrowRight className="w-3 h-3 text-primary shrink-0" />
+                        <span>{inp}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">Projected Outcomes</p>
+                  <div className="space-y-1.5">
+                    {s.outcomes.map((out, j) => (
+                      <div key={j} className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">{out.label}</span>
+                        <span className={`font-mono font-semibold ${out.positive ? "text-emerald-400" : "text-amber-400"}`}>{out.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Section>
+        ))}
+      </div>
     </>
   );
 }
@@ -748,32 +806,68 @@ interface PortfolioTabProps {
 }
 
 function PortfolioTab({ projects, sort, setSort, filter, setFilter, onProjectClick }: PortfolioTabProps) {
+  const [portfolioSearch, setPortfolioSearch] = useState("");
+  const [envFilter, setEnvFilter] = useState("all");
+  const [ownerFilter, setOwnerFilter] = useState("all");
+  const [readinessFilter, setReadinessFilter] = useState("all");
+
+  const uniqueOwners = [...new Set(projects.map(p => p.owner))];
+
   const toggleSort = (field: string) => {
     if (sort.field === field) setSort({ field, dir: sort.dir === "asc" ? "desc" : "asc" });
     else setSort({ field, dir: "desc" });
   };
   const SortIcon = sort.dir === "desc" ? SortDesc : SortAsc;
 
+  const displayProjects = projects.filter(p => {
+    if (portfolioSearch && !p.name.toLowerCase().includes(portfolioSearch.toLowerCase()) && !p.category.toLowerCase().includes(portfolioSearch.toLowerCase())) return false;
+    if (envFilter !== "all" && p.environment !== envFilter) return false;
+    if (ownerFilter !== "all" && p.owner !== ownerFilter) return false;
+    if (readinessFilter === "high" && p.readiness < 80) return false;
+    if (readinessFilter === "medium" && (p.readiness < 50 || p.readiness >= 80)) return false;
+    if (readinessFilter === "low" && p.readiness >= 50) return false;
+    return true;
+  });
+
   return (
     <>
       <Section className="mb-4">
         <div className="glass-card rounded-xl p-4 flex flex-wrap items-center gap-3">
-          <Filter className="w-4 h-4 text-muted-foreground" />
+          <div className="relative flex-1 min-w-[200px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+            <input value={portfolioSearch} onChange={e => setPortfolioSearch(e.target.value)} placeholder="Search projects..." className="w-full pl-9 pr-3 py-2 rounded-lg bg-muted border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/40" />
+          </div>
           <select value={filter} onChange={e => setFilter(e.target.value)} className="bg-muted border border-border rounded-lg px-3 py-2 text-xs text-foreground focus:outline-none">
-            <option value="all">All Projects</option>
+            <option value="all">All Status</option>
             <option value="deployed">Deployed</option>
             <option value="staging">Staging</option>
             <option value="not-started">Not Started</option>
             <option value="attention">Needs Attention</option>
           </select>
-          <div className="flex items-center gap-1 ml-auto">
+          <select value={envFilter} onChange={e => setEnvFilter(e.target.value)} className="bg-muted border border-border rounded-lg px-3 py-2 text-xs text-foreground focus:outline-none">
+            <option value="all">All Environments</option>
+            <option value="production">Production</option>
+            <option value="staging">Staging</option>
+            <option value="development">Development</option>
+          </select>
+          <select value={readinessFilter} onChange={e => setReadinessFilter(e.target.value)} className="bg-muted border border-border rounded-lg px-3 py-2 text-xs text-foreground focus:outline-none">
+            <option value="all">All Readiness</option>
+            <option value="high">High (80%+)</option>
+            <option value="medium">Medium (50-79%)</option>
+            <option value="low">Low (&lt;50%)</option>
+          </select>
+          <select value={ownerFilter} onChange={e => setOwnerFilter(e.target.value)} className="bg-muted border border-border rounded-lg px-3 py-2 text-xs text-foreground focus:outline-none">
+            <option value="all">All Owners</option>
+            {uniqueOwners.map(o => <option key={o} value={o}>{o}</option>)}
+          </select>
+          <div className="flex items-center gap-1">
             {["name", "readiness", "blockers", "status"].map(f => (
               <button key={f} onClick={() => toggleSort(f)} className={`text-[10px] uppercase tracking-wider px-2 py-1 rounded transition ${sort.field === f ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}>
                 {f} {sort.field === f && <SortIcon className="w-3 h-3 inline" />}
               </button>
             ))}
           </div>
-          <span className="text-[10px] text-muted-foreground font-mono">{projects.length} shown</span>
+          <span className="text-[10px] text-muted-foreground font-mono">{displayProjects.length}/{projects.length} shown</span>
         </div>
       </Section>
 
@@ -782,7 +876,7 @@ function PortfolioTab({ projects, sort, setSort, filter, setFilter, onProjectCli
           <div className="hidden lg:grid grid-cols-[1fr_60px_80px_60px_60px_80px_60px_100px] gap-3 px-4 py-2.5 border-b border-border/50 text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
             <span>Project</span><span className="text-center">Score</span><span className="text-center">Status</span><span className="text-center">DNS</span><span className="text-center">TLS</span><span className="text-center">Blockers</span><span className="text-center">Attn</span><span>Next Action</span>
           </div>
-          {projects.map((p, i) => {
+          {displayProjects.map((p, i) => {
             const statusColors: Record<string, string> = { deployed: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20", staging: "text-amber-400 bg-amber-500/10 border-amber-500/20", development: "text-blue-400 bg-blue-500/10 border-blue-500/20", "not-started": "text-gray-400 bg-gray-500/10 border-gray-500/20" };
             const attnColors: Record<string, string> = { none: "", watch: "text-amber-400", action: "text-orange-400", critical: "text-red-400" };
             return (

@@ -105,6 +105,7 @@ export interface SignalFilter {
   severity: string;
   domain: string;
   status: string;
+  freshness: string;
   source: string;
   owner: string;
 }
