@@ -87,7 +87,7 @@ resource apiOriginGroup 'Microsoft.Cdn/profiles/originGroups@2024-02-01' = {
       additionalLatencyInMilliseconds: 50
     }
     healthProbeSettings: {
-      probePath: '/api/health'
+      probePath: '/health'
       probeRequestType: 'HEAD'
       probeProtocol: 'Https'
       probeIntervalInSeconds: 30
