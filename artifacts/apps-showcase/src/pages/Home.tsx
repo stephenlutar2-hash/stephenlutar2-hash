@@ -197,8 +197,24 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.08 }}
-                className="group block p-6 rounded-2xl bg-white/[0.03] border border-white/5 hover:border-white/15 transition-all duration-300"
+                className="group block rounded-2xl bg-white/[0.03] border border-white/5 hover:border-white/15 transition-all duration-300 overflow-hidden"
               >
+                <div className={`relative h-32 bg-gradient-to-br ${p.color} overflow-hidden`}>
+                  <div className="absolute inset-0 opacity-20">
+                    <div className="absolute top-3 left-4 right-4 h-2.5 rounded bg-white/30" />
+                    <div className="absolute top-8 left-4 w-2/5 h-2 rounded bg-white/20" />
+                    <div className="absolute top-14 left-4 right-4 grid grid-cols-3 gap-2">
+                      <div className="h-10 rounded bg-white/15" />
+                      <div className="h-10 rounded bg-white/15" />
+                      <div className="h-10 rounded bg-white/15" />
+                    </div>
+                    <div className="absolute bottom-3 left-4 w-1/3 h-2 rounded bg-white/20" />
+                  </div>
+                  <div className="absolute bottom-3 right-3 w-10 h-10 rounded-lg bg-white/10 backdrop-blur flex items-center justify-center">
+                    <p.icon className="w-5 h-5 text-white" />
+                  </div>
+                </div>
+                <div className="p-6">
                 <div className="flex items-center gap-3 mb-4">
                   <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${p.color} flex items-center justify-center group-hover:scale-110 transition-transform`}>
                     <p.icon className="w-6 h-6 text-white" />
@@ -215,6 +231,7 @@ export default function Home() {
                       {f}
                     </span>
                   ))}
+                </div>
                 </div>
               </motion.a>
             ))}
