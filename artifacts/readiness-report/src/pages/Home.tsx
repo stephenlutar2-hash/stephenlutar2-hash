@@ -73,7 +73,7 @@ const projects: Project[] = [
     recommendations: ["Finalize PDF export functionality"],
   },
   {
-    name: "Lutar", route: "/lutar/", readiness: 85, status: "deployed", dns: "verified", tls: "valid", tlsExpiry: "2026-09-18", domain: "szlholdings.com/lutar", lastDeploy: "3 days ago", uptime: 99.91, responseTime: 167, category: "Command", owner: "Stephen L.",
+    name: "Lutar", route: "/lutar/", readiness: 85, status: "deployed", dns: "verified", tls: "expiring", tlsExpiry: "2026-04-28", domain: "szlholdings.com/lutar", lastDeploy: "3 days ago", uptime: 99.91, responseTime: 167, category: "Command", owner: "Stephen L.",
     categories: [{ name: "Frontend", score: 88, weight: 25 }, { name: "Backend", score: 82, weight: 30 }, { name: "Infrastructure", score: 86, weight: 20 }, { name: "Security", score: 84, weight: 15 }, { name: "Integrations", score: 80, weight: 10 }],
     milestones: [{ name: "Command Dashboard", status: "completed" }, { name: "Portfolio View", status: "completed" }, { name: "Sustainability Module", status: "in-progress" }, { name: "Mobile Optimization", status: "upcoming" }],
     blockers: [{ title: "TLS certificate expiring in 6 months", severity: "low", owner: "Infrastructure" }],
@@ -432,9 +432,9 @@ export default function Home() {
             <div className="px-5 py-3 border-b border-border flex items-center justify-between">
               <h2 className="text-sm font-semibold">All Projects</h2>
               <div className="flex items-center gap-2">
-                {(["name", "readiness", "status", "owner"] as SortField[]).map(f => (
+                {(["name", "readiness", "status", "owner", "lastDeploy"] as SortField[]).map(f => (
                   <button key={f} onClick={() => toggleSort(f)} className={`text-[10px] uppercase tracking-wider px-2 py-1 rounded transition ${sortField === f ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}>
-                    {f} {sortField === f && <SortIcon className="w-3 h-3 inline" />}
+                    {f === "lastDeploy" ? "last deploy" : f} {sortField === f && <SortIcon className="w-3 h-3 inline" />}
                   </button>
                 ))}
               </div>
