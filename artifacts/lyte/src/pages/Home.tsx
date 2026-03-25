@@ -9,100 +9,11 @@ import {
   AlertCircle, ChevronUp, FileWarning, Gauge, Boxes, Sparkles,
   Milestone, Play, SquareArrowOutUpRight, Minus, ArrowRight
 } from "lucide-react";
-
-type Severity = "critical" | "high" | "medium" | "low" | "info";
-type SignalDomain = "operations" | "logistics" | "security" | "performance" | "deployment" | "integration";
-type SignalStatus = "active" | "acknowledged" | "resolved" | "muted";
-type ProjectStatus = "deployed" | "staging" | "development" | "not-started";
-
-interface SignalItem {
-  id: string;
-  title: string;
-  description: string;
-  domain: SignalDomain;
-  source: string;
-  severity: Severity;
-  status: SignalStatus;
-  confidence: number;
-  freshness: "live" | "recent" | "stale";
-  businessImpact: string;
-  recommendedAction: string;
-  owner: string;
-  timestamp: string;
-}
-
-interface Recommendation {
-  id: string;
-  title: string;
-  reasoning: string;
-  projectedImpact: string;
-  priority: number;
-  actionType: "automate" | "escalate" | "investigate" | "schedule" | "deploy";
-  suggestedActions: string[];
-  relatedSignals: string[];
-  owner: string;
-}
-
-interface IntegrationStatus {
-  id: string;
-  name: string;
-  adapter: string;
-  status: "connected" | "degraded" | "disconnected";
-  mode: "live" | "demo";
-  lastSync: string;
-  freshness: "fresh" | "stale" | "expired";
-  details: string;
-}
-
-interface ImpactMetric {
-  id: string;
-  title: string;
-  category: "cost" | "risk" | "efficiency" | "revenue";
-  value: string;
-  trend: "up" | "down" | "stable";
-  narrative: string;
-  relatedProjects: string[];
-}
-
-interface PortfolioProject {
-  name: string;
-  route: string;
-  readiness: number;
-  status: ProjectStatus;
-  category: string;
-  owner: string;
-  blockers: number;
-  nextAction: string;
-  attentionLevel: "none" | "watch" | "action" | "critical";
-  dns: boolean;
-  tls: boolean;
-  environment: "production" | "staging" | "development";
-  uptime: number;
-  lastDeploy: string;
-}
-
-interface DashboardSummary {
-  healthScore: number;
-  totalProjects: number;
-  deployedProjects: number;
-  avgReadiness: number;
-  criticalSignals: number;
-  highSignals: number;
-  activeSignals: number;
-  attentionQueue: SignalItem[];
-  mode: string;
-}
-
-interface SignalFilter {
-  severity: string;
-  domain: string;
-  status: string;
-}
-
-interface PortfolioSort {
-  field: string;
-  dir: "asc" | "desc";
-}
+import type {
+  Severity, SignalDomain, SignalStatus, SignalItem, Recommendation,
+  IntegrationStatus, ImpactMetric, PortfolioProject, DashboardSummary,
+  SignalFilter, PortfolioSort,
+} from "../types";
 
 const portfolioProjects: PortfolioProject[] = [
   { name: "ROSIE", route: "/", readiness: 96, status: "deployed", category: "Security", owner: "Stephen L.", blockers: 0, nextAction: "Complete load testing", attentionLevel: "none", dns: true, tls: true, environment: "production", uptime: 99.97, lastDeploy: "2 hours ago" },
@@ -122,6 +33,7 @@ const portfolioProjects: PortfolioProject[] = [
   { name: "Readiness Report", route: "/readiness-report/", readiness: 87, status: "deployed", category: "Operations", owner: "Stephen L.", blockers: 0, nextAction: "—", attentionLevel: "none", dns: true, tls: true, environment: "production", uptime: 99.90, lastDeploy: "Just now" },
   { name: "Career", route: "/career/", readiness: 83, status: "deployed", category: "Branding", owner: "Stephen L.", blockers: 0, nextAction: "—", attentionLevel: "none", dns: true, tls: true, environment: "production", uptime: 99.85, lastDeploy: "1 hour ago" },
   { name: "Lyte", route: "/lyte/", readiness: 90, status: "deployed", category: "Observability", owner: "Stephen L.", blockers: 0, nextAction: "—", attentionLevel: "none", dns: true, tls: true, environment: "production", uptime: 99.95, lastDeploy: "Just now" },
+  { name: "INCA", route: "#", readiness: 72, status: "development", category: "Intelligence", owner: "Stephen L.", blockers: 1, nextAction: "Complete experiment framework", attentionLevel: "watch", dns: false, tls: false, environment: "development", uptime: 0, lastDeploy: "2 days ago" },
 ];
 
 const severityConfig: Record<Severity, { color: string; bg: string; border: string }> = {
@@ -246,7 +158,7 @@ type ActiveTab = "dashboard" | "signals" | "recommendations" | "impact" | "portf
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<ActiveTab>("dashboard");
-  const [signalFilter, setSignalFilter] = useState<SignalFilter>({ severity: "all", domain: "all", status: "all" });
+  const [signalFilter, setSignalFilter] = useState<SignalFilter>({ severity: "all", domain: "all", status: "all", source: "all", owner: "all" });
   const [searchQuery, setSearchQuery] = useState("");
   const [drawerSignal, setDrawerSignal] = useState<SignalItem | null>(null);
   const [drawerProject, setDrawerProject] = useState<PortfolioProject | null>(null);
@@ -332,10 +244,15 @@ export default function Home() {
   const attentionNeeded = portfolioProjects.filter(p => p.attentionLevel === "action" || p.attentionLevel === "critical").length;
   const activeSignalCount = dashboardSummary?.activeSignals ?? 0;
 
+  const uniqueSources = [...new Set(signals.map(s => s.source))];
+  const uniqueOwners = [...new Set(signals.map(s => s.owner))];
+
   const filteredSignals = signals.filter(s => {
     if (signalFilter.severity !== "all" && s.severity !== signalFilter.severity) return false;
     if (signalFilter.domain !== "all" && s.domain !== signalFilter.domain) return false;
     if (signalFilter.status !== "all" && s.status !== signalFilter.status) return false;
+    if (signalFilter.source !== "all" && s.source !== signalFilter.source) return false;
+    if (signalFilter.owner !== "all" && s.owner !== signalFilter.owner) return false;
     if (searchQuery && !s.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
     return true;
   });
@@ -398,7 +315,7 @@ export default function Home() {
 
       <div className="max-w-[1500px] mx-auto px-4 sm:px-6 py-6">
         {activeTab === "dashboard" && (loading.dashboard ? <LoadingSpinner /> : errors.dashboard ? <ErrorMessage message={errors.dashboard} onRetry={loadDashboard} /> : <DashboardTab healthScore={healthScore} avgReadiness={avgReadiness} deployed={deployed} criticals={criticals} attentionNeeded={attentionNeeded} activeSignals={activeSignalCount} signals={signals} projects={portfolioProjects} onSignalClick={setDrawerSignal} onProjectClick={setDrawerProject} />)}
-        {activeTab === "signals" && (loading.signals ? <LoadingSpinner /> : errors.signals ? <ErrorMessage message={errors.signals} onRetry={loadSignals} /> : <SignalsTab signals={filteredSignals} filter={signalFilter} setFilter={setSignalFilter} search={searchQuery} setSearch={setSearchQuery} onSignalClick={setDrawerSignal} />)}
+        {activeTab === "signals" && (loading.signals ? <LoadingSpinner /> : errors.signals ? <ErrorMessage message={errors.signals} onRetry={loadSignals} /> : <SignalsTab signals={filteredSignals} filter={signalFilter} setFilter={setSignalFilter} search={searchQuery} setSearch={setSearchQuery} onSignalClick={setDrawerSignal} sources={uniqueSources} owners={uniqueOwners} />)}
         {activeTab === "recommendations" && (loading.recommendations ? <LoadingSpinner /> : errors.recommendations ? <ErrorMessage message={errors.recommendations} onRetry={loadRecommendations} /> : <RecommendationsTab recommendations={recommendations} actionStates={actionStates} onAction={handleAction} />)}
         {activeTab === "impact" && (loading.impact ? <LoadingSpinner /> : errors.impact ? <ErrorMessage message={errors.impact} onRetry={loadImpact} /> : <ImpactTab metrics={impactMetrics} />)}
         {activeTab === "portfolio" && <PortfolioTab projects={sortedProjects} sort={portfolioSort} setSort={setPortfolioSort} filter={portfolioFilter} setFilter={setPortfolioFilter} onProjectClick={setDrawerProject} />}
@@ -602,9 +519,11 @@ interface SignalsTabProps {
   search: string;
   setSearch: (search: string) => void;
   onSignalClick: (signal: SignalItem) => void;
+  sources: string[];
+  owners: string[];
 }
 
-function SignalsTab({ signals, filter, setFilter, search, setSearch, onSignalClick }: SignalsTabProps) {
+function SignalsTab({ signals, filter, setFilter, search, setSearch, onSignalClick, sources, owners }: SignalsTabProps) {
   const grouped: Record<string, SignalItem[]> = {};
   signals.forEach((s) => {
     if (!grouped[s.domain]) grouped[s.domain] = [];
@@ -632,6 +551,14 @@ function SignalsTab({ signals, filter, setFilter, search, setSearch, onSignalCli
             <option value="active">Active</option>
             <option value="acknowledged">Acknowledged</option>
             <option value="resolved">Resolved</option>
+          </select>
+          <select value={filter.source} onChange={e => setFilter({ ...filter, source: e.target.value })} className="bg-muted border border-border rounded-lg px-3 py-2 text-xs text-foreground focus:outline-none">
+            <option value="all">All Sources</option>
+            {sources.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+          <select value={filter.owner} onChange={e => setFilter({ ...filter, owner: e.target.value })} className="bg-muted border border-border rounded-lg px-3 py-2 text-xs text-foreground focus:outline-none">
+            <option value="all">All Owners</option>
+            {owners.map(o => <option key={o} value={o}>{o}</option>)}
           </select>
           <span className="text-[10px] text-muted-foreground font-mono ml-auto">{signals.length} signals</span>
         </div>

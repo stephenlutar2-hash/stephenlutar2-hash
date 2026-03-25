@@ -368,6 +368,9 @@ importers:
       '@workspace/integrations-openai-ai-server':
         specifier: workspace:*
         version: link:../../lib/integrations-openai-ai-server
+      '@workspace/lyte-types':
+        specifier: workspace:*
+        version: link:../../lib/lyte-types
       applicationinsights:
         specifier: ^3.14.0
         version: 3.14.0
@@ -1077,6 +1080,9 @@ importers:
       '@workspace/branding':
         specifier: workspace:*
         version: link:../../lib/branding
+      '@workspace/lyte-types':
+        specifier: workspace:*
+        version: link:../../lib/lyte-types
       '@workspace/platform':
         specifier: workspace:*
         version: link:../../lib/platform
@@ -1683,6 +1689,8 @@ importers:
       p-retry:
         specifier: ^7.1.1
         version: 7.1.1
+
+  lib/lyte-types: {}
 
   lib/platform:
     dependencies:

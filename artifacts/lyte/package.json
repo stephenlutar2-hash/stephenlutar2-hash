@@ -19,6 +19,7 @@
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
     "@workspace/branding": "workspace:*",
+    "@workspace/lyte-types": "workspace:*",
     "@workspace/platform": "workspace:*",
     "@workspace/ui": "workspace:*",
     "framer-motion": "catalog:",
