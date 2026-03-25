@@ -9,12 +9,7 @@
     "start": "pnpm --filter @workspace/api-server run start",
     "typecheck:libs": "tsc --build",
     "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck",
-    "dev:api": "pnpm --filter @workspace/api-server dev",
-    "dev:aegis": "pnpm --filter @workspace/aegis dev",
-    "dev:beacon": "pnpm --filter @workspace/beacon dev",
-    "dev:lutar": "pnpm --filter @workspace/lutar dev",
-    "dev:nimbus": "pnpm --filter @workspace/nimbus dev",
-    "dev:rosie": "pnpm --filter @workspace/rosie dev",
+    "dev": "pnpm run build:frontends && pnpm --filter @workspace/api-server run dev",
     "dev:mockup": "pnpm --filter @workspace/mockup-sandbox dev",
     "seed": "pnpm --filter @workspace/api-server seed",
     "seed:rosie": "pnpm --filter @workspace/api-server seed:rosie"

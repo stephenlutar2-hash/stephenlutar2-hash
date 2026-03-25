@@ -40,30 +40,28 @@ app.get("/health", (_req: Request, res: Response) => {
 
 app.use("/api", router);
 
-if (process.env.NODE_ENV === "production") {
-  const artifactsRoot = path.resolve(__dirname, "..", "..");
+const artifactsRoot = path.resolve(__dirname, "..", "..");
 
-  const frontends: Array<{ basePath: string; dir: string }> = [
-    { basePath: "/aegis", dir: "aegis" },
-    { basePath: "/beacon", dir: "beacon" },
-    { basePath: "/lutar", dir: "lutar" },
-    { basePath: "/nimbus", dir: "nimbus" },
-    { basePath: "/firestorm", dir: "firestorm" },
-  ];
+const frontends: Array<{ basePath: string; dir: string }> = [
+  { basePath: "/aegis", dir: "aegis" },
+  { basePath: "/beacon", dir: "beacon" },
+  { basePath: "/lutar", dir: "lutar" },
+  { basePath: "/nimbus", dir: "nimbus" },
+  { basePath: "/firestorm", dir: "firestorm" },
+];
 
-  for (const fe of frontends) {
-    const distDir = path.join(artifactsRoot, fe.dir, "dist", "public");
-    app.use(fe.basePath, express.static(distDir));
-    app.get(`${fe.basePath}/{*splat}`, (_req: Request, res: Response) => {
-      res.sendFile(path.join(distDir, "index.html"));
-    });
-  }
-
-  const rosieDistDir = path.join(artifactsRoot, "rosie", "dist", "public");
-  app.use(express.static(rosieDistDir));
-  app.get("{*splat}", (_req: Request, res: Response) => {
-    res.sendFile(path.join(rosieDistDir, "index.html"));
+for (const fe of frontends) {
+  const distDir = path.join(artifactsRoot, fe.dir, "dist", "public");
+  app.use(fe.basePath, express.static(distDir));
+  app.get(`${fe.basePath}/{*splat}`, (_req: Request, res: Response) => {
+    res.sendFile(path.join(distDir, "index.html"));
   });
 }
+
+const rosieDistDir = path.join(artifactsRoot, "rosie", "dist", "public");
+app.use(express.static(rosieDistDir));
+app.get("{*splat}", (_req: Request, res: Response) => {
+  res.sendFile(path.join(rosieDistDir, "index.html"));
+});
 
 export default app;

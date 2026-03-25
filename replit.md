@@ -150,9 +150,21 @@ The Alloy Engine is the intelligence core for the AlloyScape platform. It uses O
 
 Every package extends `tsconfig.base.json` which sets `composite: true`. The root `tsconfig.json` lists all packages as project references.
 
+## Architecture — Single-Port Consolidation
+
+The entire workspace runs through a single API server process on one port (3000). In both development and production:
+- The API server (`artifacts/api-server`) serves all frontend apps as static files from their `dist/public` directories
+- `GET /` serves Rosie, `GET /aegis/` serves Aegis, etc.
+- `GET /api/*` handles API routes, `GET /health` returns health check
+- Frontend artifact.toml files have been removed; only the API server artifact remains
+- In development, frontends are pre-built before the API server starts (`pnpm -w run build:frontends`)
+
 ## Root Scripts
 
-- `pnpm run build` — runs `typecheck` first, then recursively runs `build` in all packages
+- `pnpm run dev` — builds all frontends, then starts the API server
+- `pnpm run build` — builds frontends + API server for production
+- `pnpm run build:frontends` — builds all 6 frontend apps
+- `pnpm run start` — starts the API server (assumes already built)
 - `pnpm run typecheck` — runs `tsc --build --emitDeclarationOnly`
 
 ## Seed Script
