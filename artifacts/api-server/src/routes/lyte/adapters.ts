@@ -7,97 +7,222 @@ interface AdapterOutput<T> {
   mode: AdapterMode;
   source: string;
   timestamp: string;
+  fallback: boolean;
 }
 
-function adapterOutput<T>(data: T, source: string, mode: AdapterMode = "demo"): AdapterOutput<T> {
-  return { data, mode, source, timestamp: new Date().toISOString() };
+function adapterOutput<T>(data: T, source: string, mode: AdapterMode, fallback = false): AdapterOutput<T> {
+  return { data, mode, source, timestamp: new Date().toISOString(), fallback };
 }
 
 function resolveMode(): AdapterMode {
   return process.env.LYTE_MODE === "live" ? "live" : "demo";
 }
 
-export class TelemetryAdapter {
-  private mode: AdapterMode;
-  constructor() { this.mode = resolveMode(); }
+function logAdapterStartup(name: string, mode: AdapterMode, envKey: string): void {
+  const configured = !!process.env[envKey];
+  console.log(`[Lyte] ${name} initialized — mode: ${mode}, env(${envKey}): ${configured ? "configured" : "not set"}`);
+}
 
-  getSignals(): AdapterOutput<Signal[]> {
-    return adapterOutput([
+abstract class BaseAdapter {
+  protected mode: AdapterMode;
+  protected adapterName: string;
+  protected envKey: string;
+
+  constructor(adapterName: string, envKey: string) {
+    this.mode = resolveMode();
+    this.adapterName = adapterName;
+    this.envKey = envKey;
+    logAdapterStartup(adapterName, this.mode, envKey);
+  }
+
+  protected isLiveConfigured(): boolean {
+    return this.mode === "live" && !!process.env[this.envKey];
+  }
+
+  protected abstract fetchLiveSignals(): Promise<Signal[]>;
+  protected abstract getDemoSignals(): Signal[];
+
+  async getSignals(): Promise<AdapterOutput<Signal[]>> {
+    if (this.isLiveConfigured()) {
+      try {
+        const liveData = await this.fetchLiveSignals();
+        return adapterOutput(liveData, this.adapterName, "live");
+      } catch (err) {
+        console.warn(`[Lyte] ${this.adapterName} live fetch failed, falling back to demo:`, (err as Error).message);
+        return adapterOutput(this.getDemoSignals(), this.adapterName, "demo", true);
+      }
+    }
+    return adapterOutput(this.getDemoSignals(), this.adapterName, this.mode);
+  }
+}
+
+export class TelemetryAdapter extends BaseAdapter {
+  constructor() { super("TelemetryAdapter", "LYTE_TELEMETRY_ENDPOINT"); }
+
+  protected async fetchLiveSignals(): Promise<Signal[]> {
+    const endpoint = process.env.LYTE_TELEMETRY_ENDPOINT!;
+    const res = await fetch(endpoint, { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) throw new Error(`Telemetry API returned ${res.status}`);
+    const body = await res.json() as { signals: Signal[] };
+    return body.signals;
+  }
+
+  protected getDemoSignals(): Signal[] {
+    return [
       { id: "sig-001", title: "Firestorm response time exceeds 200ms SLA threshold", description: "Average response time has been above 200ms for 3 consecutive intervals. Backend API latency is the primary contributor.", domain: "performance", source: "Telemetry Adapter", severity: "high", status: "active", confidence: 94, freshness: "live", businessImpact: "Degraded user experience affecting ~2,400 daily active sessions", recommendedAction: "Investigate backend query optimization; consider caching layer", owner: "Backend Team", timestamp: "2026-03-25T14:23:00Z" },
       { id: "sig-006", title: "Dreamscape AI generation pipeline latency >5s", description: "Generation pipeline averaging 6.2s per request, exceeding the 5s target. GPU queue saturation suspected.", domain: "performance", source: "Telemetry Adapter", severity: "high", status: "active", confidence: 91, freshness: "live", businessImpact: "User drop-off rate increased 18% on generation flows", recommendedAction: "Scale GPU allocation; optimize batch processing pipeline", owner: "ML Team", timestamp: "2026-03-25T13:45:00Z" },
       { id: "sig-010", title: "ROSIE load testing in progress — 96% readiness", description: "Load testing underway for ROSIE. Current results show stable performance up to 10K concurrent connections.", domain: "deployment", source: "Telemetry Adapter", severity: "info", status: "active", confidence: 96, freshness: "live", businessImpact: "Production readiness validation on track", recommendedAction: "Continue testing; target 15K concurrent for final sign-off", owner: "Stephen L.", timestamp: "2026-03-25T14:10:00Z" },
       { id: "sig-012", title: "Database connection pool utilization at 62%", description: "PostgreSQL connection pool at 62% utilization. Normal operating range. No action needed.", domain: "performance", source: "Telemetry Adapter", severity: "info", status: "resolved", confidence: 98, freshness: "live", businessImpact: "System operating within normal parameters", recommendedAction: "Continue monitoring; alert threshold set at 85%", owner: "Infrastructure", timestamp: "2026-03-25T14:25:00Z" },
-    ], "TelemetryAdapter", this.mode);
+    ];
   }
 }
 
-export class SecurityFeedAdapter {
-  private mode: AdapterMode;
-  constructor() { this.mode = resolveMode(); }
+export class SecurityFeedAdapter extends BaseAdapter {
+  constructor() { super("SecurityFeedAdapter", "LYTE_SECURITY_ENDPOINT"); }
 
-  getSignals(): AdapterOutput<Signal[]> {
-    return adapterOutput([
+  protected async fetchLiveSignals(): Promise<Signal[]> {
+    const endpoint = process.env.LYTE_SECURITY_ENDPOINT!;
+    const res = await fetch(endpoint, { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) throw new Error(`Security API returned ${res.status}`);
+    const body = await res.json() as { signals: Signal[] };
+    return body.signals;
+  }
+
+  protected getDemoSignals(): Signal[] {
+    return [
       { id: "sig-003", title: "Lutar TLS certificate expiring in 34 days", description: "TLS certificate for szlholdings.com/lutar expires on 2026-04-28. Auto-renewal is not configured.", domain: "security", source: "Security Feed Adapter", severity: "medium", status: "active", confidence: 100, freshness: "live", businessImpact: "Service interruption risk for Lutar command platform", recommendedAction: "Schedule TLS certificate renewal; configure auto-renewal", owner: "Infrastructure", timestamp: "2026-03-25T06:00:00Z" },
       { id: "sig-009", title: "Aegis compliance module API rate limiting detected", description: "Compliance module hitting external API rate limits during bulk scans. 3 of 12 scan batches throttled in last cycle.", domain: "security", source: "Security Feed Adapter", severity: "medium", status: "active", confidence: 87, freshness: "recent", businessImpact: "Compliance scan coverage reduced to 75% of targets", recommendedAction: "Implement request queuing with exponential backoff", owner: "DevOps", timestamp: "2026-03-25T12:20:00Z" },
-    ], "SecurityFeedAdapter", this.mode);
+    ];
   }
 }
 
-export class LogisticsAdapter {
-  private mode: AdapterMode;
-  constructor() { this.mode = resolveMode(); }
+export class LogisticsAdapter extends BaseAdapter {
+  constructor() { super("LogisticsAdapter", "LYTE_LOGISTICS_ENDPOINT"); }
 
-  getSignals(): AdapterOutput<Signal[]> {
-    return adapterOutput([
+  protected async fetchLiveSignals(): Promise<Signal[]> {
+    const endpoint = process.env.LYTE_LOGISTICS_ENDPOINT!;
+    const res = await fetch(endpoint, { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) throw new Error(`Logistics API returned ${res.status}`);
+    const body = await res.json() as { signals: Signal[] };
+    return body.signals;
+  }
+
+  protected getDemoSignals(): Signal[] {
+    return [
       { id: "sig-005", title: "AIS data feed intermittent delays for Vessels platform", description: "AIS maritime data feed experiencing 15-30 second delays in 8% of requests. Upstream provider acknowledges issue.", domain: "logistics", source: "Logistics Adapter", severity: "medium", status: "acknowledged", confidence: 82, freshness: "recent", businessImpact: "Fleet position accuracy degraded; compliance reporting may lag", recommendedAction: "Implement local caching buffer; open support ticket with AIS provider", owner: "Data Eng", timestamp: "2026-03-25T11:30:00Z" },
-    ], "LogisticsAdapter", this.mode);
+    ];
   }
 }
 
-export class ProjectStatusAdapter {
-  private mode: AdapterMode;
-  constructor() { this.mode = resolveMode(); }
+export class ProjectStatusAdapter extends BaseAdapter {
+  constructor() { super("ProjectStatusAdapter", "LYTE_PROJECT_STATUS_ENDPOINT"); }
 
-  getSignals(): AdapterOutput<Signal[]> {
-    return adapterOutput([
+  protected async fetchLiveSignals(): Promise<Signal[]> {
+    const endpoint = process.env.LYTE_PROJECT_STATUS_ENDPOINT!;
+    const res = await fetch(endpoint, { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) throw new Error(`Project Status API returned ${res.status}`);
+    const body = await res.json() as { signals: Signal[] };
+    return body.signals;
+  }
+
+  protected getDemoSignals(): Signal[] {
+    return [
       { id: "sig-002", title: "PSEM project has no assigned development team", description: "PSEM remains in not-started status with critical blockers: no team assigned, requirements incomplete.", domain: "operations", source: "Project Status Adapter", severity: "critical", status: "active", confidence: 100, freshness: "live", businessImpact: "Portfolio gap in security posture; $180K projected revenue at risk if Q3 deadline missed", recommendedAction: "Escalate to leadership; assign team and complete requirements spec", owner: "Management", timestamp: "2026-03-25T08:00:00Z" },
       { id: "sig-007", title: "Zeus chaos engineering tests 78% complete", description: "Chaos engineering test suite coverage at 78%. Remaining tests: network partition, cascade failure, and data corruption scenarios.", domain: "deployment", source: "Project Status Adapter", severity: "low", status: "active", confidence: 95, freshness: "recent", businessImpact: "Resilience validation incomplete; risk gap for infrastructure layer", recommendedAction: "Complete remaining 3 chaos scenarios by end of sprint", owner: "Stephen L.", timestamp: "2026-03-25T09:00:00Z" },
       { id: "sig-011", title: "AlloyScape workflow templates 60% complete", description: "Workflow template library at 12 of 20 planned templates. Remaining templates: CI/CD, data pipeline, ML ops categories.", domain: "operations", source: "Project Status Adapter", severity: "low", status: "active", confidence: 90, freshness: "recent", businessImpact: "Reduced automation coverage; manual workflows costing ~8 hrs/week", recommendedAction: "Prioritize CI/CD and data pipeline templates", owner: "Stephen L.", timestamp: "2026-03-25T08:30:00Z" },
-    ], "ProjectStatusAdapter", this.mode);
+    ];
   }
 }
 
-export class InternalApiAdapter {
-  private mode: AdapterMode;
-  constructor() { this.mode = resolveMode(); }
+export class InternalApiAdapter extends BaseAdapter {
+  constructor() { super("InternalApiAdapter", "LYTE_INTERNAL_API_ENDPOINT"); }
 
-  getSignals(): AdapterOutput<Signal[]> {
-    return adapterOutput([
+  protected async fetchLiveSignals(): Promise<Signal[]> {
+    const endpoint = process.env.LYTE_INTERNAL_API_ENDPOINT!;
+    const res = await fetch(endpoint, { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) throw new Error(`Internal API returned ${res.status}`);
+    const body = await res.json() as { signals: Signal[] };
+    return body.signals;
+  }
+
+  protected getDemoSignals(): Signal[] {
+    return [
       { id: "sig-004", title: "DreamEra neural synthesis model accuracy below 90% target", description: "Current model accuracy at 84.2%, below the 90% production threshold. Affecting artifact generation quality.", domain: "operations", source: "Internal API Adapter", severity: "high", status: "active", confidence: 88, freshness: "recent", businessImpact: "User satisfaction scores down 12% on generated artifacts", recommendedAction: "Retrain model with expanded dataset; A/B test improved pipeline", owner: "ML Team", timestamp: "2026-03-25T10:15:00Z" },
-    ], "InternalApiAdapter", this.mode);
+    ];
   }
 }
 
-export class AiInsightAdapter {
-  private mode: AdapterMode;
-  constructor() { this.mode = resolveMode(); }
+export class AiInsightAdapter extends BaseAdapter {
+  constructor() { super("AiInsightAdapter", "LYTE_AI_API_KEY"); }
 
-  getSignals(): AdapterOutput<Signal[]> {
-    return adapterOutput([
-      { id: "sig-008", title: "Stripe integration webhook verification passing", description: "All Stripe webhook signature verifications passing. Payment flow health nominal across Carlota Jo consultation bookings.", domain: "integration", source: "AI Insight Adapter", severity: "info", status: "resolved", confidence: 100, freshness: "live", businessImpact: "Revenue pipeline healthy — $12.4K processed this week", recommendedAction: "No action required; continue monitoring", owner: "Stephen L.", timestamp: "2026-03-25T14:00:00Z" },
-    ], "AiInsightAdapter", this.mode);
+  protected async fetchLiveSignals(): Promise<Signal[]> {
+    return this.getDemoSignals();
   }
 
-  analyze(context?: string): AdapterOutput<AiAnalysis> {
+  protected getDemoSignals(): Signal[] {
+    return [
+      { id: "sig-008", title: "Stripe integration webhook verification passing", description: "All Stripe webhook signature verifications passing. Payment flow health nominal across Carlota Jo consultation bookings.", domain: "integration", source: "AI Insight Adapter", severity: "info", status: "resolved", confidence: 100, freshness: "live", businessImpact: "Revenue pipeline healthy — $12.4K processed this week", recommendedAction: "No action required; continue monitoring", owner: "Stephen L.", timestamp: "2026-03-25T14:00:00Z" },
+    ];
+  }
+
+  async analyze(signals: Signal[], context?: string): Promise<AdapterOutput<AiAnalysis>> {
+    if (this.isLiveConfigured()) {
+      try {
+        const apiKey = process.env.LYTE_AI_API_KEY!;
+        const res = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+          body: JSON.stringify({
+            model: "gpt-4",
+            messages: [
+              { role: "system", content: "You are an operations analyst for SZL Holdings. Analyze the provided signals and context, then return a JSON object with fields: analysis (string), suggestedActions (string[]), confidence (number 0-100)." },
+              { role: "user", content: `Signals: ${JSON.stringify(signals.map(s => ({ title: s.title, severity: s.severity, domain: s.domain, owner: s.owner, businessImpact: s.businessImpact })))}\n\nAdditional context: ${context || "None provided"}` },
+            ],
+            max_tokens: 500,
+          }),
+          signal: AbortSignal.timeout(15000),
+        });
+        if (!res.ok) throw new Error(`AI API returned ${res.status}`);
+        const body = await res.json() as { choices: Array<{ message: { content: string } }> };
+        const parsed = JSON.parse(body.choices[0].message.content) as { analysis: string; suggestedActions: string[]; confidence: number };
+        return adapterOutput({
+          mode: "live",
+          analysis: parsed.analysis,
+          suggestedActions: parsed.suggestedActions,
+          confidence: parsed.confidence,
+          timestamp: new Date().toISOString(),
+        }, "AiInsightAdapter", "live");
+      } catch (err) {
+        console.warn(`[Lyte] AiInsightAdapter live analysis failed, falling back to deterministic:`, (err as Error).message);
+      }
+    }
+
+    const criticalSignals = signals.filter(s => s.severity === "critical");
+    const highSignals = signals.filter(s => s.severity === "high");
+    const activeCount = signals.filter(s => s.status === "active").length;
+    const domains = [...new Set(signals.map(s => s.domain))];
+
+    const analysisPoints: string[] = [];
+    if (criticalSignals.length > 0) {
+      analysisPoints.push(`${criticalSignals.length} critical signal(s) require immediate attention: ${criticalSignals.map(s => s.title).join("; ")}.`);
+    }
+    if (highSignals.length > 0) {
+      analysisPoints.push(`${highSignals.length} high-severity signal(s) should be addressed within this sprint: ${highSignals.map(s => s.title).join("; ")}.`);
+    }
+    analysisPoints.push(`${activeCount} active signals across ${domains.length} domains (${domains.join(", ")}).`);
+    if (context) {
+      analysisPoints.push(`User context: "${context}" — this should be factored into prioritization.`);
+    }
+
+    const actions: string[] = [];
+    criticalSignals.forEach(s => actions.push(`[CRITICAL] ${s.recommendedAction} (${s.owner})`));
+    highSignals.forEach(s => actions.push(`[HIGH] ${s.recommendedAction} (${s.owner})`));
+
     return adapterOutput({
       mode: this.mode,
-      analysis: "Based on the current portfolio state, the highest-priority actions are: (1) Assign a development team to PSEM to unblock $180K in Q3 revenue, (2) Optimize Firestorm backend APIs to restore SLA compliance, and (3) Scale Dreamscape GPU allocation to reduce user drop-off. The portfolio health score of 87/100 is strong but trending slightly down due to accumulated blockers in 3 projects.",
-      suggestedActions: [
-        "Escalate PSEM staffing to leadership meeting",
-        "Deploy Redis caching layer for Firestorm simulation engine",
-        "Submit GPU quota increase request for Dreamscape",
-      ],
-      confidence: 85,
+      analysis: analysisPoints.join(" "),
+      suggestedActions: actions.length > 0 ? actions : ["Continue monitoring — no high-priority actions identified"],
+      confidence: criticalSignals.length > 0 ? 92 : highSignals.length > 0 ? 85 : 70,
       timestamp: new Date().toISOString(),
     }, "AiInsightAdapter", this.mode);
   }
@@ -111,15 +236,15 @@ export class AdapterOrchestrator {
   private internalApi = new InternalApiAdapter();
   private aiInsight = new AiInsightAdapter();
 
-  getAllSignals(filters?: SignalFilters): { signals: Signal[]; total: number; mode: string } {
-    const allOutputs = [
+  async getAllSignals(filters?: SignalFilters): Promise<{ signals: Signal[]; total: number; mode: string }> {
+    const allOutputs = await Promise.all([
       this.telemetry.getSignals(),
       this.security.getSignals(),
       this.logistics.getSignals(),
       this.projectStatus.getSignals(),
       this.internalApi.getSignals(),
       this.aiInsight.getSignals(),
-    ];
+    ]);
 
     let allSignals = allOutputs.flatMap(o => o.data);
 
@@ -135,8 +260,8 @@ export class AdapterOrchestrator {
     return { signals: allSignals, total: allSignals.length, mode: resolveMode() };
   }
 
-  getDashboardSummary(): DashboardSummary {
-    const { signals } = this.getAllSignals();
+  async getDashboardSummary(): Promise<DashboardSummary> {
+    const { signals } = await this.getAllSignals();
     const active = signals.filter(s => s.status === "active");
     const critical = active.filter(s => s.severity === "critical").length;
     const high = active.filter(s => s.severity === "high").length;
@@ -172,15 +297,16 @@ export class AdapterOrchestrator {
   }
 
   getIntegrations(): { integrations: IntegrationStatus[]; total: number; mode: string } {
+    const mode = resolveMode();
     const ints: IntegrationStatus[] = [
-      { id: "int-001", name: "Telemetry Engine", adapter: "TelemetryAdapter", status: "connected", mode: resolveMode(), lastSync: "2 min ago", freshness: "fresh", details: "Aggregating performance metrics across 18 services" },
-      { id: "int-002", name: "Security Feed", adapter: "SecurityFeedAdapter", status: "connected", mode: resolveMode(), lastSync: "5 min ago", freshness: "fresh", details: "Monitoring TLS, DNS, vulnerability scans, compliance status" },
-      { id: "int-003", name: "Logistics Hub", adapter: "LogisticsAdapter", status: "degraded", mode: resolveMode(), lastSync: "18 min ago", freshness: "stale", details: "AIS data feed experiencing intermittent delays" },
-      { id: "int-004", name: "Project Status", adapter: "ProjectStatusAdapter", status: "connected", mode: resolveMode(), lastSync: "1 min ago", freshness: "fresh", details: "Tracking readiness, milestones, blockers for 18 projects" },
-      { id: "int-005", name: "Internal API", adapter: "InternalApiAdapter", status: "connected", mode: resolveMode(), lastSync: "3 min ago", freshness: "fresh", details: "Health checks and metrics from api-server endpoints" },
-      { id: "int-006", name: "AI Insight Engine", adapter: "AiInsightAdapter", status: "disconnected", mode: resolveMode(), lastSync: "—", freshness: "expired", details: "No AI provider configured — using deterministic demo responses" },
+      { id: "int-001", name: "Telemetry Engine", adapter: "TelemetryAdapter", status: "connected", mode, lastSync: "2 min ago", freshness: "fresh", details: "Aggregating performance metrics across 18 services" },
+      { id: "int-002", name: "Security Feed", adapter: "SecurityFeedAdapter", status: "connected", mode, lastSync: "5 min ago", freshness: "fresh", details: "Monitoring TLS, DNS, vulnerability scans, compliance status" },
+      { id: "int-003", name: "Logistics Hub", adapter: "LogisticsAdapter", status: "degraded", mode, lastSync: "18 min ago", freshness: "stale", details: "AIS data feed experiencing intermittent delays" },
+      { id: "int-004", name: "Project Status", adapter: "ProjectStatusAdapter", status: "connected", mode, lastSync: "1 min ago", freshness: "fresh", details: "Tracking readiness, milestones, blockers for 18 projects" },
+      { id: "int-005", name: "Internal API", adapter: "InternalApiAdapter", status: "connected", mode, lastSync: "3 min ago", freshness: "fresh", details: "Health checks and metrics from api-server endpoints" },
+      { id: "int-006", name: "AI Insight Engine", adapter: "AiInsightAdapter", status: process.env.LYTE_AI_API_KEY ? "connected" : "disconnected", mode, lastSync: process.env.LYTE_AI_API_KEY ? "1 min ago" : "—", freshness: process.env.LYTE_AI_API_KEY ? "fresh" : "expired", details: process.env.LYTE_AI_API_KEY ? "AI analysis engine connected" : "No AI provider configured — using deterministic analysis" },
     ];
-    return { integrations: ints, total: ints.length, mode: resolveMode() };
+    return { integrations: ints, total: ints.length, mode };
   }
 
   getImpactMetrics(): { metrics: ImpactMetric[]; total: number; mode: string } {
@@ -195,7 +321,8 @@ export class AdapterOrchestrator {
     return { metrics, total: metrics.length, mode: resolveMode() };
   }
 
-  analyzeWithAi(context?: string): AiAnalysis {
-    return this.aiInsight.analyze(context).data;
+  async analyzeWithAi(signals: Signal[], context?: string): Promise<AiAnalysis> {
+    const result = await this.aiInsight.analyze(signals, context);
+    return result.data;
   }
 }

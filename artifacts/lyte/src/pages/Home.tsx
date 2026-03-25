@@ -315,13 +315,13 @@ export default function Home() {
       </nav>
 
       <div className="max-w-[1500px] mx-auto px-4 sm:px-6 py-6">
-        {activeTab === "dashboard" && (loading.dashboard ? <LoadingSpinner /> : errors.dashboard ? <ErrorMessage message={errors.dashboard} onRetry={loadDashboard} /> : <DashboardTab healthScore={healthScore} avgReadiness={avgReadiness} deployed={deployed} criticals={criticals} attentionNeeded={attentionNeeded} activeSignals={activeSignalCount} signals={signals} projects={portfolioProjects} onSignalClick={setDrawerSignal} onProjectClick={setDrawerProject} />)}
+        {activeTab === "dashboard" && (loading.dashboard ? <LoadingSpinner /> : errors.dashboard ? <ErrorMessage message={errors.dashboard} onRetry={loadDashboard} /> : <DashboardTab healthScore={healthScore} avgReadiness={avgReadiness} deployed={deployed} criticals={criticals} attentionNeeded={attentionNeeded} activeSignals={activeSignalCount} signals={signals} projects={portfolioProjects} onSignalClick={setDrawerSignal} onProjectClick={setDrawerProject} mode={platformMode} />)}
         {activeTab === "signals" && (loading.signals ? <LoadingSpinner /> : errors.signals ? <ErrorMessage message={errors.signals} onRetry={loadSignals} /> : <SignalsTab signals={filteredSignals} filter={signalFilter} setFilter={setSignalFilter} search={searchQuery} setSearch={setSearchQuery} onSignalClick={setDrawerSignal} sources={uniqueSources} owners={uniqueOwners} />)}
         {activeTab === "recommendations" && (loading.recommendations ? <LoadingSpinner /> : errors.recommendations ? <ErrorMessage message={errors.recommendations} onRetry={loadRecommendations} /> : <RecommendationsTab recommendations={recommendations} actionStates={actionStates} onAction={handleAction} mode={platformMode} />)}
         {activeTab === "impact" && (loading.impact ? <LoadingSpinner /> : errors.impact ? <ErrorMessage message={errors.impact} onRetry={loadImpact} /> : <ImpactTab metrics={impactMetrics} />)}
         {activeTab === "portfolio" && <PortfolioTab projects={sortedProjects} sort={portfolioSort} setSort={setPortfolioSort} filter={portfolioFilter} setFilter={setPortfolioFilter} onProjectClick={setDrawerProject} />}
         {activeTab === "integrations" && (loading.integrations ? <LoadingSpinner /> : errors.integrations ? <ErrorMessage message={errors.integrations} onRetry={loadIntegrations} /> : <IntegrationsTab integrations={integrations} />)}
-        {activeTab === "settings" && <SettingsTab integrations={integrations} />}
+        {activeTab === "settings" && <SettingsTab integrations={integrations} mode={platformMode} />}
       </div>
 
       <AnimatePresence>
@@ -347,9 +347,10 @@ interface DashboardTabProps {
   projects: PortfolioProject[];
   onSignalClick: (signal: SignalItem) => void;
   onProjectClick: (project: PortfolioProject) => void;
+  mode: string;
 }
 
-function DashboardTab({ healthScore, avgReadiness, deployed, criticals, attentionNeeded, activeSignals, signals, projects, onSignalClick, onProjectClick }: DashboardTabProps) {
+function DashboardTab({ healthScore, avgReadiness, deployed, criticals, attentionNeeded, activeSignals, signals, projects, onSignalClick, onProjectClick, mode }: DashboardTabProps) {
   return (
     <>
       <Section className="mb-6">
@@ -362,7 +363,7 @@ function DashboardTab({ healthScore, avgReadiness, deployed, criticals, attentio
             <div className="flex items-center gap-3">
               <div className="text-right">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Mode</p>
-                <span className="text-xs font-mono text-amber-400">Demo</span>
+                <span className={`text-xs font-mono ${mode === "live" ? "text-emerald-400" : "text-amber-400"}`}>{mode === "live" ? "Live" : "Demo"}</span>
               </div>
               <div className="w-px h-8 bg-border" />
               <div className="text-right">
@@ -869,7 +870,7 @@ function IntegrationsTab({ integrations }: { integrations: IntegrationStatus[] }
   );
 }
 
-function SettingsTab({ integrations }: { integrations: IntegrationStatus[] }) {
+function SettingsTab({ integrations, mode }: { integrations: IntegrationStatus[]; mode: string }) {
   return (
     <>
       <Section className="mb-4">
@@ -888,7 +889,7 @@ function SettingsTab({ integrations }: { integrations: IntegrationStatus[] }) {
                 { label: "API Server", value: "Healthy", ok: true },
                 { label: "Database (PostgreSQL)", value: "Connected", ok: true },
                 { label: "Build Pipeline", value: "All passing", ok: true },
-                { label: "AI Insight Engine", value: "Demo mode", ok: false },
+                { label: "AI Insight Engine", value: mode === "live" ? "Connected" : "Demo mode", ok: mode === "live" },
                 { label: "Error Rate (24h)", value: "0.02%", ok: true },
                 { label: "Uptime (30d)", value: "99.94%", ok: true },
               ].map(item => (
@@ -909,7 +910,7 @@ function SettingsTab({ integrations }: { integrations: IntegrationStatus[] }) {
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Environment</h3>
             <div className="space-y-3">
               {[
-                { label: "Mode", value: "Demo (synthetic data)" },
+                { label: "Mode", value: mode === "live" ? "Live (real-time data)" : "Demo (synthetic data)" },
                 { label: "AI Provider", value: "Not configured" },
                 { label: "Region", value: "US East" },
                 { label: "Node.js", value: "v20.x" },
