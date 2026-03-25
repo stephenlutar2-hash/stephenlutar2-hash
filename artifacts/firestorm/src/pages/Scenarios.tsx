@@ -44,8 +44,14 @@ export default function Scenarios() {
   const loadData = useCallback(async () => {
     const s = await fetchScenarios();
     setScenarios(s);
-    if (!selected && s.length > 0) setSelected(s[0]);
-  }, [selected]);
+    setSelected((prev) => {
+      if (prev) {
+        const updated = s.find((sc: Scenario) => sc.id === prev.id);
+        return updated || s[0] || null;
+      }
+      return s[0] || null;
+    });
+  }, []);
 
   useEffect(() => { loadData(); }, [loadData]);
 
