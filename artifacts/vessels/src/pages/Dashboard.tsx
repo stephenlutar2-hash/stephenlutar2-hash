@@ -28,8 +28,11 @@ import Synthetics from "./Synthetics";
 import AppliedIntelligence from "./AppliedIntelligence";
 import EmissionsDashboard from "./EmissionsDashboard";
 import ImportCenter from "./ImportCenter";
+import MaritimeIntel from "./MaritimeIntel";
+import DocumentProcessing from "./DocumentProcessing";
+import SignalIntelligence from "./SignalIntelligence";
 
-type Section = "command-center" | "apm" | "infrastructure" | "logs" | "experience" | "synthetics" | "intelligence" | "emissions" | "import";
+type Section = "command-center" | "apm" | "infrastructure" | "logs" | "experience" | "synthetics" | "intelligence" | "emissions" | "import" | "maritime-intel" | "doc-processing" | "signal-intel";
 
 const SECTIONS: { id: Section; label: string; icon: any; color: string }[] = [
   { id: "command-center", label: "Command Center", icon: LayoutDashboard, color: "text-cyan-400" },
@@ -41,6 +44,9 @@ const SECTIONS: { id: Section; label: string; icon: any; color: string }[] = [
   { id: "emissions", label: "CO₂ & Emissions", icon: Flame, color: "text-orange-400" },
   { id: "intelligence", label: "Applied Intelligence", icon: Brain, color: "text-rose-400" },
   { id: "import", label: "Import Center", icon: Upload, color: "text-sky-400" },
+  { id: "maritime-intel", label: "Maritime Intel", icon: Bell, color: "text-cyan-400" },
+  { id: "doc-processing", label: "Doc Processing", icon: ScrollText, color: "text-blue-400" },
+  { id: "signal-intel", label: "Signal Intelligence", icon: Activity, color: "text-amber-400" },
 ];
 
 const SECTION_MAP: Record<Section, React.ComponentType> = {
@@ -53,6 +59,9 @@ const SECTION_MAP: Record<Section, React.ComponentType> = {
   emissions: EmissionsDashboard,
   intelligence: AppliedIntelligence,
   import: ImportCenter,
+  "maritime-intel": MaritimeIntel,
+  "doc-processing": DocumentProcessing,
+  "signal-intel": SignalIntelligence,
 };
 
 function statusDotColor(status: string) {

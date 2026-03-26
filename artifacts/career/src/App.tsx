@@ -1,6 +1,7 @@
 import { Switch, Route, Router as WouterRouter } from "wouter";
 import Home from "@/pages/Home";
 import ImportCenter from "@/pages/ImportCenter";
+import SkillsRadar from "@/pages/SkillsRadar";
 import AgentChat from "@/components/AgentChat";
 
 function Router() {
@@ -8,6 +9,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/import" component={ImportCenter} />
+      <Route path="/skills-radar" component={SkillsRadar} />
       <Route>
         <div className="min-h-screen flex items-center justify-center">
           <p className="text-muted-foreground">Page not found</p>

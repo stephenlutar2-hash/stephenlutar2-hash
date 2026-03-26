@@ -10,6 +10,7 @@ import Login from "@/pages/Login";
 import Dashboard from "@/pages/Dashboard";
 import AlloyChat from "@/pages/AlloyChat";
 import ImportCenter from "@/pages/ImportCenter";
+import ThreatIntelFeed from "@/pages/ThreatIntelFeed";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +44,7 @@ function Router() {
         <Route path="/dashboard">{() => <AnimatedRoute component={Dashboard} />}</Route>
         <Route path="/alloy">{() => <AnimatedRoute component={AlloyChat} />}</Route>
         <Route path="/import">{() => <AnimatedRoute component={ImportCenter} />}</Route>
+        <Route path="/threat-intel">{() => <AnimatedRoute component={ThreatIntelFeed} />}</Route>
         <Route component={NotFound} />
       </Switch>
     </AnimatePresence>

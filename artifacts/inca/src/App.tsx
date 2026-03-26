@@ -9,6 +9,9 @@ import Experiments from "@/pages/Experiments";
 import Insights from "@/pages/Insights";
 import Models from "@/pages/Models";
 import ImportCenter from "@/pages/ImportCenter";
+import ResearchFeed from "@/pages/ResearchFeed";
+import DocumentIntelligence from "@/pages/DocumentIntelligence";
+import DiscoveryRadar from "@/pages/DiscoveryRadar";
 import { DomainChatWidget } from "@szl-holdings/ui";
 
 const queryClient = new QueryClient();
@@ -27,6 +30,9 @@ function Router() {
             <Route path="/insights" component={Insights} />
             <Route path="/models" component={Models} />
             <Route path="/import" component={ImportCenter} />
+            <Route path="/research-feed" component={ResearchFeed} />
+            <Route path="/document-intelligence" component={DocumentIntelligence} />
+            <Route path="/discovery-radar" component={DiscoveryRadar} />
             <Route>
               <Dashboard />
             </Route>

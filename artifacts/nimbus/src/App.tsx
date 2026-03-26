@@ -6,6 +6,7 @@ import { ErrorBoundary, AuthGuard } from "@szl-holdings/platform";
 import { Layout } from "@/components/Layout";
 import Predictions from "@/pages/Predictions";
 import Alerts from "@/pages/Alerts";
+import EnsembleStudio from "@/pages/EnsembleStudio";
 import Login from "@/pages/Login";
 import NotFound from "@/pages/not-found";
 import ImportCenter from "@/pages/ImportCenter";
@@ -26,6 +27,7 @@ function Router() {
       <Route path="/">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Layout><Predictions /></Layout></AuthGuard>}</Route>
       <Route path="/alerts">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Layout><Alerts /></Layout></AuthGuard>}</Route>
       <Route path="/import">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Layout><ImportCenter /></Layout></AuthGuard>}</Route>
+      <Route path="/ensemble">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Layout><EnsembleStudio /></Layout></AuthGuard>}</Route>
       <Route component={NotFound} />
     </Switch>
   );

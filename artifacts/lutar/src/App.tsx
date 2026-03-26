@@ -7,6 +7,7 @@ import Landing from "@/pages/Landing";
 import Dashboard from "@/pages/Dashboard";
 import Login from "@/pages/Login";
 import ImportCenter from "@/pages/ImportCenter";
+import FinancialResearch from "@/pages/FinancialResearch";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -18,6 +19,7 @@ function Router() {
       <Route path="/" component={Landing} />
       <Route path="/dashboard">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Dashboard /></AuthGuard>}</Route>
       <Route path="/import">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><ImportCenter /></AuthGuard>}</Route>
+      <Route path="/financial-research">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><FinancialResearch /></AuthGuard>}</Route>
       <Route component={NotFound} />
     </Switch>
   );

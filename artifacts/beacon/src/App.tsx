@@ -11,6 +11,8 @@ import Zeus from "./pages/Zeus";
 import Inca from "./pages/Inca";
 import DreamEra from "./pages/DreamEra";
 import ImportCenter from "./pages/ImportCenter";
+import AnomalyCorrelation from "./pages/AnomalyCorrelation";
+import TrendForecasting from "./pages/TrendForecasting";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +47,8 @@ function Router() {
         <Route path="/inca">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><AnimatedRoute><Inca /></AnimatedRoute></AuthGuard>}</Route>
         <Route path="/dreamera">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><AnimatedRoute><DreamEra /></AnimatedRoute></AuthGuard>}</Route>
         <Route path="/import">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><AnimatedRoute><ImportCenter /></AnimatedRoute></AuthGuard>}</Route>
+        <Route path="/anomaly-correlation">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><AnimatedRoute><AnomalyCorrelation /></AnimatedRoute></AuthGuard>}</Route>
+        <Route path="/trend-forecasting">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><AnimatedRoute><TrendForecasting /></AnimatedRoute></AuthGuard>}</Route>
         <Route component={NotFound} />
       </Switch>
     </AnimatePresence>
