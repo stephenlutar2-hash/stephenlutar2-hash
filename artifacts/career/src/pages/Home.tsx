@@ -146,11 +146,16 @@ const skills = [
 ];
 
 export default function Home() {
+  const API_BASE = import.meta.env.VITE_API_URL || "/api";
   const [formData, setFormData] = useState({ name: "", email: "", purpose: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
+  const [formLoading, setFormLoading] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const [accessRequest, setAccessRequest] = useState<string | null>(null);
   const [accessForm, setAccessForm] = useState({ name: "", email: "", company: "", reason: "" });
   const [accessSubmitted, setAccessSubmitted] = useState(false);
+  const [accessLoading, setAccessLoading] = useState(false);
+  const [accessError, setAccessError] = useState<string | null>(null);
   const [isDark, setIsDark] = useState(true);
 
   useEffect(() => {
@@ -158,18 +163,63 @@ export default function Home() {
     return () => document.documentElement.classList.remove("light-mode");
   }, [isDark]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 4000);
-    setFormData({ name: "", email: "", purpose: "", message: "" });
+    setFormLoading(true);
+    setFormError(null);
+    try {
+      const res = await fetch(`${API_BASE}/contact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          inquiryType: formData.purpose,
+          message: formData.message,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.details || data?.message || `Request failed (${res.status})`);
+      }
+      setSubmitted(true);
+      setFormData({ name: "", email: "", purpose: "", message: "" });
+      setTimeout(() => setSubmitted(false), 4000);
+    } catch (err: unknown) {
+      setFormError(err instanceof Error ? err.message : "Failed to send message. Please try again.");
+    } finally {
+      setFormLoading(false);
+    }
   };
 
-  const handleAccessRequest = (e: React.FormEvent) => {
+  const handleAccessRequest = async (e: React.FormEvent) => {
     e.preventDefault();
-    setAccessSubmitted(true);
-    setTimeout(() => { setAccessSubmitted(false); setAccessRequest(null); }, 3000);
-    setAccessForm({ name: "", email: "", company: "", reason: "" });
+    setAccessLoading(true);
+    setAccessError(null);
+    try {
+      const res = await fetch(`${API_BASE}/contact/access-request`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: accessForm.name,
+          email: accessForm.email,
+          company: accessForm.company || undefined,
+          reason: accessForm.reason,
+          requestedApp: accessRequest,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.details || data?.message || `Request failed (${res.status})`);
+      }
+      setAccessSubmitted(true);
+      setAccessForm({ name: "", email: "", company: "", reason: "" });
+      setTimeout(() => { setAccessSubmitted(false); setAccessRequest(null); }, 3000);
+    } catch (err: unknown) {
+      setAccessError(err instanceof Error ? err.message : "Failed to submit request. Please try again.");
+    } finally {
+      setAccessLoading(false);
+    }
   };
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -672,9 +722,16 @@ export default function Home() {
                   <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider block mb-1.5">Reason for Access</label>
                   <textarea required value={accessForm.reason} onChange={e => setAccessForm(p => ({ ...p, reason: e.target.value }))} rows={3} className="w-full px-4 py-2.5 rounded-lg bg-muted border border-border text-sm text-foreground focus:outline-none focus:border-gold/40 transition resize-none" />
                 </div>
+                {accessError && (
+                  <div className="px-4 py-2.5 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+                    {accessError}
+                  </div>
+                )}
                 <div className="flex gap-3 pt-2">
-                  <button type="button" onClick={() => setAccessRequest(null)} className="flex-1 py-2.5 rounded-lg border border-border text-sm font-medium text-muted-foreground hover:bg-muted/50 transition">Cancel</button>
-                  <button type="submit" className="flex-1 py-2.5 rounded-lg bg-gold text-background text-sm font-semibold hover:bg-gold/90 transition">Submit Request</button>
+                  <button type="button" onClick={() => { setAccessRequest(null); setAccessError(null); }} className="flex-1 py-2.5 rounded-lg border border-border text-sm font-medium text-muted-foreground hover:bg-muted/50 transition">Cancel</button>
+                  <button type="submit" disabled={accessLoading || accessSubmitted} className="flex-1 py-2.5 rounded-lg bg-gold text-background text-sm font-semibold hover:bg-gold/90 transition disabled:opacity-60 disabled:cursor-not-allowed">
+                    {accessLoading ? "Submitting..." : "Submit Request"}
+                  </button>
                 </div>
               </form>
             )}
@@ -769,8 +826,13 @@ export default function Home() {
                 <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider block mb-2">Message</label>
                 <textarea value={formData.message} onChange={e => setFormData(p => ({ ...p, message: e.target.value }))} rows={5} className="w-full px-4 py-3 rounded-lg bg-muted border border-border text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-gold/40 transition resize-none" placeholder="Tell me about your project, opportunity, or how I can help..." required />
               </div>
-              <button type="submit" className="w-full py-3.5 rounded-lg bg-gold text-background font-semibold text-sm tracking-wide hover:bg-gold/90 transition flex items-center justify-center gap-2">
-                {submitted ? <>Message Sent <CheckCircle className="w-4 h-4" /></> : <>Send Message <Send className="w-4 h-4" /></>}
+              {formError && (
+                <div className="mb-4 px-4 py-2.5 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+                  {formError}
+                </div>
+              )}
+              <button type="submit" disabled={formLoading || submitted} className="w-full py-3.5 rounded-lg bg-gold text-background font-semibold text-sm tracking-wide hover:bg-gold/90 transition flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
+                {formLoading ? <>Sending...</> : submitted ? <>Message Sent <CheckCircle className="w-4 h-4" /></> : <>Send Message <Send className="w-4 h-4" /></>}
               </button>
             </form>
           </AnimatedSection>
