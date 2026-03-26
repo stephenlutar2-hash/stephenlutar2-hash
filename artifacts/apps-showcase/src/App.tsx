@@ -1,4 +1,4 @@
-import { CommandPalette, useAppCommands, SocialShareWidget } from "@szl-holdings/ui";
+import { CommandPalette, useAppCommands, SocialShareWidget , EcosystemBar } from "@szl-holdings/ui";
 import {Switch, Route, Router as WouterRouter, useLocation} from "wouter";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
@@ -9,6 +9,7 @@ import Extensions from "@/pages/Extensions";
 function Router() {
   return (
     <Switch>
+          <EcosystemBar currentApp="Apps Showcase" />
       <Route path="/" component={Home} />
       <Route path="/catalog" component={Catalog} />
       <Route path="/live-demos" component={LiveDemos} />

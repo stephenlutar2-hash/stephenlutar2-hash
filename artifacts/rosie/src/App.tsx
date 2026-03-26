@@ -1,7 +1,7 @@
 import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { Toaster, CommandPalette, useAppCommands, SocialShareWidget } from "@szl-holdings/ui";
+import { Toaster, CommandPalette, useAppCommands, SocialShareWidget , EcosystemBar } from "@szl-holdings/ui";
 import { TooltipProvider } from "@szl-holdings/ui";
 import { ErrorBoundary } from "@szl-holdings/platform";
 import NotFound from "@/pages/not-found";
@@ -80,6 +80,7 @@ function App() {
             <DemoBanner />
             <Router />
           </WouterRouter>
+          <EcosystemBar currentApp="ROSIE" />
           <Toaster />
           <SocialShareWidget
             appName="ROSIE Cybersecurity"

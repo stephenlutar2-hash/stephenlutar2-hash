@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { CommandPalette, useAppCommands, SocialShareWidget } from "@szl-holdings/ui";
+import { CommandPalette, useAppCommands, SocialShareWidget , EcosystemBar } from "@szl-holdings/ui";
 import { Switch, Route, Router as WouterRouter, Redirect, useLocation } from "wouter";
 import { AuthGuard } from "@szl-holdings/platform";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -29,6 +29,7 @@ const queryClient = new QueryClient();
 function SectionFallback() {
   return (
     <div className="flex items-center justify-center h-96">
+          <EcosystemBar currentApp="DreamEra" />
       <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
     </div>
   );

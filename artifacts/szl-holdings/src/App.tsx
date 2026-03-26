@@ -4,7 +4,7 @@ import Navigation from "./components/Navigation";
 import Hero from "./sections/Hero";
 import Footer from "./components/Footer";
 import ImportCenter from "./pages/ImportCenter";
-import { DomainChatWidget, CommandPalette, useAppCommands, SocialShareWidget } from "@szl-holdings/ui";
+import { DomainChatWidget, CommandPalette, useAppCommands, SocialShareWidget , EcosystemBar } from "@szl-holdings/ui";
 
 const PressKit = lazy(() => import("./pages/PressKit"));
 
@@ -29,6 +29,7 @@ function SectionFallback() {
 function LandingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
+          <EcosystemBar currentApp="SZL Holdings" />
       <Navigation />
       <main>
         <Hero />

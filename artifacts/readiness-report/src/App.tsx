@@ -1,4 +1,4 @@
-import { CommandPalette, useAppCommands, SocialShareWidget } from "@szl-holdings/ui";
+import { CommandPalette, useAppCommands, SocialShareWidget , EcosystemBar } from "@szl-holdings/ui";
 import {Switch, Route, Router as WouterRouter, useLocation} from "wouter";
 import Home from "@/pages/Home";
 import PredictiveReadiness from "@/pages/PredictiveReadiness";
@@ -8,6 +8,7 @@ import Extensions from "@/pages/Extensions";
 function Router() {
   return (
     <Switch>
+          <EcosystemBar currentApp="Readiness Report" />
       <Route path="/" component={Home} />
       <Route path="/predictive-readiness" component={PredictiveReadiness} />
       <Route path="/extensions" component={Extensions} />

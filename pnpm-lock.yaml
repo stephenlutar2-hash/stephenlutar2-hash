@@ -1628,6 +1628,9 @@ importers:
       '@szl-holdings/domain-utils':
         specifier: workspace:*
         version: link:../../lib/domain-utils
+      '@szl-holdings/platform':
+        specifier: workspace:*
+        version: link:../../lib/platform
       '@szl-holdings/ui':
         specifier: workspace:*
         version: link:../../lib/ui

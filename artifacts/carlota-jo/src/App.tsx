@@ -6,12 +6,13 @@ import Pipeline from "@/pages/Pipeline";
 import MeetingIntelligence from "@/pages/MeetingIntelligence";
 import ClientDossier from "@/pages/ClientDossier";
 import NotFound from "@/pages/not-found";
-import { DomainChatWidget, CommandPalette, useAppCommands, SocialShareWidget } from "@szl-holdings/ui";
+import { DomainChatWidget, CommandPalette, useAppCommands, SocialShareWidget , EcosystemBar } from "@szl-holdings/ui";
 import Extensions from "@/pages/Extensions";
 
 function Router() {
   return (
     <Switch>
+          <EcosystemBar currentApp="Carlota Jo" />
       <Route path="/" component={Home} />
       <Route path="/consultation" component={Consultation} />
       <Route path="/import" component={ImportCenter} />

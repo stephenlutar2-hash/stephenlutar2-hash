@@ -1,4 +1,4 @@
-import { CommandPalette, useAppCommands, SocialShareWidget } from "@szl-holdings/ui";
+import { CommandPalette, useAppCommands, SocialShareWidget , EcosystemBar } from "@szl-holdings/ui";
 import {Switch, Route, Router as WouterRouter, Redirect, useLocation} from "wouter";
 import { AuthGuard } from "@szl-holdings/platform";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -18,6 +18,7 @@ const queryClient = new QueryClient();
 function Router() {
   return (
     <Switch>
+          <EcosystemBar currentApp="Zeus" />
       <Route path="/login" component={Login} />
       <Route path="/dashboard">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Dashboard /></AuthGuard>}</Route>
       <Route path="/import">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><ImportCenter /></AuthGuard>}</Route>

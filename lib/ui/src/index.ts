@@ -78,6 +78,10 @@ export type { CommandAction } from "./components/command-palette";
 // Import & Data Integration
 export * from "./components/import";
 
+// Ecosystem Bar
+export { EcosystemBar } from "./components/ecosystem-bar";
+export type { EcosystemBarProps } from "./components/ecosystem-bar";
+
 // Social Media Widget
 export { SocialShareWidget, ShareContentButton, CarouselLauncherButton, PlatformStatusBadge, SocialFeedWidget } from "./components/social-widget";
 export type { SocialWidgetProps, ShareButtonProps, CarouselLauncherProps, PlatformStatusBadgeProps, SocialFeedWidgetProps } from "./components/social-widget";

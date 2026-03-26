@@ -1,4 +1,4 @@
-import { CommandPalette, useAppCommands, SocialShareWidget } from "@szl-holdings/ui";
+import { CommandPalette, useAppCommands, SocialShareWidget , EcosystemBar } from "@szl-holdings/ui";
 import {Switch, Route, Router as WouterRouter, Redirect, useLocation} from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DomainChatWidget } from "@szl-holdings/ui";
@@ -26,6 +26,7 @@ function AuthGuard({ component: Component }: { component: React.ComponentType })
 function Router() {
   return (
     <Switch>
+          <EcosystemBar currentApp="Dreamscape" />
       <Route path="/login" component={Login} />
       <Route path="/dashboard">{() => <AuthGuard component={Dashboard} />}</Route>
       <Route path="/explore">{() => <AuthGuard component={Explorer} />}</Route>

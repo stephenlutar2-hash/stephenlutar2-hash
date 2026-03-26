@@ -1,4 +1,4 @@
-import { CommandPalette, useAppCommands, DomainChatWidget, SocialShareWidget } from "@szl-holdings/ui";
+import { CommandPalette, useAppCommands, DomainChatWidget, SocialShareWidget , EcosystemBar } from "@szl-holdings/ui";
 import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import Home from "@/pages/Home";
 import ImportCenter from "@/pages/ImportCenter";
@@ -8,6 +8,7 @@ import Extensions from "@/pages/Extensions";
 function Router() {
   return (
     <Switch>
+          <EcosystemBar currentApp="Lyte" />
       <Route path="/" component={Home} />
       <Route path="/import" component={ImportCenter} />
       <Route path="/cost-intelligence" component={CostIntelligence} />

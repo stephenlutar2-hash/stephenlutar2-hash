@@ -18,7 +18,7 @@ import ImportCenter from "@/pages/ImportCenter";
 import ResearchFeed from "@/pages/ResearchFeed";
 import DocumentIntelligence from "@/pages/DocumentIntelligence";
 import DiscoveryRadar from "@/pages/DiscoveryRadar";
-import { DomainChatWidget, CommandPalette, useAppCommands, SocialShareWidget } from "@szl-holdings/ui";
+import { DomainChatWidget, CommandPalette, useAppCommands, SocialShareWidget , EcosystemBar } from "@szl-holdings/ui";
 import Extensions from "@/pages/Extensions";
 
 const queryClient = new QueryClient();
@@ -26,6 +26,7 @@ const queryClient = new QueryClient();
 function Router() {
   return (
     <div className="flex min-h-screen">
+          <EcosystemBar currentApp="INCA" />
       <Sidebar />
       <main className="flex-1 md:ml-64 p-4 sm:p-6 lg:p-8 overflow-auto pb-20 md:pb-8">
         <AnimatePresence mode="wait">

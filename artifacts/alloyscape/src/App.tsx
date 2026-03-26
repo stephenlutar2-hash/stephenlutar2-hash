@@ -1,4 +1,4 @@
-import { CommandPalette, useAppCommands, SocialShareWidget } from "@szl-holdings/ui";
+import { CommandPalette, useAppCommands, SocialShareWidget , EcosystemBar } from "@szl-holdings/ui";
 import {Switch, Route, Router as WouterRouter, Redirect, useLocation} from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DomainChatWidget } from "@szl-holdings/ui";
@@ -22,6 +22,7 @@ function DemoBanner() {
   if (!isDemo) return null;
   return (
     <div className="fixed top-0 left-0 right-0 z-[9999] bg-gradient-to-r from-cyan-600 to-blue-500 text-white text-center py-2 px-4 text-sm font-semibold">
+          <EcosystemBar currentApp="AlloyScape" />
       Demo Mode — <button onClick={() => { localStorage.removeItem("szl_demo_mode"); localStorage.removeItem("szl_token"); localStorage.removeItem("szl_user"); window.location.href = import.meta.env.BASE_URL + "login"; }} className="underline ml-1">Sign up for full access</button>
     </div>
   );

@@ -1,7 +1,7 @@
 import { Switch, Route, Router as WouterRouter, Redirect, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { Toaster, DomainChatWidget, CommandPalette, useAppCommands, SocialShareWidget } from "@szl-holdings/ui";
+import { Toaster, DomainChatWidget, CommandPalette, useAppCommands, SocialShareWidget , EcosystemBar } from "@szl-holdings/ui";
 import { TooltipProvider } from "@szl-holdings/ui";
 import { ErrorBoundary, AuthGuard } from "@szl-holdings/platform";
 import NotFound from "@/pages/not-found";
@@ -88,6 +88,7 @@ function App() {
             <DemoBanner />
             <Router />
           </WouterRouter>
+          <EcosystemBar currentApp="Beacon" />
           <Toaster />
           <SocialShareWidget
             appName="Beacon Analytics"
