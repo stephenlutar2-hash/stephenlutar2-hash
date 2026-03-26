@@ -1,13 +1,15 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useIncaProjects, useExperiments, useMutateExperiments } from "@/hooks/use-inca";
 import ExperimentModal from "@/components/ExperimentModal";
 import { Link } from "wouter";
-import { FlaskConical, Plus, Search, Filter, ArrowUpDown } from "lucide-react";
+import { FlaskConical, Plus, Search, Filter, ArrowUpDown, CheckCircle2, AlertCircle, Clock, ChevronDown, ChevronUp } from "lucide-react";
 import type { CreateIncaExperimentStatus } from "@workspace/api-client-react";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell
 } from "recharts";
+import AnimatedCounter from "@/components/AnimatedCounter";
+import { SkeletonChart, SkeletonRow } from "@/components/SkeletonLoader";
 
 const statusColors: Record<string, string> = {
   running: "bg-amber-500/10 text-amber-400 border-amber-500/20",
@@ -21,6 +23,18 @@ const barColors: Record<string, string> = {
   failed: "hsl(0, 84%, 60%)",
 };
 
+const statusIcons: Record<string, typeof CheckCircle2> = {
+  completed: CheckCircle2,
+  running: Clock,
+  failed: AlertCircle,
+};
+
+const pageTransition = {
+  initial: { opacity: 0, y: 16 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const }
+};
+
 export default function Experiments() {
   const { data: projects } = useIncaProjects();
   const { data: experiments, isLoading } = useExperiments();
@@ -30,6 +44,7 @@ export default function Experiments() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortBy, setSortBy] = useState<"date" | "accuracy">("date");
   const [expModal, setExpModal] = useState<{ isOpen: boolean; projectId: number }>({ isOpen: false, projectId: 0 });
+  const [expandedId, setExpandedId] = useState<number | null>(null);
 
   const filtered = experiments
     ?.filter(e => {
@@ -49,6 +64,11 @@ export default function Experiments() {
     status: exp.status,
   }));
 
+  const totalExps = experiments?.length || 0;
+  const completedCount = experiments?.filter(e => e.status === "completed").length || 0;
+  const runningCount = experiments?.filter(e => e.status === "running").length || 0;
+  const failedCount = experiments?.filter(e => e.status === "failed").length || 0;
+
   const handleExpSubmit = (data: { projectId: number; name: string; hypothesis: string; result: string; status: CreateIncaExperimentStatus; accuracy: number }) => {
     create.mutate({ data });
     setExpModal({ isOpen: false, projectId: 0 });
@@ -57,37 +77,67 @@ export default function Experiments() {
   const defaultProjectId = projects?.[0]?.id || 0;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="space-y-6 max-w-7xl"
-    >
+    <motion.div {...pageTransition} className="space-y-6 max-w-7xl">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-display font-bold text-white">Experiments</h2>
           <p className="text-muted-foreground mt-1 text-sm">Track and compare experiment outcomes</p>
         </div>
         {projects && projects.length > 0 && (
-          <button
+          <motion.button
             onClick={() => setExpModal({ isOpen: true, projectId: defaultProjectId })}
             className="flex items-center gap-2 px-4 py-2.5 bg-violet/15 text-violet border border-violet/30 rounded-lg hover:bg-violet hover:text-white font-medium text-sm transition-all glow-violet"
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
           >
             <Plus className="w-4 h-4" />
             New Experiment
-          </button>
+          </motion.button>
         )}
       </div>
 
-      {comparisonData.length > 0 && (
+      <div className="grid grid-cols-3 gap-4">
+        {[
+          { label: "Completed", value: completedCount, color: "text-emerald", icon: CheckCircle2, borderColor: "border-emerald/20", gradient: "from-emerald/10" },
+          { label: "Running", value: runningCount, color: "text-amber-400", icon: Clock, borderColor: "border-amber-500/20", gradient: "from-amber-500/10" },
+          { label: "Failed", value: failedCount, color: "text-destructive", icon: AlertCircle, borderColor: "border-destructive/20", gradient: "from-destructive/10" },
+        ].map((stat, i) => (
+          <motion.div
+            key={stat.label}
+            className={`metric-card ${stat.borderColor}`}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.06 }}
+            whileHover={{ y: -2 }}
+          >
+            <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} to-transparent rounded-xl opacity-50`} />
+            <div className="relative flex items-center gap-3">
+              <stat.icon className={`w-5 h-5 ${stat.color}`} />
+              <div>
+                <AnimatedCounter value={stat.value} className={`text-xl font-display font-bold ${stat.color} block`} />
+                <p className="text-[10px] font-mono text-muted-foreground uppercase">{stat.label}</p>
+              </div>
+              {totalExps > 0 && (
+                <span className="text-xs font-mono text-muted-foreground ml-auto">
+                  {((stat.value / totalExps) * 100).toFixed(0)}%
+                </span>
+              )}
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
+      {isLoading ? (
+        <SkeletonChart />
+      ) : comparisonData.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1, duration: 0.4 }}
+          transition={{ delay: 0.2 }}
           className="glass-panel rounded-xl p-6"
         >
           <h3 className="font-display font-bold text-white mb-4">Accuracy Comparison</h3>
-          <div className="h-48">
+          <div className="h-52">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={comparisonData} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
                 <XAxis dataKey="name" tick={{ fontSize: 10, fill: "hsl(215, 20%, 55%)" }} axisLine={false} tickLine={false} />
@@ -102,7 +152,7 @@ export default function Experiments() {
                   }}
                   formatter={(value: number) => [`${value}%`, "Accuracy"]}
                 />
-                <Bar dataKey="accuracy" radius={[4, 4, 0, 0]}>
+                <Bar dataKey="accuracy" radius={[4, 4, 0, 0]} animationDuration={1200}>
                   {comparisonData.map((entry, index) => (
                     <Cell key={index} fill={barColors[entry.status] || barColors.running} fillOpacity={0.8} />
                   ))}
@@ -145,23 +195,29 @@ export default function Experiments() {
             <option value="failed">Failed</option>
           </select>
         </div>
-        <button
+        <motion.button
           onClick={() => setSortBy(sortBy === "date" ? "accuracy" : "date")}
           className="flex items-center gap-2 px-3 py-2.5 bg-input border border-border rounded-lg text-sm text-muted-foreground hover:text-white transition-colors"
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
         >
           <ArrowUpDown className="w-3.5 h-3.5" />
           {sortBy === "date" ? "By Date" : "By Accuracy"}
-        </button>
+        </motion.button>
       </div>
 
       {isLoading ? (
-        <div className="glass-panel rounded-xl overflow-hidden">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="h-20 border-b border-white/5 animate-pulse" />
-          ))}
+        <div className="glass-panel rounded-xl p-4 space-y-3">
+          <SkeletonRow />
+          <SkeletonRow />
+          <SkeletonRow />
         </div>
       ) : filtered.length === 0 ? (
-        <div className="glass-panel rounded-xl p-12 text-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="glass-panel rounded-xl p-12 text-center"
+        >
           <FlaskConical className="w-12 h-12 text-muted-foreground/20 mx-auto mb-3" />
           <h3 className="text-lg font-display font-bold text-white mb-1">No experiments found</h3>
           <p className="text-sm text-muted-foreground">
@@ -169,55 +225,116 @@ export default function Experiments() {
               ? "Create experiments from a project to start tracking."
               : "Try adjusting your filters."}
           </p>
-        </div>
+        </motion.div>
       ) : (
         <div className="glass-panel rounded-xl overflow-hidden">
           <table className="w-full text-left">
             <thead className="bg-black/30 border-b border-white/5">
               <tr className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
+                <th className="px-5 py-3 w-8"></th>
                 <th className="px-5 py-3">Experiment</th>
                 <th className="px-5 py-3">Project</th>
-                <th className="px-5 py-3">Hypothesis</th>
-                <th className="px-5 py-3">Result</th>
                 <th className="px-5 py-3 w-24">Status</th>
-                <th className="px-5 py-3 w-20 text-right">Accuracy</th>
+                <th className="px-5 py-3 w-40">Accuracy</th>
+                <th className="px-5 py-3 w-8"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/[0.03]">
-              {filtered.map(exp => {
+              {filtered.map((exp, idx) => {
                 const proj = projects?.find(p => p.id === exp.projectId);
+                const isExpanded = expandedId === exp.id;
+                const StatusIcon = statusIcons[exp.status] || Clock;
                 return (
-                  <tr key={exp.id} className="hover:bg-white/[0.02] transition-colors">
-                    <td className="px-5 py-3.5">
-                      <p className="text-sm font-semibold text-white">{exp.name}</p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">
-                        {new Date(exp.createdAt).toLocaleDateString()}
-                      </p>
-                    </td>
-                    <td className="px-5 py-3.5">
-                      {proj ? (
-                        <Link href={`/projects/${proj.id}`} className="text-xs text-cyan hover:underline font-mono">
-                          {proj.name}
-                        </Link>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">#{exp.projectId}</span>
+                  <React.Fragment key={exp.id}>
+                    <motion.tr
+                      initial={{ opacity: 0, x: -8 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: idx * 0.03 }}
+                      className="hover:bg-white/[0.02] transition-colors cursor-pointer"
+                      onClick={() => setExpandedId(isExpanded ? null : exp.id)}
+                    >
+                      <td className="px-5 py-3.5">
+                        <motion.div
+                          className={`w-2.5 h-2.5 rounded-full ${
+                            exp.status === "completed" ? "bg-emerald" :
+                            exp.status === "failed" ? "bg-destructive" :
+                            "bg-amber-400"
+                          }`}
+                          animate={exp.status === "running" ? { scale: [1, 1.4, 1], opacity: [1, 0.6, 1] } : {}}
+                          transition={{ duration: 1.5, repeat: Infinity }}
+                        />
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <p className="text-sm font-semibold text-white">{exp.name}</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                          {new Date(exp.createdAt).toLocaleDateString()}
+                        </p>
+                      </td>
+                      <td className="px-5 py-3.5">
+                        {proj ? (
+                          <Link href={`/projects/${proj.id}`} className="text-xs text-cyan hover:underline font-mono" onClick={e => e.stopPropagation()}>
+                            {proj.name}
+                          </Link>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">#{exp.projectId}</span>
+                        )}
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono border ${statusColors[exp.status] || statusColors.running}`}>
+                          <StatusIcon className="w-3 h-3" />
+                          {exp.status}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                            <motion.div
+                              className={`h-full rounded-full ${
+                                exp.status === "completed" ? "bg-emerald" :
+                                exp.status === "failed" ? "bg-destructive" :
+                                "bg-amber-400"
+                              }`}
+                              initial={{ width: 0 }}
+                              animate={{ width: `${exp.accuracy}%` }}
+                              transition={{ delay: idx * 0.03 + 0.3, duration: 0.6 }}
+                            />
+                          </div>
+                          <span className="font-mono text-sm text-white w-12 text-right">{exp.accuracy}%</span>
+                        </div>
+                      </td>
+                      <td className="px-5 py-3.5">
+                        {isExpanded ? (
+                          <ChevronUp className="w-4 h-4 text-muted-foreground" />
+                        ) : (
+                          <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                        )}
+                      </td>
+                    </motion.tr>
+                    <AnimatePresence>
+                      {isExpanded && (
+                        <motion.tr
+                          key={`${exp.id}-detail`}
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="bg-white/[0.01]"
+                        >
+                          <td colSpan={6} className="px-5 py-4">
+                            <div className="grid grid-cols-2 gap-6 pl-8">
+                              <div>
+                                <p className="text-[10px] font-mono text-muted-foreground uppercase mb-1.5">Hypothesis</p>
+                                <p className="text-sm text-foreground/80">{exp.hypothesis}</p>
+                              </div>
+                              <div>
+                                <p className="text-[10px] font-mono text-muted-foreground uppercase mb-1.5">Result</p>
+                                <p className="text-sm text-foreground/80">{exp.result}</p>
+                              </div>
+                            </div>
+                          </td>
+                        </motion.tr>
                       )}
-                    </td>
-                    <td className="px-5 py-3.5 max-w-[200px]">
-                      <p className="text-xs text-muted-foreground truncate">{exp.hypothesis}</p>
-                    </td>
-                    <td className="px-5 py-3.5 max-w-[200px]">
-                      <p className="text-xs text-foreground/80 truncate">{exp.result}</p>
-                    </td>
-                    <td className="px-5 py-3.5">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-mono border ${statusColors[exp.status] || statusColors.running}`}>
-                        {exp.status}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3.5 text-right">
-                      <span className="font-mono text-sm text-white">{exp.accuracy}%</span>
-                    </td>
-                  </tr>
+                    </AnimatePresence>
+                  </React.Fragment>
                 );
               })}
             </tbody>
