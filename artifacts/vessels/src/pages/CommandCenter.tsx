@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Activity,
   Server,
@@ -12,6 +12,8 @@ import {
   AlertTriangle,
   Anchor,
   Ship,
+  Check,
+  Map,
 } from "lucide-react";
 import {
   AreaChart,
@@ -19,6 +21,8 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
+import FleetMap from "../components/FleetMap";
+import { useState } from "react";
 
 const PILLAR_ICONS: Record<string, any> = {
   apm: Activity,
@@ -52,10 +56,37 @@ function directionIcon(dir: string) {
 }
 
 export default function CommandCenter() {
-  const { data, isLoading } = useQuery({
+  const queryClient = useQueryClient();
+  const [showMap, setShowMap] = useState(false);
+
+  const { data, isLoading, error } = useQuery({
     queryKey: ["vessels-command-center"],
-    queryFn: () => fetch("/api/vessels/command-center").then(r => r.json()),
+    queryFn: async () => { const r = await fetch("/api/vessels/command-center"); if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); },
   });
+
+  const ackMutation = useMutation({
+    mutationFn: (alertCode: string) =>
+      fetch(`/api/vessels/alerts/${alertCode}/acknowledge`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ acknowledgedBy: localStorage.getItem("szl_user") || "operator" }),
+      }).then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["vessels-command-center"] });
+    },
+  });
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <AlertTriangle className="w-8 h-8 text-red-400 mx-auto mb-2" />
+          <p className="text-red-400 text-sm">Failed to load command center data</p>
+          <p className="text-gray-500 text-xs mt-1">Please try refreshing the page</p>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading || !data) {
     return (
@@ -76,11 +107,28 @@ export default function CommandCenter() {
           <p className="text-gray-500 text-xs uppercase tracking-widest mb-1">Fleet Observability</p>
           <h2 className="text-2xl md:text-3xl font-display font-bold tracking-wide">Command Center</h2>
         </div>
-        <div className="flex items-center gap-2 text-xs text-emerald-400 font-mono bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-lg">
-          <Ship className="w-3.5 h-3.5" />
-          {data.fleetSummary.total} vessels — {data.fleetSummary.laden} laden, {data.fleetSummary.ballast} ballast, {data.fleetSummary.atPort} at port
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowMap(!showMap)}
+            className={`flex items-center gap-1.5 text-xs font-mono px-3 py-1.5 rounded-lg border transition-colors ${
+              showMap ? "bg-cyan-500/10 border-cyan-500/20 text-cyan-400" : "bg-white/[0.03] border-white/5 text-gray-400 hover:text-white"
+            }`}
+          >
+            <Map className="w-3.5 h-3.5" />
+            Fleet Map
+          </button>
+          <div className="flex items-center gap-2 text-xs text-emerald-400 font-mono bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-lg">
+            <Ship className="w-3.5 h-3.5" />
+            {data.fleetSummary.total} vessels — {data.fleetSummary.laden} laden, {data.fleetSummary.ballast} ballast, {data.fleetSummary.atPort} at port
+          </div>
         </div>
       </div>
+
+      {showMap && (
+        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
+          <FleetMap />
+        </div>
+      )}
 
       <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
         {data.kpiRibbon.map((kpi: any, i: number) => (
@@ -161,6 +209,7 @@ export default function CommandCenter() {
         <div className="space-y-2">
           {data.alertFeed.map((alert: any) => (
             <div key={alert.id} className={`flex items-start gap-3 p-3 rounded-lg border ${
+              alert.acknowledged ? "border-white/5 bg-white/[0.01] opacity-50" :
               alert.severity === "critical" ? "border-red-500/20 bg-red-500/5" :
               alert.severity === "high" ? "border-amber-500/20 bg-amber-500/5" :
               "border-white/5 bg-white/[0.01]"
@@ -180,6 +229,19 @@ export default function CommandCenter() {
                   <span>• {new Date(alert.timestamp).toLocaleTimeString("en-US", { hour12: false, hour: "2-digit", minute: "2-digit" })}</span>
                 </div>
               </div>
+              {!alert.acknowledged && (
+                <button
+                  onClick={() => ackMutation.mutate(alert.id)}
+                  disabled={ackMutation.isPending}
+                  className="shrink-0 flex items-center gap-1 text-[10px] text-gray-500 hover:text-emerald-400 bg-white/[0.03] hover:bg-emerald-500/10 border border-white/5 hover:border-emerald-500/20 px-2 py-1 rounded transition-all"
+                >
+                  <Check className="w-3 h-3" />
+                  ACK
+                </button>
+              )}
+              {alert.acknowledged && (
+                <span className="shrink-0 text-[10px] text-emerald-400/60 font-mono">ACK'd</span>
+              )}
             </div>
           ))}
         </div>

@@ -16,6 +16,7 @@ import {
   ChevronRight,
   Menu,
   X,
+  Flame,
 } from "lucide-react";
 import CommandCenter from "./CommandCenter";
 import FleetAPM from "./FleetAPM";
@@ -24,8 +25,9 @@ import Logs from "./Logs";
 import DigitalExperience from "./DigitalExperience";
 import Synthetics from "./Synthetics";
 import AppliedIntelligence from "./AppliedIntelligence";
+import EmissionsDashboard from "./EmissionsDashboard";
 
-type Section = "command-center" | "apm" | "infrastructure" | "logs" | "experience" | "synthetics" | "intelligence";
+type Section = "command-center" | "apm" | "infrastructure" | "logs" | "experience" | "synthetics" | "intelligence" | "emissions";
 
 const SECTIONS: { id: Section; label: string; icon: any; color: string }[] = [
   { id: "command-center", label: "Command Center", icon: LayoutDashboard, color: "text-cyan-400" },
@@ -34,6 +36,7 @@ const SECTIONS: { id: Section; label: string; icon: any; color: string }[] = [
   { id: "logs", label: "Logs", icon: ScrollText, color: "text-blue-400" },
   { id: "experience", label: "Digital Experience", icon: Users, color: "text-purple-400" },
   { id: "synthetics", label: "Synthetics", icon: ShieldCheck, color: "text-amber-400" },
+  { id: "emissions", label: "CO₂ & Emissions", icon: Flame, color: "text-orange-400" },
   { id: "intelligence", label: "Applied Intelligence", icon: Brain, color: "text-rose-400" },
 ];
 
@@ -44,6 +47,7 @@ const SECTION_MAP: Record<Section, React.ComponentType> = {
   logs: Logs,
   experience: DigitalExperience,
   synthetics: Synthetics,
+  emissions: EmissionsDashboard,
   intelligence: AppliedIntelligence,
 };
 
@@ -62,7 +66,7 @@ export default function Dashboard() {
 
   const { data: healthData } = useQuery({
     queryKey: ["vessels-pillar-health"],
-    queryFn: () => fetch("/api/vessels/command-center").then(r => r.json()),
+    queryFn: async () => { const r = await fetch("/api/vessels/command-center"); if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); },
     staleTime: 30000,
   });
 

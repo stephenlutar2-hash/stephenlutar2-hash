@@ -37,6 +37,7 @@ router.use("/rosie", requireDatabase);
 router.use("/alloy", requireDatabase);
 router.use("/monitoring", requireDatabase);
 router.use("/inca", requireDatabase);
+router.use("/vessels", requireDatabase);
 
 router.use(authRouter);
 router.use(beaconRouter);
