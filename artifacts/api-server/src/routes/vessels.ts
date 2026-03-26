@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { db, isDatabaseAvailable } from "@workspace/db";
+import { db, isDatabaseAvailable } from "@szl-holdings/db";
 import {
   vesselsTable,
   vesselFleetsTable,
@@ -12,7 +12,7 @@ import {
   vesselCertificatesTable,
   vesselShipmentsTable,
   vesselLogsTable,
-} from "@workspace/db/schema";
+} from "@szl-holdings/db/schema";
 import { eq, desc, and, count, sql, asc } from "drizzle-orm";
 
 const router = Router();
