@@ -5,6 +5,7 @@ import { useSimulatedLoading, PageLoadingSkeleton } from "@/components/LoadingSk
 import {
   GitBranch, Play, Pause, RotateCcw, CheckCircle2, XCircle,
   Clock, Loader2, ChevronDown, ArrowRight, Circle,
+  Layers, Zap, Activity, Box, Database, Shield, BarChart3, Cpu
 } from "lucide-react";
 import { workflows } from "@/data/demo";
 
@@ -34,18 +35,100 @@ const pipelineStages = [
   { name: "Output", icon: ArrowRight },
 ];
 
+interface CanvasNode {
+  id: string;
+  label: string;
+  type: "trigger" | "processor" | "output" | "decision" | "database";
+  x: number;
+  y: number;
+  status: "active" | "idle" | "error";
+}
+
+interface CanvasEdge {
+  from: string;
+  to: string;
+}
+
+const canvasNodes: CanvasNode[] = [
+  { id: "n1", label: "HTTP Trigger", type: "trigger", x: 50, y: 120, status: "active" },
+  { id: "n2", label: "Auth Check", type: "decision", x: 230, y: 60, status: "active" },
+  { id: "n3", label: "Rate Limiter", type: "processor", x: 230, y: 180, status: "active" },
+  { id: "n4", label: "Data Transform", type: "processor", x: 420, y: 80, status: "active" },
+  { id: "n5", label: "ML Inference", type: "processor", x: 420, y: 180, status: "idle" },
+  { id: "n6", label: "PostgreSQL", type: "database", x: 610, y: 80, status: "active" },
+  { id: "n7", label: "Redis Cache", type: "database", x: 610, y: 180, status: "active" },
+  { id: "n8", label: "API Response", type: "output", x: 780, y: 120, status: "active" },
+];
+
+const canvasEdges: CanvasEdge[] = [
+  { from: "n1", to: "n2" },
+  { from: "n1", to: "n3" },
+  { from: "n2", to: "n4" },
+  { from: "n3", to: "n5" },
+  { from: "n4", to: "n6" },
+  { from: "n5", to: "n7" },
+  { from: "n6", to: "n8" },
+  { from: "n7", to: "n8" },
+];
+
+const nodeTypeIcons: Record<string, typeof Play> = {
+  trigger: Zap,
+  processor: Cpu,
+  output: ArrowRight,
+  decision: Shield,
+  database: Database,
+};
+
+const nodeTypeColors: Record<string, string> = {
+  trigger: "border-cyan-500/40 bg-cyan-500/10 text-cyan-400",
+  processor: "border-blue-500/40 bg-blue-500/10 text-blue-400",
+  output: "border-emerald-500/40 bg-emerald-500/10 text-emerald-400",
+  decision: "border-amber-500/40 bg-amber-500/10 text-amber-400",
+  database: "border-violet-500/40 bg-violet-500/10 text-violet-400",
+};
+
+interface GanttTask {
+  id: string;
+  name: string;
+  pipeline: string;
+  startHour: number;
+  duration: number;
+  status: string;
+}
+
+const ganttTasks: GanttTask[] = [
+  { id: "g1", name: "Threat Scan", pipeline: "Security Pipeline", startHour: 0, duration: 3, status: "completed" },
+  { id: "g2", name: "Log Aggregation", pipeline: "Analytics Pipeline", startHour: 1, duration: 4, status: "completed" },
+  { id: "g3", name: "Model Training", pipeline: "ML Pipeline", startHour: 2, duration: 6, status: "running" },
+  { id: "g4", name: "ETL Batch", pipeline: "Data Pipeline", startHour: 4, duration: 3, status: "running" },
+  { id: "g5", name: "Vuln Assessment", pipeline: "Security Pipeline", startHour: 5, duration: 2, status: "queued" },
+  { id: "g6", name: "Report Generation", pipeline: "Analytics Pipeline", startHour: 6, duration: 2, status: "queued" },
+  { id: "g7", name: "Feature Extraction", pipeline: "ML Pipeline", startHour: 8, duration: 3, status: "queued" },
+  { id: "g8", name: "Cache Warmup", pipeline: "Data Pipeline", startHour: 7, duration: 1, status: "queued" },
+];
+
+const ganttStatusColors: Record<string, string> = {
+  completed: "bg-emerald-500/60",
+  running: "bg-cyan-500/60",
+  queued: "bg-gray-500/30",
+  failed: "bg-red-500/60",
+};
+
+const GANTT_HOURS = 12;
+
 export default function Orchestration() {
   const loading = useSimulatedLoading();
   const [filter, setFilter] = useState<string>("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<"list" | "pipeline">("list");
+  const [viewMode, setViewMode] = useState<"list" | "pipeline" | "canvas" | "gantt">("list");
   const [actionFeedback, setActionFeedback] = useState<string | null>(null);
-  const feedbackTimer = useRef<ReturnType<typeof setTimeout>>();
+  const [hoveredNode, setHoveredNode] = useState<string | null>(null);
+  const feedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => () => { clearTimeout(feedbackTimer.current); }, []);
+  useEffect(() => () => { if (feedbackTimer.current) clearTimeout(feedbackTimer.current); }, []);
 
   const showFeedback = useCallback((message: string) => {
-    clearTimeout(feedbackTimer.current);
+    if (feedbackTimer.current) clearTimeout(feedbackTimer.current);
     setActionFeedback(message);
     feedbackTimer.current = setTimeout(() => setActionFeedback(null), 2500);
   }, []);
@@ -67,6 +150,10 @@ export default function Orchestration() {
     completed: workflows.filter(w => w.status === "completed").length,
     failed: workflows.filter(w => w.status === "failed").length,
   };
+
+  function getNodeCenter(node: CanvasNode) {
+    return { x: node.x + 60, y: node.y + 25 };
+  }
 
   return (
     <DashboardLayout>
@@ -105,18 +192,15 @@ export default function Orchestration() {
             </button>
           ))}
           <div className="ml-auto flex gap-1">
-            <button
-              onClick={() => setViewMode("list")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${viewMode === "list" ? "bg-cyan-500/10 border-cyan-500/20 text-cyan-400" : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"}`}
-            >
-              List
-            </button>
-            <button
-              onClick={() => setViewMode("pipeline")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${viewMode === "pipeline" ? "bg-cyan-500/10 border-cyan-500/20 text-cyan-400" : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"}`}
-            >
-              Pipeline
-            </button>
+            {(["list", "pipeline", "canvas", "gantt"] as const).map(mode => (
+              <button
+                key={mode}
+                onClick={() => setViewMode(mode)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors capitalize ${viewMode === mode ? "bg-cyan-500/10 border-cyan-500/20 text-cyan-400" : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"}`}
+              >
+                {mode}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -164,7 +248,175 @@ export default function Orchestration() {
           })}
         </motion.div>
 
-        {viewMode === "pipeline" ? (
+        {viewMode === "canvas" && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-xl bg-white/[0.02] border border-white/5 overflow-hidden"
+          >
+            <div className="px-5 py-3 border-b border-white/5 flex items-center gap-2">
+              <Layers className="w-4 h-4 text-cyan-400" />
+              <span className="text-xs font-bold text-white uppercase tracking-wider">Visual Workflow Canvas</span>
+              <span className="text-[10px] text-gray-500 ml-2">Interactive node-based workflow editor</span>
+            </div>
+            <div className="p-6 overflow-x-auto">
+              <svg width="900" height="280" className="min-w-[900px]">
+                <defs>
+                  <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                    <polygon points="0 0, 8 3, 0 6" fill="rgba(6, 182, 212, 0.4)" />
+                  </marker>
+                </defs>
+                {canvasEdges.map((edge, i) => {
+                  const from = canvasNodes.find(n => n.id === edge.from)!;
+                  const to = canvasNodes.find(n => n.id === edge.to)!;
+                  const fc = getNodeCenter(from);
+                  const tc = getNodeCenter(to);
+                  const isHighlighted = hoveredNode === edge.from || hoveredNode === edge.to;
+                  return (
+                    <motion.line
+                      key={i}
+                      x1={fc.x} y1={fc.y}
+                      x2={tc.x} y2={tc.y}
+                      stroke={isHighlighted ? "rgba(6, 182, 212, 0.6)" : "rgba(255,255,255,0.08)"}
+                      strokeWidth={isHighlighted ? 2 : 1}
+                      strokeDasharray={isHighlighted ? "0" : "4 4"}
+                      markerEnd="url(#arrowhead)"
+                      initial={{ pathLength: 0, opacity: 0 }}
+                      animate={{ pathLength: 1, opacity: 1 }}
+                      transition={{ duration: 0.5, delay: i * 0.05 }}
+                    />
+                  );
+                })}
+                {canvasNodes.map((node, i) => {
+                  const Icon = nodeTypeIcons[node.type];
+                  const colorClass = nodeTypeColors[node.type];
+                  const isHovered = hoveredNode === node.id;
+                  return (
+                    <motion.g
+                      key={node.id}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.1 + i * 0.05 }}
+                      onMouseEnter={() => setHoveredNode(node.id)}
+                      onMouseLeave={() => setHoveredNode(null)}
+                      className="cursor-pointer"
+                    >
+                      <rect
+                        x={node.x}
+                        y={node.y}
+                        width={120}
+                        height={50}
+                        rx={12}
+                        fill={isHovered ? "rgba(6, 182, 212, 0.08)" : "rgba(255,255,255,0.02)"}
+                        stroke={node.status === "active" ? (isHovered ? "rgba(6, 182, 212, 0.5)" : "rgba(6, 182, 212, 0.2)") : node.status === "error" ? "rgba(239, 68, 68, 0.3)" : "rgba(255,255,255,0.06)"}
+                        strokeWidth={isHovered ? 2 : 1}
+                      />
+                      {node.status === "active" && (
+                        <circle cx={node.x + 108} cy={node.y + 12} r={4} fill="#06b6d4" opacity={0.8}>
+                          <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite" />
+                        </circle>
+                      )}
+                      <text x={node.x + 36} y={node.y + 30} fontSize={10} fill="rgba(255,255,255,0.7)" textAnchor="start" dominantBaseline="middle">
+                        {node.label}
+                      </text>
+                      <foreignObject x={node.x + 10} y={node.y + 17} width={20} height={20}>
+                        <div className="flex items-center justify-center w-5 h-5">
+                          <Icon className={`w-3.5 h-3.5 ${node.type === "trigger" ? "text-cyan-400" : node.type === "processor" ? "text-blue-400" : node.type === "output" ? "text-emerald-400" : node.type === "decision" ? "text-amber-400" : "text-violet-400"}`} />
+                        </div>
+                      </foreignObject>
+                    </motion.g>
+                  );
+                })}
+              </svg>
+            </div>
+            <div className="px-5 py-3 border-t border-white/5 flex items-center gap-4">
+              {Object.entries(nodeTypeColors).map(([type, color]) => {
+                const Icon = nodeTypeIcons[type];
+                return (
+                  <div key={type} className="flex items-center gap-1.5">
+                    <Icon className={`w-3 h-3 ${color.split(" ").pop()}`} />
+                    <span className="text-[10px] text-gray-500 capitalize">{type}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+
+        {viewMode === "gantt" && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-xl bg-white/[0.02] border border-white/5 overflow-hidden"
+          >
+            <div className="px-5 py-3 border-b border-white/5 flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-cyan-400" />
+              <span className="text-xs font-bold text-white uppercase tracking-wider">Execution Timeline</span>
+              <span className="text-[10px] text-gray-500 ml-2">Gantt-style task scheduling view</span>
+            </div>
+            <div className="overflow-x-auto">
+              <div className="min-w-[800px]">
+                <div className="flex border-b border-white/5">
+                  <div className="w-48 shrink-0 px-4 py-2 text-[10px] text-gray-500 uppercase tracking-wider font-bold">Task</div>
+                  <div className="flex-1 flex">
+                    {Array.from({ length: GANTT_HOURS }, (_, i) => (
+                      <div key={i} className="flex-1 px-1 py-2 text-center text-[9px] text-gray-600 font-mono border-l border-white/[0.03]">
+                        {String(i).padStart(2, "0")}:00
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {ganttTasks.map((task, ti) => (
+                  <motion.div
+                    key={task.id}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.05 + ti * 0.04 }}
+                    className="flex items-center border-b border-white/[0.03] hover:bg-white/[0.02] transition"
+                  >
+                    <div className="w-48 shrink-0 px-4 py-3">
+                      <p className="text-xs font-medium text-white truncate">{task.name}</p>
+                      <div className="flex items-center gap-1 mt-0.5">
+                        <div className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${pipelineColors[task.pipeline] || "from-gray-500 to-gray-600"}`} />
+                        <span className="text-[9px] text-gray-600 truncate">{task.pipeline}</span>
+                      </div>
+                    </div>
+                    <div className="flex-1 relative h-10">
+                      {Array.from({ length: GANTT_HOURS }, (_, i) => (
+                        <div key={i} className="absolute top-0 bottom-0 border-l border-white/[0.03]" style={{ left: `${(i / GANTT_HOURS) * 100}%` }} />
+                      ))}
+                      <motion.div
+                        className={`absolute top-2 h-6 rounded-lg ${ganttStatusColors[task.status]} flex items-center px-2`}
+                        style={{
+                          left: `${(task.startHour / GANTT_HOURS) * 100}%`,
+                          width: `${(task.duration / GANTT_HOURS) * 100}%`,
+                        }}
+                        initial={{ width: 0, opacity: 0 }}
+                        animate={{ width: `${(task.duration / GANTT_HOURS) * 100}%`, opacity: 1 }}
+                        transition={{ duration: 0.6, delay: 0.1 + ti * 0.05 }}
+                      >
+                        <span className="text-[9px] font-bold text-white truncate">{task.duration}h</span>
+                        {task.status === "running" && (
+                          <div className="absolute right-1 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-white/60 animate-pulse" />
+                        )}
+                      </motion.div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+            <div className="px-5 py-3 border-t border-white/5 flex items-center gap-4">
+              {Object.entries(ganttStatusColors).map(([status, color]) => (
+                <div key={status} className="flex items-center gap-1.5">
+                  <div className={`w-3 h-2 rounded ${color}`} />
+                  <span className="text-[10px] text-gray-500 capitalize">{status}</span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {viewMode === "pipeline" && (
           <div className="space-y-4">
             {Object.keys(pipelineColors).map(pipeline => {
               const pipelineWfs = filtered.filter(w => w.pipeline === pipeline);
@@ -239,7 +491,9 @@ export default function Orchestration() {
               );
             })}
           </div>
-        ) : (
+        )}
+
+        {viewMode === "list" && (
           <div className="space-y-3">
             {filtered.map((wf, i) => {
               const cfg = statusConfig[wf.status];

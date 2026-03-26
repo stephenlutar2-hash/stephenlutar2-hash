@@ -10,6 +10,9 @@ import Login from "@/pages/Login";
 import ImportCenter from "@/pages/ImportCenter";
 import StoryIntelligence from "@/pages/StoryIntelligence";
 import Extensions from "@/pages/Extensions";
+import ContentPipeline from "@/pages/ContentPipeline";
+import CampaignAnalytics from "@/pages/CampaignAnalytics";
+import ContentCalendar from "@/pages/ContentCalendar";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +23,9 @@ function Router() {
       <Route path="/dashboard">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Dashboard /></AuthGuard>}</Route>
       <Route path="/import">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><ImportCenter /></AuthGuard>}</Route>
       <Route path="/story-intelligence">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><StoryIntelligence /></AuthGuard>}</Route>
+      <Route path="/content-pipeline">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><ContentPipeline /></AuthGuard>}</Route>
+      <Route path="/campaign-analytics">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><CampaignAnalytics /></AuthGuard>}</Route>
+      <Route path="/content-calendar">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><ContentCalendar /></AuthGuard>}</Route>
       <Route path="/" component={Home} />
       <Route path="/extensions">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Extensions /></AuthGuard>}</Route>
         <Route component={NotFound} />

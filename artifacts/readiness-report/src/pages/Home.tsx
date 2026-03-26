@@ -5,8 +5,13 @@ import {
   Lock, Server, Activity, BarChart3, ArrowUpRight, RefreshCw,
   Wifi, Database, Cpu, Cloud, Filter, SortAsc, SortDesc,
   ChevronDown, ChevronRight, Printer, AlertCircle, Users,
-  Target, Milestone, FileWarning, Zap, ArrowUp, X, Layers
+  Target, Milestone, FileWarning, Zap, ArrowUp, X, Layers, TrendingUp, Brain
 } from "lucide-react";
+import {
+  RadarChart, Radar as RechartsRadar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
+  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell,
+  ScatterChart, Scatter, ZAxis
+} from "recharts";
 
 type ProjectStatus = "deployed" | "staging" | "development" | "not-started";
 type DnsStatus = "verified" | "pending" | "not-configured";
@@ -399,6 +404,147 @@ export default function Home() {
                 <p className="text-[11px] text-muted-foreground mt-1">{stat.sub}</p>
               </motion.div>
             ))}
+          </div>
+        </AnimatedSection>
+
+        <AnimatedSection className="mb-8" delay={0.15}>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="rounded-xl bg-card border border-border p-5">
+              <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
+                <Activity className="w-4 h-4 text-primary" /> Portfolio Readiness Radar
+              </h3>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart data={(() => {
+                    const dims = ["Frontend", "Backend", "Infrastructure", "Security", "Integrations"];
+                    return dims.map(dim => {
+                      const scores = projects.map(p => p.categories.find(c => c.name === dim)?.score || 0);
+                      return { subject: dim, score: Math.round(scores.reduce((s, v) => s + v, 0) / scores.length), fullMark: 100 };
+                    });
+                  })()}>
+                    <PolarGrid stroke="rgba(255,255,255,0.08)" />
+                    <PolarAngleAxis dataKey="subject" tick={{ fontSize: 10, fill: "rgba(255,255,255,0.5)" }} />
+                    <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 8, fill: "rgba(255,255,255,0.25)" }} />
+                    <RechartsRadar name="Avg Score" dataKey="score" stroke="#06b6d4" fill="#06b6d4" fillOpacity={0.15} strokeWidth={2} />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            <div className="rounded-xl bg-card border border-border p-5">
+              <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 text-primary" /> Traffic Light Scorecard
+              </h3>
+              <div className="space-y-2">
+                {projects.map(p => {
+                  const color = p.readiness >= 90 ? "#34d399" : p.readiness >= 80 ? "#fbbf24" : p.readiness >= 70 ? "#fb923c" : "#f87171";
+                  const label = p.readiness >= 90 ? "Strong" : p.readiness >= 80 ? "Good" : p.readiness >= 70 ? "Moderate" : "At Risk";
+                  return (
+                    <div key={p.name} className="flex items-center gap-3">
+                      <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
+                      <span className="text-xs text-foreground w-24 truncate font-medium">{p.name}</span>
+                      <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
+                        <motion.div
+                          className="h-full rounded-full"
+                          style={{ backgroundColor: color }}
+                          initial={{ width: 0 }}
+                          animate={{ width: `${p.readiness}%` }}
+                          transition={{ duration: 0.8, ease: "easeOut" }}
+                        />
+                      </div>
+                      <span className="text-[10px] font-mono font-bold w-10 text-right" style={{ color }}>{p.readiness}%</span>
+                      <span className="text-[9px] text-muted-foreground w-14 text-right">{label}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </AnimatedSection>
+
+        <AnimatedSection className="mb-8" delay={0.18}>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="rounded-xl bg-card border border-border p-5">
+              <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-primary" /> Gap Analysis Waterfall
+              </h3>
+              <div className="h-56">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={(() => {
+                    const dims = ["Frontend", "Backend", "Infrastructure", "Security", "Integrations"];
+                    return dims.map(dim => {
+                      const scores = projects.map(p => p.categories.find(c => c.name === dim)?.score || 0);
+                      const avg = Math.round(scores.reduce((s, v) => s + v, 0) / scores.length);
+                      return { name: dim, gap: 100 - avg, score: avg };
+                    });
+                  })()}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                    <XAxis dataKey="name" tick={{ fontSize: 10, fill: "rgba(255,255,255,0.5)" }} />
+                    <YAxis domain={[0, 30]} tick={{ fontSize: 10, fill: "rgba(255,255,255,0.3)" }} />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: "rgba(15,15,25,0.95)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", fontSize: "11px" }}
+                      labelStyle={{ color: "rgba(255,255,255,0.7)" }}
+                    />
+                    <Bar dataKey="gap" name="Gap to 100%" radius={[4, 4, 0, 0]}>
+                      {["Frontend", "Backend", "Infrastructure", "Security", "Integrations"].map((_, i) => {
+                        const colors = ["#06b6d4", "#8b5cf6", "#10b981", "#f59e0b", "#ec4899"];
+                        return <Cell key={i} fill={colors[i]} fillOpacity={0.6} />;
+                      })}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+              <p className="text-[10px] text-muted-foreground mt-2">Shows the gap (points to 100%) for each dimension across all projects</p>
+            </div>
+
+            <div className="rounded-xl bg-card border border-border p-5">
+              <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
+                <Brain className="w-4 h-4 text-primary" /> Priority Matrix
+              </h3>
+              <div className="h-56">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ScatterChart margin={{ top: 10, right: 10, bottom: 20, left: 10 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                    <XAxis
+                      type="number"
+                      dataKey="impact"
+                      name="Impact"
+                      domain={[0, 10]}
+                      tick={{ fontSize: 9, fill: "rgba(255,255,255,0.4)" }}
+                      label={{ value: "Impact", position: "bottom", style: { fontSize: 9, fill: "rgba(255,255,255,0.4)" } }}
+                    />
+                    <YAxis
+                      type="number"
+                      dataKey="urgency"
+                      name="Urgency"
+                      domain={[0, 10]}
+                      tick={{ fontSize: 9, fill: "rgba(255,255,255,0.4)" }}
+                      label={{ value: "Urgency", angle: -90, position: "insideLeft", style: { fontSize: 9, fill: "rgba(255,255,255,0.4)" } }}
+                    />
+                    <ZAxis type="number" dataKey="size" range={[60, 300]} />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: "rgba(15,15,25,0.95)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", fontSize: "11px" }}
+                      formatter={(value: any, name: string) => [value, name]}
+                    />
+                    <Scatter
+                      name="Projects"
+                      data={projects.map(p => ({
+                        name: p.name,
+                        impact: Math.round((100 - p.readiness) / 10 * 3 + p.blockers.length * 2),
+                        urgency: Math.round(p.blockers.filter(b => b.severity === "critical" || b.severity === "high").length * 3 + (p.status === "staging" ? 4 : p.readiness < 80 ? 3 : 1)),
+                        size: p.blockers.length * 40 + 80,
+                      }))}
+                      fill="#06b6d4"
+                      fillOpacity={0.6}
+                    />
+                  </ScatterChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex items-center justify-between mt-2">
+                <span className="text-[9px] text-muted-foreground">Low priority</span>
+                <span className="text-[9px] text-red-400 font-medium">High priority (top-right)</span>
+              </div>
+            </div>
           </div>
         </AnimatedSection>
 

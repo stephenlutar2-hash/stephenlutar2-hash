@@ -129,7 +129,7 @@ A shared extension infrastructure (`artifacts/api-server/src/services/extensions
 *   **Stripe**: Payment processing.
 *   **Plaid**: Financial data aggregation.
 *   **Meta (Facebook/Instagram), Twitter, LinkedIn**: Social media integration for DreamEra.
-*   **Azure Application Insights**: For monitoring and telemetry.
+*   **Azure Application Insights**: Monitoring and telemetry.
 *   **Azure Key Vault**: Centralized secrets management.
 *   **Azure Managed Redis**: Session storage and caching.
 *   **Azure Blob Storage**: File uploads and exports.

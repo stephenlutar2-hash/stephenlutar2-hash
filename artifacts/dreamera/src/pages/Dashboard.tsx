@@ -49,12 +49,12 @@ export default function Dashboard() {
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [formSuccess, setFormSuccess] = useState(false);
   const [formError, setFormError] = useState("");
-  const submitTimer = useRef<ReturnType<typeof setTimeout>>();
-  const closeTimer = useRef<ReturnType<typeof setTimeout>>();
+  const submitTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => () => {
-    clearTimeout(submitTimer.current);
-    clearTimeout(closeTimer.current);
+    if (submitTimer.current) clearTimeout(submitTimer.current);
+    if (closeTimer.current) clearTimeout(closeTimer.current);
   }, []);
 
   function addStory(e: React.FormEvent<HTMLFormElement>) {
@@ -196,7 +196,7 @@ export default function Dashboard() {
                   <button type="submit" disabled={formSubmitting || formSuccess} className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-violet-500 to-blue-600 text-white font-bold text-sm hover:opacity-90 transition disabled:opacity-50 flex items-center gap-2">
                     {formSubmitting ? <><Loader className="w-4 h-4 animate-spin" />Creating...</> : formSuccess ? <><CheckCircle2 className="w-4 h-4" />Created!</> : "Create Story"}
                   </button>
-                  <button type="button" onClick={() => { clearTimeout(submitTimer.current); clearTimeout(closeTimer.current); setShowForm(false); setFormError(""); setFormSuccess(false); setFormSubmitting(false); }} disabled={formSubmitting} className="px-6 py-2.5 rounded-xl bg-white/5 border border-white/10 text-gray-400 text-sm hover:bg-white/10 transition disabled:opacity-50">Cancel</button>
+                  <button type="button" onClick={() => { if (submitTimer.current) clearTimeout(submitTimer.current); if (closeTimer.current) clearTimeout(closeTimer.current); setShowForm(false); setFormError(""); setFormSuccess(false); setFormSubmitting(false); }} disabled={formSubmitting} className="px-6 py-2.5 rounded-xl bg-white/5 border border-white/10 text-gray-400 text-sm hover:bg-white/10 transition disabled:opacity-50">Cancel</button>
                 </div>
               </form>
             </motion.div>

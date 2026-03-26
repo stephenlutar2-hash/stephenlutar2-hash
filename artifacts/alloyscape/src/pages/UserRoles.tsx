@@ -31,13 +31,13 @@ export default function UserRoles() {
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [inviteFeedback, setInviteFeedback] = useState(false);
   const [rowActionId, setRowActionId] = useState<string | null>(null);
-  const inviteTimer = useRef<ReturnType<typeof setTimeout>>();
-  const rowTimer = useRef<ReturnType<typeof setTimeout>>();
+  const inviteTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const rowTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => () => { clearTimeout(inviteTimer.current); clearTimeout(rowTimer.current); }, []);
+  useEffect(() => () => { if (inviteTimer.current) clearTimeout(inviteTimer.current); if (rowTimer.current) clearTimeout(rowTimer.current); }, []);
 
   function showRowAction(userId: string) {
-    clearTimeout(rowTimer.current);
+    if (rowTimer.current) clearTimeout(rowTimer.current);
     setRowActionId(userId);
     rowTimer.current = setTimeout(() => setRowActionId(null), 2500);
   }
@@ -89,7 +89,7 @@ export default function UserRoles() {
             <p className="text-sm text-gray-500 mt-1">Manage access and permissions for the platform</p>
           </div>
           <button
-            onClick={() => { clearTimeout(inviteTimer.current); setInviteFeedback(true); inviteTimer.current = setTimeout(() => setInviteFeedback(false), 2500); }}
+            onClick={() => { if (inviteTimer.current) clearTimeout(inviteTimer.current); setInviteFeedback(true); inviteTimer.current = setTimeout(() => setInviteFeedback(false), 2500); }}
             className="px-4 py-2.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-sm font-medium hover:bg-cyan-500/20 transition-colors flex items-center gap-2 self-start"
           >
             <Users className="w-4 h-4" /> {inviteFeedback ? "Invite sent (demo)" : "Invite User"}
