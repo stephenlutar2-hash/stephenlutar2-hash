@@ -4,7 +4,7 @@ import { useIncaProjects, useExperiments, useMutateExperiments } from "@/hooks/u
 import ExperimentModal from "@/components/ExperimentModal";
 import { Link } from "wouter";
 import { FlaskConical, Plus, Search, Filter, ArrowUpDown, CheckCircle2, AlertCircle, Clock, ChevronDown, ChevronUp } from "lucide-react";
-import type { CreateIncaExperimentStatus } from "@workspace/api-client-react";
+import type { CreateIncaExperimentStatus } from "@szl-holdings/api-client-react";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell
 } from "recharts";

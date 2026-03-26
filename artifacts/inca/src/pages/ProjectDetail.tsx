@@ -5,7 +5,7 @@ import ProjectModal from "@/components/ProjectModal";
 import ExperimentModal from "@/components/ExperimentModal";
 import { Link, useParams, useLocation } from "wouter";
 import { ArrowLeft, Edit2, Trash2, Plus, Brain, FlaskConical, Target, TrendingUp, CheckCircle2 } from "lucide-react";
-import type { CreateIncaProjectStatus, CreateIncaExperimentStatus } from "@workspace/api-client-react";
+import type { CreateIncaProjectStatus, CreateIncaExperimentStatus } from "@szl-holdings/api-client-react";
 import AnimatedCounter from "@/components/AnimatedCounter";
 import Sparkline from "@/components/Sparkline";
 import { SkeletonMetricCard, SkeletonRow } from "@/components/SkeletonLoader";

@@ -6,7 +6,7 @@ import {
   AlertTriangle, CheckCircle2, ChevronRight, Clock, Zap,
   ArrowRight, RotateCcw, MessageSquare,
 } from "lucide-react";
-import { Badge } from "@workspace/ui";
+import { Badge } from "@szl-holdings/ui";
 
 interface Step {
   id: number; title: string; description: string;

@@ -47,8 +47,8 @@ import {
   Pie,
   Cell
 } from "recharts";
-import { Badge } from "@workspace/ui";
-import { Progress } from "@workspace/ui";
+import { Badge } from "@szl-holdings/ui";
+import { Progress } from "@szl-holdings/ui";
 
 const INITIAL_REVENUE_DATA = [
   { month: "Jan", revenue: 2.1, expenses: 1.4 },

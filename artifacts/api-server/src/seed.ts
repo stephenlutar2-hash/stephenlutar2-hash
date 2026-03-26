@@ -1,11 +1,11 @@
-import { db } from "@workspace/db";
+import { db } from "@szl-holdings/db";
 import {
   beaconMetricsTable, beaconProjectsTable,
   nimbusPredictionsTable, nimbusAlertsTable,
   zeusModulesTable, zeusLogsTable,
   incaProjectsTable, incaExperimentsTable,
   dreameraContentTable, dreameraCampaignsTable
-} from "@workspace/db/schema";
+} from "@szl-holdings/db/schema";
 
 async function seed() {
   console.log("Seeding database...");

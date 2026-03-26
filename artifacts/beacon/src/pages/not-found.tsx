@@ -1,4 +1,4 @@
-import { Card, CardContent } from "@workspace/ui";
+import { Card, CardContent } from "@szl-holdings/ui";
 import { AlertCircle } from "lucide-react";
 
 export default function NotFound() {

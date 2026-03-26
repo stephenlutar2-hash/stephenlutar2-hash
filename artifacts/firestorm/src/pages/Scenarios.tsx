@@ -6,7 +6,7 @@ import {
   Target, Eye, FileText, LayoutDashboard, LogOut, Activity, Zap,
   FastForward, Pause, RotateCcw,
 } from "lucide-react";
-import { Badge } from "@workspace/ui";
+import { Badge } from "@szl-holdings/ui";
 import { fetchScenarios, startScenario, stopScenario } from "@/lib/api";
 
 interface Scenario {

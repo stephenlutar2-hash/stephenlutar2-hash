@@ -7,7 +7,7 @@ import {
   AlertTriangle, ChevronRight, Settings, LayoutDashboard,
   Target, Users, Cpu,
 } from "lucide-react";
-import { Badge } from "@workspace/ui";
+import { Badge } from "@szl-holdings/ui";
 import { fetchScenarios, startScenario, stopScenario, fetchLiveEvents, fetchDetectionCoverage, downloadExport } from "@/lib/api";
 
 interface Scenario {

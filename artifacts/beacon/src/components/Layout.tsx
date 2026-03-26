@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import { Activity, Server, Brain, MonitorPlay, Shield, Search, Bell } from "lucide-react";
-import { LayoutShell, type NavItem } from "@workspace/platform";
+import { LayoutShell, type NavItem } from "@szl-holdings/platform";
 
 const NAV_ITEMS: NavItem[] = [
   { path: "/", label: "Overview Dashboard", icon: Activity },

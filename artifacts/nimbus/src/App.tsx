@@ -1,8 +1,8 @@
 import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "@workspace/ui";
-import { TooltipProvider } from "@workspace/ui";
-import { ErrorBoundary, AuthGuard } from "@workspace/platform";
+import { Toaster } from "@szl-holdings/ui";
+import { TooltipProvider } from "@szl-holdings/ui";
+import { ErrorBoundary, AuthGuard } from "@szl-holdings/platform";
 import { Layout } from "@/components/Layout";
 import Predictions from "@/pages/Predictions";
 import Alerts from "@/pages/Alerts";

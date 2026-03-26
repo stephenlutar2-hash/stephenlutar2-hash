@@ -4,9 +4,9 @@ import { useMetrics, useMutateMetrics, useProjects, useMutateProjects } from "@/
 import { Layout } from "@/components/Layout";
 import { Modal } from "@/components/Modal";
 import { Plus, TrendingUp, TrendingDown, Edit2, Trash2, AlertTriangle, BarChart3, FolderOpen, RefreshCw, CreditCard, DollarSign, ArrowUpRight, ArrowDownRight, Receipt, Wallet, AlertCircle } from "lucide-react";
-import { cn } from "@workspace/ui";
+import { cn } from "@szl-holdings/ui";
 import { LineChart, Line, AreaChart, Area, ResponsiveContainer, Tooltip } from "recharts";
-import type { BeaconMetric, BeaconProject } from "@workspace/api-client-react";
+import type { BeaconMetric, BeaconProject } from "@szl-holdings/api-client-react";
 
 function generateSparklineData(value: number, change: number) {
   const points = 12;

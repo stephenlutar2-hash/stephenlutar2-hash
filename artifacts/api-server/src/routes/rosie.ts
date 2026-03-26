@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { db } from "@workspace/db";
-import { rosieThreatsTable, rosieIncidentsTable, rosieScansTable, insertRosieThreatSchema, insertRosieIncidentSchema, insertRosieScanSchema } from "@workspace/db/schema";
+import { db } from "@szl-holdings/db";
+import { rosieThreatsTable, rosieIncidentsTable, rosieScansTable, insertRosieThreatSchema, insertRosieIncidentSchema, insertRosieScanSchema } from "@szl-holdings/db/schema";
 import { eq } from "drizzle-orm";
 import { requireAuth } from "./auth";
 

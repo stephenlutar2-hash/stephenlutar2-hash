@@ -1,5 +1,5 @@
 // Mock hook to show standard structure
-// In a real app with an API, this would use @workspace/api-client-react
+// In a real app with an API, this would use @szl-holdings/api-client-react
 import { useState, useEffect } from "react";
 
 export function useAuth() {

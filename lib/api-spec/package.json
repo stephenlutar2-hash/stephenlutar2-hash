@@ -1,7 +1,14 @@
 {
-  "name": "@workspace/api-spec",
-  "version": "0.0.0",
-  "private": true,
+  "name": "@szl-holdings/api-spec",
+  "version": "0.1.0",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/szl-holdings/szl-holdings.git",
+    "directory": "lib/api-spec"
+  },
   "scripts": {
     "codegen": "orval --config ./orval.config.ts"
   },

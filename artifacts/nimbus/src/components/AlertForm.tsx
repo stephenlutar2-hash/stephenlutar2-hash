@@ -2,8 +2,8 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Button } from "@workspace/ui";
-import { Input } from "@workspace/ui";
+import { Button } from "@szl-holdings/ui";
+import { Input } from "@szl-holdings/ui";
 import { NativeSelect as Select } from "./ui/native-select";
 import { useCreateAlert } from "@/hooks/use-alerts";
 

@@ -9,4 +9,4 @@ export type {
   DashboardSummary,
   AiAnalysis,
   SignalFilters,
-} from "@workspace/lyte-types";
+} from "@szl-holdings/lyte-types";

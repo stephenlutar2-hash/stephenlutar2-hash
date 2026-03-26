@@ -4,9 +4,9 @@ import { Plus, Target, Trash2, Brain, Activity, Clock, AlertTriangle, RefreshCw,
 import { motion } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, CartesianGrid, AreaChart, Area, LineChart, Line } from "recharts";
 import { usePredictions, useDeletePrediction } from "@/hooks/use-predictions";
-import { Button } from "@workspace/ui";
-import { Badge } from "@workspace/ui";
-import { Dialog } from "@workspace/ui";
+import { Button } from "@szl-holdings/ui";
+import { Badge } from "@szl-holdings/ui";
+import { Dialog } from "@szl-holdings/ui";
 import { CircularProgress } from "@/components/CircularProgress";
 import { PredictionForm } from "@/components/PredictionForm";
 

@@ -1,7 +1,7 @@
 import { type ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import { BrainCircuit, Activity, Cpu } from "lucide-react";
-import { LayoutShell, type NavItem } from "@workspace/platform";
+import { LayoutShell, type NavItem } from "@szl-holdings/platform";
 
 const NAV_ITEMS: NavItem[] = [
   { path: "/", label: "Predictions", icon: BrainCircuit },

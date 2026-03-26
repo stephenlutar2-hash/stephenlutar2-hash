@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn } from "@workspace/ui";
+import { cn } from "@szl-holdings/ui";
 
 const NativeSelect = React.forwardRef<
   HTMLSelectElement,

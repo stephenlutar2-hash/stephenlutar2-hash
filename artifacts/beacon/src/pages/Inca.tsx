@@ -4,9 +4,9 @@ import { useIncaProjects, useMutateIncaProjects, useExperiments, useMutateExperi
 import { Layout } from "@/components/Layout";
 import { Modal } from "@/components/Modal";
 import { Plus, Edit2, Trash2, Brain, FlaskConical, ChevronRight, Target } from "lucide-react";
-import { cn } from "@workspace/ui";
+import { cn } from "@szl-holdings/ui";
 import { BarChart, Bar, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, RadialBarChart, RadialBar, Legend } from "recharts";
-import type { IncaProject } from "@workspace/api-client-react";
+import type { IncaProject } from "@szl-holdings/api-client-react";
 
 const chartTooltipStyle = {
   backgroundColor: 'hsl(var(--card))',

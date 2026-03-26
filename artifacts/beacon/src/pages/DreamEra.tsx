@@ -5,9 +5,9 @@ import { useContent, useMutateContent, useCampaigns, useMutateCampaigns } from "
 import { Layout } from "@/components/Layout";
 import { Modal } from "@/components/Modal";
 import { Plus, Edit2, Trash2, MonitorPlay, FileVideo, Eye, Heart, BarChart3, TrendingUp } from "lucide-react";
-import { cn } from "@workspace/ui";
+import { cn } from "@szl-holdings/ui";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, AreaChart, Area, LineChart, Line } from "recharts";
-import type { DreameraContent } from "@workspace/api-client-react";
+import type { DreameraContent } from "@szl-holdings/api-client-react";
 
 const chartTooltipStyle = {
   backgroundColor: 'hsl(var(--card))',

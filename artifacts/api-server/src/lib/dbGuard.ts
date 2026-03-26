@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import { isDatabaseAvailable } from "@workspace/db";
+import { isDatabaseAvailable } from "@szl-holdings/db";
 
 export function requireDatabase(req: Request, res: Response, next: NextFunction): void {
   if (!isDatabaseAvailable()) {

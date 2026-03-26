@@ -1,4 +1,4 @@
-import { db } from "@workspace/db";
+import { db } from "@szl-holdings/db";
 import {
   rosieThreatsTable, rosieIncidentsTable, rosieScansTable,
   insertRosieThreatSchema, insertRosieIncidentSchema, insertRosieScanSchema,
@@ -12,7 +12,7 @@ import {
   insertIncaProjectSchema, insertIncaExperimentSchema,
   dreameraContentTable, dreameraCampaignsTable,
   insertDreameraContentSchema, insertDreameraCampaignSchema,
-} from "@workspace/db/schema";
+} from "@szl-holdings/db/schema";
 import { eq } from "drizzle-orm";
 import type { ChatCompletionTool } from "openai/resources/chat/completions";
 

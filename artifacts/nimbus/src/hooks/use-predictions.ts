@@ -4,7 +4,7 @@ import {
   useCreateNimbusPrediction,
   useDeleteNimbusPrediction,
   getListNimbusPredictionsQueryKey,
-} from "@workspace/api-client-react";
+} from "@szl-holdings/api-client-react";
 
 export function usePredictions() {
   return useListNimbusPredictions();

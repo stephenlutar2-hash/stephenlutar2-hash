@@ -1,5 +1,5 @@
-import { db } from "@workspace/db";
-import { rosieThreatsTable, rosieIncidentsTable, rosieScansTable } from "@workspace/db/schema";
+import { db } from "@szl-holdings/db";
+import { rosieThreatsTable, rosieIncidentsTable, rosieScansTable } from "@szl-holdings/db/schema";
 
 async function seedRosie() {
   console.log("Seeding ROSIE data...");

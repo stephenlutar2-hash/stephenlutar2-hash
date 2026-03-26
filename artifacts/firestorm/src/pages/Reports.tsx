@@ -5,7 +5,7 @@ import {
   Flame, Shield, Eye, FileText, LayoutDashboard, Target, LogOut,
   Download, BarChart3, Clock, TrendingUp, CheckCircle2, Calendar, AlertTriangle,
 } from "lucide-react";
-import { Badge } from "@workspace/ui";
+import { Badge } from "@szl-holdings/ui";
 import { fetchReports, downloadExport } from "@/lib/api";
 
 interface Report {

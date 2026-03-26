@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import type { IncaProject, CreateIncaProjectStatus } from "@workspace/api-client-react";
+import type { IncaProject, CreateIncaProjectStatus } from "@szl-holdings/api-client-react";
 
 interface ProjectModalProps {
   isOpen: boolean;

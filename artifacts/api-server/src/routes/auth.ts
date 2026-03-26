@@ -1,6 +1,6 @@
 import { Router, type Request, type Response, type NextFunction } from "express";
-import { db, isDatabaseAvailable } from "@workspace/db";
-import { sessionsTable } from "@workspace/db/schema";
+import { db, isDatabaseAvailable } from "@szl-holdings/db";
+import { sessionsTable } from "@szl-holdings/db/schema";
 import { eq } from "drizzle-orm";
 import crypto from "crypto";
 import { isEntraConfigured, getEntraPublicConfig, validateEntraToken } from "../lib/entra";

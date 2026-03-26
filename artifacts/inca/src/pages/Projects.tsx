@@ -4,7 +4,7 @@ import { useIncaProjects, useMutateIncaProjects, useExperiments } from "@/hooks/
 import ProjectModal from "@/components/ProjectModal";
 import { Link } from "wouter";
 import { Plus, Edit2, Trash2, ChevronRight, Brain, Search, LayoutGrid, List } from "lucide-react";
-import type { IncaProject, CreateIncaProjectStatus } from "@workspace/api-client-react";
+import type { IncaProject, CreateIncaProjectStatus } from "@szl-holdings/api-client-react";
 import { SkeletonCard } from "@/components/SkeletonLoader";
 import AnimatedCounter from "@/components/AnimatedCounter";
 

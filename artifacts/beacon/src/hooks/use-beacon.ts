@@ -10,7 +10,7 @@ import {
   useDeleteBeaconProject,
   getListBeaconMetricsQueryKey,
   getListBeaconProjectsQueryKey
-} from "@workspace/api-client-react";
+} from "@szl-holdings/api-client-react";
 
 export function useMetrics() {
   return useListBeaconMetrics();

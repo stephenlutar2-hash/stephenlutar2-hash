@@ -1,4 +1,4 @@
-import { db } from "@workspace/db";
+import { db } from "@szl-holdings/db";
 import {
   rosieThreatsTable,
   rosieIncidentsTable,
@@ -6,8 +6,8 @@ import {
   nimbusPredictionsTable,
   beaconProjectsTable,
   dreameraCampaignsTable,
-} from "@workspace/db/schema";
-import { openai } from "@workspace/integrations-openai-ai-server";
+} from "@szl-holdings/db/schema";
+import { openai } from "@szl-holdings/integrations-openai-ai-server";
 
 interface PlatformHealth {
   platform: string;

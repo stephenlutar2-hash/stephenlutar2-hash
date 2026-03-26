@@ -7,7 +7,7 @@ import {
   Lightbulb, TrendingUp, AlertTriangle,
   CheckCircle2, ArrowRight, Brain, Sparkles, ChevronDown, BarChart3
 } from "lucide-react";
-import type { IncaProject, IncaExperiment } from "@workspace/api-client-react";
+import type { IncaProject, IncaExperiment } from "@szl-holdings/api-client-react";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell,
   PieChart, Pie, RadarChart, Radar, PolarGrid, PolarAngleAxis

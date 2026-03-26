@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { cn } from "@workspace/ui";
+import { cn } from "@szl-holdings/ui";
 
 interface CircularProgressProps {
   value: number;

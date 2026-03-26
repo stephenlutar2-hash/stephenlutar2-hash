@@ -1,6 +1,6 @@
-import { openai } from "@workspace/integrations-openai-ai-server";
-import { db } from "@workspace/db";
-import { messages, conversations } from "@workspace/db/schema";
+import { openai } from "@szl-holdings/integrations-openai-ai-server";
+import { db } from "@szl-holdings/db";
+import { messages, conversations } from "@szl-holdings/db/schema";
 import { eq, asc } from "drizzle-orm";
 import type { Response } from "express";
 import { alloyTools, executeTool } from "./tools";

@@ -5,7 +5,7 @@ import {
   Flame, Eye, Shield, FileText, LayoutDashboard, Target, LogOut,
   CheckCircle2, XCircle, AlertTriangle, TrendingUp, Activity, ChevronDown, ChevronUp,
 } from "lucide-react";
-import { Badge } from "@workspace/ui";
+import { Badge } from "@szl-holdings/ui";
 import { fetchDetectionCoverage, fetchLiveEvents } from "@/lib/api";
 
 interface DetectionData {

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { openai } from "@workspace/integrations-openai-ai-server";
+import { openai } from "@szl-holdings/integrations-openai-ai-server";
 
 const router = Router();
 

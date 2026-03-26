@@ -5,9 +5,9 @@ import { useModules, useMutateModules, useLogs, useMutateLogs } from "@/hooks/us
 import { Layout } from "@/components/Layout";
 import { Modal } from "@/components/Modal";
 import { Plus, Edit2, Trash2, Cpu, ActivitySquare, Server, Gauge } from "lucide-react";
-import { cn } from "@workspace/ui";
+import { cn } from "@szl-holdings/ui";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell } from "recharts";
-import type { ZeusModule } from "@workspace/api-client-react";
+import type { ZeusModule } from "@szl-holdings/api-client-react";
 
 const chartTooltipStyle = {
   backgroundColor: 'hsl(var(--card))',

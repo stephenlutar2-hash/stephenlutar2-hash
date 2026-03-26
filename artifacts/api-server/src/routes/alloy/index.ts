@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { db } from "@workspace/db";
-import { conversations, messages } from "@workspace/db/schema";
+import { db } from "@szl-holdings/db";
+import { conversations, messages } from "@szl-holdings/db/schema";
 import { eq, desc, asc, and } from "drizzle-orm";
 import { requireAuth } from "../auth";
 import { runAgentLoop } from "./agent";

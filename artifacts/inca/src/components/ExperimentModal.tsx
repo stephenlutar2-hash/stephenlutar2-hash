@@ -2,7 +2,7 @@ import { useRef, useEffect } from "react";
 import { X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-import type { CreateIncaExperimentStatus } from "@workspace/api-client-react";
+import type { CreateIncaExperimentStatus } from "@szl-holdings/api-client-react";
 
 interface ExperimentModalProps {
   isOpen: boolean;

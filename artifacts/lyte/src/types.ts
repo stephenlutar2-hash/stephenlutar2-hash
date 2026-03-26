@@ -10,6 +10,6 @@ export type {
   DashboardSummary,
   SignalFilter,
   PortfolioSort,
-} from "@workspace/lyte-types";
+} from "@szl-holdings/lyte-types";
 
-export type { ProjectStatus } from "@workspace/lyte-types";
+export type { ProjectStatus } from "@szl-holdings/lyte-types";

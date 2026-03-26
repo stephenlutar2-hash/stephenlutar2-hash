@@ -8,7 +8,7 @@ import {
   useCreateIncaExperiment,
   getListIncaProjectsQueryKey,
   getListIncaExperimentsQueryKey
-} from "@workspace/api-client-react";
+} from "@szl-holdings/api-client-react";
 
 export function useIncaProjects() {
   return useListIncaProjects();

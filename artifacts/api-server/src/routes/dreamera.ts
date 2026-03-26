@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { db } from "@workspace/db";
-import { dreameraContentTable, dreameraCampaignsTable, insertDreameraContentSchema, insertDreameraCampaignSchema } from "@workspace/db/schema";
+import { db } from "@szl-holdings/db";
+import { dreameraContentTable, dreameraCampaignsTable, insertDreameraContentSchema, insertDreameraCampaignSchema } from "@szl-holdings/db/schema";
 import { eq } from "drizzle-orm";
 
 const router = Router();

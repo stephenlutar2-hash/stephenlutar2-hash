@@ -8,7 +8,7 @@ import {
   useCreateZeusLog,
   getListZeusModulesQueryKey,
   getListZeusLogsQueryKey
-} from "@workspace/api-client-react";
+} from "@szl-holdings/api-client-react";
 
 export function useModules() {
   return useListZeusModules();

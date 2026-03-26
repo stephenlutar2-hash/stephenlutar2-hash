@@ -15,9 +15,9 @@ SZL Holdings is a pnpm monorepo encompassing a suite of security, AI, and media 
 ## Shared Design System
 
 The monorepo uses three shared workspace packages under `lib/`:
-- **`@workspace/ui`** (`lib/ui`): All shared shadcn/ui components (55+), the `cn()` utility, and hooks (`useIsMobile`, `useToast`, `toast`). Apps import from `@workspace/ui` instead of maintaining local copies.
-- **`@workspace/branding`** (`lib/branding`): Shared CSS variable contract (theme-contract.css), base layer styles (base.css), utility classes (utilities.css — glass-panel, text-gradient, glow-shadow, etc.), and TypeScript theme types. See `lib/branding/THEME_REFERENCE.md` for creating new app themes.
-- **`@workspace/platform`** (`lib/platform`): Shared `ErrorBoundary`, `AuthGuard`/`AuthProvider`/`useAuth` (with `redirectComponent` prop for router-agnostic redirects), `LayoutShell` (sidebar/topbar variants with breadcrumbs, page transitions via framer-motion), `PageTransition`, loading/empty/error state components, and environment validation helpers.
+- **`@szl-holdings/ui`** (`lib/ui`): All shared shadcn/ui components (55+), the `cn()` utility, and hooks (`useIsMobile`, `useToast`, `toast`). Apps import from `@szl-holdings/ui` instead of maintaining local copies.
+- **`@szl-holdings/branding`** (`lib/branding`): Shared CSS variable contract (theme-contract.css), base layer styles (base.css), utility classes (utilities.css — glass-panel, text-gradient, glow-shadow, etc.), and TypeScript theme types. See `lib/branding/THEME_REFERENCE.md` for creating new app themes.
+- **`@szl-holdings/platform`** (`lib/platform`): Shared `ErrorBoundary`, `AuthGuard`/`AuthProvider`/`useAuth` (with `redirectComponent` prop for router-agnostic redirects), `LayoutShell` (sidebar/topbar variants with breadcrumbs, page transitions via framer-motion), `PageTransition`, loading/empty/error state components, and environment validation helpers.
 
 ## System Architecture
 
@@ -71,7 +71,7 @@ The project is built as a pnpm workspace monorepo using Node.js 24, pnpm, and Ty
 - RBAC: `lib/rbac.ts` with `requireRole()` middleware supporting emperor/admin/operator/client/user hierarchy.
 - Feature flags: `lib/featureFlags.ts` reads `FEATURE_*` env vars.
 - Audit logging: `lib/audit.ts` structured pino audit middleware on auth/payment/social routes.
-- DB graceful fallback: `@workspace/db` warns on missing `DATABASE_URL` instead of crashing; `isDatabaseAvailable()` export + `requireDatabase` middleware.
+- DB graceful fallback: `@szl-holdings/db` warns on missing `DATABASE_URL` instead of crashing; `isDatabaseAvailable()` export + `requireDatabase` middleware.
 - Apps Showcase: `/catalog` page with grouped project cards including INCA (deployed).
 - SEO: Open Graph meta tags and descriptions on ROSIE, apps-showcase, and career HTML.
 - Accessibility: Skip-to-content links on apps-showcase pages.
@@ -96,3 +96,14 @@ Infrastructure-as-code (Bicep) templates in `infra/` define the full Azure produ
 - Dockerfile at repo root builds the entire monorepo into a single container image.
 - GitHub Actions CI/CD workflow at `.github/workflows/deploy.yml`.
 - See `infra/README.md` for provisioning instructions, parameters, and cost estimates.
+
+## GitHub Packages
+
+All 5 GitHub Packages registries are configured. Shared libraries use `@szl-holdings` scoped names (e.g., `@szl-holdings/ui`, `@szl-holdings/platform`). Workflows use `GITHUB_TOKEN` for authentication.
+
+- **npm**: `.github/workflows/publish-npm.yml` — publishes all 9 shared libs from `lib/` on release or manual dispatch.
+- **Containers**: `.github/workflows/publish-container.yml` — builds Dockerfile and pushes to `ghcr.io` on push to main.
+- **Maven**: `.github/workflows/publish-maven.yml` — scaffolded at `packages/maven-example/`.
+- **NuGet**: `.github/workflows/publish-nuget.yml` — scaffolded at `packages/nuget-example/`.
+- **RubyGems**: `.github/workflows/publish-rubygems.yml` — scaffolded at `packages/rubygems-example/`.
+- See `PACKAGES.md` for full usage documentation.

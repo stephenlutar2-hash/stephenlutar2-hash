@@ -9,7 +9,7 @@ import {
   useDeleteDreameraCampaign,
   getListDreameraContentQueryKey,
   getListDreameraCampaignsQueryKey
-} from "@workspace/api-client-react";
+} from "@szl-holdings/api-client-react";
 
 export function useContent() {
   return useListDreameraContent();

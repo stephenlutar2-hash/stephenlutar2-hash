@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Button } from "@workspace/ui";
+import { Button } from "@szl-holdings/ui";
 
 export default function NotFound() {
   return (

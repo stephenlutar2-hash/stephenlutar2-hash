@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 
 import { Shield, Lock, BrainCircuit, Zap, ClipboardCheck, Search, ChevronRight, CheckCircle2, Menu, X } from "lucide-react";
-import { Button } from "@workspace/ui";
+import { Button } from "@szl-holdings/ui";
 import { ArchitectureDiagram } from "@/components/ArchitectureDiagram";
 import { LiveThreatFeed } from "@/components/LiveThreatFeed";
-import { cn } from "@workspace/ui";
+import { cn } from "@szl-holdings/ui";
 
 // Make sure the image is requested in requirements.yaml
 const HERO_BG = `${import.meta.env.BASE_URL}images/aegis-hero-bg.png`;

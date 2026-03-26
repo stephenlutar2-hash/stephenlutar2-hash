@@ -1,7 +1,7 @@
 import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Toaster, TooltipProvider } from "@workspace/ui";
-import { AuthGuard } from "@workspace/platform";
+import { Toaster, TooltipProvider } from "@szl-holdings/ui";
+import { AuthGuard } from "@szl-holdings/platform";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Dashboard from "@/pages/Dashboard";

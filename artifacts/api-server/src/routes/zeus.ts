@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { db } from "@workspace/db";
-import { zeusModulesTable, zeusLogsTable, insertZeusModuleSchema, insertZeusLogSchema } from "@workspace/db/schema";
+import { db } from "@szl-holdings/db";
+import { zeusModulesTable, zeusLogsTable, insertZeusModuleSchema, insertZeusLogSchema } from "@szl-holdings/db/schema";
 import { eq } from "drizzle-orm";
 
 const router = Router();

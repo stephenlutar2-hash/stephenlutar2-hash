@@ -15,7 +15,7 @@ import {
   AlertCircle,
   X,
 } from "lucide-react";
-import { useAlloyChat } from "@workspace/api-client-react";
+import { useAlloyChat } from "@szl-holdings/api-client-react";
 
 function getToken() {
   return localStorage.getItem("szl_token");

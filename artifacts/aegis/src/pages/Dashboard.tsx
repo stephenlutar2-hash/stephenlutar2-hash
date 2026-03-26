@@ -36,7 +36,7 @@ import {
   Pie,
   Cell
 } from "recharts";
-import { Badge } from "@workspace/ui";
+import { Badge } from "@szl-holdings/ui";
 
 const threatData = [
   { hour: "00:00", blocked: 142, detected: 8 },

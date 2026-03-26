@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { db } from "@workspace/db";
-import { incaProjectsTable, incaExperimentsTable, insertIncaProjectSchema, insertIncaExperimentSchema } from "@workspace/db/schema";
+import { db } from "@szl-holdings/db";
+import { incaProjectsTable, incaExperimentsTable, insertIncaProjectSchema, insertIncaExperimentSchema } from "@szl-holdings/db/schema";
 import { eq } from "drizzle-orm";
 
 const router = Router();

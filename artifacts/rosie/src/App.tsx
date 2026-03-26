@@ -1,9 +1,9 @@
 import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { Toaster } from "@workspace/ui";
-import { TooltipProvider } from "@workspace/ui";
-import { ErrorBoundary } from "@workspace/platform";
+import { Toaster } from "@szl-holdings/ui";
+import { TooltipProvider } from "@szl-holdings/ui";
+import { ErrorBoundary } from "@szl-holdings/platform";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Login from "@/pages/Login";

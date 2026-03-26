@@ -21,7 +21,7 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
-    "@workspace/api-client-react": "workspace:*",
+    "@szl-holdings/api-client-react": "workspace:*",
     "class-variance-authority": "catalog:",
     "clsx": "catalog:",
     "date-fns": "^3.6.0",
@@ -39,9 +39,9 @@
     "vite": "catalog:",
     "wouter": "^3.3.5",
     "zod": "catalog:",
-    "@workspace/ui": "workspace:*",
-    "@workspace/branding": "workspace:*",
-    "@workspace/platform": "workspace:*"
+    "@szl-holdings/ui": "workspace:*",
+    "@szl-holdings/branding": "workspace:*",
+    "@szl-holdings/platform": "workspace:*"
   },
   "dependencies": {
     "@azure/msal-browser": "^5.6.1"
