@@ -225,6 +225,27 @@ export default function Dashboard() {
           </div>
         </header>
 
+        <div className="border-b border-cyan-500/10 bg-cyan-500/[0.02] px-4 md:px-6 py-1.5">
+          <div className="flex items-center justify-between text-[10px] font-mono">
+            <div className="flex items-center gap-3">
+              <span className="text-gray-500 uppercase tracking-wider">SZL Portfolio</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <span className="text-emerald-400">Operational</span>
+              <span className="text-gray-600">·</span>
+              <span className="text-cyan-400">Readiness 85%</span>
+              <span className="text-gray-600">·</span>
+              <span className="text-amber-400">2 Alerts</span>
+            </div>
+            <div className="hidden sm:flex items-center gap-3 text-gray-500">
+              <span>Uptime 99.90%</span>
+              <span>·</span>
+              <span>Last sync 3 min ago</span>
+              <span>·</span>
+              <span className="text-emerald-400">Live</span>
+            </div>
+          </div>
+        </div>
+
         <div className="flex-1 p-4 md:p-6 overflow-x-hidden">
           <ActivePage />
         </div>

@@ -121,7 +121,7 @@ const tiers = [
     price: "Custom",
     period: "",
     description: "Unlimited access with dedicated infrastructure, custom integrations, and SLA guarantees.",
-    features: ["All Professional Features", "DreamEra Storytelling", "Zeus Architecture Access", "PSEM Event Manager", "Dedicated Support", "Unlimited Team Members", "Custom Integrations", "99.99% SLA", "On-Premise Option"],
+    features: ["All Professional Features", "DreamEra Storytelling", "Zeus Architecture Access", "Lyte Command Center", "Dedicated Support", "Unlimited Team Members", "Custom Integrations", "99.99% SLA", "On-Premise Option"],
     cta: "Contact Sales",
     popular: false,
   },
@@ -141,7 +141,7 @@ export default function Home() {
             </div>
             <div>
               <span className="font-display font-bold tracking-wider text-lg">SZL HOLDINGS</span>
-              <p className="text-[10px] text-gray-500 tracking-widest uppercase -mt-0.5">Platform Showcase</p>
+              <p className="text-[10px] text-gray-500 tracking-widest uppercase -mt-0.5">Platform Showcase · <span className="inline-flex items-center gap-1"><span className="w-1 h-1 rounded-full bg-emerald-400 inline-block" />SZL Portfolio · Catalog Fresh</span></p>
             </div>
           </div>
           <div className="hidden sm:flex items-center gap-4">

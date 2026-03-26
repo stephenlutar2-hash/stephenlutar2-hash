@@ -198,6 +198,7 @@ export default function Home() {
               <span className="font-serif text-lg font-semibold tracking-wide text-foreground">Carlota Jo</span>
               <span className="hidden sm:block text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Consulting</span>
             </div>
+            <span className="hidden md:inline-flex items-center gap-1.5 text-[9px] font-mono text-muted-foreground/50 bg-muted/30 border border-border/30 px-2 py-0.5 rounded-full ml-1"><span className="w-1 h-1 rounded-full bg-emerald-400" />SZL Portfolio · Pipeline Healthy</span>
           </a>
 
           <nav className="hidden md:flex items-center gap-8">

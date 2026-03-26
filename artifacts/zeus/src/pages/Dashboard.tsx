@@ -115,6 +115,27 @@ export default function Dashboard() {
         </AnimatePresence>
       </header>
 
+      <div className="border-b border-yellow-500/10 bg-yellow-500/[0.02] px-4 sm:px-6 py-1.5">
+        <div className="max-w-7xl mx-auto flex items-center justify-between text-[10px] font-mono">
+          <div className="flex items-center gap-3">
+            <span className="text-gray-500 uppercase tracking-wider">SZL Portfolio</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+            <span className="text-emerald-400">Operational</span>
+            <span className="text-gray-600">·</span>
+            <span className="text-yellow-400">Readiness 94%</span>
+            <span className="text-gray-600">·</span>
+            <span className="text-gray-500">0 Alerts</span>
+          </div>
+          <div className="hidden sm:flex items-center gap-3 text-gray-500">
+            <span>Uptime 99.99%</span>
+            <span>·</span>
+            <span>Last sync 4 min ago</span>
+            <span>·</span>
+            <span className="text-amber-400">Demo Mode</span>
+          </div>
+        </div>
+      </div>
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
         <div>
           <h2 className="text-2xl sm:text-3xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-amber-400">

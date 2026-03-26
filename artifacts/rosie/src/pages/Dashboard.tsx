@@ -126,6 +126,27 @@ export default function Dashboard() {
         </div>
       </header>
 
+      <div className="border-b border-cyan-500/10 bg-cyan-500/[0.02] px-4 sm:px-6 py-1.5">
+        <div className="max-w-7xl mx-auto flex items-center justify-between text-[10px] font-mono">
+          <div className="flex items-center gap-3">
+            <span className="text-gray-500 uppercase tracking-wider">SZL Portfolio</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+            <span className="text-emerald-400">Operational</span>
+            <span className="text-gray-600">·</span>
+            <span className="text-emerald-400">Readiness 96%</span>
+            <span className="text-gray-600">·</span>
+            <span className="text-gray-500">0 Alerts</span>
+          </div>
+          <div className="hidden sm:flex items-center gap-3 text-gray-500">
+            <span>Uptime 99.97%</span>
+            <span>·</span>
+            <span>Last sync 2 min ago</span>
+            <span>·</span>
+            <span className="text-emerald-400">Live</span>
+          </div>
+        </div>
+      </div>
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {error && (
           <motion.div

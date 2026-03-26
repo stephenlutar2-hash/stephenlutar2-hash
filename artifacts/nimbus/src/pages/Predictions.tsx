@@ -75,6 +75,24 @@ export default function Predictions() {
 
   return (
     <div className="space-y-8">
+      <div className="flex items-center justify-between rounded-lg bg-white/[0.02] border border-white/5 px-4 py-1.5 text-[10px] font-mono -mt-2">
+        <div className="flex items-center gap-3">
+          <span className="text-gray-500 uppercase tracking-wider">SZL Portfolio</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          <span className="text-emerald-400">Operational</span>
+          <span className="text-gray-600">·</span>
+          <span className="text-violet-400">Readiness 88%</span>
+          <span className="text-gray-600">·</span>
+          <span className="text-amber-400">1 Alert</span>
+        </div>
+        <div className="hidden sm:flex items-center gap-3 text-gray-500">
+          <span>Uptime 99.96%</span>
+          <span>·</span>
+          <span>Last sync 6 min ago</span>
+          <span>·</span>
+          <span className="text-amber-400">Demo Mode</span>
+        </div>
+      </div>
       {predictionsError && (
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3 bg-destructive/10 border border-destructive/20 rounded-xl px-5 py-3 text-destructive text-sm">
           <AlertTriangle className="w-5 h-5 shrink-0" />

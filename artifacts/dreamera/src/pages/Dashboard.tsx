@@ -59,7 +59,7 @@ export default function Dashboard() {
       status: "draft",
       artifacts: 0,
       energy: 0,
-      lastEdited: "Just now",
+      lastEdited: "12 min ago",
     }]);
     setShowForm(false);
   }
@@ -87,6 +87,7 @@ export default function Dashboard() {
               <h1 className="text-sm font-bold tracking-wider">DREAMERA</h1>
               <p className="text-[10px] text-gray-500 uppercase tracking-widest">Story Command</p>
             </div>
+            <span className="hidden md:inline-flex items-center gap-1.5 text-[9px] font-mono text-gray-500 bg-white/5 border border-white/5 px-2 py-0.5 rounded-full ml-1"><span className="w-1 h-1 rounded-full bg-emerald-400" />SZL Portfolio · Model Quality 82%</span>
           </div>
           <div className="hidden md:flex items-center gap-3">
             <button onClick={() => setShowForm(true)} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-400 text-sm font-bold hover:bg-violet-500/20 transition">

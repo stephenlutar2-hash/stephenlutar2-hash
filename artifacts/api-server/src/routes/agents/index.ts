@@ -20,11 +20,11 @@ SZL Holdings operates 12 platforms:
 - DreamEra (/dreamera/) — AI storytelling. Readiness: 82%. Status: Deployed. DNS: Verified. TLS: Valid. Uptime: 99.89%. Response: 178ms.
 - Zeus (/zeus/) — Core architecture. Readiness: 94%. Status: Deployed. DNS: Verified. TLS: Valid. Uptime: 99.99%. Response: 98ms.
 - Apps Showcase (/apps-showcase/) — Portfolio site. Readiness: 90%. Status: Deployed. DNS: Verified. TLS: Valid. Uptime: 99.94%. Response: 112ms.
-- PSEM — Security event manager. Readiness: 35%. Status: In Development. DNS: Not configured. TLS: None.
+- INCA (/inca/) — Intelligence & experimentation platform. Readiness: 91%. Status: Deployed. DNS: Verified. TLS: Valid. Uptime: 99.94%. Response: 118ms.
 - Readiness Report (/readiness-report/) — This dashboard. Readiness: 87%. Status: Deployed. DNS: Verified. TLS: Valid.
 - Career (/career/) — Personal portfolio. Readiness: 80%. Status: Staging. DNS: Pending. TLS: Valid.
 
-Overall readiness: 83%. Deployed: 9/12. Avg uptime: 99.92%. Avg response: 141ms.
+Overall readiness: 84%. Deployed: 10/12. Avg uptime: 99.92%. Avg response: 139ms.
 
 Infrastructure: API Server healthy, PostgreSQL connected, CDN active, SSL via Cloudflare, build pipeline passing, error rate 0.02%.
 

@@ -29,11 +29,10 @@ const portfolioProjects: PortfolioProject[] = [
   { name: "Vessels", route: "/vessels/", readiness: 86, status: "deployed", category: "Logistics", owner: "Stephen L.", blockers: 1, nextAction: "Stabilize AIS feed", attentionLevel: "watch", dns: true, tls: true, environment: "production", uptime: 99.90, lastDeploy: "3 hours ago" },
   { name: "Carlota Jo", route: "/carlota-jo/", readiness: 84, status: "deployed", category: "Consulting", owner: "Carlota B.", blockers: 0, nextAction: "Complete Stripe integration", attentionLevel: "none", dns: true, tls: true, environment: "production", uptime: 99.88, lastDeploy: "1 hour ago" },
   { name: "Dreamscape", route: "/dreamscape/", readiness: 80, status: "deployed", category: "Creative", owner: "Stephen L.", blockers: 1, nextAction: "Optimize AI pipeline", attentionLevel: "action", dns: true, tls: true, environment: "production", uptime: 99.80, lastDeploy: "30 min ago" },
-  { name: "PSEM", route: "#", readiness: 25, status: "not-started", category: "Security", owner: "Unassigned", blockers: 2, nextAction: "Assign team & requirements", attentionLevel: "critical", dns: false, tls: false, environment: "development", uptime: 0, lastDeploy: "—" },
-  { name: "Readiness Report", route: "/readiness-report/", readiness: 87, status: "deployed", category: "Operations", owner: "Stephen L.", blockers: 0, nextAction: "—", attentionLevel: "none", dns: true, tls: true, environment: "production", uptime: 99.90, lastDeploy: "Just now" },
+  { name: "Readiness Report", route: "/readiness-report/", readiness: 87, status: "deployed", category: "Operations", owner: "Stephen L.", blockers: 0, nextAction: "—", attentionLevel: "none", dns: true, tls: true, environment: "production", uptime: 99.90, lastDeploy: "45 min ago" },
   { name: "Career", route: "/career/", readiness: 83, status: "deployed", category: "Branding", owner: "Stephen L.", blockers: 0, nextAction: "—", attentionLevel: "none", dns: true, tls: true, environment: "production", uptime: 99.85, lastDeploy: "1 hour ago" },
-  { name: "Lyte", route: "/lyte/", readiness: 90, status: "deployed", category: "Observability", owner: "Stephen L.", blockers: 0, nextAction: "—", attentionLevel: "none", dns: true, tls: true, environment: "production", uptime: 99.95, lastDeploy: "Just now" },
-  { name: "INCA", route: "#", readiness: 72, status: "development", category: "Intelligence", owner: "Stephen L.", blockers: 1, nextAction: "Complete experiment framework", attentionLevel: "watch", dns: false, tls: false, environment: "development", uptime: 0, lastDeploy: "2 days ago" },
+  { name: "Lyte", route: "/lyte/", readiness: 90, status: "deployed", category: "Observability", owner: "Stephen L.", blockers: 0, nextAction: "—", attentionLevel: "none", dns: true, tls: true, environment: "production", uptime: 99.95, lastDeploy: "18 min ago" },
+  { name: "INCA", route: "/inca/", readiness: 91, status: "deployed", category: "Intelligence", owner: "Stephen L.", blockers: 1, nextAction: "Complete real-time alerts", attentionLevel: "watch", dns: true, tls: true, environment: "production", uptime: 99.94, lastDeploy: "3 hours ago" },
 ];
 
 const severityConfig: Record<Severity, { color: string; bg: string; border: string }> = {
@@ -355,11 +354,15 @@ function DashboardTab({ healthScore, avgReadiness, deployed, criticals, attentio
   return (
     <>
       <Section className="mb-6">
-        <div className="glass-card rounded-2xl p-6 glow-blue">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="glass-card rounded-2xl p-6 glow-blue border-primary/20">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
             <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Zap className="w-5 h-5 text-primary" />
+                <span className="text-[10px] text-primary font-mono uppercase tracking-[0.25em]">SZL Holdings — Business Observability Command Center</span>
+              </div>
               <h1 className="text-xl md:text-2xl font-display font-bold mb-1">Ecosystem Health: <span className="text-primary"><AnimatedCounter value={healthScore} />/100</span></h1>
-              <p className="text-sm text-muted-foreground">SZL Holdings operational intelligence — {portfolioProjects.length} platforms monitored. All signals, risks, and actions in one view.</p>
+              <p className="text-sm text-muted-foreground">{portfolioProjects.length} platforms monitored · Real-time signals, risk tracking, and executive action queue</p>
             </div>
             <div className="flex items-center gap-3">
               <div className="text-right">
@@ -371,7 +374,23 @@ function DashboardTab({ healthScore, avgReadiness, deployed, criticals, attentio
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Status</p>
                 <span className="text-xs font-mono text-emerald-400 flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" /> Operational</span>
               </div>
+              <div className="w-px h-8 bg-border" />
+              <a href="/readiness-report/" className="text-[10px] text-primary hover:underline font-mono uppercase tracking-wider flex items-center gap-1">Report <ArrowUpRight className="w-3 h-3" /></a>
             </div>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            {[
+              { label: "Apps Live", value: `${deployed}`, color: "text-emerald-400" },
+              { label: "Apps Blocked", value: `${portfolioProjects.filter(p => p.blockers > 0).length}`, color: portfolioProjects.filter(p => p.blockers > 0).length > 0 ? "text-amber-400" : "text-emerald-400" },
+              { label: "Attention Required", value: `${attentionNeeded}`, color: attentionNeeded > 0 ? "text-orange-400" : "text-emerald-400" },
+              { label: "Avg Readiness", value: `${avgReadiness}%`, color: getReadinessColor(avgReadiness) },
+              { label: "Deploy Coverage", value: `${Math.round((deployed / portfolioProjects.length) * 100)}%`, color: "text-blue-400" },
+            ].map(s => (
+              <div key={s.label} className="p-2.5 rounded-lg bg-muted/30 border border-border/30 text-center">
+                <p className="text-[9px] text-muted-foreground uppercase tracking-wider mb-0.5">{s.label}</p>
+                <p className={`text-lg font-bold font-mono ${s.color}`}>{s.value}</p>
+              </div>
+            ))}
           </div>
         </div>
       </Section>
@@ -426,10 +445,10 @@ function DashboardTab({ healthScore, avgReadiness, deployed, criticals, attentio
             <div className="space-y-3">
               {[
                 { label: "Strongest Asset", value: "ROSIE — 96% readiness", color: "text-emerald-400", sub: "Threat engine fully operational" },
-                { label: "Near Launch", value: "Firestorm — staging", color: "text-amber-400", sub: "Response time optimization needed" },
-                { label: "High Potential", value: "Nimbus — 91% AI platform", color: "text-blue-400", sub: "Model retraining in progress" },
-                { label: "Revenue Driver", value: "Carlota Jo — $84K/quarter", color: "text-emerald-400", sub: "Stripe integration active" },
-                { label: "Risk Watch", value: "PSEM — unassigned", color: "text-red-400", sub: "$180K revenue at risk" },
+                { label: "Near Launch", value: "Firestorm — staging ready", color: "text-amber-400", sub: "Response time optimization needed before prod" },
+                { label: "High Potential", value: "Nimbus — 91% AI platform", color: "text-blue-400", sub: "Model retraining pipeline in progress" },
+                { label: "Revenue Driver", value: "Carlota Jo — $84K/quarter", color: "text-emerald-400", sub: "Stripe integration processing $12.4K/wk" },
+                { label: "Risk Watch", value: "Dreamscape — latency >5s", color: "text-red-400", sub: "AI pipeline GPU saturation, 18% user drop-off" },
               ].map((item, i) => (
                 <div key={i} className="p-3 rounded-lg bg-muted/20 border border-border/50">
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">{item.label}</p>
@@ -448,8 +467,7 @@ function DashboardTab({ healthScore, avgReadiness, deployed, criticals, attentio
             <h2 className="text-sm font-semibold mb-4 flex items-center gap-2"><TrendingDown className="w-4 h-4 text-orange-400" /> Risk & Drift</h2>
             <div className="space-y-2.5">
               {[
-                { label: "PSEM — stalled, no team", severity: "critical" as Severity },
-                { label: "Firestorm — staging >5 days", severity: "high" as Severity },
+                { label: "Firestorm — staging >5 days, perf issues", severity: "high" as Severity },
                 { label: "Dreamscape — latency trending up", severity: "high" as Severity },
                 { label: "DreamEra — accuracy below target", severity: "medium" as Severity },
                 { label: "Lutar — TLS expiring soon", severity: "medium" as Severity },
@@ -699,7 +717,7 @@ function ImpactTab({ metrics }: { metrics: ImpactMetric[] }) {
   };
 
   const scenarios = [
-    { id: "scen-001", title: "PSEM On-Time Launch", description: "If PSEM team is assigned within 2 weeks and launches on schedule in Q3:", inputs: ["Team size: 2 engineers", "Ramp time: 3 weeks", "Launch: Q3 2026"], outcomes: [{ label: "Revenue unlock", value: "+$180K/yr", positive: true }, { label: "Security gap closed", value: "91 → 95/100", positive: true }, { label: "Investment required", value: "$45K", positive: false }] },
+    { id: "scen-001", title: "Firestorm Production Promotion", description: "If Firestorm response times are optimized and integration tests completed within 2 weeks:", inputs: ["Cache layer: Redis $200/mo", "Query optimization: 1 sprint", "Integration tests: 3 days"], outcomes: [{ label: "SLA compliance restored", value: "p95 < 200ms", positive: true }, { label: "Readiness score", value: "78% → 92%", positive: true }, { label: "Investment required", value: "$8K", positive: false }] },
     { id: "scen-002", title: "Firestorm + Dreamscape Latency Fix", description: "If both latency issues are resolved via caching + GPU scaling:", inputs: ["Redis cache: $200/mo", "GPU scale: $1,200/mo"], outcomes: [{ label: "User drop-off recovery", value: "-18% → baseline", positive: true }, { label: "Sessions recovered", value: "+4,200/day", positive: true }, { label: "Monthly cost increase", value: "+$1,400/mo", positive: false }] },
     { id: "scen-003", title: "Full Portfolio Automation", description: "Completing AlloyScape templates + Zeus chaos suite unlocks:", inputs: ["Templates: 8 remaining", "Chaos tests: 3 remaining"], outcomes: [{ label: "Manual work saved", value: "8 → 0 hrs/wk", positive: true }, { label: "Resilience score", value: "78% → 100%", positive: true }, { label: "Deployment confidence", value: "High", positive: true }] },
   ];

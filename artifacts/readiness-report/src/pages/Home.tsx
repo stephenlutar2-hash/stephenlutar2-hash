@@ -143,14 +143,7 @@ const projects: Project[] = [
     recommendations: ["Optimize AI generation pipeline latency", "Build real-time collaboration"],
   },
   {
-    name: "PSEM", route: "#", readiness: 25, status: "not-started", dns: "not-configured", tls: "none", domain: "—", lastDeploy: "—", uptime: 0, responseTime: 0, category: "Security", owner: "Unassigned",
-    categories: [{ name: "Frontend", score: 15, weight: 25 }, { name: "Backend", score: 10, weight: 30 }, { name: "Infrastructure", score: 30, weight: 20 }, { name: "Security", score: 40, weight: 15 }, { name: "Integrations", score: 20, weight: 10 }],
-    milestones: [{ name: "Requirements Gathering", status: "in-progress" }, { name: "Architecture Design", status: "upcoming" }, { name: "MVP Build", status: "upcoming" }, { name: "Testing", status: "upcoming" }],
-    blockers: [{ title: "No assigned development team", severity: "critical", owner: "Management" }, { title: "Requirements specification incomplete", severity: "critical", owner: "Product" }],
-    recommendations: ["Assign development team", "Complete requirements specification", "Configure DNS records", "Set up TLS certificates"],
-  },
-  {
-    name: "Readiness Report", route: "/readiness-report/", readiness: 87, status: "deployed", dns: "verified", tls: "valid", tlsExpiry: "2026-12-15", domain: "szlholdings.com/readiness-report", lastDeploy: "Just now", uptime: 99.90, responseTime: 105, category: "Operations", owner: "Stephen L.",
+    name: "Readiness Report", route: "/readiness-report/", readiness: 87, status: "deployed", dns: "verified", tls: "valid", tlsExpiry: "2026-12-15", domain: "szlholdings.com/readiness-report", lastDeploy: "45 min ago", uptime: 99.90, responseTime: 105, category: "Operations", owner: "Stephen L.",
     categories: [{ name: "Frontend", score: 90, weight: 25 }, { name: "Backend", score: 84, weight: 30 }, { name: "Infrastructure", score: 88, weight: 20 }, { name: "Security", score: 86, weight: 15 }, { name: "Integrations", score: 82, weight: 10 }],
     milestones: [{ name: "Dashboard Layout", status: "completed" }, { name: "Score Visualization", status: "completed" }, { name: "Export Feature", status: "completed" }, { name: "Advanced Filtering", status: "completed" }],
     blockers: [],
@@ -162,6 +155,13 @@ const projects: Project[] = [
     milestones: [{ name: "Hero & Bio", status: "completed" }, { name: "Timeline", status: "completed" }, { name: "Case Studies", status: "completed" }, { name: "Contact Flow", status: "completed" }, { name: "SEO Optimization", status: "completed" }],
     blockers: [],
     recommendations: [],
+  },
+  {
+    name: "INCA", route: "/inca/", readiness: 91, status: "deployed", dns: "verified", tls: "valid", tlsExpiry: "2026-11-20", domain: "szlholdings.com/inca", lastDeploy: "3 hours ago", uptime: 99.94, responseTime: 118, category: "Intelligence", owner: "Stephen L.",
+    categories: [{ name: "Frontend", score: 94, weight: 25 }, { name: "Backend", score: 89, weight: 30 }, { name: "Infrastructure", score: 91, weight: 20 }, { name: "Security", score: 90, weight: 15 }, { name: "Integrations", score: 88, weight: 10 }],
+    milestones: [{ name: "Intelligence Dashboard", status: "completed" }, { name: "Signal Processing", status: "completed" }, { name: "Threat Correlation", status: "completed" }, { name: "Real-time Alerts", status: "in-progress" }, { name: "Advanced Analytics", status: "upcoming" }],
+    blockers: [{ title: "Real-time alert delivery latency", severity: "low", owner: "Backend" }],
+    recommendations: ["Optimize WebSocket alert pipeline", "Add historical trend analysis"],
   },
 ];
 
@@ -365,6 +365,9 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-3">
             <span className="text-xs text-muted-foreground font-mono hidden sm:inline">Last updated: {new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+            <a href="/lyte/" className="px-3 py-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 border border-primary/20 transition text-xs font-medium text-primary flex items-center gap-1.5">
+              <Activity className="w-3.5 h-3.5" /> Lyte Command Center
+            </a>
             <button onClick={() => setPrintMode(true)} className="px-3 py-1.5 rounded-lg bg-muted hover:bg-muted/80 transition text-xs font-medium text-muted-foreground flex items-center gap-1.5">
               <Printer className="w-3.5 h-3.5" /> Generate Report
             </button>

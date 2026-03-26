@@ -10,7 +10,7 @@ interface Message {
 const SUGGESTIONS = [
   "Which platforms have the lowest readiness?",
   "Give me an infrastructure health summary",
-  "What needs to happen before PSEM can deploy?",
+  "What is blocking INCA from reaching full readiness?",
   "Compare uptime across all platforms",
 ];
 

@@ -169,7 +169,10 @@ export default function Home() {
     <div className="min-h-screen">
       <nav className="fixed top-0 w-full z-50 backdrop-blur-xl bg-background/70 border-b border-border/50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <span className="font-display text-lg font-bold tracking-wide text-gold">SL</span>
+          <div className="flex items-center gap-3">
+            <span className="font-display text-lg font-bold tracking-wide text-gold">SL</span>
+            <span className="hidden sm:inline-flex items-center gap-1.5 text-[9px] font-mono text-gray-500 bg-white/5 border border-white/5 px-2 py-0.5 rounded-full"><span className="w-1 h-1 rounded-full bg-emerald-400" />SZL Portfolio · Profile 83%</span>
+          </div>
           <div className="hidden sm:flex items-center gap-6">
             {["About", "Experience", "Case Studies", "Work", "Contact"].map(item => (
               <a key={item} href={`#${item.toLowerCase().replace(" ", "-")}`} className="text-sm text-muted-foreground hover:text-foreground transition">{item}</a>

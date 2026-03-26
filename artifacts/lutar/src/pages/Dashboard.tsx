@@ -561,6 +561,27 @@ export default function Dashboard() {
           </div>
         </header>
 
+        <div className="border-b border-primary/10 bg-primary/[0.02] px-8 py-1.5">
+          <div className="flex items-center justify-between text-[10px] font-mono">
+            <div className="flex items-center gap-3">
+              <span className="text-muted-foreground uppercase tracking-wider">SZL Portfolio</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <span className="text-emerald-400">Operational</span>
+              <span className="text-muted-foreground/50">·</span>
+              <span className="text-primary">Readiness 86%</span>
+              <span className="text-muted-foreground/50">·</span>
+              <span className="text-amber-400">1 Alert</span>
+            </div>
+            <div className="hidden sm:flex items-center gap-3 text-muted-foreground">
+              <span>Uptime 99.91%</span>
+              <span>·</span>
+              <span>Last sync 1 min ago</span>
+              <span>·</span>
+              <span className="text-amber-400">Demo Mode</span>
+            </div>
+          </div>
+        </div>
+
         <div className="p-8 space-y-8">
           {activeTab === "command" && (<>
           <motion.div
@@ -1096,7 +1117,7 @@ export default function Dashboard() {
               <h2 className="text-2xl font-display font-bold text-white uppercase tracking-wider">Strategic Goals</h2>
               <div className="space-y-4">
                 {[
-                  { goal: "Launch PSEM v1.0", deadline: "Q2 2026", progress: 25, priority: "Critical" },
+                  { goal: "Firestorm Production Launch", deadline: "Q2 2026", progress: 72, priority: "High" },
                   { goal: "Achieve $20M ARR", deadline: "Q4 2026", progress: 80, priority: "High" },
                   { goal: "SOC 2 Type II Certification", deadline: "Q3 2026", progress: 65, priority: "High" },
                   { goal: "Expand to 3 new markets", deadline: "Q4 2026", progress: 30, priority: "Medium" },

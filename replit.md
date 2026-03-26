@@ -72,7 +72,7 @@ The project is built as a pnpm workspace monorepo using Node.js 24, pnpm, and Ty
 - Feature flags: `lib/featureFlags.ts` reads `FEATURE_*` env vars.
 - Audit logging: `lib/audit.ts` structured pino audit middleware on auth/payment/social routes.
 - DB graceful fallback: `@workspace/db` warns on missing `DATABASE_URL` instead of crashing; `isDatabaseAvailable()` export + `requireDatabase` middleware.
-- Apps Showcase: `/catalog` page with grouped project cards, PSEM marked "Coming Soon".
+- Apps Showcase: `/catalog` page with grouped project cards including INCA (deployed).
 - SEO: Open Graph meta tags and descriptions on ROSIE, apps-showcase, and career HTML.
 - Accessibility: Skip-to-content links on apps-showcase pages.
 

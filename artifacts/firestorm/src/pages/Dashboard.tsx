@@ -141,6 +141,27 @@ export default function Dashboard() {
           </div>
         </header>
 
+        <div className="border-b border-orange-500/10 bg-orange-500/[0.02] px-6 py-1.5">
+          <div className="flex items-center justify-between text-[10px] font-mono">
+            <div className="flex items-center gap-3">
+              <span className="text-gray-500 uppercase tracking-wider">SZL Portfolio</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <span className="text-emerald-400">Operational</span>
+              <span className="text-gray-600">·</span>
+              <span className="text-orange-400">Readiness 78%</span>
+              <span className="text-gray-600">·</span>
+              <span className="text-amber-400">3 Alerts</span>
+            </div>
+            <div className="hidden sm:flex items-center gap-3 text-gray-500">
+              <span>Uptime 99.82%</span>
+              <span>·</span>
+              <span>Last sync 5 min ago</span>
+              <span>·</span>
+              <span className="text-amber-400">Staging</span>
+            </div>
+          </div>
+        </div>
+
         <div className="p-6 space-y-6 flex-1">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {[

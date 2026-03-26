@@ -31,9 +31,12 @@ export default function Dashboard() {
     <AppShell>
       <div className="space-y-8">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">
-            Creative Command
-          </h2>
+          <div className="flex items-center gap-3 mb-1">
+            <h2 className="text-2xl sm:text-3xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">
+              Creative Command
+            </h2>
+            <span className="hidden sm:inline-flex items-center gap-1.5 text-[9px] font-mono text-gray-500 bg-white/5 border border-white/5 px-2 py-0.5 rounded-full"><span className="w-1 h-1 rounded-full bg-emerald-400" />SZL Portfolio · Gen Latency 1.2s</span>
+          </div>
           <p className="text-sm text-muted-foreground mt-1">Welcome to your creative workspace</p>
         </div>
 
