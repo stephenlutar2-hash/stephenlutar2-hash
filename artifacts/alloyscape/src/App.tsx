@@ -72,6 +72,7 @@ function App() {
         <DemoBanner />
         <Router />
       </WouterRouter>
+      <EcosystemBar currentApp="AlloyScape" />
       <SocialShareWidget
         appName="AlloyScape Infrastructure"
         appContext="AlloyScape — platform-wide operations and infrastructure orchestration by SZL Holdings"

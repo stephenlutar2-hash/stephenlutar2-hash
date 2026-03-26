@@ -59,6 +59,7 @@ function App() {
         <CommandPaletteWrapper />
         <Router />
       </WouterRouter>
+      <EcosystemBar currentApp="Dreamscape" />
       <SocialShareWidget
         appName="Dreamscape Creative"
         appContext="Dreamscape — world-building and creative exploration platform by SZL Holdings"

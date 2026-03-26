@@ -75,6 +75,7 @@ function App() {
         <CommandPaletteWrapper />
         <Router />
       </WouterRouter>
+      <EcosystemBar currentApp="DreamEra" />
       <SocialShareWidget
         appName="DreamEra Creative"
         appContext="DreamEra — creative technology, social media automation, and content strategy by SZL Holdings"

@@ -1,6 +1,6 @@
 import {Switch, Route, Router as WouterRouter, Redirect, useLocation} from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Toaster, TooltipProvider, DomainChatWidget, CommandPalette, useAppCommands, SocialShareWidget , EcosystemBar } from "@szl-holdings/ui";
+import { Toaster, TooltipProvider, DomainChatWidget, CommandPalette, useAppCommands, SocialShareWidget, EcosystemBar } from "@szl-holdings/ui";
 import { AuthGuard, ErrorBoundary } from "@szl-holdings/platform";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
