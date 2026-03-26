@@ -127,12 +127,16 @@ A shared extension infrastructure (`artifacts/api-server/src/services/extensions
 *   **Auth**: All extension endpoints require valid JWT tokens (`requireAuth` middleware). In-memory storage (Maps/arrays) — no DB schema changes.
 *   **Routes**: `GET/POST/PUT/DELETE /api/extensions/{domain}/{feature}` mounted via extensionsRouter in `routes/index.ts`.
 
-## External Dependencies
+## External Dependencies & Integrations
 
 *   **PostgreSQL**: Primary database.
 *   **OpenAI**: Powers the Alloy Nuro Engine.
 *   **Microsoft Entra External ID (MSAL)**: For enterprise Single Sign-On (SSO).
-*   **Stripe**: Payment processing.
+*   **Stripe**: Payment processing via Replit connector (sandbox connected). Provider at `providers/stripe.ts` uses `getUncachableStripeClient()` pattern. Routes: `/api/stripe/*`. Service: `services/stripe.ts`.
+*   **Google Gmail**: Connected via Replit connector (stephen@szlholdings.com). Service at `services/google-gmail.ts`. Routes: `/api/google/gmail/*` (inbox, send, read).
+*   **Google Calendar**: Connected via Replit connector (stephen@szlholdings.com). Service at `services/google-calendar.ts`. Routes: `/api/google/calendar/*` (events CRUD).
+*   **Google Drive**: Connected via Replit connector (stephen@szlholdings.com). Service at `services/google-drive.ts` using `@replit/connectors-sdk` proxy. Routes: `/api/google/drive/*` (files list, search, metadata).
+*   **Integration Status Endpoint**: `GET /api/google/status` returns connection status for all 3 Google services.
 *   **Plaid**: Financial data aggregation.
 *   **Meta (Facebook/Instagram), Twitter, LinkedIn**: Social media integration for DreamEra.
 *   **Azure Application Insights**: Monitoring and telemetry.

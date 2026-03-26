@@ -1,53 +1,113 @@
+import Stripe from "stripe";
 import type { StripeProvider } from "./index";
+import { logger } from "../lib/logger";
+
+let connectionSettings: any;
+
+async function getCredentials() {
+  const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
+  const xReplitToken = process.env.REPL_IDENTITY
+    ? "repl " + process.env.REPL_IDENTITY
+    : process.env.WEB_REPL_RENEWAL
+      ? "depl " + process.env.WEB_REPL_RENEWAL
+      : null;
+
+  if (!xReplitToken) {
+    throw new Error("X-Replit-Token not found for repl/depl");
+  }
+
+  const isProduction = process.env.REPLIT_DEPLOYMENT === "1";
+  const targetEnvironment = isProduction ? "production" : "development";
+
+  const url = new URL(`https://${hostname}/api/v2/connection`);
+  url.searchParams.set("include_secrets", "true");
+  url.searchParams.set("connector_names", "stripe");
+  url.searchParams.set("environment", targetEnvironment);
+
+  const response = await fetch(url.toString(), {
+    headers: {
+      Accept: "application/json",
+      "X-Replit-Token": xReplitToken,
+    },
+  });
+
+  const data = await response.json();
+  connectionSettings = data.items?.[0];
+
+  if (
+    !connectionSettings ||
+    !connectionSettings.settings.publishable ||
+    !connectionSettings.settings.secret
+  ) {
+    throw new Error(`Stripe ${targetEnvironment} connection not found`);
+  }
+
+  return {
+    publishableKey: connectionSettings.settings.publishable,
+    secretKey: connectionSettings.settings.secret,
+  };
+}
+
+async function getUncachableStripeClient() {
+  const { secretKey } = await getCredentials();
+  return new Stripe(secretKey, {
+    apiVersion: "2025-04-30.basil" as any,
+  });
+}
+
+export async function getStripePublishableKey() {
+  const { publishableKey } = await getCredentials();
+  return publishableKey;
+}
 
 export class LiveStripeProvider implements StripeProvider {
-  private client: any = null;
+  isConfigured(): boolean {
+    return !!process.env.REPLIT_CONNECTORS_HOSTNAME;
+  }
 
-  private getClient(): any {
-    if (this.client) return this.client;
-    const key = process.env.STRIPE_SECRET_KEY;
-    if (!key) return null;
+  async getBalance(): Promise<any> {
     try {
-      const Stripe = require("stripe");
-      this.client = new Stripe(key);
-      return this.client;
-    } catch {
+      const client = await getUncachableStripeClient();
+      return client.balance.retrieve();
+    } catch (err) {
+      logger.warn({ err }, "Stripe getBalance failed");
       return null;
     }
   }
 
-  isConfigured(): boolean {
-    return !!process.env.STRIPE_SECRET_KEY;
-  }
-
-  async getBalance(): Promise<any> {
-    const client = this.getClient();
-    if (!client) return null;
-    return client.balance.retrieve();
-  }
-
   async listCharges(options: { limit: number; created?: { gte: number } }): Promise<any> {
-    const client = this.getClient();
-    if (!client) return { data: [], has_more: false };
-    return client.charges.list(options);
+    try {
+      const client = await getUncachableStripeClient();
+      return client.charges.list(options);
+    } catch (err) {
+      logger.warn({ err }, "Stripe listCharges failed");
+      return { data: [], has_more: false };
+    }
   }
 
   async listSubscriptions(options: { status: string; limit: number }): Promise<any> {
-    const client = this.getClient();
-    if (!client) return { data: [] };
-    return client.subscriptions.list(options);
+    try {
+      const client = await getUncachableStripeClient();
+      return client.subscriptions.list(options as any);
+    } catch (err) {
+      logger.warn({ err }, "Stripe listSubscriptions failed");
+      return { data: [] };
+    }
   }
 
   async createCheckoutSession(params: any): Promise<any> {
-    const client = this.getClient();
-    if (!client) return null;
-    return client.checkout.sessions.create(params);
+    try {
+      const client = await getUncachableStripeClient();
+      return client.checkout.sessions.create(params);
+    } catch (err) {
+      logger.warn({ err }, "Stripe createCheckoutSession failed");
+      return null;
+    }
   }
 
   constructWebhookEvent(payload: string | Buffer, sig: string, secret: string): any {
-    const client = this.getClient();
-    if (!client) throw new Error("Stripe not configured");
-    return client.webhooks.constructEvent(payload, sig, secret);
+    const stripe = new Stripe(secret, { apiVersion: "2025-04-30.basil" as any });
+    return stripe.webhooks.constructEvent(payload, sig, secret);
   }
 }
 
