@@ -38,7 +38,7 @@ The monorepo encompasses several distinct applications:
 *   **ZEUS**: Modular core architecture system.
 *   **VESSELS**: Maritime/logistics fleet intelligence platform with a dedicated PostgreSQL schema.
 *   **INCA**: Standalone intelligence/analytics platform with project management and experiment tracking.
-*   **CARLOTA JO**: Luxury consulting/family-office website.
+*   **CARLOTA JO**: Luxury consulting/family-office website with DB-backed inquiry/engagement management.
 *   **LYTE**: Executive observability command center with a dark glass-card design.
 *   **SZL Holdings**: Premium founder experience website.
 *   **Apps Showcase**, **Readiness Report**, and **Career** for public information.
@@ -71,7 +71,7 @@ The system incorporates robust security and governance features:
 *   **Health Endpoints:** Comprehensive health checks at various levels.
 *   **Security Headers:** Middleware for CSP, HSTS, and other security headers.
 *   **RBAC:** Role-Based Access Control using a DB-backed `user_roles` table with `requireRole()` middleware.
-*   **Rate Limiting:** Per-IP and per-user rate limiting on critical endpoints.
+*   **Rate Limiting:** Global API rate limiting (200 req/min), auth-specific (20/15min), and write-specific (60/min) per-IP and per-user rate limiting.
 *   **Schema Validation:** Zod-based validation and sanitization for all incoming data.
 *   **Input Sanitization:** HTML escaping for XSS prevention.
 *   **Audit Logging:** Structured audit logs for all mutating operations to both logs and a database table.

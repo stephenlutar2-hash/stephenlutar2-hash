@@ -21,14 +21,18 @@ import lyteRouter from "./lyte";
 import contactRouter from "./contact";
 import aegisRouter from "./aegis";
 import securitySummaryRouter from "./security-summary";
+import szlHoldingsRouter from "./szl-holdings";
+import platformRouter from "./platform";
 import { auditMiddleware } from "../lib/audit";
 import { requireDatabase } from "../lib/dbGuard";
-import { authRateLimit } from "../middleware/rateLimit";
+import { authRateLimit, apiRateLimit } from "../middleware/rateLimit";
 
 const router: IRouter = Router();
 
 router.use(auditMiddleware());
 router.use(healthRouter);
+
+router.use(apiRateLimit);
 
 router.use("/auth", requireDatabase);
 router.use("/auth", authRateLimit);
@@ -44,6 +48,9 @@ router.use("/vessels", requireDatabase);
 router.use("/domain-agents", requireDatabase);
 router.use("/aegis", requireDatabase);
 router.use("/security", requireDatabase);
+router.use("/carlota-jo", requireDatabase);
+router.use("/szl-holdings", requireDatabase);
+router.use("/platform", requireDatabase);
 
 router.use(authRouter);
 router.use(beaconRouter);
@@ -66,5 +73,7 @@ router.use(lyteRouter);
 router.use(contactRouter);
 router.use(aegisRouter);
 router.use(securitySummaryRouter);
+router.use(szlHoldingsRouter);
+router.use(platformRouter);
 
 export default router;

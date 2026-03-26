@@ -99,3 +99,9 @@ export const writeRateLimit = rateLimit({
   },
   message: "Too many write requests, please slow down",
 });
+
+export const apiRateLimit = rateLimit({
+  windowMs: 60 * 1000,
+  maxRequests: 200,
+  message: "Too many API requests, please try again later",
+});

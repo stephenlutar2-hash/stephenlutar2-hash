@@ -9,3 +9,4 @@ export * from "./conversations";
 export * from "./messages";
 export * from "./governance";
 export * from "./vessels";
+export * from "./carlota-jo";
