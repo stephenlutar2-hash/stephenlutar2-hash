@@ -56,13 +56,31 @@ This is the central AI intelligence, powered by OpenAI gpt-5.2. It employs a "to
 
 **Domain-Specific AI Agents:**
 
-Four domain-specific AI agents share a common SSE streaming backend engine (`artifacts/api-server/src/routes/domain-agents/`):
-*   **INCA — Research Intelligence Agent**: Curated tools for projects, experiments, insights, and models. Uses `optionalAuth` for public/authenticated access.
-*   **Vessels — Maritime Operations Agent**: Tools for fleet, vessel, voyage, emissions, and alert queries.
-*   **SZL Holdings — Portfolio Concierge**: No tools; pure conversational agent for portfolio/vision inquiries.
+Eighteen domain-specific AI agents share a common SSE streaming backend engine (`artifacts/api-server/src/routes/domain-agents/`):
+*   **INCA — Research Intelligence Agent**: DB-backed tools for projects, experiments, insights. Requires auth.
+*   **Vessels — Maritime Operations Agent**: DB-backed tools for fleet, vessel, voyage, emissions, alerts. Requires auth.
+*   **ROSIE — Security Intelligence Agent**: DB-backed tools for threats, incidents, scans.
+*   **Beacon — Analytics Agent**: DB-backed tools for KPI metrics and projects.
+*   **Nimbus — Predictive Intelligence Agent**: DB-backed tools for predictions and alerts.
+*   **Zeus — Architecture Agent**: DB-backed tools for modules and system logs.
+*   **DreamEra — Creative Intelligence Agent**: DB-backed tools for content and campaigns.
+*   **Aegis — Defensive Security Agent**: API-backed tools for posture score, vulnerabilities, compliance.
+*   **Firestorm — Red Team Agent**: API-backed tools for scenarios and detection coverage.
+*   **Lyte — Observability Agent**: API-backed tools for dashboard summary, executive scorecard, SLO status.
+*   **Lutar — Command Agent**: Static tools for platform overview and capabilities.
+*   **AlloyScape — Operations Agent**: Static tools for infrastructure overview.
+*   **Dreamscape — Creative Agent**: Static tools for creative systems overview.
+*   **SZL Holdings — Portfolio Concierge**: Tools for app links, listing all 18 platforms, and search.
 *   **Carlota Jo — Strategic Engagement Advisor**: Submit-inquiry tool for consultation booking.
+*   **Readiness Report — Assessment Agent**: Static tools for platform info.
+*   **Career — Portfolio Agent**: Static tools for career milestones.
+*   **Apps Showcase — Catalog Guide**: Static tools for platform catalog.
 
 Each agent has a distinct system prompt and persona. Routes: `/api/domain-agents/:agentType/conversations` (CRUD) and `/api/domain-agents/:agentType/conversations/:id/messages` (SSE streaming). Anonymous sessions use HMAC-derived usernames for security. Each frontend app integrates a themed `DomainChatWidget` component (floating button → collapsible chat panel). The `conversations` table has an `agentType` column (default "alloy") to isolate agent conversations.
+
+**Registered Artifacts (18 apps + API server):**
+
+All 18 frontend apps are registered as Replit artifacts with their own artifact.toml, workflows, and port assignments. The API server builds all frontends and serves them as static files in production. Ports: ROSIE (25013), Aegis (25001), Beacon (25004), Nimbus (25011), Zeus (25014), DreamEra (25006), Dreamscape (25007), Firestorm (25008), Lyte (25010), Lutar (25009), AlloyScape (25002), Apps Showcase (25003), Readiness Report (25012), Career (25005), INCA (24481), Vessels (18485), SZL Holdings (24490), Carlota Jo (19688).
 
 **Security & Governance:**
 

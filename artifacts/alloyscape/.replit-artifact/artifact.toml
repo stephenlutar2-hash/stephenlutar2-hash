@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/alloyscape/"
+title = "AlloyScape Infrastructure"
+version = "1.0.0"
+id = "artifacts/alloyscape"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/alloyscape/" ]
+localPort = 25002
+
+[services.development]
+run = "pnpm --filter @workspace/alloyscape run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/alloyscape", "run", "build" ]
+publicDir = "artifacts/alloyscape/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25002"
+BASE_PATH = "/alloyscape/"

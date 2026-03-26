@@ -116,16 +116,6 @@ app.use(errorHandler());
 
 const artifactsRoot = path.resolve(__dirname, "..", "..");
 
-app.get("/rosie", (req: Request, res: Response) => {
-  const qs = req.originalUrl.includes("?") ? req.originalUrl.slice(req.originalUrl.indexOf("?")) : "";
-  res.redirect(301, `/${qs}`);
-});
-app.get("/rosie/{*splat}", (req: Request, res: Response) => {
-  const raw = (req.params as Record<string, unknown>).splat;
-  const rest = Array.isArray(raw) ? raw.join("/") : (raw as string) || "";
-  const qs = req.originalUrl.includes("?") ? req.originalUrl.slice(req.originalUrl.indexOf("?")) : "";
-  res.redirect(301, `/${rest}${qs}`);
-});
 
 app.get("/alloy", (req: Request, res: Response) => {
   const qs = req.originalUrl.includes("?") ? req.originalUrl.slice(req.originalUrl.indexOf("?")) : "";
@@ -139,6 +129,7 @@ app.get("/alloy/{*splat}", (req: Request, res: Response) => {
 });
 
 const frontends: Array<{ basePath: string; dir: string }> = [
+  { basePath: "/rosie", dir: "rosie" },
   { basePath: "/aegis", dir: "aegis" },
   { basePath: "/beacon", dir: "beacon" },
   { basePath: "/lutar", dir: "lutar" },
