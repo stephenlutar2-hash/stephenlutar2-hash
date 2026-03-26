@@ -1,4 +1,4 @@
-import { CommandPalette, useAppCommands, DomainChatWidget } from "@szl-holdings/ui";
+import { CommandPalette, useAppCommands, DomainChatWidget, SocialShareWidget } from "@szl-holdings/ui";
 import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import Home from "@/pages/Home";
 import ImportCenter from "@/pages/ImportCenter";
@@ -33,6 +33,13 @@ function App() {
     <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
         <CommandPaletteWrapper />
       <Router />
+      <SocialShareWidget
+        appName="Lyte Observability"
+        appContext="Lyte — infrastructure observability and cost intelligence by SZL Holdings"
+        defaultHashtags={["#SZLHoldings", "#Lyte", "#Observability"]}
+        accentColor="#10b981"
+        getToken={() => localStorage.getItem("szl_token")}
+      />
       <DomainChatWidget
         agentType="lyte"
         agentName="Lyte Observability Engineer"

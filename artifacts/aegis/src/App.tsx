@@ -1,6 +1,6 @@
 import {Switch, Route, Router as WouterRouter, Redirect, useLocation} from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Toaster, TooltipProvider, DomainChatWidget, CommandPalette, useAppCommands } from "@szl-holdings/ui";
+import { Toaster, TooltipProvider, DomainChatWidget, CommandPalette, useAppCommands, SocialShareWidget } from "@szl-holdings/ui";
 import { AuthGuard, ErrorBoundary } from "@szl-holdings/platform";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
@@ -54,6 +54,13 @@ function App() {
             <Router />
           </WouterRouter>
           <Toaster />
+          <SocialShareWidget
+            appName="Aegis Security"
+            appContext="Aegis — enterprise governance, compliance, and access control by SZL Holdings"
+            defaultHashtags={["#SZLHoldings", "#AegisSecurity", "#Cybersecurity"]}
+            accentColor="#10b981"
+            getToken={() => localStorage.getItem("szl_token")}
+          />
           <DomainChatWidget
             agentType="aegis"
             agentName="Aegis Governance & Compliance Advisor"

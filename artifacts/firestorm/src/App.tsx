@@ -1,7 +1,7 @@
 import {Switch, Route, Router as WouterRouter, Redirect, useLocation} from "wouter";
 import { AuthGuard, ErrorBoundary } from "@szl-holdings/platform";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Toaster, DomainChatWidget, CommandPalette, useAppCommands } from "@szl-holdings/ui";
+import { Toaster, DomainChatWidget, CommandPalette, useAppCommands, SocialShareWidget } from "@szl-holdings/ui";
 import { TooltipProvider } from "@szl-holdings/ui";
 import { LabBanner } from "@/components/LabBanner";
 import NotFound from "@/pages/not-found";
@@ -65,6 +65,13 @@ function App() {
             <Router />
           </WouterRouter>
           <Toaster />
+          <SocialShareWidget
+            appName="Firestorm Security"
+            appContext="Firestorm — incident response simulation and threat detection lab by SZL Holdings"
+            defaultHashtags={["#SZLHoldings", "#Firestorm", "#IncidentResponse"]}
+            accentColor="#f97316"
+            getToken={() => localStorage.getItem("szl_token")}
+          />
           <DomainChatWidget
             agentType="firestorm"
             agentName="Firestorm Incident Response Strategist"

@@ -4,7 +4,7 @@ import Navigation from "./components/Navigation";
 import Hero from "./sections/Hero";
 import Footer from "./components/Footer";
 import ImportCenter from "./pages/ImportCenter";
-import { DomainChatWidget, CommandPalette, useAppCommands } from "@szl-holdings/ui";
+import { DomainChatWidget, CommandPalette, useAppCommands, SocialShareWidget } from "@szl-holdings/ui";
 
 const PressKit = lazy(() => import("./pages/PressKit"));
 
@@ -16,6 +16,7 @@ const Timeline = lazy(() => import("./sections/Timeline"));
 const About = lazy(() => import("./sections/About"));
 const Team = lazy(() => import("./sections/Team"));
 const ThoughtLeadership = lazy(() => import("./sections/ThoughtLeadership"));
+const ContentHub = lazy(() => import("./sections/ContentHub"));
 const Innovation = lazy(() => import("./sections/Innovation"));
 const InvestorBrief = lazy(() => import("./sections/InvestorBrief"));
 const Contact = lazy(() => import("./sections/Contact"));
@@ -56,6 +57,9 @@ function LandingPage() {
           <ThoughtLeadership />
         </Suspense>
         <Suspense fallback={<SectionFallback />}>
+          <ContentHub />
+        </Suspense>
+        <Suspense fallback={<SectionFallback />}>
           <Innovation />
         </Suspense>
         <Suspense fallback={<SectionFallback />}>
@@ -87,6 +91,12 @@ function App() {
         <Route path="/press">{() => <Suspense fallback={<SectionFallback />}><PressKit /></Suspense>}</Route>
         <Route component={LandingPage} />
       </Switch>
+      <SocialShareWidget
+        appName="SZL Holdings"
+        appContext="SZL Holdings — a premium innovation and venture platform building transformative technology"
+        defaultHashtags={["#SZLHoldings", "#Innovation", "#TechVentures"]}
+        accentColor="#d4a84b"
+      />
       <DomainChatWidget
         agentType="szl-holdings"
         agentName="SZL Portfolio Concierge"

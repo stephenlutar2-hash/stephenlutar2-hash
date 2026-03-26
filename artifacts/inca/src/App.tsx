@@ -18,7 +18,7 @@ import ImportCenter from "@/pages/ImportCenter";
 import ResearchFeed from "@/pages/ResearchFeed";
 import DocumentIntelligence from "@/pages/DocumentIntelligence";
 import DiscoveryRadar from "@/pages/DiscoveryRadar";
-import { DomainChatWidget, CommandPalette, useAppCommands } from "@szl-holdings/ui";
+import { DomainChatWidget, CommandPalette, useAppCommands, SocialShareWidget } from "@szl-holdings/ui";
 import Extensions from "@/pages/Extensions";
 
 const queryClient = new QueryClient();
@@ -70,6 +70,13 @@ function App() {
       <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
         <CommandPaletteWrapper />
         <Router />
+        <SocialShareWidget
+          appName="INCA Intelligence"
+          appContext="INCA — AI research intelligence and experiment tracking by SZL Holdings"
+          defaultHashtags={["#SZLHoldings", "#INCA", "#AIResearch"]}
+          accentColor="#6366f1"
+          getToken={() => localStorage.getItem("szl_token")}
+        />
         <DomainChatWidget
           agentType="inca"
           agentName="INCA Research Intelligence"

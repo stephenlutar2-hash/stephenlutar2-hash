@@ -4,7 +4,7 @@ import { useMetrics, useMutateMetrics, useProjects, useMutateProjects } from "@/
 import { Layout } from "@/components/Layout";
 import { Modal } from "@/components/Modal";
 import { Plus, TrendingUp, TrendingDown, Edit2, Trash2, AlertTriangle, BarChart3, FolderOpen, RefreshCw, CreditCard, DollarSign, ArrowUpRight, ArrowDownRight, Receipt, Wallet, AlertCircle } from "lucide-react";
-import { cn } from "@szl-holdings/ui";
+import { cn, ShareContentButton } from "@szl-holdings/ui";
 import { LineChart, Line, AreaChart, Area, ResponsiveContainer, Tooltip } from "recharts";
 import type { BeaconMetric, BeaconProject } from "@szl-holdings/api-client-react";
 
@@ -358,13 +358,22 @@ export default function Dashboard() {
             <h2 className="text-2xl sm:text-3xl font-display font-bold glow-text">Overview Telemetry</h2>
             <p className="text-muted-foreground mt-1 text-sm">Aggregated global metrics across all active holdings.</p>
           </div>
-          <button 
-            onClick={() => setMetricModal({ isOpen: true })}
-            className="flex items-center gap-2 px-4 py-2 bg-primary/20 text-primary border border-primary/50 rounded-lg hover:bg-primary hover:text-primary-foreground transition-all glow-border self-start sm:self-auto"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add Metric</span>
-          </button>
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            <ShareContentButton
+              content="Beacon Analytics — Full-stack observability across all SZL Holdings platforms. Real-time telemetry, KPI tracking, and Stripe revenue insights."
+              appName="Beacon"
+              hashtags={["#SZLHoldings", "#Beacon", "#Analytics", "#Observability"]}
+              accentColor="#06b6d4"
+              label="Draft Post"
+            />
+            <button 
+              onClick={() => setMetricModal({ isOpen: true })}
+              className="flex items-center gap-2 px-4 py-2 bg-primary/20 text-primary border border-primary/50 rounded-lg hover:bg-primary hover:text-primary-foreground transition-all glow-border"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add Metric</span>
+            </button>
+          </div>
         </div>
 
         {loadingMetrics ? (

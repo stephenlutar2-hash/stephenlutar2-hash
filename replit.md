@@ -86,7 +86,20 @@ A centralized Model Context Protocol (MCP) client layer connects to community MC
 
 A shared extension infrastructure provides 60+ API endpoints across all applications, including shared services like an automation engine, webhook management, notification center, scheduled report generator, and developer API key portal. Each app has tailored extension features. A reusable `CommandPalette` component provides a Cmd+K shortcut for navigation.
 
-## External Dependencies
+*   **Shared Services**: Automation engine (rules with triggers/actions/conditions), webhook management, notification center, scheduled report generator, developer API key portal.
+*   **Per-App Domain Extensions**: Each app has tailored extension features mapped in `app-extensions.ts`:
+    *   Security apps (ROSIE, Aegis, Firestorm): Threat hunting rules, compliance policies, red team playbooks, detection signatures.
+    *   Intelligence apps (INCA, Nimbus, Beacon): Experiment templates, model pipelines, prediction models, KPI formulas, decision frameworks.
+    *   Operations apps (Vessels, Zeus, Lyte): Fleet optimization rules, voyage templates, architecture blueprints, module templates, observability dashboards, SLO definitions.
+    *   Creative apps (DreamEra, Dreamscape, AlloyScape): Content templates, campaign workflows, world-building presets, style libraries, infrastructure blueprints, scaling policies.
+    *   Business apps (SZL Holdings, Carlota Jo, Lutar, Career, Apps Showcase, Readiness Report): Portfolio strategies, engagement templates, empire expansion playbooks, career milestones, showcase templates, assessment checklists.
+*   **Frontend**: Each app has an Extensions page (`/extensions` route) with tabbed UI (Automation, Webhooks, Notifications, Reports, API Keys, domain-specific features) using AnimatePresence transitions.
+*   **Command Palette**: Reusable `CommandPalette` component (`lib/ui/src/components/command-palette.tsx`) with Cmd+K shortcut, fuzzy search, and `useAppCommands` hook providing navigation commands. Wired into all 18 apps.
+*   **Cross-App Social Media Integration**: Shared `SocialShareWidget` (`lib/ui/src/components/social-widget.tsx`) provides a floating social panel with Quick Post, Platform Status, and Recent Posts tabs — integrated into all 18 apps. `ShareContentButton` enables contextual one-click sharing on key domain pages (Beacon telemetry, INCA insights, Nimbus predictions, Vessels fleet health, ROSIE threats, Aegis security posture, Firestorm simulation reports). `CarouselLauncherButton` opens DreamEra's carousel builder in a modal iframe. Social hooks (`useSocialStatus`, `useQuickPost`, `useSocialFeed`, `useContentGenerate`) live in `lib/api-client-react/src/use-social.ts`. SZL Holdings has a dedicated Content Hub section (`artifacts/szl-holdings/src/sections/ContentHub.tsx`) with social feed, media links, and newsletter signup. All social features route through existing `/api/social` and `/api/social-command` backend endpoints.
+*   **Auth**: All extension endpoints require valid JWT tokens (`requireAuth` middleware). In-memory storage (Maps/arrays) — no DB schema changes.
+*   **Routes**: `GET/POST/PUT/DELETE /api/extensions/{domain}/{feature}` mounted via extensionsRouter in `routes/index.ts`.
+
+## External Dependencies & Integrations
 
 *   **PostgreSQL**: Primary database.
 *   **OpenAI**: Powers the Alloy Nuro Engine.
@@ -94,7 +107,7 @@ A shared extension infrastructure provides 60+ API endpoints across all applicat
 *   **Stripe**: Payment processing.
 *   **Google Services (Gmail, Calendar, Drive)**: Via Replit connectors.
 *   **Plaid**: Financial data aggregation.
-*   **Meta (Facebook/Instagram), Twitter, LinkedIn**: Social media integration for DreamEra.
+*   **Meta (Facebook/Instagram), Twitter, LinkedIn**: Social media integration for DreamEra and cross-app social sharing via `SocialShareWidget` (floating widget in all 18 apps) and `ShareContentButton` (contextual share on key domain pages).
 *   **Azure Application Insights**: Monitoring and telemetry.
 *   **Azure Key Vault**: Centralized secrets management.
 *   **Azure Managed Redis**: Session storage and caching.

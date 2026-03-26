@@ -1,6 +1,6 @@
 import {Switch, Route, Router as WouterRouter, Redirect, useLocation} from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Toaster, DomainChatWidget, CommandPalette, useAppCommands } from "@szl-holdings/ui";
+import { Toaster, DomainChatWidget, CommandPalette, useAppCommands, SocialShareWidget } from "@szl-holdings/ui";
 import { TooltipProvider } from "@szl-holdings/ui";
 import { ErrorBoundary, AuthGuard } from "@szl-holdings/platform";
 import { Layout } from "@/components/Layout";
@@ -71,6 +71,13 @@ function App() {
             <Router />
           </WouterRouter>
           <Toaster />
+          <SocialShareWidget
+            appName="Nimbus Predictive AI"
+            appContext="Nimbus — predictive intelligence and anomaly detection by SZL Holdings"
+            defaultHashtags={["#SZLHoldings", "#NimbusAI", "#PredictiveAnalytics"]}
+            accentColor="#8b5cf6"
+            getToken={() => localStorage.getItem("szl_token")}
+          />
           <DomainChatWidget
             agentType="nimbus"
             agentName="Nimbus Predictive Intelligence Analyst"

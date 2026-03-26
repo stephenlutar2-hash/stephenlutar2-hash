@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { CommandPalette, useAppCommands } from "@szl-holdings/ui";
+import { CommandPalette, useAppCommands, SocialShareWidget } from "@szl-holdings/ui";
 import { Switch, Route, Router as WouterRouter, Redirect, useLocation } from "wouter";
 import { AuthGuard } from "@szl-holdings/platform";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -74,6 +74,14 @@ function App() {
         <CommandPaletteWrapper />
         <Router />
       </WouterRouter>
+      <SocialShareWidget
+        appName="DreamEra Creative"
+        appContext="DreamEra — creative technology, social media automation, and content strategy by SZL Holdings"
+        defaultHashtags={["#SZLHoldings", "#DreamEra", "#CreativeTech"]}
+        accentColor="#a855f7"
+        commandCenterUrl="/dreamera/social-command"
+        getToken={() => localStorage.getItem("szl_token")}
+      />
       <DomainChatWidget
         agentType="dreamera"
         agentName="DreamEra Creative Director"

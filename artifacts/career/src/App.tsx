@@ -1,4 +1,4 @@
-import { CommandPalette, useAppCommands } from "@szl-holdings/ui";
+import { CommandPalette, useAppCommands, SocialShareWidget } from "@szl-holdings/ui";
 import {Switch, Route, Router as WouterRouter, useLocation} from "wouter";
 import Home from "@/pages/Home";
 import ImportCenter from "@/pages/ImportCenter";
@@ -35,6 +35,12 @@ function App() {
         <CommandPaletteWrapper />
       <Router />
       <AgentChat />
+      <SocialShareWidget
+        appName="Career Portfolio"
+        appContext="Career Portfolio — showcasing professional journey and technical expertise at SZL Holdings"
+        defaultHashtags={["#SZLHoldings", "#CareerGrowth", "#TechLeadership"]}
+        accentColor="#22c55e"
+      />
     </WouterRouter>
   );
 }

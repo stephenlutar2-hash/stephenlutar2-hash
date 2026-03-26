@@ -1,4 +1,4 @@
-import { CommandPalette, useAppCommands } from "@szl-holdings/ui";
+import { CommandPalette, useAppCommands, SocialShareWidget } from "@szl-holdings/ui";
 import {Switch, Route, Router as WouterRouter, useLocation} from "wouter";
 import Home from "@/pages/Home";
 import PredictiveReadiness from "@/pages/PredictiveReadiness";
@@ -33,6 +33,12 @@ function App() {
         <CommandPaletteWrapper />
       <Router />
       <AgentChat />
+      <SocialShareWidget
+        appName="Readiness Report"
+        appContext="Readiness Report — predictive readiness assessment and launch preparation by SZL Holdings"
+        defaultHashtags={["#SZLHoldings", "#ReadinessReport", "#LaunchReady"]}
+        accentColor="#f97316"
+      />
     </WouterRouter>
   );
 }

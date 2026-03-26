@@ -1,7 +1,7 @@
 import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { Toaster, CommandPalette, useAppCommands } from "@szl-holdings/ui";
+import { Toaster, CommandPalette, useAppCommands, SocialShareWidget } from "@szl-holdings/ui";
 import { TooltipProvider } from "@szl-holdings/ui";
 import { ErrorBoundary } from "@szl-holdings/platform";
 import NotFound from "@/pages/not-found";
@@ -81,6 +81,13 @@ function App() {
             <Router />
           </WouterRouter>
           <Toaster />
+          <SocialShareWidget
+            appName="ROSIE Cybersecurity"
+            appContext="ROSIE — AI-powered cybersecurity operations and threat intelligence by SZL Holdings"
+            defaultHashtags={["#SZLHoldings", "#ROSIE", "#CyberSecurity"]}
+            accentColor="#ef4444"
+            getToken={() => localStorage.getItem("szl_token")}
+          />
         </TooltipProvider>
       </QueryClientProvider>
     </ErrorBoundary>

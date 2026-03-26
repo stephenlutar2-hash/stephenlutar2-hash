@@ -10,7 +10,7 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell
 } from "recharts";
-import { Badge } from "@szl-holdings/ui";
+import { Badge, ShareContentButton } from "@szl-holdings/ui";
 import MitreHeatmap from "@/components/MitreHeatmap";
 import ComplianceTracker from "@/components/ComplianceTracker";
 import VulnerabilityTable from "@/components/VulnerabilityTable";
@@ -252,8 +252,17 @@ export default function Dashboard() {
                 <p className="text-gray-500 mb-1">Defense Status Report</p>
                 <h2 className="text-3xl font-display font-bold text-white uppercase tracking-wider">All Systems Nominal</h2>
               </div>
-              <div className="flex items-center gap-2 text-sm text-emerald-400 font-mono bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 rounded-lg">
-                <ShieldCheck size={16} /> Perimeter Secured — 3,636 threats blocked today
+              <div className="flex items-center gap-3">
+                <ShareContentButton
+                  content="Aegis Security — Security Posture 98/100, Compliance Score 98%, Business Risk Low. Perimeter secured with 3,636 threats blocked today."
+                  appName="Aegis"
+                  hashtags={["#SZLHoldings", "#Aegis", "#SecurityPosture", "#Compliance"]}
+                  accentColor="#f59e0b"
+                  label="Draft Post"
+                />
+                <div className="flex items-center gap-2 text-sm text-emerald-400 font-mono bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 rounded-lg">
+                  <ShieldCheck size={16} /> Perimeter Secured — 3,636 threats blocked today
+                </div>
               </div>
             </motion.div>
 

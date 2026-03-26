@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { ResponsiveContainer, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from "recharts";
 import { Shield, Anchor, Heart, Gauge, Fuel, Settings, ArrowUpDown } from "lucide-react";
+import { ShareContentButton } from "@szl-holdings/ui";
 
 const FLEET = [
   { name: "MV Atlantic Pioneer", hull: 92, engine: 88, safety: 95, navigation: 90, cargo: 87, emissions: 82, overallScore: 89, lastInspection: "2026-01-18", nextDry: "2027-03-01", ciiRating: "B" },
@@ -53,12 +54,21 @@ export default function FleetHealthScorecard() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <h2 className="text-xl font-display font-bold text-white flex items-center gap-3">
-            <Heart className="w-5 h-5 text-rose-400" />
-            Fleet Health Scorecard
-          </h2>
-          <p className="text-sm text-gray-500 mt-1">Vessel-level KPIs in a sortable card grid</p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h2 className="text-xl font-display font-bold text-white flex items-center gap-3">
+              <Heart className="w-5 h-5 text-rose-400" />
+              Fleet Health Scorecard
+            </h2>
+            <p className="text-sm text-gray-500 mt-1">Vessel-level KPIs in a sortable card grid</p>
+          </div>
+          <ShareContentButton
+            content="Vessels Fleet Health — Real-time vessel KPIs across hull integrity, engine performance, safety compliance, and CII emissions ratings."
+            appName="Vessels"
+            hashtags={["#SZLHoldings", "#Vessels", "#Maritime", "#FleetIntelligence"]}
+            accentColor="#06b6d4"
+            label="Draft Post"
+          />
         </div>
         <div className="flex items-center gap-1.5">
           <span className="text-[10px] text-gray-500 uppercase tracking-wider mr-1">Sort:</span>

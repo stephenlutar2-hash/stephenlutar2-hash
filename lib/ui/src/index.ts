@@ -77,3 +77,7 @@ export type { CommandAction } from "./components/command-palette";
 
 // Import & Data Integration
 export * from "./components/import";
+
+// Social Media Widget
+export { SocialShareWidget, ShareContentButton, CarouselLauncherButton, PlatformStatusBadge, SocialFeedWidget } from "./components/social-widget";
+export type { SocialWidgetProps, ShareButtonProps, CarouselLauncherProps, PlatformStatusBadgeProps, SocialFeedWidgetProps } from "./components/social-widget";

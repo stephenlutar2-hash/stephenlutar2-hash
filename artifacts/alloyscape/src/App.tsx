@@ -1,4 +1,4 @@
-import { CommandPalette, useAppCommands } from "@szl-holdings/ui";
+import { CommandPalette, useAppCommands, SocialShareWidget } from "@szl-holdings/ui";
 import {Switch, Route, Router as WouterRouter, Redirect, useLocation} from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DomainChatWidget } from "@szl-holdings/ui";
@@ -71,6 +71,13 @@ function App() {
         <DemoBanner />
         <Router />
       </WouterRouter>
+      <SocialShareWidget
+        appName="AlloyScape Infrastructure"
+        appContext="AlloyScape — platform-wide operations and infrastructure orchestration by SZL Holdings"
+        defaultHashtags={["#SZLHoldings", "#AlloyScape", "#PlatformOps"]}
+        accentColor="#14b8a6"
+        getToken={() => localStorage.getItem("szl_token")}
+      />
       <DomainChatWidget
         agentType="alloyscape"
         agentName="AlloyScape Ops Commander"

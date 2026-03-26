@@ -7,7 +7,7 @@ import MaritimeIntel from "@/pages/MaritimeIntel";
 import DocumentProcessing from "@/pages/DocumentProcessing";
 import SignalIntelligence from "@/pages/SignalIntelligence";
 import Extensions from "@/pages/Extensions";
-import { DomainChatWidget, CommandPalette, useAppCommands } from "@szl-holdings/ui";
+import { DomainChatWidget, CommandPalette, useAppCommands, SocialShareWidget } from "@szl-holdings/ui";
 
 function DemoBanner() {
   const isDemo = typeof window !== "undefined" && localStorage.getItem("szl_demo_mode") === "true";
@@ -57,6 +57,13 @@ function App() {
         <CommandPaletteWrapper />
         <DemoBanner />
         <Router />
+        <SocialShareWidget
+          appName="Vessels Maritime"
+          appContext="Vessels — maritime intelligence, fleet management, and emissions tracking by SZL Holdings"
+          defaultHashtags={["#SZLHoldings", "#Vessels", "#MaritimeIntelligence"]}
+          accentColor="#0ea5e9"
+          getToken={() => localStorage.getItem("szl_token")}
+        />
         <DomainChatWidget
           agentType="vessels"
           agentName="Maritime Operations Agent"

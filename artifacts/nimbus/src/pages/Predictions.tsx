@@ -4,9 +4,7 @@ import { Plus, Target, Trash2, Brain, Activity, Clock, AlertTriangle, RefreshCw,
 import { motion } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, CartesianGrid, AreaChart, Area, LineChart, Line } from "recharts";
 import { usePredictions, useDeletePrediction } from "@/hooks/use-predictions";
-import { Button } from "@szl-holdings/ui";
-import { Badge } from "@szl-holdings/ui";
-import { Dialog } from "@szl-holdings/ui";
+import { Button, Badge, Dialog, ShareContentButton } from "@szl-holdings/ui";
 import { CircularProgress } from "@/components/CircularProgress";
 import { PredictionForm } from "@/components/PredictionForm";
 
@@ -143,9 +141,18 @@ export default function Predictions() {
           </h2>
           <p className="text-sm text-muted-foreground">AI-powered forecasting for your empire</p>
         </div>
-        <Button onClick={() => setIsFormOpen(true)} variant="glow" className="self-start sm:self-auto">
-          <Plus className="w-4 h-4 mr-2" /> Initialize Vector
-        </Button>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <ShareContentButton
+            content="Nimbus Predictive AI — AI-powered forecasting with confidence-scored predictions. Turning signals into actionable intelligence."
+            appName="Nimbus"
+            hashtags={["#SZLHoldings", "#Nimbus", "#PredictiveAI", "#Forecasting"]}
+            accentColor="#8b5cf6"
+            label="Draft Post"
+          />
+          <Button onClick={() => setIsFormOpen(true)} variant="glow">
+            <Plus className="w-4 h-4 mr-2" /> Initialize Vector
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">

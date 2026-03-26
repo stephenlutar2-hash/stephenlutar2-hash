@@ -13,6 +13,7 @@ import {
   PieChart, Pie, RadarChart, Radar, PolarGrid, PolarAngleAxis
 } from "recharts";
 import AnimatedCounter from "@/components/AnimatedCounter";
+import { ShareContentButton } from "@szl-holdings/ui";
 import { SkeletonCard, SkeletonChart } from "@/components/SkeletonLoader";
 
 interface InsightCard {
@@ -187,14 +188,23 @@ export default function Insights() {
           <h2 className="text-3xl font-display font-bold text-white">Insights</h2>
           <p className="text-muted-foreground mt-1 text-sm">AI-generated intelligence from your projects and experiments</p>
         </div>
-        {!isLoading && insights.length > 0 && (
-          <div className="flex items-center gap-2 px-3 py-1.5 glass-panel rounded-lg">
-            <BarChart3 className="w-4 h-4 text-cyan" />
-            <span className="text-xs font-mono text-muted-foreground">
-              <AnimatedCounter value={insights.length} className="text-white font-bold" /> insights
-            </span>
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          <ShareContentButton
+            content="INCA Intelligence — AI-generated insights from our research experiments and model portfolio. Data-driven intelligence at scale."
+            appName="INCA"
+            hashtags={["#SZLHoldings", "#INCA", "#AIResearch", "#Intelligence"]}
+            accentColor="#06b6d4"
+            label="Draft Brief"
+          />
+          {!isLoading && insights.length > 0 && (
+            <div className="flex items-center gap-2 px-3 py-1.5 glass-panel rounded-lg">
+              <BarChart3 className="w-4 h-4 text-cyan" />
+              <span className="text-xs font-mono text-muted-foreground">
+                <AnimatedCounter value={insights.length} className="text-white font-bold" /> insights
+              </span>
+            </div>
+          )}
+        </div>
       </div>
 
       {!isLoading && insights.length > 0 && (

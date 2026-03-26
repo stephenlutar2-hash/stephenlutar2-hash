@@ -6,7 +6,7 @@ import Pipeline from "@/pages/Pipeline";
 import MeetingIntelligence from "@/pages/MeetingIntelligence";
 import ClientDossier from "@/pages/ClientDossier";
 import NotFound from "@/pages/not-found";
-import { DomainChatWidget, CommandPalette, useAppCommands } from "@szl-holdings/ui";
+import { DomainChatWidget, CommandPalette, useAppCommands, SocialShareWidget } from "@szl-holdings/ui";
 import Extensions from "@/pages/Extensions";
 
 function Router() {
@@ -36,6 +36,12 @@ function App() {
     <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
         <CommandPaletteWrapper />
       <Router />
+      <SocialShareWidget
+        appName="Carlota Jo Consulting"
+        appContext="Carlota Jo — strategic consulting and enterprise advisory by SZL Holdings"
+        defaultHashtags={["#SZLHoldings", "#CarlotaJo", "#StrategicConsulting"]}
+        accentColor="#7c3aed"
+      />
       <DomainChatWidget
         agentType="carlota-jo"
         agentName="Strategic Engagement Advisor"

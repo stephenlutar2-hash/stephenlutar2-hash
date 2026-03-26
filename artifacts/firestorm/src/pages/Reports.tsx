@@ -5,7 +5,7 @@ import {
   Flame, Shield, Eye, FileText, LayoutDashboard, Target, LogOut,
   Download, BarChart3, Clock, TrendingUp, CheckCircle2, Calendar, AlertTriangle,
 } from "lucide-react";
-import { Badge } from "@szl-holdings/ui";
+import { Badge, ShareContentButton } from "@szl-holdings/ui";
 import { fetchReports, downloadExport } from "@/lib/api";
 
 interface Report {
@@ -79,6 +79,13 @@ export default function Reports() {
             <Badge className="bg-amber-500/10 text-amber-400 border-amber-500/20 hover:bg-amber-500/20">LAB MODE</Badge>
           </div>
           <div className="flex items-center gap-3">
+            <ShareContentButton
+              content={summary ? `Firestorm Simulation Lab — Overall Readiness ${summary.overallReadiness}%, Avg Detection Rate ${summary.avgDetectionRate}%, ${summary.totalScenarios} scenarios executed.` : "Firestorm Simulation Lab — Security simulation and detection validation reports."}
+              appName="Firestorm"
+              hashtags={["#SZLHoldings", "#Firestorm", "#RedTeam", "#SecuritySimulation"]}
+              accentColor="#f97316"
+              label="Draft Post"
+            />
             <button onClick={() => downloadExport("json")} className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-400 text-xs font-medium hover:bg-white/10 transition flex items-center gap-2">
               <Download className="w-3.5 h-3.5" /> JSON
             </button>

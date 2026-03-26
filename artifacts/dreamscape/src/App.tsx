@@ -1,4 +1,4 @@
-import { CommandPalette, useAppCommands } from "@szl-holdings/ui";
+import { CommandPalette, useAppCommands, SocialShareWidget } from "@szl-holdings/ui";
 import {Switch, Route, Router as WouterRouter, Redirect, useLocation} from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DomainChatWidget } from "@szl-holdings/ui";
@@ -58,6 +58,12 @@ function App() {
         <CommandPaletteWrapper />
         <Router />
       </WouterRouter>
+      <SocialShareWidget
+        appName="Dreamscape Creative"
+        appContext="Dreamscape — world-building and creative exploration platform by SZL Holdings"
+        defaultHashtags={["#SZLHoldings", "#Dreamscape", "#WorldBuilding"]}
+        accentColor="#06b6d4"
+      />
       <DomainChatWidget
         agentType="dreamscape"
         agentName="Dreamscape World-Building Companion"

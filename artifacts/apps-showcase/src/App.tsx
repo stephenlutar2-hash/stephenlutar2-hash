@@ -1,4 +1,4 @@
-import { CommandPalette, useAppCommands } from "@szl-holdings/ui";
+import { CommandPalette, useAppCommands, SocialShareWidget } from "@szl-holdings/ui";
 import {Switch, Route, Router as WouterRouter, useLocation} from "wouter";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
@@ -30,6 +30,12 @@ function App() {
     <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
         <CommandPaletteWrapper />
       <Router />
+      <SocialShareWidget
+        appName="Apps Showcase"
+        appContext="Explore the SZL Holdings app ecosystem — enterprise platforms across cybersecurity, maritime, AI, and more"
+        defaultHashtags={["#SZLHoldings", "#AppShowcase", "#TechEcosystem"]}
+        accentColor="#0ea5e9"
+      />
     </WouterRouter>
   );
 }

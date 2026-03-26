@@ -18,3 +18,17 @@ export type {
   UseDomainChatOptions,
   UseDomainChatReturn,
 } from "./use-domain-chat";
+export {
+  useSocialStatus,
+  useQuickPost,
+  useSocialFeed,
+  useContentGenerate,
+} from "./use-social";
+export type {
+  SocialPlatformStatus,
+  SocialStatusResult,
+  QuickPostPayload,
+  SocialPost,
+  GenerateContentPayload,
+  GeneratedPost,
+} from "./use-social";
