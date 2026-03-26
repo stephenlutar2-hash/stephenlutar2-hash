@@ -1,88 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { aegisFetch } from "@/lib/api";
 
-const tactics = [
-  "Reconnaissance", "Resource Dev", "Initial Access", "Execution",
-  "Persistence", "Priv Escalation", "Defense Evasion", "Credential Access",
-  "Discovery", "Lateral Movement", "Collection", "C2", "Exfiltration", "Impact"
-];
-
-const techniques: Record<string, { id: string; name: string; coverage: number }[]> = {
-  "Reconnaissance": [
-    { id: "T1595", name: "Active Scanning", coverage: 92 },
-    { id: "T1592", name: "Gather Host Info", coverage: 78 },
-    { id: "T1589", name: "Gather ID Info", coverage: 85 },
-    { id: "T1590", name: "Gather Network Info", coverage: 88 },
-  ],
-  "Resource Dev": [
-    { id: "T1583", name: "Acquire Infra", coverage: 45 },
-    { id: "T1586", name: "Compromise Acct", coverage: 72 },
-    { id: "T1584", name: "Compromise Infra", coverage: 38 },
-  ],
-  "Initial Access": [
-    { id: "T1566", name: "Phishing", coverage: 95 },
-    { id: "T1190", name: "Exploit Public App", coverage: 89 },
-    { id: "T1078", name: "Valid Accounts", coverage: 91 },
-    { id: "T1199", name: "Trusted Relationship", coverage: 67 },
-  ],
-  "Execution": [
-    { id: "T1059", name: "Command/Script", coverage: 94 },
-    { id: "T1203", name: "Exploit for Exec", coverage: 82 },
-    { id: "T1204", name: "User Execution", coverage: 76 },
-  ],
-  "Persistence": [
-    { id: "T1547", name: "Boot Autostart", coverage: 88 },
-    { id: "T1053", name: "Scheduled Task", coverage: 91 },
-    { id: "T1136", name: "Create Account", coverage: 96 },
-    { id: "T1543", name: "System Services", coverage: 84 },
-  ],
-  "Priv Escalation": [
-    { id: "T1548", name: "Abuse Elevation", coverage: 87 },
-    { id: "T1134", name: "Token Manipulation", coverage: 73 },
-    { id: "T1068", name: "Exploit for Priv", coverage: 69 },
-  ],
-  "Defense Evasion": [
-    { id: "T1070", name: "Indicator Removal", coverage: 81 },
-    { id: "T1036", name: "Masquerading", coverage: 74 },
-    { id: "T1027", name: "Obfuscated Files", coverage: 68 },
-    { id: "T1562", name: "Impair Defenses", coverage: 92 },
-  ],
-  "Credential Access": [
-    { id: "T1110", name: "Brute Force", coverage: 97 },
-    { id: "T1003", name: "OS Credential Dump", coverage: 85 },
-    { id: "T1557", name: "Adversary-in-Middle", coverage: 79 },
-  ],
-  "Discovery": [
-    { id: "T1087", name: "Account Discovery", coverage: 90 },
-    { id: "T1046", name: "Network Scan", coverage: 93 },
-    { id: "T1057", name: "Process Discovery", coverage: 71 },
-  ],
-  "Lateral Movement": [
-    { id: "T1021", name: "Remote Services", coverage: 86 },
-    { id: "T1570", name: "Lateral Tool Transfer", coverage: 62 },
-    { id: "T1080", name: "Taint Shared Content", coverage: 55 },
-  ],
-  "Collection": [
-    { id: "T1560", name: "Archive Data", coverage: 77 },
-    { id: "T1005", name: "Data from Local", coverage: 83 },
-    { id: "T1114", name: "Email Collection", coverage: 91 },
-  ],
-  "C2": [
-    { id: "T1071", name: "App Layer Protocol", coverage: 88 },
-    { id: "T1573", name: "Encrypted Channel", coverage: 72 },
-    { id: "T1105", name: "Ingress Tool Transfer", coverage: 81 },
-  ],
-  "Exfiltration": [
-    { id: "T1041", name: "Exfil Over C2", coverage: 86 },
-    { id: "T1048", name: "Exfil Over Alt Protocol", coverage: 64 },
-    { id: "T1567", name: "Exfil to Cloud", coverage: 58 },
-  ],
-  "Impact": [
-    { id: "T1486", name: "Data Encrypted", coverage: 94 },
-    { id: "T1489", name: "Service Stop", coverage: 89 },
-    { id: "T1529", name: "System Shutdown", coverage: 91 },
-  ],
-};
+interface MitreData {
+  tactics: string[];
+  techniques: Record<string, { id: string; name: string; coverage: number }[]>;
+  stats: { totalTechniques: number; covered: number; avgCoverage: number };
+}
 
 function getCoverageColor(coverage: number): string {
   if (coverage >= 90) return "bg-emerald-500/80";
@@ -101,11 +25,48 @@ function getCoverageBorder(coverage: number): string {
 }
 
 export default function MitreHeatmap() {
+  const [data, setData] = useState<MitreData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [hoveredTechnique, setHoveredTechnique] = useState<{ id: string; name: string; coverage: number; tactic: string } | null>(null);
 
-  const totalTechniques = Object.values(techniques).flat().length;
-  const covered = Object.values(techniques).flat().filter(t => t.coverage >= 75).length;
-  const avgCoverage = Math.round(Object.values(techniques).flat().reduce((a, t) => a + t.coverage, 0) / totalTechniques);
+  useEffect(() => {
+    aegisFetch<MitreData>("mitre-coverage")
+      .then(d => {
+        setData(d);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Failed to fetch MITRE coverage:", err);
+        setError("Failed to load MITRE coverage data");
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="p-6 rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-sm">
+        <div className="animate-pulse space-y-4">
+          <div className="h-6 bg-white/5 rounded w-48" />
+          <div className="grid grid-cols-14 gap-1">
+            {Array.from({ length: 42 }).map((_, i) => (
+              <div key={i} className="h-8 bg-white/5 rounded-sm" />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="p-6 rounded-2xl border border-red-500/20 bg-red-500/5">
+        <p className="text-red-400 text-sm">{error || "Failed to load data"}</p>
+      </div>
+    );
+  }
+
+  const { tactics, techniques, stats } = data;
 
   return (
     <motion.div
@@ -120,12 +81,12 @@ export default function MitreHeatmap() {
             <h3 className="font-display font-bold text-white tracking-wide uppercase">
               MITRE ATT&CK Coverage
             </h3>
-            <p className="text-xs text-gray-500 mt-1">Detection coverage across {totalTechniques} techniques</p>
+            <p className="text-xs text-gray-500 mt-1">Detection coverage across {stats.totalTechniques} techniques</p>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <p className="text-2xl font-display font-bold text-emerald-400">{avgCoverage}%</p>
-              <p className="text-[10px] text-gray-500">{covered}/{totalTechniques} covered</p>
+              <p className="text-2xl font-display font-bold text-emerald-400">{stats.avgCoverage}%</p>
+              <p className="text-[10px] text-gray-500">{stats.covered}/{stats.totalTechniques} covered</p>
             </div>
           </div>
         </div>
@@ -136,7 +97,7 @@ export default function MitreHeatmap() {
               {tactics.map((tactic, ti) => (
                 <div key={tactic} className="space-y-px">
                   <div className="text-[8px] font-mono text-gray-500 uppercase tracking-wider text-center py-1.5 truncate px-0.5" title={tactic}>
-                    {tactic.length > 10 ? tactic.slice(0, 8) + "…" : tactic}
+                    {tactic.length > 10 ? tactic.slice(0, 8) + "\u2026" : tactic}
                   </div>
                   {(techniques[tactic] || []).map((tech, i) => (
                     <motion.div

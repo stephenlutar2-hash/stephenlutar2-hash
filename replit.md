@@ -2,7 +2,7 @@
 
 ## Overview
 
-SZL Holdings is a pnpm monorepo unifying security, AI, and media platforms. The project aims to deliver a comprehensive ecosystem for security monitoring, AI analytics, enterprise management, and digital storytelling. At its core, the Alloy Nuro Engine provides AI-driven insights and autonomous monitoring. The business vision is to offer cutting-edge, integrated solutions that enhance security, operational efficiency, and creative potential across various digital domains.
+SZL Holdings is a pnpm monorepo that integrates security, AI, and media platforms. The project's vision is to provide a comprehensive ecosystem for advanced security monitoring, AI-driven analytics, efficient enterprise management, and innovative digital storytelling. The core Alloy Nuro Engine delivers AI-powered insights and autonomous monitoring capabilities, aiming to enhance security, operational efficiency, and creative potential across various digital domains.
 
 ## User Preferences
 
@@ -14,100 +14,58 @@ SZL Holdings is a pnpm monorepo unifying security, AI, and media platforms. The 
 
 ## System Architecture
 
-The project is a pnpm monorepo using Node.js 24, pnpm, and TypeScript 5.9. The backend is an Express 5 API server, while frontends use React, Vite, Tailwind CSS, and shadcn/ui. Data is managed with PostgreSQL and Drizzle ORM, with Zod for validation. API code generation uses Orval from an OpenAPI spec.
+The project is built as a pnpm monorepo using Node.js 24, pnpm, and TypeScript 5.9. It features an Express 5 API server, with frontends developed using React, Vite, Tailwind CSS, and shadcn/ui. Data persistence is handled by PostgreSQL and Drizzle ORM, with Zod for robust data validation. API client code generation is automated via Orval from an OpenAPI specification.
 
 **Core Architectural Principles:**
 
-*   **Single-Port Consolidation:** A single API server on port 3000 serves all frontend applications as static files and handles all API routes under `/api/`.
-*   **Custom Domain Routing:** Middleware detects the `Host` header for domain-based routing, configured in `config/domainMap.ts`, supporting standalone and product subdomains.
-*   **Shared Design System:** Reusable UI components, styling, and core platform functionalities are provided by `@szl-holdings/ui`, `@workspace/branding`, and `@szl-holdings/platform`.
+*   **Single-Port Consolidation:** A unified API server on port 3000 delivers all static frontend assets and manages API routes under `/api/`.
+*   **Custom Domain Routing:** Middleware routes requests based on the `Host` header, utilizing a `domainMap.ts` configuration for product and standalone subdomains.
+*   **Shared Design System:** A consistent user experience is ensured through shared components, styling, and core functionalities provided by `@szl-holdings/ui`, `@workspace/branding`, and `@szl-holdings/platform`.
 
 **Platform Portfolio:**
 
-The monorepo includes a suite of applications for Security & AI, Logistics & Management, and Corporate & Showcase purposes. Key applications include ROSIE (AI security monitoring), AEGIS (enterprise security), BEACON (decision analytics), NIMBUS (predictive AI), FIRESTORM (security simulation), ALLOYSCAPE (AI infrastructure), DREAMERA (AI storytelling), VESSELS (maritime/logistics intelligence), and LUTAR (personal command center).
+The monorepo encompasses a diverse range of applications categorized into Security & AI, Logistics & Management, and Corporate & Showcase. Key applications include ROSIE (AI security monitoring), AEGIS (enterprise security), BEACON (decision analytics), NIMBUS (predictive AI), FIRESTORM (security simulation), ALLOYSCAPE (AI infrastructure), DREAMERA (AI storytelling), VESSELS (maritime/logistics intelligence), and LUTAR (personal command center).
 
 **API-Wired Frontends:**
 
-Four frontends fetch data from backend API routes using a state+fallback pattern (hardcoded defaults as initial state, API fetch on mount, update on success, graceful fallback if API unavailable):
-*   **Career** (`/api/career/*`): Profile, skills, certifications, timeline, case studies. Routes: `/career/all`, `/career/profile`, `/career/skills`, `/career/certifications`, `/career/timeline`, `/career/case-studies`.
-*   **Zeus** (`/api/zeus/*`): Topology services, module dependencies, self-healing events. Routes: `/zeus/topology`, `/zeus/dependencies`, `/zeus/self-healing-events`. Dashboard, ArchitectureMap, ModuleDependencyGraph all wired.
-*   **Readiness Report** (`/api/readiness/*`): Predictive readiness scores, dimension averages, risk predictions. Routes: `/readiness/predictive`, `/readiness/health-checks`.
-*   **Apps Showcase** (`/api/apps-showcase/*`): 18-app catalog with health status, uptime, response times. Route: `/apps-showcase/catalog`.
+Five frontends dynamically fetch data from the backend API using a state+fallback pattern, ensuring graceful degradation if the API is unavailable:
+*   **Career:** Manages professional profiles, skills, certifications, and case studies.
+*   **Zeus:** Provides topology services, module dependencies, and self-healing event monitoring.
+*   **Readiness Report:** Displays predictive readiness scores, health checks, and risk assessments.
+*   **Apps Showcase:** Catalogs 18 applications with real-time health, uptime, and response data.
+*   **Aegis:** Offers compliance frameworks, vulnerability tracking, MITRE ATT&CK coverage, threat intelligence, and a comprehensive security posture score.
 
 **Authentication and AI System:**
 
-A unified login supports Demo Login and Microsoft Entra External ID (MSAL) for Enterprise Single Sign-On (SSO) with JWKS validation.
+Authentication supports both Demo Login and Enterprise Single Sign-On (SSO) via Microsoft Entra External ID (MSAL) with JWKS validation.
 
-All AI agents utilize a centralized model registry that defines OpenAI model parameters and supports hot-swapping via environment variables. The system uses a "tool-first" approach with 40+ tools for database operations, preventing hallucination. Eighteen domain-specific AI agents each have distinct expert personas and system prompts, sharing a common SSE streaming backend engine. These agents cover areas like Research Intelligence (INCA), Maritime Operations (Vessels), Security Intelligence (ROSIE), and Governance & Compliance (Aegis). Each frontend integrates a themed `DomainChatWidget`.
+The AI system features a centralized model registry for OpenAI models, supporting hot-swapping. It employs a "tool-first" approach with over 40 tools for database operations to minimize hallucination. Eighteen domain-specific AI agents, each with a distinct persona and system prompt, share a common SSE streaming backend. These agents cover areas such as Research Intelligence (INCA), Maritime Operations (Vessels), Security Intelligence (ROSIE), and Governance & Compliance (Aegis), with each frontend integrating a `DomainChatWidget`.
 
 **Security & Governance:**
 
-The system incorporates health endpoints, security headers (CSP, HSTS), Role-Based Access Control (RBAC), API rate limiting, Zod-based schema validation, HTML escaping for XSS prevention, structured audit logging, database-backed feature flags, and Zod-based environment validation. Centralized error handling provides consistent error responses. Request IDs are propagated via `AsyncLocalStorage`. The system uses a mock/live provider pattern for external services, a typed service layer, and pagination middleware for list endpoints. Dedicated analytics, SSE streaming, search, and bulk operation endpoints are available for various platforms. Pino logger redacts sensitive information. The system supports SEO, accessibility features, and mobile-first UX with PWA capabilities.
+The system incorporates robust security features including health endpoints, security headers (CSP, HSTS), Role-Based Access Control (RBAC), API rate limiting, Zod-based schema validation, XSS prevention through HTML escaping, structured audit logging, database-backed feature flags, and Zod-based environment validation. Centralized error handling ensures consistent error responses with request ID propagation. A mock/live provider pattern is used for external services, along with a typed service layer and pagination middleware. Analytics, SSE streaming, search, and bulk operation endpoints are available across platforms. Sensitive information is redacted by the Pino logger. The system supports SEO, accessibility, mobile-first UX, and PWA capabilities.
 
 **Import & Data Integration:**
 
-A shared import infrastructure provides reusable components for file uploads, data preview, and column mapping, supporting CSV, JSON, XML, YAML, ICS, and IPYNB formats. API routes handle domain-specific imports.
-
-*   **Health Endpoints:** Comprehensive health checks at various levels.
-*   **Security Headers:** Middleware for CSP, HSTS, and other security headers.
-*   **RBAC:** Role-Based Access Control using a DB-backed `user_roles` table with `requireRole()` middleware.
-*   **Rate Limiting:** Global API rate limiting (200 req/min), auth-specific (20/15min), and write-specific (60/min) per-IP and per-user rate limiting.
-*   **Schema Validation:** Zod-based validation and sanitization for all incoming data.
-*   **Input Sanitization:** HTML escaping for XSS prevention.
-*   **Audit Logging:** Structured audit logs for all mutating operations to both logs and a database table.
-*   **Feature Flags:** Database-backed feature flags with API management.
-*   **Environment Validation:** Zod-based config schema (`lib/envValidation.ts`) with typed `AppConfig` and `getConfig()` accessor. Fails fast on missing required vars.
-*   **Centralized Error Handling:** `lib/errors.ts` (AppError class with static factories), `middleware/errorHandler.ts` (asyncHandler wrapper, global error middleware). Consistent error response shape: `{ status, code, message, requestId?, timestamp, details? }`.
-*   **Request ID Propagation:** `lib/requestContext.ts` — AsyncLocalStorage-based request context middleware with `getRequestId()` helper. Request IDs included in all error responses.
-*   **Mock/Live Provider Pattern:** `providers/` directory with interfaces and mock/live implementations for Redis cache, Blob storage, Stripe, and Plaid. Controlled via `MOCK_PROVIDERS` env var (comma-separated). Factory at `providers/factory.ts`.
-*   **Typed Service Layer:** `services/` directory with service classes for each platform (RosieService, BeaconService, NimbusService, ZeusService, IncaService, DreameraService, AlloyService, StripeService). Routes delegate to services for business logic.
-*   **Pagination Middleware:** Reusable `middleware/pagination.ts` provides `parsePagination()`, `paginateArray()`, `sortArray()`, `filterByFields()`, and `searchItems()` utilities for all list endpoints. Supports `?page=1&limit=25&sort=field&order=asc` query params plus field-based filtering and date range filtering.
-*   **Analytics Endpoints:** INCA (`/api/inca/analytics/*`), Vessels (`/api/vessels/analytics/*`), and Nimbus (`/api/nimbus/analytics/*`) have dedicated aggregation endpoints for dashboards (experiment success rates, model leaderboard, project health, fleet utilization, emissions trends, voyage efficiency, port dwell, maintenance costs, prediction accuracy, alert frequency, confidence distribution).
-*   **SSE Streaming:** Each platform (INCA, Vessels, Nimbus) exposes `/api/{platform}/stream` for real-time dashboard updates on creates, updates, status changes, and bulk operations.
-*   **Search Endpoints:** `/api/{platform}/search?q=term` provides full-text matching across key fields (vessel names, project titles, experiment hypotheses, alert titles, etc.).
-*   **Bulk Operations:** Bulk status updates and bulk deletes with `requireOperator()` authorization on all three platforms.
-*   **Logger Redaction:** Pino logger redacts sensitive information.
-*   **DB Graceful Fallback:** Handles missing `DATABASE_URL` gracefully.
-*   **SEO & Accessibility:** Full OG + Twitter Card meta tags on all 18 apps (og:title, og:description, og:image, og:type, twitter:card, twitter:title, twitter:description), font preloading via `rel="preload"`, skip-to-content links.
-*   **Analytics:** Self-hosted pageview tracking via `navigator.sendBeacon` in every index.html, POST `/api/analytics/pageview` logging endpoint.
-*   **Newsletter:** Email capture on SZL Holdings Contact section and Apps Showcase CTA. POST `/api/newsletter/subscribe` with `newsletter_subscribers` DB table (Drizzle schema at `lib/db/src/schema/newsletter.ts`).
-*   **Demo Mode:** "Explore Demo" button on 8 gated app login pages (Rosie, Aegis, Firestorm, Lutar, Vessels, Beacon, Nimbus, AlloyScape). Sets `szl_demo_mode=true` in localStorage to bypass auth. Brand-colored `DemoBanner` fixed banner with "Sign up for full access" link in each App.tsx.
-*   **Press Kit:** `/press` route on SZL Holdings with company overview, founder bio, brand color palette, key metrics, boilerplate copy, and asset download links (`PressKit.tsx`).
-*   **Mobile-First UX:** All 19 apps enhanced with touch-first interactions (44×44px min tap targets via `.touch-target` CSS class), safe area handling for notch devices (`.safe-top`, `.safe-bottom`), and mobile-optimized navigation. Dashboard apps (INCA, Aegis, Firestorm, Vessels, Dreamscape, Zeus, Rosie, Lyte, AlloyScape, Beacon, Nimbus) have bottom navigation bars on mobile. Landing pages (Career, Carlota Jo, Apps Showcase, DreamEra) have hamburger menus. Shared hooks (`useDeviceType`, `useOrientation`, `usePrefersReducedMotion`, `useSafeArea`) in `lib/ui/src/hooks/use-mobile.tsx`. Reduced-motion support in `PageTransition`. Skeleton loading animation via `.skeleton-pulse` CSS class. `PullToRefresh` and `MobileSheet` interaction primitives available from `@szl-holdings/ui`.
-*   **PWA Support:** `vite-plugin-pwa` installed with shared `createPwaPlugin()` helper in `lib/platform/src/pwa-config.ts`. All 18 apps have autoUpdate service workers, runtime caching (fonts/API), offline fallback to `index.html`, and web app manifests with app-specific names/theme colors. PWA meta tags in all `index.html` files (`viewport-fit=cover`, `apple-mobile-web-app-capable`).
-*   **Premium Extensions & Monetization:** Shared extension infrastructure with 60+ API endpoints, automation engine, webhook management, notification center, scheduled report generator, and developer API key portal. Domain-specific features for Security, Intelligence, Operations, Creative, and Business applications. Integrated Command Palette (Cmd+K) across all 18 apps.
-*   **Performance Hardening:** Express `compression` middleware (Brotli/Gzip, Stripe webhook excluded), static asset caching headers (1-year immutable for hashed assets, 1-day for non-hashed static assets, 1-hour for index.html), pre-compressed `.br`/`.gz` file serving, request timeout middleware (30s API, 10s health), HTTP keep-alive/headers timeout configuration, 1MB JSON body limit, graceful shutdown handling, branded static error page fallback. Vite builds produce pre-compressed files via `vite-plugin-compression2`. Manual chunk splitting separates `vendor-react` and `vendor-motion`. Azure Container Apps scaled to 1 CPU / 2Gi RAM per instance, max 10 replicas, concurrency trigger at 25. Front Door static asset caching rules. Load test script at `scripts/load-test.mjs`.
+A shared import infrastructure facilitates file uploads, data preview, and column mapping for various formats (CSV, JSON, XML, YAML, ICS, IPYNB), with domain-specific API routes for imports.
 
 **MCP Registry Integration:**
 
-A centralized Model Context Protocol (MCP) client layer connects to community MCP servers, bridging their tools into the OpenAI function-calling format. It includes an MCP Client Library, an MCP-to-OpenAI Bridge, and an MCP Registry Config mapping 14 MCP servers.
+A centralized Model Context Protocol (MCP) client layer connects to community MCP servers, translating their tools into the OpenAI function-calling format. This includes an MCP Client Library, an MCP-to-OpenAI Bridge, and an MCP Registry Config for 14 MCP servers.
 
 **Extensions & Premium Monetization Layer:**
 
-A shared extension infrastructure provides 60+ API endpoints across all applications, including shared services like an automation engine, webhook management, notification center, scheduled report generator, and developer API key portal. Each app has tailored extension features. A reusable `CommandPalette` component provides a Cmd+K shortcut for navigation.
+A shared extension infrastructure provides over 60 API endpoints across all applications, including services like an automation engine, webhook management, notification center, scheduled report generator, and a developer API key portal. Each app features tailored extension functionalities and a reusable `CommandPalette` component for navigation.
 
-*   **Shared Services**: Automation engine (rules with triggers/actions/conditions), webhook management, notification center, scheduled report generator, developer API key portal.
-*   **Per-App Domain Extensions**: Each app has tailored extension features mapped in `app-extensions.ts`:
-    *   Security apps (ROSIE, Aegis, Firestorm): Threat hunting rules, compliance policies, red team playbooks, detection signatures.
-    *   Intelligence apps (INCA, Nimbus, Beacon): Experiment templates, model pipelines, prediction models, KPI formulas, decision frameworks.
-    *   Operations apps (Vessels, Zeus, Lyte): Fleet optimization rules, voyage templates, architecture blueprints, module templates, observability dashboards, SLO definitions.
-    *   Creative apps (DreamEra, Dreamscape, AlloyScape): Content templates, campaign workflows, world-building presets, style libraries, infrastructure blueprints, scaling policies.
-    *   Business apps (SZL Holdings, Carlota Jo, Lutar, Career, Apps Showcase, Readiness Report): Portfolio strategies, engagement templates, empire expansion playbooks, career milestones, showcase templates, assessment checklists.
-*   **Frontend**: Each app has an Extensions page (`/extensions` route) with tabbed UI (Automation, Webhooks, Notifications, Reports, API Keys, domain-specific features) using AnimatePresence transitions.
-*   **Command Palette**: Reusable `CommandPalette` component (`lib/ui/src/components/command-palette.tsx`) with Cmd+K shortcut, fuzzy search, and `useAppCommands` hook providing navigation commands. Wired into all 18 apps.
-*   **Cross-App Social Media Integration**: Shared `SocialShareWidget` (`lib/ui/src/components/social-widget.tsx`) provides a floating social panel with Quick Post, Platform Status, and Recent Posts tabs — integrated into all 18 apps. `ShareContentButton` enables contextual one-click sharing on key domain pages (Beacon telemetry, INCA insights, Nimbus predictions, Vessels fleet health, ROSIE threats, Aegis security posture, Firestorm simulation reports). `CarouselLauncherButton` opens DreamEra's carousel builder in a modal iframe. Social hooks (`useSocialStatus`, `useQuickPost`, `useSocialFeed`, `useContentGenerate`) live in `lib/api-client-react/src/use-social.ts`. SZL Holdings has a dedicated Content Hub section (`artifacts/szl-holdings/src/sections/ContentHub.tsx`) with social feed, media links, and newsletter signup. All social features route through existing `/api/social` and `/api/social-command` backend endpoints.
-*   **Auth**: All extension endpoints require valid JWT tokens (`requireAuth` middleware). In-memory storage (Maps/arrays) — no DB schema changes.
-*   **Routes**: `GET/POST/PUT/DELETE /api/extensions/{domain}/{feature}` mounted via extensionsRouter in `routes/index.ts`.
-
-## External Dependencies & Integrations
+## External Dependencies
 
 *   **PostgreSQL**: Primary database.
-*   **OpenAI**: Powers the Alloy Nuro Engine.
-*   **Microsoft Entra External ID (MSAL)**: For enterprise Single Sign-On (SSO).
+*   **OpenAI**: AI model integration for the Alloy Nuro Engine.
+*   **Microsoft Entra External ID (MSAL)**: Enterprise Single Sign-On (SSO).
 *   **Stripe**: Payment processing.
 *   **Google Services (Gmail, Calendar, Drive)**: Via Replit connectors.
 *   **Plaid**: Financial data aggregation.
-*   **Meta (Facebook/Instagram), Twitter, LinkedIn**: Social media integration for DreamEra and cross-app social sharing via `SocialShareWidget` (floating widget in all 18 apps) and `ShareContentButton` (contextual share on key domain pages).
+*   **Meta (Facebook/Instagram), Twitter, LinkedIn**: Social media integration for DreamEra and cross-app social sharing.
 *   **Azure Application Insights**: Monitoring and telemetry.
 *   **Azure Key Vault**: Centralized secrets management.
 *   **Azure Managed Redis**: Session storage and caching.

@@ -1,40 +1,68 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Shield, Flame, Bot, Activity, TrendingUp, AlertTriangle } from "lucide-react";
+import { aegisFetch } from "@/lib/api";
 
-const apps = [
-  {
-    name: "Aegis",
-    icon: Shield,
-    status: "nominal",
-    score: 98,
-    threats: 7,
-    color: "#f59e0b",
-    gradient: "from-amber-500/20 to-amber-500/5",
-  },
-  {
-    name: "Firestorm",
-    icon: Flame,
-    status: "simulating",
-    score: 78,
-    threats: 3,
-    color: "#f97316",
-    gradient: "from-orange-500/20 to-orange-500/5",
-  },
-  {
-    name: "ROSIE",
-    icon: Bot,
-    status: "monitoring",
-    score: 96,
-    threats: 0,
-    color: "#06b6d4",
-    gradient: "from-cyan-500/20 to-cyan-500/5",
-  },
-];
+interface AppSummary {
+  name: string;
+  status: string;
+  score: number;
+  threats: number;
+  color: string;
+  gradient: string;
+}
 
-const overallScore = Math.round(apps.reduce((a, b) => a + b.score, 0) / apps.length);
-const totalThreats = apps.reduce((a, b) => a + b.threats, 0);
+interface CrossAppData {
+  apps: AppSummary[];
+  overallScore: number;
+  totalThreats: number;
+}
+
+const iconMap: Record<string, typeof Shield> = {
+  Aegis: Shield,
+  Firestorm: Flame,
+  ROSIE: Bot,
+};
 
 export default function CrossAppSummary() {
+  const [data, setData] = useState<CrossAppData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    aegisFetch<CrossAppData>("cross-app-summary")
+      .then(d => {
+        setData(d);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Failed to fetch cross-app summary:", err);
+        setError(true);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="p-5 rounded-2xl border border-white/10 bg-white/[0.02] animate-pulse">
+        <div className="h-4 bg-white/5 rounded w-32 mb-4" />
+        <div className="space-y-2">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-12 bg-white/5 rounded-lg" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="p-5 rounded-2xl border border-amber-500/10 bg-amber-500/5">
+        <p className="text-[10px] text-amber-400">Security suite status unavailable</p>
+      </div>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -61,15 +89,15 @@ export default function CrossAppSummary() {
 
         <div className="flex items-center gap-6 mb-4">
           <div>
-            <p className="text-3xl font-display font-bold text-white">{overallScore}</p>
+            <p className="text-3xl font-display font-bold text-white">{data.overallScore}</p>
             <p className="text-[10px] text-gray-500 uppercase tracking-wider">Overall Score</p>
           </div>
           <div className="h-10 w-px bg-white/10" />
           <div className="flex items-center gap-1">
-            {totalThreats > 0 ? (
+            {data.totalThreats > 0 ? (
               <>
                 <AlertTriangle className="w-4 h-4 text-amber-400" />
-                <span className="text-sm font-bold text-amber-400">{totalThreats}</span>
+                <span className="text-sm font-bold text-amber-400">{data.totalThreats}</span>
                 <span className="text-[10px] text-gray-500 ml-1">active alerts</span>
               </>
             ) : (
@@ -82,29 +110,32 @@ export default function CrossAppSummary() {
         </div>
 
         <div className="space-y-2">
-          {apps.map((app, i) => (
-            <motion.div
-              key={app.name}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.1 }}
-              className={`flex items-center gap-3 p-2.5 rounded-lg bg-gradient-to-r ${app.gradient} border border-white/5 hover:border-white/10 transition-all cursor-pointer group`}
-            >
-              <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${app.color}20` }}>
-                <app.icon className="w-3.5 h-3.5" style={{ color: app.color }} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-white group-hover:text-cyan-400 transition-colors">{app.name}</span>
-                  <span className="text-xs font-mono font-bold" style={{ color: app.color }}>{app.score}%</span>
+          {data.apps.map((app, i) => {
+            const Icon = iconMap[app.name] || Shield;
+            return (
+              <motion.div
+                key={app.name}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.1 }}
+                className={`flex items-center gap-3 p-2.5 rounded-lg bg-gradient-to-r ${app.gradient} border border-white/5 hover:border-white/10 transition-all cursor-pointer group`}
+              >
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${app.color}20` }}>
+                  <Icon className="w-3.5 h-3.5" style={{ color: app.color }} />
                 </div>
-                <div className="flex items-center justify-between mt-0.5">
-                  <span className="text-[10px] text-gray-500 capitalize">{app.status}</span>
-                  {app.threats > 0 && <span className="text-[10px] text-amber-400">{app.threats} alerts</span>}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-white group-hover:text-cyan-400 transition-colors">{app.name}</span>
+                    <span className="text-xs font-mono font-bold" style={{ color: app.color }}>{app.score}%</span>
+                  </div>
+                  <div className="flex items-center justify-between mt-0.5">
+                    <span className="text-[10px] text-gray-500 capitalize">{app.status}</span>
+                    {app.threats > 0 && <span className="text-[10px] text-amber-400">{app.threats} alerts</span>}
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </motion.div>

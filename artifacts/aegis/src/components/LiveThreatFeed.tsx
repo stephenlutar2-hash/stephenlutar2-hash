@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShieldAlert, Globe, Activity, ShieldCheck } from "lucide-react";
+import { ShieldAlert, Globe, ShieldCheck } from "lucide-react";
 import { cn } from "@szl-holdings/ui";
+import { aegisFetch } from "@/lib/api";
 
 interface Threat {
   id: string;
@@ -15,37 +16,52 @@ interface Threat {
 const THREAT_TYPES = ["DDoS Attack", "SQL Injection", "Brute Force", "Zero-Day Exploit", "Malware Payload", "Cross-Site Scripting"];
 const ORIGINS = ["192.168.x.x (RU)", "10.0.x.x (CN)", "172.16.x.x (IR)", "Unknown Proxy", "Botnet Node (KP)", "Compromised Server (BR)"];
 
+function createRandomThreat(id: string | number): Threat {
+  const severities: ("CRITICAL" | "HIGH" | "ELEVATED")[] = ["CRITICAL", "HIGH", "ELEVATED", "HIGH"];
+  const now = new Date();
+  return {
+    id: `thr-${id}`,
+    time: `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}.${now.getMilliseconds().toString().substring(0,2)}`,
+    type: THREAT_TYPES[Math.floor(Math.random() * THREAT_TYPES.length)],
+    origin: ORIGINS[Math.floor(Math.random() * ORIGINS.length)],
+    severity: severities[Math.floor(Math.random() * severities.length)],
+    status: "BLOCKED"
+  };
+}
+
 export function LiveThreatFeed() {
   const [threats, setThreats] = useState<Threat[]>([]);
-  const [loaded, setLoaded] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [isSimulated, setIsSimulated] = useState(false);
 
   useEffect(() => {
-    const initial: Threat[] = Array.from({ length: 6 }).map((_, i) => createRandomThreat(i));
-    setThreats(initial);
-    setLoaded(true);
+    let interval: ReturnType<typeof setInterval>;
 
-    const interval = setInterval(() => {
-      setThreats(prev => {
-        const newThreat = createRandomThreat(Date.now());
-        return [newThreat, ...prev.slice(0, 5)];
+    aegisFetch<{ threats: Threat[] }>("threat-feed")
+      .then(data => {
+        setThreats(data.threats);
+        setLoading(false);
+        interval = setInterval(() => {
+          aegisFetch<{ threats: Threat[] }>("threat-feed")
+            .then(d => setThreats(d.threats))
+            .catch(() => {});
+        }, 15000);
+      })
+      .catch(() => {
+        const initial: Threat[] = Array.from({ length: 6 }).map((_, i) => createRandomThreat(i));
+        setThreats(initial);
+        setIsSimulated(true);
+        setLoading(false);
+        interval = setInterval(() => {
+          setThreats(prev => {
+            const newThreat = createRandomThreat(Date.now());
+            return [newThreat, ...prev.slice(0, 5)];
+          });
+        }, 3500);
       });
-    }, 3500);
 
-    return () => clearInterval(interval);
+    return () => { if (interval) clearInterval(interval); };
   }, []);
-
-  function createRandomThreat(id: string | number): Threat {
-    const severities: ("CRITICAL" | "HIGH" | "ELEVATED")[] = ["CRITICAL", "HIGH", "ELEVATED", "HIGH"];
-    const now = new Date();
-    return {
-      id: `thr-${id}`,
-      time: `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}.${now.getMilliseconds().toString().substring(0,2)}`,
-      type: THREAT_TYPES[Math.floor(Math.random() * THREAT_TYPES.length)],
-      origin: ORIGINS[Math.floor(Math.random() * ORIGINS.length)],
-      severity: severities[Math.floor(Math.random() * severities.length)],
-      status: "BLOCKED"
-    };
-  }
 
   return (
     <div className="w-full glass-panel rounded-xl overflow-hidden border border-primary/20">
@@ -55,10 +71,17 @@ export function LiveThreatFeed() {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
           </div>
-          <h3 className="font-display font-semibold tracking-widest text-sm text-muted-foreground">SIMULATED THREAT TELEMETRY</h3>
+          <h3 className="font-display font-semibold tracking-widest text-sm text-muted-foreground">
+            {isSimulated ? "SIMULATED THREAT TELEMETRY" : "THREAT TELEMETRY"}
+          </h3>
         </div>
-        <div className="text-xs text-amber-400 font-mono bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
-          DEMO DATA
+        <div className={cn(
+          "text-xs font-mono px-3 py-1 rounded-full border",
+          isSimulated
+            ? "text-amber-400 bg-amber-500/10 border-amber-500/20"
+            : "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
+        )}>
+          {isSimulated ? "DEMO DATA" : "LIVE"}
         </div>
       </div>
 
@@ -74,7 +97,7 @@ export function LiveThreatFeed() {
             </tr>
           </thead>
           <tbody className="divide-y divide-border/50 font-mono">
-            {!loaded ? (
+            {loading ? (
               Array.from({ length: 4 }).map((_, i) => (
                 <tr key={i} className="animate-pulse">
                   <td className="px-6 py-4"><div className="h-4 bg-white/5 rounded w-20" /></td>
@@ -88,7 +111,7 @@ export function LiveThreatFeed() {
               <tr>
                 <td colSpan={5} className="px-6 py-12 text-center text-muted-foreground">
                   <ShieldCheck className="w-10 h-10 mx-auto mb-3 opacity-20" />
-                  <p className="text-sm">No simulated threats active. Telemetry feed idle.</p>
+                  <p className="text-sm">No threats detected. Telemetry feed idle.</p>
                 </td>
               </tr>
             ) : (

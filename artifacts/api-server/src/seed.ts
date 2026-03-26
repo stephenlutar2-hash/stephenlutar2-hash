@@ -6,6 +6,7 @@ import {
   incaProjectsTable, incaExperimentsTable,
   dreameraContentTable, dreameraCampaignsTable
 } from "@szl-holdings/db/schema";
+import { seedAegis } from "./seed-aegis";
 
 async function seed() {
   console.log("Seeding database...");
@@ -108,6 +109,8 @@ async function seed() {
     { name: "AI Revolution Content Series", description: "12-part content series on the AI security revolution featuring SZL research", status: "planning", budget: "45000", reach: 500000, startDate: "2026-04-01", endDate: "2026-09-30" },
     { name: "Empire Builder Podcast Tour", description: "Guest appearances and sponsored placements on top 50 tech and business podcasts", status: "completed", budget: "32000", reach: 1200000, startDate: "2025-10-01", endDate: "2025-12-31" },
   ]).onConflictDoNothing();
+
+  await seedAegis();
 
   console.log("✅ Database seeded successfully!");
   process.exit(0);

@@ -1,61 +1,17 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { aegisFetch } from "@/lib/api";
 
-const frameworks = [
-  {
-    name: "ISO 27001",
-    score: 100,
-    controls: 114,
-    passing: 114,
-    color: "#10b981",
-    lastAudit: "2026-02-15",
-    status: "Certified",
-  },
-  {
-    name: "SOC 2 Type II",
-    score: 98,
-    controls: 64,
-    passing: 63,
-    color: "#06b6d4",
-    lastAudit: "2026-01-28",
-    status: "Compliant",
-  },
-  {
-    name: "NIST CSF",
-    score: 94,
-    controls: 108,
-    passing: 102,
-    color: "#8b5cf6",
-    lastAudit: "2026-03-01",
-    status: "In Progress",
-  },
-  {
-    name: "PCI DSS",
-    score: 100,
-    controls: 78,
-    passing: 78,
-    color: "#f59e0b",
-    lastAudit: "2025-12-10",
-    status: "Certified",
-  },
-  {
-    name: "HIPAA",
-    score: 95,
-    controls: 54,
-    passing: 51,
-    color: "#ec4899",
-    lastAudit: "2026-02-20",
-    status: "Compliant",
-  },
-  {
-    name: "GDPR",
-    score: 97,
-    controls: 42,
-    passing: 41,
-    color: "#3b82f6",
-    lastAudit: "2026-03-10",
-    status: "Compliant",
-  },
-];
+interface Framework {
+  id: number;
+  name: string;
+  score: number;
+  controls: number;
+  passing: number;
+  color: string;
+  lastAudit: string;
+  status: string;
+}
 
 function ProgressRing({ score, color, size = 80 }: { score: number; color: string; size?: number }) {
   const radius = (size - 12) / 2;
@@ -86,6 +42,52 @@ function ProgressRing({ score, color, size = 80 }: { score: number; color: strin
 }
 
 export default function ComplianceTracker() {
+  const [frameworks, setFrameworks] = useState<Framework[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    aegisFetch<{ frameworks: Framework[] }>("compliance-frameworks")
+      .then(data => {
+        setFrameworks(data.frameworks);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Failed to fetch compliance frameworks:", err);
+        setError("Failed to load compliance data");
+        setLoading(false);
+      });
+  }, []);
+
+  const compliantCount = frameworks.filter(fw => fw.score >= 95).length;
+
+  if (loading) {
+    return (
+      <div className="p-6 rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-sm">
+        <div className="animate-pulse space-y-4">
+          <div className="h-6 bg-white/5 rounded w-64" />
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="flex flex-col items-center p-4 rounded-xl border border-white/5 bg-white/[0.02]">
+                <div className="w-20 h-20 rounded-full bg-white/5" />
+                <div className="h-4 bg-white/5 rounded w-16 mt-3" />
+                <div className="h-3 bg-white/5 rounded w-20 mt-1" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 rounded-2xl border border-red-500/20 bg-red-500/5">
+        <p className="text-red-400 text-sm">{error}</p>
+      </div>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -103,7 +105,7 @@ export default function ComplianceTracker() {
           </div>
           <div className="flex items-center gap-2 text-[10px] font-mono">
             <span className="w-2 h-2 rounded-full bg-emerald-400" />
-            <span className="text-emerald-400">5/6 Fully Compliant</span>
+            <span className="text-emerald-400">{compliantCount}/{frameworks.length} Fully Compliant</span>
           </div>
         </div>
 
