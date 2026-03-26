@@ -4,9 +4,10 @@ import { Menu, X } from "lucide-react";
 
 const navLinks = [
   { label: "Vision", href: "#vision" },
+  { label: "Ecosystem", href: "#ecosystem" },
   { label: "Portfolio", href: "#portfolio" },
+  { label: "Timeline", href: "#timeline" },
   { label: "About", href: "#about" },
-  { label: "Innovation", href: "#innovation" },
   { label: "Contact", href: "#contact" },
 ];
 
@@ -19,6 +20,15 @@ export default function Navigation() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [mobileOpen]);
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
@@ -43,7 +53,7 @@ export default function Navigation() {
       >
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
-            <a href="#" className="flex items-center gap-3 group">
+            <a href="#" className="flex items-center gap-3 group" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center">
                 <span className="text-background font-bold text-lg">S</span>
               </div>
@@ -54,7 +64,7 @@ export default function Navigation() {
               </div>
             </a>
 
-            <nav className="hidden lg:flex items-center gap-8">
+            <nav className="hidden lg:flex items-center gap-7">
               {navLinks.map((link) => (
                 <a
                   key={link.href}

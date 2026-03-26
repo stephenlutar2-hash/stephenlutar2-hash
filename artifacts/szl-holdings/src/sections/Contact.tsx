@@ -19,10 +19,35 @@ export default function Contact() {
     message: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [showMailtoFallback, setShowMailtoFallback] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      const res = await fetch(`/api/contact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formState),
+      });
+
+      if (res.ok) {
+        setSubmitted(true);
+      } else {
+        const data = await res.json().catch(() => null);
+        setError(data?.error || "Unable to send your message. You can reach us directly via email instead.");
+        setShowMailtoFallback(true);
+      }
+    } catch {
+      setError("Unable to connect to the server. You can reach us directly via email instead.");
+      setShowMailtoFallback(true);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleChange = (
@@ -185,11 +210,26 @@ export default function Contact() {
                       />
                     </div>
 
+                    {error && (
+                      <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-4">
+                        <p className="text-sm text-red-400">{error}</p>
+                        {showMailtoFallback && (
+                          <a
+                            href={`mailto:contact@szlholdings.com?subject=${encodeURIComponent(`[SZL Holdings] ${formState.inquiryType}`)}&body=${encodeURIComponent(`Name: ${formState.name}\nEmail: ${formState.email}\nInquiry: ${formState.inquiryType}\n\n${formState.message}`)}`}
+                            className="inline-block mt-3 text-sm font-medium text-gold-light hover:text-gold transition-colors underline"
+                          >
+                            Send via email instead
+                          </a>
+                        )}
+                      </div>
+                    )}
+
                     <button
                       type="submit"
-                      className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-gold to-gold-dark text-background font-semibold text-sm tracking-wide rounded-lg hover:shadow-lg hover:shadow-gold/20 transition-all duration-300 inline-flex items-center justify-center gap-2"
+                      disabled={submitting}
+                      className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-gold to-gold-dark text-background font-semibold text-sm tracking-wide rounded-lg hover:shadow-lg hover:shadow-gold/20 transition-all duration-300 inline-flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                     >
-                      Send Message
+                      {submitting ? "Sending..." : "Send Message"}
                       <Send className="w-4 h-4" />
                     </button>
                   </motion.form>

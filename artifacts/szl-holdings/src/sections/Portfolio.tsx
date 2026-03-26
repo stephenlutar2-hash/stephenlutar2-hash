@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import {
   Shield, Eye, Satellite, Cloud, Zap, Flame, Sparkles, Ship,
   Lightbulb, Palette, BriefcaseBusiness, FileCheck, GraduationCap,
-  Layers, MonitorCheck,
+  Layers, MonitorCheck, ExternalLink,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -15,6 +15,8 @@ interface Product {
   gradient: string;
   status: Status;
   href: string;
+  techStack: string[];
+  category: string;
 }
 
 const products: Product[] = [
@@ -25,6 +27,8 @@ const products: Product[] = [
     gradient: "from-cyan-500 to-blue-600",
     status: "Live",
     href: "/",
+    techStack: ["AI/ML", "React", "Real-time"],
+    category: "Security",
   },
   {
     name: "Aegis",
@@ -33,6 +37,8 @@ const products: Product[] = [
     gradient: "from-amber-500 to-yellow-600",
     status: "Live",
     href: "/aegis/",
+    techStack: ["Security", "Analytics", "Compliance"],
+    category: "Security",
   },
   {
     name: "Beacon",
@@ -41,6 +47,8 @@ const products: Product[] = [
     gradient: "from-cyan-400 to-blue-500",
     status: "Live",
     href: "/beacon/",
+    techStack: ["Dashboards", "Real-time", "D3"],
+    category: "Analytics",
   },
   {
     name: "Nimbus",
@@ -49,6 +57,8 @@ const products: Product[] = [
     gradient: "from-violet-500 to-purple-600",
     status: "Live",
     href: "/nimbus/",
+    techStack: ["ML", "Forecasting", "Statistics"],
+    category: "Analytics",
   },
   {
     name: "Zeus",
@@ -57,6 +67,8 @@ const products: Product[] = [
     gradient: "from-yellow-500 to-amber-600",
     status: "Live",
     href: "/zeus/",
+    techStack: ["Core Engine", "APIs", "Microservices"],
+    category: "Infrastructure",
   },
   {
     name: "INCA",
@@ -65,6 +77,8 @@ const products: Product[] = [
     gradient: "from-emerald-500 to-teal-600",
     status: "In Development",
     href: "/apps-showcase/",
+    techStack: ["NetOps", "Automation", "Config"],
+    category: "Infrastructure",
   },
   {
     name: "DreamEra",
@@ -73,6 +87,8 @@ const products: Product[] = [
     gradient: "from-pink-500 to-violet-600",
     status: "Live",
     href: "/dreamera/",
+    techStack: ["NLP", "Generative AI", "Narrative"],
+    category: "Creative",
   },
   {
     name: "Firestorm",
@@ -81,6 +97,8 @@ const products: Product[] = [
     gradient: "from-orange-500 to-red-600",
     status: "Beta",
     href: "/firestorm/",
+    techStack: ["Red Team", "Simulation", "Testing"],
+    category: "Security",
   },
   {
     name: "Vessels",
@@ -89,6 +107,8 @@ const products: Product[] = [
     gradient: "from-blue-500 to-indigo-600",
     status: "Live",
     href: "/vessels/",
+    techStack: ["AIS", "Geospatial", "Real-time"],
+    category: "Maritime",
   },
   {
     name: "Lyte",
@@ -97,6 +117,8 @@ const products: Product[] = [
     gradient: "from-lime-400 to-green-600",
     status: "In Development",
     href: "/apps-showcase/",
+    techStack: ["APM", "Metrics", "Lightweight"],
+    category: "Analytics",
   },
   {
     name: "Dreamscape",
@@ -105,6 +127,8 @@ const products: Product[] = [
     gradient: "from-fuchsia-500 to-pink-600",
     status: "Live",
     href: "/dreamscape/",
+    techStack: ["WebGL", "3D", "Creative"],
+    category: "Creative",
   },
   {
     name: "Carlota Jo Consulting",
@@ -113,6 +137,8 @@ const products: Product[] = [
     gradient: "from-slate-400 to-gray-600",
     status: "Live",
     href: "/carlota-jo/",
+    techStack: ["Strategy", "Transformation", "Advisory"],
+    category: "Services",
   },
   {
     name: "Alloyscape",
@@ -121,6 +147,8 @@ const products: Product[] = [
     gradient: "from-teal-400 to-cyan-600",
     status: "Live",
     href: "/alloyscape/",
+    techStack: ["Integration", "APIs", "ETL"],
+    category: "Infrastructure",
   },
   {
     name: "Readiness Report",
@@ -129,6 +157,8 @@ const products: Product[] = [
     gradient: "from-sky-400 to-blue-600",
     status: "Live",
     href: "/readiness-report/",
+    techStack: ["Assessment", "Scoring", "Reports"],
+    category: "Services",
   },
   {
     name: "Career",
@@ -137,17 +167,19 @@ const products: Product[] = [
     gradient: "from-indigo-400 to-violet-600",
     status: "Live",
     href: "/career/",
+    techStack: ["Portfolio", "Profiles", "Analytics"],
+    category: "Services",
   },
 ];
 
-const statusConfig: Record<Status, { dot: string; text: string }> = {
-  Live: { dot: "bg-emerald-400", text: "text-emerald-400" },
-  Beta: { dot: "bg-amber-400", text: "text-amber-400" },
-  "In Development": { dot: "bg-blue-400", text: "text-blue-400" },
+const statusConfig: Record<Status, { dot: string; text: string; bg: string }> = {
+  Live: { dot: "bg-emerald-400", text: "text-emerald-400", bg: "bg-emerald-400/10" },
+  Beta: { dot: "bg-amber-400", text: "text-amber-400", bg: "bg-amber-400/10" },
+  "In Development": { dot: "bg-blue-400", text: "text-blue-400", bg: "bg-blue-400/10" },
 };
 
 function ProductCard({ product, index }: { product: Product; index: number }) {
-  const { dot, text } = statusConfig[product.status];
+  const { dot, text, bg } = statusConfig[product.status];
 
   return (
     <motion.div
@@ -162,29 +194,55 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
     >
       <a
         href={product.href}
-        className="group block h-full rounded-2xl border border-white/[0.06] bg-surface-elevated/50 hover:border-gold/20 hover:bg-surface-elevated transition-all duration-500"
+        className="group block h-full rounded-2xl border border-white/[0.06] bg-surface-elevated/50 hover:border-gold/20 hover:bg-surface-elevated transition-all duration-500 relative overflow-hidden"
       >
-        <div className="p-6">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-gold/[0.02] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+        <div className="relative p-6">
           <div className="flex items-start justify-between mb-5">
             <div
-              className={`w-11 h-11 rounded-xl bg-gradient-to-br ${product.gradient} flex items-center justify-center shadow-lg`}
+              className={`w-11 h-11 rounded-xl bg-gradient-to-br ${product.gradient} flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow duration-300`}
             >
               <product.icon className="w-5 h-5 text-white" />
             </div>
-            <div className="flex items-center gap-1.5">
+            <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full ${bg}`}>
               <div className={`w-1.5 h-1.5 rounded-full ${dot}`} />
-              <span className={`text-[11px] font-medium tracking-wide ${text}`}>
+              <span className={`text-[10px] font-semibold tracking-wide ${text}`}>
                 {product.status}
               </span>
             </div>
           </div>
 
-          <h3 className="text-base font-semibold text-foreground mb-2 group-hover:text-gold-light transition-colors duration-300">
-            {product.name}
-          </h3>
-          <p className="text-sm text-muted leading-relaxed">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-base font-semibold text-foreground group-hover:text-gold-light transition-colors duration-300">
+              {product.name}
+            </h3>
+            <ExternalLink className="w-3.5 h-3.5 text-muted/40 group-hover:text-gold/60 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </div>
+
+          <p className="text-sm text-muted leading-relaxed mb-4">
             {product.description}
           </p>
+
+          <div className="flex flex-wrap gap-1.5">
+            {product.techStack.map((tech) => (
+              <span
+                key={tech}
+                className="px-2 py-0.5 rounded text-[10px] font-medium bg-white/[0.04] text-muted/80 border border-white/[0.04]"
+              >
+                {tech}
+              </span>
+            ))}
+          </div>
+
+          <div className="mt-4 pt-4 border-t border-white/[0.04] flex items-center justify-between">
+            <span className="text-[10px] uppercase tracking-wider text-muted/50 font-medium">
+              {product.category}
+            </span>
+            <span className="text-xs text-gold/50 group-hover:text-gold transition-colors duration-300 font-medium">
+              Explore →
+            </span>
+          </div>
         </div>
       </a>
     </motion.div>
@@ -193,7 +251,7 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
 
 export default function Portfolio() {
   return (
-    <section id="portfolio" className="relative py-32 lg:py-40">
+    <section id="portfolio" className="relative py-28 lg:py-36">
       <div className="absolute inset-0 bg-gradient-to-b from-background via-surface/30 to-background" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">

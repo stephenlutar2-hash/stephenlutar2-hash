@@ -1,11 +1,20 @@
+import { lazy, Suspense } from "react";
 import Navigation from "./components/Navigation";
 import Hero from "./sections/Hero";
-import Vision from "./sections/Vision";
-import Portfolio from "./sections/Portfolio";
-import About from "./sections/About";
-import Innovation from "./sections/Innovation";
-import Contact from "./sections/Contact";
 import Footer from "./components/Footer";
+
+const Vision = lazy(() => import("./sections/Vision"));
+const EcosystemConstellation = lazy(() => import("./sections/EcosystemConstellation"));
+const Metrics = lazy(() => import("./sections/Metrics"));
+const Portfolio = lazy(() => import("./sections/Portfolio"));
+const Timeline = lazy(() => import("./sections/Timeline"));
+const About = lazy(() => import("./sections/About"));
+const Innovation = lazy(() => import("./sections/Innovation"));
+const Contact = lazy(() => import("./sections/Contact"));
+
+function SectionFallback() {
+  return <div className="min-h-[200px]" />;
+}
 
 function App() {
   return (
@@ -13,11 +22,30 @@ function App() {
       <Navigation />
       <main>
         <Hero />
-        <Vision />
-        <Portfolio />
-        <About />
-        <Innovation />
-        <Contact />
+        <Suspense fallback={<SectionFallback />}>
+          <Vision />
+        </Suspense>
+        <Suspense fallback={<SectionFallback />}>
+          <EcosystemConstellation />
+        </Suspense>
+        <Suspense fallback={<SectionFallback />}>
+          <Metrics />
+        </Suspense>
+        <Suspense fallback={<SectionFallback />}>
+          <Portfolio />
+        </Suspense>
+        <Suspense fallback={<SectionFallback />}>
+          <Timeline />
+        </Suspense>
+        <Suspense fallback={<SectionFallback />}>
+          <About />
+        </Suspense>
+        <Suspense fallback={<SectionFallback />}>
+          <Innovation />
+        </Suspense>
+        <Suspense fallback={<SectionFallback />}>
+          <Contact />
+        </Suspense>
       </main>
       <Footer />
     </div>

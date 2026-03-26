@@ -17,6 +17,7 @@ import vesselsRouter from "./vessels";
 import incaRouter from "./inca";
 import carlotaJoRouter from "./carlota-jo";
 import lyteRouter from "./lyte";
+import contactRouter from "./contact";
 import { auditMiddleware } from "../lib/audit";
 import { requireDatabase } from "../lib/dbGuard";
 
@@ -52,5 +53,6 @@ router.use(vesselsRouter);
 router.use(incaRouter);
 router.use(carlotaJoRouter);
 router.use(lyteRouter);
+router.use(contactRouter);
 
 export default router;
