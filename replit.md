@@ -84,6 +84,13 @@ The project is built as a pnpm workspace monorepo using Node.js 24, pnpm, and Ty
 - SEO: Open Graph meta tags and descriptions on ROSIE, apps-showcase, and career HTML.
 - Accessibility: Skip-to-content links on apps-showcase pages.
 
+## GitHub Repository
+
+- **Repository**: [stephenlutar2-hash/inca-intelligence-platform](https://github.com/stephenlutar2-hash/inca-intelligence-platform)
+- **Remote**: `origin` → `https://github.com/stephenlutar2-hash/inca-intelligence-platform.git`
+- **Branch**: `main`
+- **Note**: The `.github/workflows/deploy.yml` file is tracked locally but not pushed to GitHub due to the Replit GitHub OAuth token lacking the `workflow` scope. To push it, use a Personal Access Token with the `workflow` scope.
+
 ## External Dependencies
 
 - **PostgreSQL**: Primary database.
