@@ -14,11 +14,21 @@ import {
   vesselShipmentsTable,
   vesselLogsTable,
 } from "@szl-holdings/db/schema";
-import { eq, desc, and, count, sql, asc } from "drizzle-orm";
+import { eq, desc, and, count, sql, asc, inArray } from "drizzle-orm";
 import { asyncHandler } from "../middleware/errorHandler";
 import { validateBody } from "../middleware/validate";
 import { AppError } from "../lib/errors";
 import { logger } from "../lib/logger";
+import { requireAuth } from "./auth";
+import { requireOperator } from "../middleware/rbac";
+import { writeRateLimit } from "../middleware/rateLimit";
+import {
+  parsePagination,
+  paginateArray,
+  sortArray,
+  filterByFields,
+  searchItems,
+} from "../middleware/pagination";
 
 const vesselStatusSchema = z.object({
   status: z.enum(["laden", "ballast", "at-port", "drydock", "anchored"]).optional(),
@@ -47,6 +57,15 @@ const emissionsSchema = z.object({
 });
 
 const router = Router();
+
+const sseClients: Set<import("express").Response> = new Set();
+
+function broadcastSSE(event: string, data: unknown) {
+  const payload = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
+  for (const client of sseClients) {
+    client.write(payload);
+  }
+}
 
 function seededRng(seed: number) {
   let s = seed;
@@ -317,6 +336,135 @@ async function doSeed() {
 router.get("/vessels/health", (_req, res) => {
   res.json({ ok: true, group: "vessels", timestamp: new Date().toISOString() });
 });
+
+router.get("/vessels/list/fleet", requireAuth, asyncHandler(async (req, res) => {
+    await ensureSeeded();
+    const pagination = parsePagination(req);
+    const allVessels = await db.select().from(vesselsTable);
+    let items = allVessels.map(v => ({
+      id: v.id,
+      vesselCode: v.vesselCode,
+      name: v.name,
+      imo: v.imo,
+      flag: v.flag,
+      type: v.type,
+      dwt: v.dwt,
+      cbm: v.cbm,
+      built: v.built,
+      class: v.class,
+      status: v.status,
+      speed: v.speed,
+      lat: v.lat,
+      lng: v.lng,
+      route: v.route,
+      charterer: v.charterer,
+      tce: v.tce,
+      utilization: v.utilization,
+      cii: v.cii,
+      eexi: v.eexi,
+      createdAt: v.createdAt,
+    }));
+    items = filterByFields(items, req.query as Record<string, string | string[] | undefined>, ["status", "type", "flag", "cii", "eexi"]);
+    items = sortArray(items, pagination.sort, pagination.order);
+    res.json(paginateArray(items, pagination));
+}));
+
+router.get("/vessels/list/voyages", requireAuth, asyncHandler(async (req, res) => {
+    await ensureSeeded();
+    const pagination = parsePagination(req);
+    const voyages = await db.select().from(vesselVoyagesTable);
+    const allVessels = await db.select().from(vesselsTable);
+    const vesselNames = new Map(allVessels.map(v => [v.id, v.name]));
+    let items = voyages.map(v => ({
+      id: v.id,
+      voyageCode: v.voyageCode,
+      vesselId: v.vesselId,
+      vesselName: vesselNames.get(v.vesselId) || "Unknown",
+      origin: v.origin,
+      destination: v.destination,
+      eta: v.eta,
+      cargo: v.cargo,
+      cargoVolume: v.cargoVolume,
+      progress: v.progress,
+      status: v.status,
+      riskScore: v.riskScore,
+      weatherRisk: v.weatherRisk,
+      portCongestionRisk: v.portCongestionRisk,
+      geopoliticalRisk: v.geopoliticalRisk,
+      piracyRisk: v.piracyRisk,
+      createdAt: v.createdAt,
+    }));
+    items = filterByFields(items, req.query as Record<string, string | string[] | undefined>, ["status", "cargo"]);
+    if (req.query.vesselId) {
+      const vid = parseInt(req.query.vesselId as string);
+      if (!isNaN(vid)) items = items.filter(i => i.vesselId === vid);
+    }
+    items = sortArray(items, pagination.sort, pagination.order);
+    res.json(paginateArray(items, pagination));
+}));
+
+router.get("/vessels/list/emissions", requireAuth, asyncHandler(async (req, res) => {
+    await ensureSeeded();
+    const pagination = parsePagination(req);
+    const emissions = await db.select().from(vesselEmissionsTable).orderBy(asc(vesselEmissionsTable.date));
+    const allVessels = await db.select().from(vesselsTable);
+    const vesselNames = new Map(allVessels.map(v => [v.id, v.name]));
+    let items = emissions.map(e => ({
+      id: e.id,
+      vesselId: e.vesselId,
+      vesselName: vesselNames.get(e.vesselId) || "Unknown",
+      date: e.date,
+      co2Tons: e.co2Tons,
+      fuelConsumedTons: e.fuelConsumedTons,
+      fuelType: e.fuelType,
+      distanceNm: e.distanceNm,
+      ciiValue: e.ciiValue,
+      eexiValue: e.eexiValue,
+      createdAt: e.createdAt,
+    }));
+    items = filterByFields(items, req.query as Record<string, string | string[] | undefined>, ["fuelType"]);
+    if (req.query.vesselId) {
+      const vid = parseInt(req.query.vesselId as string);
+      if (!isNaN(vid)) items = items.filter(i => i.vesselId === vid);
+    }
+    if (req.query.dateFrom) {
+      items = items.filter(i => i.date >= (req.query.dateFrom as string));
+    }
+    if (req.query.dateTo) {
+      items = items.filter(i => i.date <= (req.query.dateTo as string));
+    }
+    items = sortArray(items, pagination.sort, pagination.order);
+    res.json(paginateArray(items, pagination));
+}));
+
+router.get("/vessels/list/alerts", requireAuth, asyncHandler(async (req, res) => {
+    await ensureSeeded();
+    const pagination = parsePagination(req);
+    const alerts = await db.select().from(vesselAlertsTable).orderBy(desc(vesselAlertsTable.createdAt));
+    const allVessels = await db.select().from(vesselsTable);
+    const vesselNames = new Map(allVessels.map(v => [v.id, v.name]));
+    let items = alerts.map(a => ({
+      id: a.id,
+      alertCode: a.alertCode,
+      vesselId: a.vesselId,
+      vesselName: a.vesselId ? vesselNames.get(a.vesselId) || null : null,
+      pillar: a.pillar,
+      severity: a.severity,
+      title: a.title,
+      message: a.message,
+      acknowledged: a.acknowledged,
+      acknowledgedAt: a.acknowledgedAt,
+      acknowledgedBy: a.acknowledgedBy,
+      createdAt: a.createdAt,
+    }));
+    items = filterByFields(items, req.query as Record<string, string | string[] | undefined>, ["severity", "pillar", "acknowledged"]);
+    if (req.query.vesselId) {
+      const vid = parseInt(req.query.vesselId as string);
+      if (!isNaN(vid)) items = items.filter(i => i.vesselId === vid);
+    }
+    items = sortArray(items, pagination.sort, pagination.order);
+    res.json(paginateArray(items, pagination));
+}));
 
 const responseCache = new Map<string, any>();
 function cached<T>(key: string, fn: () => T): T {
@@ -906,6 +1054,7 @@ router.post("/vessels/alerts/:alertCode/acknowledge", asyncHandler(async (req, r
       .returning();
 
     if (!updated) throw AppError.notFound("Alert not found");
+    broadcastSSE("alert:acknowledged", updated);
     res.json({ success: true, alert: updated });
 }));
 
@@ -913,7 +1062,7 @@ router.patch("/vessels/vessel/:vesselCode/status", validateBody(vesselStatusSche
     const { vesselCode } = req.params;
     const { status, speed, lat, lng } = req.body;
 
-    const updates: any = { updatedAt: new Date() };
+    const updates: Partial<{ status: string; speed: number; lat: number; lng: number; updatedAt: Date }> = { updatedAt: new Date() };
     if (status) updates.status = status;
     if (speed !== undefined) updates.speed = speed;
     if (lat !== undefined) updates.lat = lat;
@@ -925,6 +1074,7 @@ router.patch("/vessels/vessel/:vesselCode/status", validateBody(vesselStatusSche
       .returning();
 
     if (!updated) throw AppError.notFound("Vessel not found");
+    broadcastSSE("vessel:status-updated", updated);
     res.json({ success: true, vessel: updated });
 }));
 
@@ -945,6 +1095,7 @@ router.post("/vessels/maintenance", validateBody(maintenanceSchema), asyncHandle
       estimatedCost,
     }).returning();
 
+    broadcastSSE("maintenance:created", event);
     res.json({ success: true, event });
 }));
 
@@ -963,7 +1114,315 @@ router.post("/vessels/emissions", validateBody(emissionsSchema), asyncHandler(as
       distanceNm,
     }).returning();
 
+    broadcastSSE("emission:created", reading);
     res.json({ success: true, reading });
 }));
+
+router.get("/vessels/analytics/fleet-utilization", requireAuth, asyncHandler(async (_req, res) => {
+    await ensureSeeded();
+    const allVessels = await db.select().from(vesselsTable);
+    const active = allVessels.filter(v => v.status !== "drydock");
+    const avgUtilization = active.length > 0 ? Math.round(active.reduce((s, v) => s + v.utilization, 0) / active.length) : 0;
+
+    const byStatus: Record<string, number> = {};
+    for (const v of allVessels) {
+      byStatus[v.status] = (byStatus[v.status] || 0) + 1;
+    }
+
+    const utilizationBuckets: Record<string, number> = { "0-25": 0, "25-50": 0, "50-75": 0, "75-100": 0 };
+    for (const v of allVessels) {
+      if (v.utilization < 25) utilizationBuckets["0-25"]++;
+      else if (v.utilization < 50) utilizationBuckets["25-50"]++;
+      else if (v.utilization < 75) utilizationBuckets["50-75"]++;
+      else utilizationBuckets["75-100"]++;
+    }
+
+    const vesselUtilization = allVessels.map(v => ({
+      vesselCode: v.vesselCode,
+      name: v.name,
+      status: v.status,
+      utilization: v.utilization,
+      tce: v.tce,
+    })).sort((a, b) => b.utilization - a.utilization);
+
+    res.json({
+      summary: {
+        totalVessels: allVessels.length,
+        activeVessels: active.length,
+        avgUtilization,
+        byStatus,
+        utilizationBuckets,
+      },
+      vessels: vesselUtilization,
+    });
+}));
+
+router.get("/vessels/analytics/emissions-trends", requireAuth, asyncHandler(async (_req, res) => {
+    await ensureSeeded();
+    const emissions = await db.select().from(vesselEmissionsTable).orderBy(asc(vesselEmissionsTable.date));
+    const allVessels = await db.select().from(vesselsTable);
+    const vesselNames = new Map(allVessels.map(v => [v.id, v.name]));
+
+    const byMonth: Record<string, { co2: number; fuel: number; distance: number; count: number }> = {};
+    for (const e of emissions) {
+      const month = e.date.substring(0, 7);
+      if (!byMonth[month]) byMonth[month] = { co2: 0, fuel: 0, distance: 0, count: 0 };
+      byMonth[month].co2 += e.co2Tons;
+      byMonth[month].fuel += e.fuelConsumedTons;
+      byMonth[month].distance += e.distanceNm || 0;
+      byMonth[month].count++;
+    }
+
+    const trend = Object.entries(byMonth)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([month, data]) => ({
+        month,
+        totalCo2: Math.round(data.co2 * 10) / 10,
+        totalFuel: Math.round(data.fuel * 10) / 10,
+        totalDistance: Math.round(data.distance),
+        avgCo2PerVoyage: data.count > 0 ? Math.round((data.co2 / data.count) * 10) / 10 : 0,
+        efficiency: data.distance > 0 ? Math.round((data.co2 / data.distance) * 1000) / 1000 : 0,
+      }));
+
+    const byVessel: Record<number, number> = {};
+    for (const e of emissions) {
+      byVessel[e.vesselId] = (byVessel[e.vesselId] || 0) + e.co2Tons;
+    }
+    const vesselEmissions = Object.entries(byVessel)
+      .map(([id, total]) => ({
+        vesselId: Number(id),
+        name: vesselNames.get(Number(id)) || "Unknown",
+        totalCo2: Math.round(total * 10) / 10,
+      }))
+      .sort((a, b) => b.totalCo2 - a.totalCo2);
+
+    res.json({
+      trend,
+      byVessel: vesselEmissions,
+      totals: {
+        co2: Math.round(emissions.reduce((s, e) => s + e.co2Tons, 0) * 10) / 10,
+        fuel: Math.round(emissions.reduce((s, e) => s + e.fuelConsumedTons, 0) * 10) / 10,
+      },
+    });
+}));
+
+router.get("/vessels/analytics/voyage-efficiency", requireAuth, asyncHandler(async (_req, res) => {
+    await ensureSeeded();
+    const voyages = await db.select().from(vesselVoyagesTable);
+    const allVessels = await db.select().from(vesselsTable);
+    const vesselNames = new Map(allVessels.map(v => [v.id, v.name]));
+
+    const voyageEfficiency = voyages.map(v => ({
+      voyageCode: v.voyageCode,
+      vessel: vesselNames.get(v.vesselId) || "Unknown",
+      origin: v.origin,
+      destination: v.destination,
+      progress: v.progress,
+      status: v.status,
+      riskScore: v.riskScore,
+      cargo: v.cargo,
+    }));
+
+    const avgProgress = voyages.length > 0 ? Math.round(voyages.reduce((s, v) => s + v.progress, 0) / voyages.length) : 0;
+    const avgRisk = voyages.length > 0 ? Math.round(voyages.reduce((s, v) => s + v.riskScore, 0) / voyages.length) : 0;
+
+    const byStatus: Record<string, number> = {};
+    for (const v of voyages) {
+      byStatus[v.status] = (byStatus[v.status] || 0) + 1;
+    }
+
+    res.json({
+      voyages: voyageEfficiency,
+      summary: {
+        totalVoyages: voyages.length,
+        avgProgress,
+        avgRiskScore: avgRisk,
+        byStatus,
+        ladenVoyages: voyages.filter(v => v.cargo).length,
+        ballastVoyages: voyages.filter(v => !v.cargo).length,
+      },
+    });
+}));
+
+router.get("/vessels/analytics/port-dwell", requireAuth, asyncHandler(async (_req, res) => {
+    await ensureSeeded();
+    const rng = seededRng(123);
+    const ports = await db.select().from(vesselPortsTable);
+    const voyages = await db.select().from(vesselVoyagesTable);
+
+    const portStats = ports.map(p => {
+      const voyagesAtPort = voyages.filter(v =>
+        v.origin.toLowerCase().includes(p.name.toLowerCase()) ||
+        v.destination.toLowerCase().includes(p.name.toLowerCase())
+      );
+      return {
+        portCode: p.code,
+        name: p.name,
+        country: p.country,
+        type: p.type,
+        avgDwellHours: Math.round((24 + rng() * 72) * 10) / 10,
+        totalVisits: voyagesAtPort.length || Math.round(2 + rng() * 8),
+        congestionLevel: rng() > 0.7 ? "high" : rng() > 0.4 ? "medium" : "low",
+        avgWaitHours: Math.round((4 + rng() * 24) * 10) / 10,
+      };
+    });
+
+    res.json({
+      ports: portStats,
+      summary: {
+        totalPorts: ports.length,
+        avgDwellHours: portStats.length > 0 ? Math.round(portStats.reduce((s, p) => s + p.avgDwellHours, 0) / portStats.length * 10) / 10 : 0,
+        highCongestionPorts: portStats.filter(p => p.congestionLevel === "high").length,
+      },
+    });
+}));
+
+router.get("/vessels/analytics/maintenance-costs", requireAuth, asyncHandler(async (_req, res) => {
+    await ensureSeeded();
+    const maintenance = await db.select().from(vesselMaintenanceEventsTable);
+    const allVessels = await db.select().from(vesselsTable);
+    const vesselNames = new Map(allVessels.map(v => [v.id, v.name]));
+
+    const totalEstimated = maintenance.reduce((s, m) => s + (m.estimatedCost || 0), 0);
+    const totalActual = maintenance.reduce((s, m) => s + (m.actualCost || 0), 0);
+
+    const byVessel: Record<number, { estimated: number; actual: number; count: number }> = {};
+    for (const m of maintenance) {
+      if (!byVessel[m.vesselId]) byVessel[m.vesselId] = { estimated: 0, actual: 0, count: 0 };
+      byVessel[m.vesselId].estimated += m.estimatedCost || 0;
+      byVessel[m.vesselId].actual += m.actualCost || 0;
+      byVessel[m.vesselId].count++;
+    }
+
+    const vesselCosts = Object.entries(byVessel)
+      .map(([id, data]) => ({
+        vesselId: Number(id),
+        name: vesselNames.get(Number(id)) || "Unknown",
+        estimatedCost: data.estimated,
+        actualCost: data.actual,
+        eventCount: data.count,
+      }))
+      .sort((a, b) => b.estimatedCost - a.estimatedCost);
+
+    const bySeverity: Record<string, { cost: number; count: number }> = {};
+    for (const m of maintenance) {
+      if (!bySeverity[m.severity]) bySeverity[m.severity] = { cost: 0, count: 0 };
+      bySeverity[m.severity].cost += m.estimatedCost || 0;
+      bySeverity[m.severity].count++;
+    }
+
+    const byType: Record<string, number> = {};
+    for (const m of maintenance) {
+      byType[m.type] = (byType[m.type] || 0) + 1;
+    }
+
+    const byStatus: Record<string, number> = {};
+    for (const m of maintenance) {
+      byStatus[m.status] = (byStatus[m.status] || 0) + 1;
+    }
+
+    res.json({
+      summary: {
+        totalEstimatedCost: totalEstimated,
+        totalActualCost: totalActual,
+        totalEvents: maintenance.length,
+        pendingEvents: maintenance.filter(m => m.status === "pending").length,
+        byType,
+        byStatus,
+      },
+      bySeverity,
+      byVessel: vesselCosts,
+    });
+}));
+
+router.get("/vessels/search", requireAuth, asyncHandler(async (req, res) => {
+    await ensureSeeded();
+    const q = req.query.q as string;
+    if (!q || q.trim() === "") {
+      res.json({ vessels: [], voyages: [], alerts: [] });
+      return;
+    }
+
+    const allVessels = await db.select().from(vesselsTable);
+    const voyages = await db.select().from(vesselVoyagesTable);
+    const alerts = await db.select().from(vesselAlertsTable);
+
+    const matchedVessels = searchItems(allVessels, q, ["name", "vesselCode", "imo", "charterer", "route"]);
+    const matchedVoyages = searchItems(voyages, q, ["voyageCode", "origin", "destination", "cargo"]);
+    const matchedAlerts = searchItems(alerts, q, ["title", "alertCode", "pillar"]);
+
+    res.json({
+      vessels: matchedVessels,
+      voyages: matchedVoyages,
+      alerts: matchedAlerts,
+      totalResults: matchedVessels.length + matchedVoyages.length + matchedAlerts.length,
+    });
+}));
+
+const bulkVesselStatusSchema = z.object({
+  vesselCodes: z.array(z.string()).min(1).max(100),
+  status: z.enum(["laden", "ballast", "at-port", "drydock", "anchored"]),
+});
+
+const bulkAlertAckSchema = z.object({
+  alertCodes: z.array(z.string()).min(1).max(100),
+  acknowledgedBy: z.string().default("operator"),
+});
+
+const bulkDeleteByIdsSchema = z.object({
+  ids: z.array(z.number().int()).min(1).max(100),
+});
+
+router.patch("/vessels/bulk/status", requireAuth, writeRateLimit, requireOperator(), asyncHandler(async (req, res) => {
+    const parsed = bulkVesselStatusSchema.safeParse(req.body);
+    if (!parsed.success) throw AppError.badRequest("Validation failed", parsed.error.message);
+    const { vesselCodes, status } = parsed.data;
+
+    const updated = await db.update(vesselsTable)
+      .set({ status, updatedAt: new Date() })
+      .where(inArray(vesselsTable.vesselCode, vesselCodes))
+      .returning();
+
+    broadcastSSE("vessels:bulk-status-updated", { vesselCodes, status });
+    res.json({ updated: updated.length, vessels: updated });
+}));
+
+router.patch("/vessels/alerts/bulk/acknowledge", requireAuth, writeRateLimit, requireOperator(), asyncHandler(async (req, res) => {
+    const parsed = bulkAlertAckSchema.safeParse(req.body);
+    if (!parsed.success) throw AppError.badRequest("Validation failed", parsed.error.message);
+    const { alertCodes, acknowledgedBy } = parsed.data;
+
+    const updated = await db.update(vesselAlertsTable)
+      .set({ acknowledged: true, acknowledgedAt: new Date(), acknowledgedBy })
+      .where(inArray(vesselAlertsTable.alertCode, alertCodes))
+      .returning();
+
+    broadcastSSE("alerts:bulk-acknowledged", { alertCodes });
+    res.json({ updated: updated.length, alerts: updated });
+}));
+
+router.delete("/vessels/maintenance/bulk", requireAuth, requireOperator(), asyncHandler(async (req, res) => {
+    const parsed = bulkDeleteByIdsSchema.safeParse(req.body);
+    if (!parsed.success) throw AppError.badRequest("Validation failed", parsed.error.message);
+    const { ids } = parsed.data;
+
+    await db.delete(vesselMaintenanceEventsTable).where(inArray(vesselMaintenanceEventsTable.id, ids));
+    broadcastSSE("maintenance:bulk-deleted", { ids });
+    res.json({ deleted: ids.length });
+}));
+
+router.get("/vessels/stream", requireAuth, (req, res) => {
+    res.writeHead(200, {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      Connection: "keep-alive",
+      "X-Accel-Buffering": "no",
+    });
+    res.write("event: connected\ndata: {\"status\":\"connected\"}\n\n");
+    sseClients.add(res);
+    req.on("close", () => {
+      sseClients.delete(res);
+    });
+});
 
 export default router;
