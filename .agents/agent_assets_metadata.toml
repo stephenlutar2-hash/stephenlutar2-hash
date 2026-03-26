@@ -6,3 +6,9 @@ id = "g2eQ8lt7q3J685PpRULIk"
 uri = "file://szlholdings-source-code.tar.gz"
 type = "unspecified"
 title = "SZL Holdings - All Source Code"
+
+[[outputs]]
+id = "9Lj8dMMHKPvEh3ghY-CvG"
+uri = "file://exports/lyte-logo.svg"
+type = "image"
+title = "Lyte Logo (SVG)"
