@@ -18,3 +18,9 @@ id = "cU6RGIITcmg7UX078iRXF"
 uri = "file://social-content/pdf-guides/szl-marketing-playbook.pdf"
 type = "pdf"
 title = "SZL Marketing Playbook"
+
+[[outputs]]
+id = "scOZFbV5bTWrLGsCryECR"
+uri = "file://szl-holdings-project.tar.gz"
+type = "unspecified"
+title = "SZL Holdings Complete Project Archive"
