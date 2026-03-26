@@ -75,22 +75,45 @@ export default function Synthetics() {
 
         <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
           <h3 className="font-display font-semibold text-sm text-white mb-4 flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-amber-400" /> Upcoming Deadlines
+            <Calendar className="w-4 h-4 text-amber-400" /> Compliance Calendar
           </h3>
-          <div className="space-y-2">
+          <div className="space-y-1">
             {data.upcomingDeadlines.map((d: any, i: number) => {
               const daysUntil = Math.ceil((new Date(d.date).getTime() - Date.now()) / 86400000);
+              const maxDays = 365;
+              const pct = Math.min(100, Math.max(0, (daysUntil / maxDays) * 100));
+              const dateObj = new Date(d.date);
+              const monthStr = dateObj.toLocaleDateString("en-US", { month: "short" });
+              const dayStr = dateObj.getDate();
               return (
-                <div key={i} className={`flex items-center gap-3 p-3 rounded-lg border-l-2 border border-white/5 ${deadlineSeverity(d.severity)}`}>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-white/90">{d.title}</p>
-                    <p className="text-[10px] text-gray-500 mt-0.5">{d.scope}</p>
+                <div key={i} className={`flex items-center gap-3 p-3 rounded-lg border border-white/5 hover:bg-white/[0.02] transition-colors ${deadlineSeverity(d.severity)}`}>
+                  <div className={`w-12 h-12 rounded-lg flex flex-col items-center justify-center shrink-0 ${
+                    daysUntil <= 7 ? "bg-red-500/15 border border-red-500/30" :
+                    daysUntil <= 30 ? "bg-amber-500/15 border border-amber-500/30" :
+                    "bg-blue-500/10 border border-blue-500/20"
+                  }`}>
+                    <span className={`text-[10px] font-bold uppercase ${
+                      daysUntil <= 7 ? "text-red-400" : daysUntil <= 30 ? "text-amber-400" : "text-blue-400"
+                    }`}>{monthStr}</span>
+                    <span className={`text-lg font-display font-bold leading-none ${
+                      daysUntil <= 7 ? "text-red-400" : daysUntil <= 30 ? "text-amber-400" : "text-blue-400"
+                    }`}>{dayStr}</span>
                   </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-xs font-mono text-gray-400">{d.date}</p>
-                    <p className={`text-[10px] font-bold ${daysUntil <= 7 ? "text-red-400" : daysUntil <= 30 ? "text-amber-400" : "text-gray-500"}`}>
-                      {daysUntil > 0 ? `${daysUntil} days` : "OVERDUE"}
-                    </p>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-white/90 truncate">{d.title}</p>
+                    <p className="text-[10px] text-gray-500 mt-0.5">{d.scope}</p>
+                    <div className="mt-1.5 flex items-center gap-2">
+                      <div className="flex-1 h-1 bg-white/5 rounded-full overflow-hidden">
+                        <div className={`h-full rounded-full transition-all ${
+                          daysUntil <= 7 ? "bg-red-500" : daysUntil <= 30 ? "bg-amber-500" : "bg-blue-500/60"
+                        }`} style={{ width: `${100 - pct}%` }} />
+                      </div>
+                      <span className={`text-[10px] font-bold font-mono ${
+                        daysUntil <= 7 ? "text-red-400" : daysUntil <= 30 ? "text-amber-400" : "text-gray-500"
+                      }`}>
+                        {daysUntil > 0 ? `${daysUntil}d` : "OVERDUE"}
+                      </span>
+                    </div>
                   </div>
                 </div>
               );

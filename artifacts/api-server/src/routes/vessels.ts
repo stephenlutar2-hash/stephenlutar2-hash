@@ -18,6 +18,20 @@ const VESSELS = [
   { id: "VLGC-013", name: "Crusader", imo: "9823413", flag: "Marshall Islands", type: "VLGC", dwt: 84000, cbm: 82000, built: 2024, class: "DNV GL", status: "laden", speed: 17.1, lat: 35.44, lng: 139.64, route: "AG-Japan", charterer: "JERA", tce: 73400, utilization: 98, cii: "A", eexi: "compliant" },
 ];
 
+type Vessel = typeof VESSELS[number];
+
+interface VesselDataAdapter {
+  getVessels(): Vessel[];
+  getVesselById(id: string): Vessel | undefined;
+}
+
+class MockVesselAdapter implements VesselDataAdapter {
+  getVessels() { return VESSELS; }
+  getVesselById(id: string) { return VESSELS.find(v => v.id === id); }
+}
+
+const adapter: VesselDataAdapter = new MockVesselAdapter();
+
 function generateTceHistory(baseTce: number) {
   const months = ["Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar"];
   return months.map((m, i) => ({
@@ -53,7 +67,7 @@ function generateVoyagePnl(tce: number) {
 }
 
 router.get("/vessels/command-center", (_req, res) => {
-  const active = VESSELS.filter(v => v.status !== "drydock");
+  const active = adapter.getVessels().filter(v => v.status !== "drydock");
   const avgTce = Math.round(active.filter(v => v.tce > 0).reduce((s, v) => s + v.tce, 0) / active.filter(v => v.tce > 0).length);
   const fleetUtil = Math.round(active.reduce((s, v) => s + v.utilization, 0) / active.length);
 
@@ -112,7 +126,21 @@ router.get("/vessels/apm", (_req, res) => {
     marketAvg: Math.round(45000 + (Math.random() - 0.5) * 10000 + i * 600),
   }));
 
-  res.json({ vessels, fleetMetrics: { avgTce: fleetAvgTce, totalRevenue, fleetUtilization: fleetUtil, totalVoyages: vessels.reduce((s, v) => s + v.voyageCount, 0) }, fleetTceHistory });
+  const utilizationHistory = ["Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar"].map((m, i) => ({
+    month: m,
+    utilization: Math.round(fleetUtil + (Math.random() - 0.4) * 8 + i * 0.3),
+    target: 92,
+  }));
+
+  const utilizationHeatmap = VESSELS.filter(v => v.status !== "drydock").map(v => ({
+    vessel: v.name,
+    months: ["Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar"].map(m => ({
+      month: m,
+      utilization: Math.round(v.utilization + (Math.random() - 0.5) * 20),
+    })),
+  }));
+
+  res.json({ vessels, fleetMetrics: { avgTce: fleetAvgTce, totalRevenue, fleetUtilization: fleetUtil, totalVoyages: vessels.reduce((s, v) => s + v.voyageCount, 0) }, fleetTceHistory, utilizationHistory, utilizationHeatmap });
 });
 
 router.get("/vessels/infrastructure", (_req, res) => {

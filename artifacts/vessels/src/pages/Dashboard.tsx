@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useRoute, useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import {
   Anchor,
   LayoutDashboard,
@@ -46,12 +47,31 @@ const SECTION_MAP: Record<Section, React.ComponentType> = {
   intelligence: AppliedIntelligence,
 };
 
+function statusDotColor(status: string) {
+  if (status === "healthy") return "bg-emerald-400";
+  if (status === "warning") return "bg-amber-400";
+  return "bg-red-400";
+}
+
 export default function Dashboard() {
   const [, params] = useRoute("/dashboard/:section");
   const [, setLocation] = useLocation();
   const currentSection = (params?.section as Section) || "command-center";
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const { data: healthData } = useQuery({
+    queryKey: ["vessels-pillar-health"],
+    queryFn: () => fetch("/api/vessels/command-center").then(r => r.json()),
+    staleTime: 30000,
+  });
+
+  const pillarHealth: Record<string, { status: string; score: number; alerts: number }> = {};
+  if (healthData?.pillars) {
+    for (const p of healthData.pillars) {
+      pillarHealth[p.id] = { status: p.status, score: p.score, alerts: p.alerts };
+    }
+  }
 
   const ActivePage = SECTION_MAP[currentSection] || CommandCenter;
   const activeInfo = SECTIONS.find(s => s.id === currentSection) || SECTIONS[0];
@@ -66,6 +86,46 @@ export default function Dashboard() {
   function navTo(id: Section) {
     setLocation(`/dashboard/${id}`);
     setMobileOpen(false);
+  }
+
+  function renderNavItem(item: typeof SECTIONS[0], isCollapsed: boolean) {
+    const health = pillarHealth[item.id];
+    return (
+      <button
+        key={item.id}
+        onClick={() => navTo(item.id)}
+        title={isCollapsed ? item.label : undefined}
+        className={`w-full flex items-center gap-3 ${isCollapsed ? "justify-center px-0 py-2.5" : "px-3 py-2.5"} rounded-lg transition-all duration-200 ${
+          currentSection === item.id
+            ? "bg-white/[0.08] border border-white/10"
+            : "text-gray-500 hover:bg-white/[0.04] hover:text-gray-300 border border-transparent"
+        }`}
+      >
+        <div className="relative shrink-0">
+          <item.icon size={18} className={currentSection === item.id ? item.color : ""} />
+          {health && (
+            <span className={`absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full ${statusDotColor(health.status)} ${health.status !== "healthy" ? "animate-pulse" : ""}`} />
+          )}
+        </div>
+        {!isCollapsed && (
+          <div className="flex-1 flex items-center justify-between min-w-0">
+            <span className={`text-sm font-medium truncate ${currentSection === item.id ? "text-white" : ""}`}>{item.label}</span>
+            <div className="flex items-center gap-1.5 shrink-0">
+              {health && health.alerts > 0 && (
+                <span className="text-[9px] font-bold bg-amber-500/20 text-amber-400 px-1 py-0.5 rounded min-w-[16px] text-center">
+                  {health.alerts}
+                </span>
+              )}
+              {health && (
+                <span className={`text-[9px] font-mono ${health.score >= 90 ? "text-emerald-500" : health.score >= 70 ? "text-amber-500" : "text-red-500"}`}>
+                  {health.score}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+      </button>
+    );
   }
 
   return (
@@ -96,23 +156,7 @@ export default function Dashboard() {
             </div>
           )}
 
-          {SECTIONS.map(item => (
-            <button
-              key={item.id}
-              onClick={() => navTo(item.id)}
-              title={collapsed ? item.label : undefined}
-              className={`w-full flex items-center gap-3 ${collapsed ? "justify-center px-0 py-2.5" : "px-3 py-2.5"} rounded-lg transition-all duration-200 ${
-                currentSection === item.id
-                  ? "bg-white/[0.08] border border-white/10"
-                  : "text-gray-500 hover:bg-white/[0.04] hover:text-gray-300 border border-transparent"
-              }`}
-            >
-              <item.icon size={18} className={currentSection === item.id ? item.color : ""} />
-              {!collapsed && (
-                <span className={`text-sm font-medium ${currentSection === item.id ? "text-white" : ""}`}>{item.label}</span>
-              )}
-            </button>
-          ))}
+          {SECTIONS.map(item => renderNavItem(item, collapsed))}
         </div>
 
         <div className="p-2 border-t border-cyan-500/10 space-y-0.5">
@@ -148,18 +192,7 @@ export default function Dashboard() {
               </button>
             </div>
             <div className="p-2 flex-1 space-y-0.5">
-              {SECTIONS.map(item => (
-                <button
-                  key={item.id}
-                  onClick={() => navTo(item.id)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${
-                    currentSection === item.id ? "bg-white/[0.08] border border-white/10" : "text-gray-500 hover:bg-white/[0.04] border border-transparent"
-                  }`}
-                >
-                  <item.icon size={18} className={currentSection === item.id ? item.color : ""} />
-                  <span className={`text-sm font-medium ${currentSection === item.id ? "text-white" : ""}`}>{item.label}</span>
-                </button>
-              ))}
+              {SECTIONS.map(item => renderNavItem(item, false))}
             </div>
           </aside>
         </div>
