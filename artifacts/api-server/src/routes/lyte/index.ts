@@ -2,6 +2,7 @@ import { Router, type Request, type Response } from "express";
 import { z } from "zod";
 import { AdapterOrchestrator } from "./adapters.js";
 import { validateAndSanitizeBody } from "../../middleware/validate";
+import { requireAuth } from "../auth";
 import type { SignalFilters } from "./types.js";
 import {
   getExecutiveScorecard,
@@ -166,6 +167,171 @@ router.get("/lyte/cost-efficiency", (_req: Request, res: Response) => {
     res.json(getCostEfficiency());
   } catch (err) {
     errorResponse(res, err, "COST_EFFICIENCY_ERROR");
+  }
+});
+
+router.get("/lyte/analytics/signal-aggregation", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const { signals } = await orchestrator.getAllSignals();
+    const byDomain: Record<string, number> = {};
+    const bySeverity: Record<string, number> = {};
+    const byStatus: Record<string, number> = {};
+    const bySource: Record<string, number> = {};
+
+    for (const s of signals) {
+      byDomain[s.domain] = (byDomain[s.domain] || 0) + 1;
+      bySeverity[s.severity] = (bySeverity[s.severity] || 0) + 1;
+      byStatus[s.status] = (byStatus[s.status] || 0) + 1;
+      if (s.source) bySource[s.source] = (bySource[s.source] || 0) + 1;
+    }
+
+    const groupBy = req.query.groupBy ? String(req.query.groupBy) : undefined;
+    let primaryGrouping = byDomain;
+    if (groupBy === "severity") primaryGrouping = bySeverity;
+    else if (groupBy === "status") primaryGrouping = byStatus;
+    else if (groupBy === "source") primaryGrouping = bySource;
+
+    res.json({
+      total: signals.length,
+      byDomain,
+      bySeverity,
+      byStatus,
+      bySource,
+      primaryGrouping,
+      groupedBy: groupBy || "domain",
+      timestamp: new Date().toISOString(),
+    });
+  } catch (err) {
+    errorResponse(res, err, "SIGNAL_AGGREGATION_ERROR");
+  }
+});
+
+router.get("/lyte/analytics/health-score", requireAuth, async (_req: Request, res: Response) => {
+  try {
+    const { signals } = await orchestrator.getAllSignals();
+    const summary = await orchestrator.getDashboardSummary();
+
+    const total = signals.length;
+    const criticalCount = signals.filter(s => s.severity === "critical").length;
+    const highCount = signals.filter(s => s.severity === "high").length;
+    const resolvedCount = signals.filter(s => s.status === "resolved").length;
+
+    const criticalPenalty = criticalCount * 15;
+    const highPenalty = highCount * 8;
+    const resolutionBonus = total > 0 ? (resolvedCount / total) * 20 : 20;
+
+    const score = Math.round(Math.max(0, Math.min(100, 100 - criticalPenalty - highPenalty + resolutionBonus)));
+
+    const components = {
+      signalHealth: {
+        score: Math.round(Math.max(0, 100 - criticalPenalty - highPenalty)),
+        detail: `${criticalCount} critical, ${highCount} high severity signals`,
+      },
+      resolutionRate: {
+        score: total > 0 ? Math.round((resolvedCount / total) * 100) : 100,
+        detail: `${resolvedCount}/${total} signals resolved`,
+      },
+      overallConfidence: {
+        score: summary?.healthScore ?? 0,
+        detail: "Dashboard confidence score",
+      },
+    };
+
+    res.json({
+      score,
+      status: score >= 80 ? "healthy" : score >= 60 ? "degraded" : "critical",
+      components,
+      signalBreakdown: { total, critical: criticalCount, high: highCount, resolved: resolvedCount },
+      timestamp: new Date().toISOString(),
+    });
+  } catch (err) {
+    errorResponse(res, err, "HEALTH_SCORE_ERROR");
+  }
+});
+
+router.get("/lyte/analytics/trend-comparison", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const { signals } = await orchestrator.getAllSignals();
+
+    const now = Date.now();
+    const windowHoursRaw = req.query.windowHours ? parseInt(String(req.query.windowHours)) : 24;
+    const windowHours = Math.min(Math.max(1, Number.isFinite(windowHoursRaw) ? windowHoursRaw : 24), 168);
+    const intervalMs = 3600000;
+
+    const severityTrend: Array<{ timestamp: string; critical: number; high: number; medium: number; low: number }> = [];
+    const domainTrend: Record<string, Array<{ timestamp: string; count: number }>> = {};
+
+    const domains = [...new Set(signals.map(s => s.domain))];
+    for (const domain of domains) {
+      domainTrend[domain] = [];
+    }
+
+    for (let i = windowHours - 1; i >= 0; i--) {
+      const bucketStart = now - (i + 1) * intervalMs;
+      const bucketEnd = now - i * intervalMs;
+      const ts = new Date(bucketEnd).toISOString();
+
+      const bucketSignals = signals.filter(s => {
+        const signalTime = new Date(s.timestamp).getTime();
+        return signalTime >= bucketStart && signalTime < bucketEnd;
+      });
+
+      severityTrend.push({
+        timestamp: ts,
+        critical: bucketSignals.filter(s => s.severity === "critical").length,
+        high: bucketSignals.filter(s => s.severity === "high").length,
+        medium: bucketSignals.filter(s => s.severity === "medium").length,
+        low: bucketSignals.filter(s => s.severity === "low").length,
+      });
+
+      for (const domain of domains) {
+        domainTrend[domain].push({
+          timestamp: ts,
+          count: bucketSignals.filter(s => s.domain === domain).length,
+        });
+      }
+    }
+
+    res.json({
+      windowHours,
+      severityTrend,
+      domainTrend,
+      currentSnapshot: {
+        total: signals.length,
+        bySeverity: {
+          critical: signals.filter(s => s.severity === "critical").length,
+          high: signals.filter(s => s.severity === "high").length,
+          medium: signals.filter(s => s.severity === "medium").length,
+          low: signals.filter(s => s.severity === "low").length,
+        },
+      },
+      timestamp: new Date().toISOString(),
+    });
+  } catch (err) {
+    errorResponse(res, err, "TREND_COMPARISON_ERROR");
+  }
+});
+
+router.get("/lyte/export/signals", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const { signals } = await orchestrator.getAllSignals();
+    const format = req.query.format === "csv" ? "csv" : "json";
+
+    if (format === "csv") {
+      const headers = "id,title,domain,severity,status,source,timestamp";
+      const rows = signals.map(s =>
+        `"${s.id}","${(s.title || '').replace(/"/g, '""')}","${s.domain}","${s.severity}","${s.status}","${s.source || ''}","${s.timestamp || ''}"`
+      );
+      res.setHeader("Content-Type", "text/csv");
+      res.setHeader("Content-Disposition", 'attachment; filename="lyte_signals.csv"');
+      res.send([headers, ...rows].join("\n"));
+    } else {
+      res.setHeader("Content-Type", "application/json");
+      res.setHeader("Content-Disposition", 'attachment; filename="lyte_signals.json"');
+      res.send(JSON.stringify(signals, null, 2));
+    }
+  } catch (err) {
+    errorResponse(res, err, "EXPORT_ERROR");
   }
 });
 
