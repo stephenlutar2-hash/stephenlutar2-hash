@@ -114,3 +114,183 @@ export interface PortfolioSort {
   field: string;
   dir: "asc" | "desc";
 }
+
+export type LyteViewMode = "executive" | "operator";
+
+export interface ExecutiveScorecardMetric {
+  id: string;
+  label: string;
+  value: string;
+  trend: "up" | "down" | "stable";
+  severity: "healthy" | "warning" | "critical";
+  detail: string;
+}
+
+export interface ExecutiveScorecard {
+  overallConfidence: number;
+  revenueAtRisk: string;
+  pipelineExposure: string;
+  deploymentRisk: string;
+  connectorHealth: string;
+  customerImpact: string;
+  slaHealth: string;
+  metrics: ExecutiveScorecardMetric[];
+  timestamp: string;
+}
+
+export interface Incident {
+  id: string;
+  title: string;
+  severity: Severity;
+  status: "active" | "investigating" | "mitigated" | "resolved";
+  startedAt: string;
+  duration: string;
+  affectedServices: string[];
+  assignee: string;
+  updates: string[];
+}
+
+export interface DeploymentMarker {
+  id: string;
+  app: string;
+  version: string;
+  commitHash: string;
+  timestamp: string;
+  status: "success" | "failed" | "rolling-back" | "in-progress";
+  deployer: string;
+}
+
+export interface JobRun {
+  id: string;
+  name: string;
+  status: "running" | "completed" | "failed" | "scheduled";
+  lastRun: string;
+  duration: string;
+  nextRun: string;
+}
+
+export interface ConnectorSync {
+  id: string;
+  name: string;
+  status: "synced" | "syncing" | "failed" | "stale";
+  lastSync: string;
+  recordsProcessed: number;
+  errorCount: number;
+}
+
+export interface BlastRadiusItem {
+  service: string;
+  impact: "direct" | "indirect";
+  status: "affected" | "at-risk" | "healthy";
+  downstream: string[];
+}
+
+export interface OperatorCommandCenterData {
+  incidents: Incident[];
+  deployments: DeploymentMarker[];
+  jobs: JobRun[];
+  connectorSyncs: ConnectorSync[];
+  blastRadius: BlastRadiusItem[];
+  queueLag: number;
+  dataFreshness: Record<string, string>;
+  timestamp: string;
+}
+
+export interface ServiceNode {
+  id: string;
+  name: string;
+  type: "app" | "api" | "database" | "storage" | "job" | "connector" | "external";
+  status: "healthy" | "degraded" | "down" | "unknown";
+  lastCheck: string;
+  uptime: number;
+  latency: number;
+}
+
+export interface ServiceEdge {
+  source: string;
+  target: string;
+  status: "healthy" | "degraded" | "down";
+  latency: number;
+}
+
+export interface ServiceMapData {
+  nodes: ServiceNode[];
+  edges: ServiceEdge[];
+  timestamp: string;
+}
+
+export interface SloTarget {
+  id: string;
+  service: string;
+  metric: "availability" | "latency" | "freshness" | "error-rate";
+  target: number;
+  current: number;
+  unit: string;
+  window: string;
+  burnRate: number;
+  budgetRemaining: number;
+  budgetTotal: number;
+  status: "healthy" | "warning" | "breached";
+  impactIfBreached: string;
+}
+
+export interface SloData {
+  targets: SloTarget[];
+  timestamp: string;
+}
+
+export interface SyntheticProbe {
+  id: string;
+  name: string;
+  type: "http" | "flow" | "handshake" | "latency";
+  target: string;
+  status: "passing" | "failing" | "degraded" | "unknown";
+  lastCheck: string;
+  responseTime: number;
+  successRate: number;
+  history: { timestamp: string; status: "passing" | "failing" | "degraded"; responseTime: number }[];
+}
+
+export interface SyntheticProbeData {
+  probes: SyntheticProbe[];
+  overallHealth: number;
+  timestamp: string;
+}
+
+export interface ReleaseEvent {
+  id: string;
+  app: string;
+  version: string;
+  commitHash: string;
+  timestamp: string;
+  deployer: string;
+  status: "success" | "failed" | "rolled-back";
+  featureFlags: { name: string; enabled: boolean }[];
+  firstSeenErrors: string[];
+  rollbackMarker: boolean;
+  changelog: string[];
+}
+
+export interface ReleaseIntelligenceData {
+  releases: ReleaseEvent[];
+  currentVersions: Record<string, string>;
+  timestamp: string;
+}
+
+export interface CostItem {
+  id: string;
+  category: "compute" | "storage" | "jobs" | "connectors" | "events";
+  name: string;
+  estimatedCost: string;
+  usage: string;
+  trend: "up" | "down" | "stable";
+  efficiency: "optimal" | "moderate" | "wasteful";
+  suggestion: string;
+}
+
+export interface CostEfficiencyData {
+  items: CostItem[];
+  totalEstimatedMonthly: string;
+  topNoisySources: { name: string; eventsPerHour: number; cost: string }[];
+  timestamp: string;
+}

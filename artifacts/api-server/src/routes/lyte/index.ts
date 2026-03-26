@@ -3,6 +3,15 @@ import { z } from "zod";
 import { AdapterOrchestrator } from "./adapters.js";
 import { validateAndSanitizeBody } from "../../middleware/validate";
 import type { SignalFilters } from "./types.js";
+import {
+  getExecutiveScorecard,
+  getOperatorCommandCenter,
+  getServiceMap,
+  getSloData,
+  getSyntheticProbes,
+  getReleaseIntelligence,
+  getCostEfficiency,
+} from "./observability.js";
 
 const analyzeSchema = z.object({
   context: z.string().max(5000).optional(),
@@ -30,7 +39,7 @@ router.get("/lyte/health", (_req: Request, res: Response) => {
     service: "Lyte Command Center",
     mode: process.env.LYTE_MODE === "live" ? "live" : "demo",
     timestamp: new Date().toISOString(),
-    version: "1.0.0",
+    version: "2.0.0",
   });
 });
 
@@ -101,6 +110,62 @@ router.post("/lyte/ai/analyze", validateAndSanitizeBody(analyzeSchema), async (r
     res.json(analysis);
   } catch (err) {
     errorResponse(res, err, "AI_ANALYSIS_ERROR");
+  }
+});
+
+router.get("/lyte/executive/scorecard", (_req: Request, res: Response) => {
+  try {
+    res.json(getExecutiveScorecard());
+  } catch (err) {
+    errorResponse(res, err, "EXECUTIVE_SCORECARD_ERROR");
+  }
+});
+
+router.get("/lyte/operator/command-center", (_req: Request, res: Response) => {
+  try {
+    res.json(getOperatorCommandCenter());
+  } catch (err) {
+    errorResponse(res, err, "OPERATOR_CC_ERROR");
+  }
+});
+
+router.get("/lyte/service-map", (_req: Request, res: Response) => {
+  try {
+    res.json(getServiceMap());
+  } catch (err) {
+    errorResponse(res, err, "SERVICE_MAP_ERROR");
+  }
+});
+
+router.get("/lyte/slo", (_req: Request, res: Response) => {
+  try {
+    res.json(getSloData());
+  } catch (err) {
+    errorResponse(res, err, "SLO_ERROR");
+  }
+});
+
+router.get("/lyte/probes", (_req: Request, res: Response) => {
+  try {
+    res.json(getSyntheticProbes());
+  } catch (err) {
+    errorResponse(res, err, "PROBES_ERROR");
+  }
+});
+
+router.get("/lyte/releases", (_req: Request, res: Response) => {
+  try {
+    res.json(getReleaseIntelligence());
+  } catch (err) {
+    errorResponse(res, err, "RELEASES_ERROR");
+  }
+});
+
+router.get("/lyte/cost-efficiency", (_req: Request, res: Response) => {
+  try {
+    res.json(getCostEfficiency());
+  } catch (err) {
+    errorResponse(res, err, "COST_EFFICIENCY_ERROR");
   }
 });
 

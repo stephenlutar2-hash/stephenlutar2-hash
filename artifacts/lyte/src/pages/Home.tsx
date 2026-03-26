@@ -7,13 +7,21 @@ import {
   RefreshCw, Search, Server, Settings, Shield, Signal, SortAsc,
   SortDesc, Target, TrendingDown, TrendingUp, Users, Wifi, X, Zap,
   AlertCircle, ChevronUp, FileWarning, Gauge, Boxes, Sparkles,
-  Milestone, Play, SquareArrowOutUpRight, Minus, ArrowRight
+  Milestone, Play, SquareArrowOutUpRight, Minus, ArrowRight, Crown,
+  Wrench, GitBranch, CircleDollarSign
 } from "lucide-react";
 import type {
   Severity, SignalDomain, SignalStatus, SignalItem, Recommendation,
   IntegrationStatus, ImpactMetric, PortfolioProject, DashboardSummary,
-  SignalFilter, PortfolioSort,
+  SignalFilter, PortfolioSort, LyteViewMode,
 } from "../types";
+import ExecutiveScorecardPage from "./ExecutiveScorecard";
+import OperatorCommandCenterPage from "./OperatorCommandCenter";
+import ServiceMapPage from "./ServiceMap";
+import SloPanelPage from "./SloPanel";
+import SyntheticProbesPage from "./SyntheticProbes";
+import ReleaseIntelligencePage from "./ReleaseIntelligence";
+import CostEfficiencyPage from "./CostEfficiency";
 
 const portfolioProjects: PortfolioProject[] = [
   { name: "ROSIE", route: "/", readiness: 96, status: "deployed", category: "Security", owner: "Stephen L.", blockers: 0, nextAction: "Complete load testing", attentionLevel: "none", dns: true, tls: true, environment: "production", uptime: 99.97, lastDeploy: "2 hours ago" },
@@ -153,9 +161,10 @@ function ErrorMessage({ message, onRetry }: { message: string; onRetry: () => vo
   );
 }
 
-type ActiveTab = "dashboard" | "signals" | "recommendations" | "impact" | "portfolio" | "integrations" | "settings";
+type ActiveTab = "dashboard" | "signals" | "recommendations" | "impact" | "portfolio" | "integrations" | "settings" | "scorecard" | "operator" | "service-map" | "slo" | "probes" | "releases" | "cost";
 
 export default function Home() {
+  const [viewMode, setViewMode] = useState<LyteViewMode>("executive");
   const [activeTab, setActiveTab] = useState<ActiveTab>("dashboard");
   const [signalFilter, setSignalFilter] = useState<SignalFilter>({ severity: "all", domain: "all", status: "all", freshness: "all", source: "all", owner: "all" });
   const [searchQuery, setSearchQuery] = useState("");
@@ -277,15 +286,29 @@ export default function Home() {
     setTimeout(() => setActionStates(prev => ({ ...prev, [`${id}-${action}`]: "done" })), 1800);
   };
 
-  const tabs: { id: ActiveTab; label: string; icon: typeof Activity }[] = [
+  const executiveTabs: { id: ActiveTab; label: string; icon: typeof Activity }[] = [
     { id: "dashboard", label: "Command", icon: Monitor },
-    { id: "signals", label: "Signals", icon: Radio },
-    { id: "recommendations", label: "AI Actions", icon: Sparkles },
+    { id: "scorecard", label: "Scorecard", icon: Crown },
+    { id: "slo", label: "SLO / Budget", icon: Target },
+    { id: "releases", label: "Releases", icon: GitBranch },
+    { id: "cost", label: "Cost", icon: CircleDollarSign },
     { id: "impact", label: "Impact", icon: DollarSign },
     { id: "portfolio", label: "Portfolio", icon: Layers },
+    { id: "settings", label: "Settings", icon: Settings },
+  ];
+
+  const operatorTabs: { id: ActiveTab; label: string; icon: typeof Activity }[] = [
+    { id: "dashboard", label: "Command", icon: Monitor },
+    { id: "operator", label: "Incidents", icon: Wrench },
+    { id: "service-map", label: "Service Map", icon: Globe },
+    { id: "probes", label: "Probes", icon: Wifi },
+    { id: "signals", label: "Signals", icon: Radio },
+    { id: "recommendations", label: "AI Actions", icon: Sparkles },
     { id: "integrations", label: "Integrations", icon: Link2 },
     { id: "settings", label: "Settings", icon: Settings },
   ];
+
+  const tabs = viewMode === "executive" ? executiveTabs : operatorTabs;
 
   return (
     <div className="min-h-screen">
@@ -300,6 +323,14 @@ export default function Home() {
             <span className={`ml-2 px-2 py-0.5 rounded text-[9px] font-bold ${platformMode === "live" ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20" : "bg-amber-500/15 text-amber-400 border border-amber-500/20"}`}>{platformMode.toUpperCase()}</span>
           </div>
           <div className="flex items-center gap-2">
+            <div className="flex items-center bg-muted rounded-lg border border-border p-0.5">
+              <button onClick={() => { setViewMode("executive"); if (!executiveTabs.some(t => t.id === activeTab)) setActiveTab("dashboard"); }} className={`px-2.5 py-1 rounded-md text-[10px] font-semibold transition flex items-center gap-1 ${viewMode === "executive" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"}`}>
+                <Crown className="w-3 h-3" /> Executive
+              </button>
+              <button onClick={() => { setViewMode("operator"); if (!operatorTabs.some(t => t.id === activeTab)) setActiveTab("dashboard"); }} className={`px-2.5 py-1 rounded-md text-[10px] font-semibold transition flex items-center gap-1 ${viewMode === "operator" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"}`}>
+                <Wrench className="w-3 h-3" /> Operator
+              </button>
+            </div>
             <span className="text-[10px] text-muted-foreground font-mono hidden md:inline">{new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
             <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse-slow" />
           </div>
@@ -316,6 +347,13 @@ export default function Home() {
 
       <div className="max-w-[1500px] mx-auto px-4 sm:px-6 py-6">
         {activeTab === "dashboard" && (loading.dashboard ? <LoadingSpinner /> : errors.dashboard ? <ErrorMessage message={errors.dashboard} onRetry={loadDashboard} /> : <DashboardTab healthScore={healthScore} avgReadiness={avgReadiness} deployed={deployed} criticals={criticals} attentionNeeded={attentionNeeded} activeSignals={activeSignalCount} signals={signals} projects={portfolioProjects} onSignalClick={setDrawerSignal} onProjectClick={setDrawerProject} mode={platformMode} />)}
+        {activeTab === "scorecard" && <ExecutiveScorecardPage />}
+        {activeTab === "operator" && <OperatorCommandCenterPage />}
+        {activeTab === "service-map" && <ServiceMapPage />}
+        {activeTab === "slo" && <SloPanelPage />}
+        {activeTab === "probes" && <SyntheticProbesPage />}
+        {activeTab === "releases" && <ReleaseIntelligencePage />}
+        {activeTab === "cost" && <CostEfficiencyPage />}
         {activeTab === "signals" && (loading.signals ? <LoadingSpinner /> : errors.signals ? <ErrorMessage message={errors.signals} onRetry={loadSignals} /> : <SignalsTab signals={filteredSignals} filter={signalFilter} setFilter={setSignalFilter} search={searchQuery} setSearch={setSearchQuery} onSignalClick={setDrawerSignal} sources={uniqueSources} owners={uniqueOwners} />)}
         {activeTab === "recommendations" && (loading.recommendations ? <LoadingSpinner /> : errors.recommendations ? <ErrorMessage message={errors.recommendations} onRetry={loadRecommendations} /> : <RecommendationsTab recommendations={recommendations} actionStates={actionStates} onAction={handleAction} mode={platformMode} />)}
         {activeTab === "impact" && (loading.impact ? <LoadingSpinner /> : errors.impact ? <ErrorMessage message={errors.impact} onRetry={loadImpact} /> : <ImpactTab metrics={impactMetrics} />)}
