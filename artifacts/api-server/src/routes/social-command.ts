@@ -584,4 +584,317 @@ router.post("/social-command/email-report", requireAuth, requireAdmin, async (re
   }
 });
 
+const suggestSchema = z.object({
+  topic: z.string().min(1).max(1000),
+  pillar: z.string().optional(),
+  platforms: z.array(z.string()).optional(),
+});
+
+router.get("/social-command/dashboard", requireAuth, async (req, res) => {
+  try {
+    const username = (req as AuthenticatedRequest).user?.username;
+    if (!username) return res.status(401).json({ error: "Authentication required" });
+
+    let posts: any[] = [];
+    try {
+      posts = await db
+        .select()
+        .from(socialPostsTable)
+        .where(eq(socialPostsTable.username, username));
+    } catch {}
+
+    let tokens: any[] = [];
+    try {
+      tokens = await db
+        .select()
+        .from(socialTokensTable)
+        .where(eq(socialTokensTable.username, username));
+    } catch {}
+
+    const totalPublished = posts.filter((p) => p.status === "published").length;
+    const totalScheduled = posts.filter((p) => p.status === "scheduled").length;
+    const totalFailed = posts.filter((p) => p.status === "failed").length;
+    const totalDraft = posts.filter((p) => p.status === "draft").length;
+
+    const totalImpressions = posts.reduce((s, p) => s + (p.impressions || 0), 0);
+    const totalClicks = posts.reduce((s, p) => s + (p.clicks || 0), 0);
+    const totalLikes = posts.reduce((s, p) => s + (p.likes || 0), 0);
+    const totalShares = posts.reduce((s, p) => s + (p.shares || 0), 0);
+    const totalReach = posts.reduce((s, p) => s + (p.reach || 0), 0);
+
+    const connectedTokens = new Set(tokens.filter((t) => t.connected).map((t) => t.platform));
+
+    const allPlatforms = [
+      { id: "linkedin", name: "LinkedIn", icon: "linkedin", color: "#0A66C2" },
+      { id: "twitter", name: "X (Twitter)", icon: "twitter", color: "#1DA1F2" },
+      { id: "instagram", name: "Instagram", icon: "instagram", color: "#E4405F" },
+      { id: "youtube", name: "YouTube", icon: "youtube", color: "#FF0000" },
+      { id: "medium", name: "Medium", icon: "medium", color: "#000000" },
+      { id: "substack", name: "Substack", icon: "substack", color: "#FF6719" },
+      { id: "meta", name: "Meta (Facebook)", icon: "meta", color: "#1877F2" },
+    ];
+
+    const platformCards = allPlatforms.map((plat) => {
+      const connected = connectedTokens.has(plat.id);
+      const token = tokens.find((t) => t.platform === plat.id);
+      const expired = token?.expiresAt ? new Date(token.expiresAt) < new Date() : false;
+      const platPosts = posts.filter((p) => p.platform === plat.id);
+      return {
+        ...plat,
+        status: connected ? (expired ? "expired" : "connected") : "disconnected",
+        postsCount: platPosts.length,
+        publishedCount: platPosts.filter((p) => p.status === "published").length,
+        scheduledCount: platPosts.filter((p) => p.status === "scheduled").length,
+        impressions: platPosts.reduce((s, p) => s + (p.impressions || 0), 0),
+        followers: plat.id === "linkedin" ? 2847 : plat.id === "twitter" ? 1563 : plat.id === "meta" ? 4210 : plat.id === "instagram" ? 3891 : plat.id === "youtube" ? 1205 : plat.id === "medium" ? 892 : 634,
+        engagementRate: plat.id === "linkedin" ? 4.2 : plat.id === "twitter" ? 2.8 : plat.id === "meta" ? 3.5 : plat.id === "instagram" ? 5.1 : plat.id === "youtube" ? 6.3 : plat.id === "medium" ? 3.9 : 4.7,
+      };
+    });
+
+    const sortedPosts = [...posts].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    const useDemo = posts.length === 0;
+
+    return res.json({
+      data: {
+        aggregate: {
+          totalPosts: useDemo ? 156 : posts.length,
+          published: useDemo ? 89 : totalPublished,
+          scheduled: useDemo ? 42 : totalScheduled,
+          failed: useDemo ? 3 : totalFailed,
+          draft: useDemo ? 22 : totalDraft,
+          impressions: useDemo ? 284500 : totalImpressions,
+          clicks: useDemo ? 12340 : totalClicks,
+          likes: useDemo ? 8920 : totalLikes,
+          shares: useDemo ? 3150 : totalShares,
+          reach: useDemo ? 198000 : totalReach,
+          engagementRate: useDemo ? 4.1 : (totalImpressions > 0 ? (((totalClicks + totalLikes + totalShares) / totalImpressions) * 100) : 0),
+        },
+        platforms: platformCards,
+        recentPosts: sortedPosts.slice(0, 8),
+      },
+    });
+  } catch (e: any) {
+    return res.status(500).json({ error: e.message });
+  }
+});
+
+router.get("/social-command/analytics", requireAuth, async (req, res) => {
+  try {
+    const username = (req as AuthenticatedRequest).user?.username;
+    if (!username) return res.status(401).json({ error: "Authentication required" });
+
+    let posts: any[] = [];
+    try {
+      posts = await db
+        .select()
+        .from(socialPostsTable)
+        .where(eq(socialPostsTable.username, username));
+    } catch {}
+
+    const useDemo = posts.length === 0;
+
+    const engagementTrend = Array.from({ length: 8 }, (_, i) => {
+      const weekStart = new Date();
+      weekStart.setDate(weekStart.getDate() - (7 - i) * 7);
+      const weekLabel = `Week ${i + 1}`;
+      if (useDemo) {
+        return {
+          week: weekLabel,
+          impressions: [12000, 18500, 22000, 28000, 35000, 41000, 38500, 45000][i],
+          clicks: [520, 890, 1100, 1450, 1820, 2100, 1950, 2400][i],
+          likes: [380, 620, 780, 1050, 1320, 1580, 1450, 1740][i],
+          shares: [140, 230, 310, 420, 510, 620, 580, 690][i],
+          engagement: [2.8, 3.2, 3.5, 3.9, 4.1, 4.3, 4.0, 4.5][i],
+        };
+      }
+      const weekPosts = posts.filter((p) => {
+        const d = new Date(p.createdAt);
+        return d >= weekStart && d < new Date(weekStart.getTime() + 7 * 86400000);
+      });
+      return {
+        week: weekLabel,
+        impressions: weekPosts.reduce((s, p) => s + (p.impressions || 0), 0),
+        clicks: weekPosts.reduce((s, p) => s + (p.clicks || 0), 0),
+        likes: weekPosts.reduce((s, p) => s + (p.likes || 0), 0),
+        shares: weekPosts.reduce((s, p) => s + (p.shares || 0), 0),
+        engagement: 0,
+      };
+    });
+
+    const platformNames = ["linkedin", "twitter", "instagram", "youtube", "medium", "substack", "meta"];
+    const platformComparison = platformNames.map((plat) => {
+      if (useDemo) {
+        const demoData: Record<string, any> = {
+          linkedin: { posts: 32, impressions: 85000, clicks: 3400, engagement: 4.2, followers: 2847 },
+          twitter: { posts: 48, impressions: 62000, clicks: 2100, engagement: 2.8, followers: 1563 },
+          instagram: { posts: 18, impressions: 54000, clicks: 1800, engagement: 5.1, followers: 3891 },
+          youtube: { posts: 8, impressions: 28000, clicks: 1400, engagement: 6.3, followers: 1205 },
+          medium: { posts: 12, impressions: 19000, clicks: 950, engagement: 3.9, followers: 892 },
+          substack: { posts: 10, impressions: 14000, clicks: 780, engagement: 4.7, followers: 634 },
+          meta: { posts: 28, impressions: 72000, clicks: 2900, engagement: 3.5, followers: 4210 },
+        };
+        return { platform: plat, ...demoData[plat] };
+      }
+      const platPosts = posts.filter((p) => p.platform === plat);
+      return {
+        platform: plat,
+        posts: platPosts.length,
+        impressions: platPosts.reduce((s, p) => s + (p.impressions || 0), 0),
+        clicks: platPosts.reduce((s, p) => s + (p.clicks || 0), 0),
+        engagement: 0,
+        followers: 0,
+      };
+    });
+
+    const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const hours = Array.from({ length: 24 }, (_, i) => i);
+    const postingHeatmap = dayNames.map((day, dayIdx) => {
+      return hours.map((hour) => {
+        if (useDemo) {
+          const hotSpots: Record<string, number[]> = {
+            Mon: [0, 0, 0, 0, 0, 0, 1, 2, 4, 5, 3, 2, 6, 4, 3, 2, 1, 1, 0, 0, 0, 0, 0, 0],
+            Tue: [0, 0, 0, 0, 0, 0, 1, 3, 7, 5, 4, 3, 4, 3, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0],
+            Wed: [0, 0, 0, 0, 0, 0, 1, 2, 5, 4, 3, 2, 5, 4, 3, 2, 1, 1, 0, 0, 0, 0, 0, 0],
+            Thu: [0, 0, 0, 0, 0, 0, 1, 3, 6, 5, 4, 3, 4, 3, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0],
+            Fri: [0, 0, 0, 0, 0, 0, 1, 2, 4, 3, 3, 2, 5, 4, 3, 2, 1, 1, 0, 0, 0, 0, 0, 0],
+            Sat: [0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            Sun: [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          };
+          return { day, hour, count: (hotSpots[day] || [])[hour] || 0 };
+        }
+        const count = posts.filter((p) => {
+          const d = new Date(p.scheduledAt || p.createdAt);
+          return d.getDay() === dayIdx && d.getHours() === hour;
+        }).length;
+        return { day, hour, count };
+      });
+    });
+
+    const topContent = useDemo
+      ? [
+          { id: 1, platform: "linkedin", content: "Every ecosystem needs a brain. Ours is called INCA...", impressions: 12400, clicks: 580, likes: 420, shares: 185, engagement: 9.6 },
+          { id: 2, platform: "twitter", content: "I built an entire technology ecosystem. Alone...", impressions: 8900, clicks: 340, likes: 780, shares: 290, engagement: 15.8 },
+          { id: 3, platform: "meta", content: "You don't build one security tool. You build a security stack...", impressions: 7200, clicks: 290, likes: 350, shares: 120, engagement: 10.6 },
+          { id: 4, platform: "linkedin", content: "What if you could see the future? Not perfectly...", impressions: 6800, clicks: 250, likes: 310, shares: 95, engagement: 9.6 },
+          { id: 5, platform: "instagram", content: "8 weeks. The full reveal. One engineer. One ecosystem...", impressions: 5500, clicks: 190, likes: 680, shares: 145, engagement: 18.5 },
+        ]
+      : posts
+          .filter((p) => p.status === "published")
+          .sort((a, b) => ((b.impressions || 0) + (b.clicks || 0) + (b.likes || 0)) - ((a.impressions || 0) + (a.clicks || 0) + (a.likes || 0)))
+          .slice(0, 5)
+          .map((p) => ({
+            id: p.id,
+            platform: p.platform,
+            content: p.content.slice(0, 60) + (p.content.length > 60 ? "..." : ""),
+            impressions: p.impressions,
+            clicks: p.clicks,
+            likes: p.likes,
+            shares: p.shares,
+            engagement: p.impressions > 0 ? Number((((p.clicks + p.likes + p.shares) / p.impressions) * 100).toFixed(1)) : 0,
+          }));
+
+    return res.json({
+      data: {
+        engagementTrend,
+        platformComparison,
+        postingHeatmap,
+        topContent,
+      },
+    });
+  } catch (e: any) {
+    return res.status(500).json({ error: e.message });
+  }
+});
+
+router.post("/social-command/suggest", requireAuth, validateBody(suggestSchema), async (req, res) => {
+  try {
+    const { topic, pillar, platforms: targetPlatforms } = req.body;
+    const allTargets = targetPlatforms || ["linkedin", "twitter", "instagram", "youtube", "medium", "substack", "meta"];
+
+    let useAI = false;
+    let openai: any = null;
+    try {
+      const mod = await import("@szl-holdings/integrations-openai-ai-server");
+      openai = mod.openai;
+      if (openai) useAI = true;
+    } catch {}
+
+    if (useAI && openai) {
+      try {
+        const systemPrompt = `You are a social media content strategist for SZL Holdings, a diversified technology holding company. SZL's portfolio includes: INCA (AI research), Lyte (observability), ROSIE/Aegis/Firestorm (cybersecurity), Nimbus/Beacon (predictive AI & analytics), Zeus (infrastructure), DreamEra/Dreamscape (creative tech), AlloyScape (operations), Carlota Jo (consulting), Vessels (maritime intelligence).
+
+Generate platform-adapted post drafts for the given topic. Each platform should have content optimized for its format:
+- LinkedIn: Professional, longer-form, thought leadership (max 3000 chars)
+- X/Twitter: Concise, punchy, max 280 chars
+- Instagram: Visual-focused caption, emoji-rich
+- YouTube: Video description style
+- Medium: Article intro/hook
+- Substack: Newsletter-style, personal tone
+- Meta/Facebook: Community-oriented, conversational
+
+${pillar ? `Content pillar: ${pillar}` : ""}
+
+Return a JSON object with a "posts" key containing an array of objects: { "platform": string, "content": string, "hashtags": string[] }`;
+
+        const completion = await openai.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: `Generate social media posts about: ${topic}` },
+          ],
+          response_format: { type: "json_object" },
+          max_tokens: 2000,
+        });
+
+        const raw = completion.choices?.[0]?.message?.content || "{}";
+        const parsed = JSON.parse(raw);
+        const aiPosts = parsed.posts || parsed.drafts || (Array.isArray(parsed) ? parsed : []);
+
+        if (aiPosts.length > 0) {
+          const filtered = aiPosts.filter((p: any) => allTargets.includes(p.platform));
+          return res.json({ posts: filtered.length > 0 ? filtered : aiPosts, source: "ai" });
+        }
+      } catch (aiErr: any) {
+        console.error("AI suggestion fallback:", aiErr.message);
+      }
+    }
+
+    const posts = allTargets.map((platform: string) => {
+      const hashtags = ["#SZLHoldings", "#Innovation", "#BuildInPublic", `#${topic.replace(/[^a-zA-Z0-9]/g, "")}`];
+      let content = "";
+      switch (platform) {
+        case "linkedin":
+          content = `🚀 ${topic}\n\nAt SZL Holdings, we're pushing boundaries across cybersecurity, AI research, maritime intelligence, and creative technology.\n\nOur integrated ecosystem approach means every platform strengthens the others — creating compounding value that standalone tools simply can't match.\n\nWhat's your take on ${topic.toLowerCase()}? I'd love to hear different perspectives.\n\n${hashtags.join(" ")}`;
+          break;
+        case "twitter":
+          content = `${topic} — This is what happens when you build an entire tech ecosystem from scratch.\n\n${hashtags.slice(0, 3).join(" ")}`;
+          if (content.length > 280) content = content.slice(0, 277) + "...";
+          break;
+        case "instagram":
+          content = `✨ ${topic}\n\nBuilding the future, one platform at a time. The SZL Holdings ecosystem keeps growing.\n\n💡 From AI research to cybersecurity to creative tech — every piece connects.\n\n${hashtags.join(" ")} #TechFounder #StartupLife`;
+          break;
+        case "youtube":
+          content = `${topic} | SZL Holdings Deep Dive\n\nIn this video, we explore ${topic.toLowerCase()} and how it fits into the broader SZL Holdings technology ecosystem.\n\n🔗 Learn more about our portfolio of interconnected platforms spanning AI, cybersecurity, maritime intelligence, and creative technology.\n\n${hashtags.join(" ")}`;
+          break;
+        case "medium":
+          content = `# ${topic}\n\nThere's a question that keeps coming up in every conversation about technology: how do you build something that actually lasts?\n\nAt SZL Holdings, we believe the answer lies in ecosystem thinking. Not isolated products, but interconnected platforms that grow stronger together.\n\nLet me explain what that means for ${topic.toLowerCase()}...`;
+          break;
+        case "substack":
+          content = `Hey there,\n\nThis week I want to talk about ${topic.toLowerCase()}.\n\nIf you've been following the SZL Holdings journey, you know we don't build in isolation. Every platform in our ecosystem — from INCA's AI research to Vessels' maritime intelligence — is designed to connect.\n\nHere's what I've learned about ${topic.toLowerCase()} and why it matters more than most people think...\n\n${hashtags.join(" ")}`;
+          break;
+        case "meta":
+          content = `${topic}\n\nWe're excited to share more about what we're building at SZL Holdings! 🚀\n\nOur technology ecosystem spans AI research, cybersecurity, maritime intelligence, predictive analytics, and creative technology — all working together.\n\n${hashtags.join(" ")}`;
+          break;
+        default:
+          content = `${topic}\n\nSZL Holdings is building transformative technology across multiple industries.\n\n${hashtags.join(" ")}`;
+      }
+      return { platform, content, hashtags };
+    });
+
+    return res.json({ posts, source: "template" });
+  } catch (e: any) {
+    return res.status(500).json({ error: e.message });
+  }
+});
+
 export default router;

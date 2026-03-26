@@ -1,115 +1,110 @@
 import { useState, useEffect } from "react";
 import SocialLayout from "@/components/social/SocialLayout";
-import { getSocialAnalytics, listScheduledPosts, getEngagementFeed } from "@/lib/api";
+import { getAnalyticsChartData } from "@/lib/api";
 import {
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  Cell,
+} from "recharts";
+import {
+  TrendingUp,
   BarChart3,
+  Activity,
+  Award,
   Eye,
   MousePointerClick,
   Heart,
   Share2,
-  Users,
-  TrendingUp,
-  MessageCircle,
 } from "lucide-react";
 
-const ALL_PLATFORMS = ["twitter", "linkedin", "meta", "instagram", "youtube", "medium", "substack"];
-
-const PLATFORM_NAMES: Record<string, string> = {
-  twitter: "X (Twitter)",
+const PLATFORM_LABELS: Record<string, string> = {
   linkedin: "LinkedIn",
-  meta: "Meta (Facebook)",
+  twitter: "X",
   instagram: "Instagram",
   youtube: "YouTube",
   medium: "Medium",
   substack: "Substack",
+  meta: "Meta",
 };
 
-const PLATFORM_ICONS: Record<string, string> = {
-  meta: "📘",
-  twitter: "𝕏",
-  linkedin: "💼",
-  instagram: "📸",
-  youtube: "▶️",
-  medium: "✍️",
-  substack: "📰",
+const PLATFORM_COLORS: Record<string, string> = {
+  linkedin: "#0A66C2",
+  twitter: "#1DA1F2",
+  instagram: "#E4405F",
+  youtube: "#FF0000",
+  medium: "#000000",
+  substack: "#FF6719",
+  meta: "#1877F2",
 };
 
-interface PostMetrics {
-  id: number;
-  platform: string;
-  content: string;
-  status: string;
+interface EngagementTrend {
+  week: string;
   impressions: number;
   clicks: number;
   likes: number;
   shares: number;
-  comments: number;
-  reach: number;
-  publishedAt: string | null;
+  engagement: number;
+}
+
+interface PlatformComparison {
+  platform: string;
+  posts: number;
+  impressions: number;
+  clicks: number;
+  engagement: number;
+  followers: number;
+}
+
+interface TopContent {
+  id: number;
+  platform: string;
+  content: string;
+  impressions: number;
+  clicks: number;
+  likes: number;
+  shares: number;
+  engagement: number;
+}
+
+interface HeatmapCell {
+  day: string;
+  hour: number;
+  count: number;
+}
+
+interface AnalyticsData {
+  engagementTrend: EngagementTrend[];
+  platformComparison: PlatformComparison[];
+  postingHeatmap: HeatmapCell[][];
+  topContent: TopContent[];
 }
 
 export default function SocialAnalytics() {
-  const [posts, setPosts] = useState<PostMetrics[]>([]);
-  const [platformAnalytics, setPlatformAnalytics] = useState<any>(null);
-  const [engagementData, setEngagementData] = useState<any>(null);
+  const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedPlatform, setSelectedPlatform] = useState<string>("");
+  const [activeMetric, setActiveMetric] = useState<"impressions" | "clicks" | "likes" | "shares">("impressions");
 
   useEffect(() => {
-    loadData();
-  }, []);
-
-  async function loadData() {
-    try {
-      const [analyticsRes, postsRes, engagementRes] = await Promise.allSettled([
-        getSocialAnalytics(),
-        listScheduledPosts({ status: "published" }),
-        getEngagementFeed(),
-      ]);
-      if (analyticsRes.status === "fulfilled") {
-        setPlatformAnalytics(analyticsRes.value);
+    async function load() {
+      try {
+        const res = await getAnalyticsChartData();
+        setData(res.data);
+      } catch (e) {
+        console.error("Analytics load error:", e);
+      } finally {
+        setLoading(false);
       }
-      if (postsRes.status === "fulfilled") {
-        setPosts(postsRes.value.data || []);
-      }
-      if (engagementRes.status === "fulfilled") {
-        setEngagementData(engagementRes.value);
-      }
-    } catch {
-    } finally {
-      setLoading(false);
     }
-  }
-
-  const filteredPosts = selectedPlatform
-    ? posts.filter((p) => p.platform === selectedPlatform)
-    : posts;
-
-  const aggregate = {
-    totalPosts: filteredPosts.length,
-    totalImpressions: filteredPosts.reduce((s, p) => s + p.impressions, 0),
-    totalClicks: filteredPosts.reduce((s, p) => s + p.clicks, 0),
-    totalLikes: filteredPosts.reduce((s, p) => s + p.likes, 0),
-    totalShares: filteredPosts.reduce((s, p) => s + p.shares, 0),
-    totalComments: filteredPosts.reduce((s, p) => s + (p.comments || 0), 0),
-    totalReach: filteredPosts.reduce((s, p) => s + p.reach, 0),
-  };
-
-  const engagementRate =
-    aggregate.totalImpressions > 0
-      ? (((aggregate.totalClicks + aggregate.totalLikes + aggregate.totalShares + aggregate.totalComments) /
-          aggregate.totalImpressions) * 100).toFixed(2)
-      : "0.00";
-
-  const metricCards = [
-    { label: "Total Impressions", value: aggregate.totalImpressions, icon: Eye, color: "text-blue-400" },
-    { label: "Total Clicks", value: aggregate.totalClicks, icon: MousePointerClick, color: "text-emerald-400" },
-    { label: "Total Likes", value: aggregate.totalLikes, icon: Heart, color: "text-red-400" },
-    { label: "Total Shares", value: aggregate.totalShares, icon: Share2, color: "text-purple-400" },
-    { label: "Total Comments", value: aggregate.totalComments, icon: MessageCircle, color: "text-orange-400" },
-    { label: "Total Reach", value: aggregate.totalReach, icon: Users, color: "text-amber-400" },
-    { label: "Engagement Rate", value: `${engagementRate}%`, icon: TrendingUp, color: "text-primary" },
-  ];
+    load();
+  }, []);
 
   if (loading) {
     return (
@@ -121,174 +116,202 @@ export default function SocialAnalytics() {
     );
   }
 
+  if (!data) {
+    return (
+      <SocialLayout>
+        <div className="text-center py-20">
+          <BarChart3 className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
+          <p className="text-muted-foreground">Failed to load analytics data</p>
+        </div>
+      </SocialLayout>
+    );
+  }
+
+  const platformBarData = data.platformComparison.map((p) => ({
+    name: PLATFORM_LABELS[p.platform] || p.platform,
+    impressions: p.impressions,
+    clicks: p.clicks,
+    posts: p.posts,
+    engagement: p.engagement,
+    followers: p.followers,
+    fill: PLATFORM_COLORS[p.platform] || "#6366f1",
+  }));
+
+  const maxHeat = Math.max(...data.postingHeatmap.flat().map((c) => c.count), 1);
+
+  const metricOptions = [
+    { key: "impressions" as const, label: "Impressions", icon: Eye, color: "#60a5fa" },
+    { key: "clicks" as const, label: "Clicks", icon: MousePointerClick, color: "#34d399" },
+    { key: "likes" as const, label: "Likes", icon: Heart, color: "#f87171" },
+    { key: "shares" as const, label: "Shares", icon: Share2, color: "#a78bfa" },
+  ];
+
   return (
     <SocialLayout>
       <div className="space-y-8">
-        <div className="flex items-center justify-between flex-wrap gap-4">
-          <div>
-            <h1 className="text-3xl font-display font-bold text-foreground">
-              Analytics Dashboard
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              Track engagement and performance across all 7 platforms
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <select
-              value={selectedPlatform}
-              onChange={(e) => setSelectedPlatform(e.target.value)}
-              className="bg-input border border-border rounded-lg px-3 py-2 text-sm text-foreground"
-            >
-              <option value="">All Platforms</option>
-              {ALL_PLATFORMS.map((p) => (
-                <option key={p} value={p}>{PLATFORM_NAMES[p]}</option>
-              ))}
-            </select>
-          </div>
+        <div>
+          <h1 className="text-3xl font-display font-bold text-foreground">Analytics Dashboard</h1>
+          <p className="text-muted-foreground mt-1">Performance metrics and engagement insights across all platforms</p>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {metricCards.map((card) => {
-            const Icon = card.icon;
-            return (
-              <div key={card.label} className="bg-card/50 border border-border/50 rounded-xl p-5 backdrop-blur-sm">
-                <div className="flex items-center justify-between mb-3">
-                  <Icon className={`w-5 h-5 ${card.color}`} />
-                </div>
-                <p className="text-2xl font-bold text-foreground">
-                  {typeof card.value === "number" ? card.value.toLocaleString() : card.value}
-                </p>
-                <p className="text-sm text-muted-foreground mt-1">{card.label}</p>
-              </div>
-            );
-          })}
-        </div>
-
-        {platformAnalytics && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {ALL_PLATFORMS.map((platform) => {
-              const data = platformAnalytics[platform];
-              if (!data) return null;
-              return (
-                <div
-                  key={platform}
-                  className="bg-card/50 border border-border/50 rounded-xl p-5 backdrop-blur-sm"
-                >
-                  <div className="flex items-center gap-2 mb-4">
-                    <span className="text-lg">{PLATFORM_ICONS[platform]}</span>
-                    <h3 className="font-semibold text-foreground text-sm">
-                      {PLATFORM_NAMES[platform]}
-                    </h3>
-                    <span
-                      className={`ml-auto text-xs px-2 py-0.5 rounded-full ${
-                        data.connected
-                          ? "bg-emerald-500/15 text-emerald-400"
-                          : "bg-muted text-muted-foreground"
-                      }`}
-                    >
-                      {data.connected ? "Connected" : "Not connected"}
-                    </span>
-                  </div>
-                  {data.connected && data.metrics ? (
-                    <div className="space-y-2">
-                      {Object.entries(data.metrics).map(([key, val]) => (
-                        <div
-                          key={key}
-                          className="flex items-center justify-between py-1 border-b border-border/30 last:border-0"
-                        >
-                          <span className="text-xs text-muted-foreground capitalize">
-                            {key.replace(/_/g, " ")}
-                          </span>
-                          <span className="text-sm font-medium text-foreground">
-                            {typeof val === "number" ? val.toLocaleString() : String(val)}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">
-                      {data.connected ? "No metrics available yet" : "Connect to see metrics"}
-                    </p>
-                  )}
-                  {data.tokenHealth && data.tokenHealth !== "healthy" && data.connected && (
-                    <p className="text-xs text-amber-400 mt-2">Token: {data.tokenHealth}</p>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {engagementData?.byPlatform && (
-          <div className="bg-card/50 border border-border/50 rounded-xl p-6 backdrop-blur-sm">
-            <h3 className="text-lg font-semibold text-foreground mb-4">
-              Platform Breakdown
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {Object.entries(engagementData.byPlatform).map(([platform, data]: [string, any]) => (
-                <div key={platform} className="p-4 rounded-lg bg-muted/30 border border-border/30">
-                  <div className="flex items-center gap-2 mb-3">
-                    <span>{PLATFORM_ICONS[platform]}</span>
-                    <span className="text-sm font-medium text-foreground">{PLATFORM_NAMES[platform]}</span>
-                  </div>
-                  <div className="space-y-1 text-xs">
-                    <div className="flex justify-between"><span className="text-muted-foreground">Posts</span><span className="text-foreground">{data.posts}</span></div>
-                    <div className="flex justify-between"><span className="text-muted-foreground">Impressions</span><span className="text-foreground">{data.impressions.toLocaleString()}</span></div>
-                    <div className="flex justify-between"><span className="text-muted-foreground">Likes</span><span className="text-foreground">{data.likes.toLocaleString()}</span></div>
-                    <div className="flex justify-between"><span className="text-muted-foreground">Shares</span><span className="text-foreground">{data.shares.toLocaleString()}</span></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         <div className="bg-card/50 border border-border/50 rounded-xl p-6 backdrop-blur-sm">
-          <h3 className="text-lg font-semibold text-foreground mb-4">
-            Post Performance
-          </h3>
-          {filteredPosts.length === 0 ? (
-            <div className="text-center py-12">
-              <BarChart3 className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
-              <p className="text-muted-foreground">No published posts to analyze yet</p>
+          <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+            <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-primary" />
+              Engagement Trend (8 Weeks)
+            </h3>
+            <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-0.5">
+              {metricOptions.map((opt) => {
+                const Icon = opt.icon;
+                return (
+                  <button
+                    key={opt.key}
+                    onClick={() => setActiveMetric(opt.key)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                      activeMetric === opt.key
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Icon className="w-3 h-3" />
+                    {opt.label}
+                  </button>
+                );
+              })}
             </div>
+          </div>
+          <ResponsiveContainer width="100%" height={320}>
+            <LineChart data={data.engagementTrend}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+              <XAxis dataKey="week" tick={{ fill: "#9ca3af", fontSize: 12 }} axisLine={false} />
+              <YAxis tick={{ fill: "#9ca3af", fontSize: 12 }} axisLine={false} tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v} />
+              <Tooltip
+                contentStyle={{ backgroundColor: "#1f2937", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", color: "#e5e7eb" }}
+                formatter={(value: number) => [value.toLocaleString(), activeMetric.charAt(0).toUpperCase() + activeMetric.slice(1)]}
+              />
+              <Line
+                type="monotone"
+                dataKey={activeMetric}
+                stroke={metricOptions.find((m) => m.key === activeMetric)?.color || "#60a5fa"}
+                strokeWidth={2.5}
+                dot={{ r: 4, fill: metricOptions.find((m) => m.key === activeMetric)?.color || "#60a5fa" }}
+                activeDot={{ r: 6 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div className="bg-card/50 border border-border/50 rounded-xl p-6 backdrop-blur-sm">
+          <h3 className="text-lg font-semibold text-foreground mb-6 flex items-center gap-2">
+            <BarChart3 className="w-5 h-5 text-primary" />
+            Platform Comparison
+          </h3>
+          <ResponsiveContainer width="100%" height={360}>
+            <BarChart data={platformBarData} layout="vertical" margin={{ left: 20 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" horizontal={false} />
+              <XAxis type="number" tick={{ fill: "#9ca3af", fontSize: 12 }} axisLine={false} tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v} />
+              <YAxis type="category" dataKey="name" tick={{ fill: "#e5e7eb", fontSize: 12 }} axisLine={false} width={80} />
+              <Tooltip
+                contentStyle={{ backgroundColor: "#1f2937", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", color: "#e5e7eb" }}
+                formatter={(value: number) => [value.toLocaleString(), "Impressions"]}
+              />
+              <Bar dataKey="impressions" radius={[0, 4, 4, 0]} barSize={20}>
+                {platformBarData.map((entry, idx) => (
+                  <Cell key={idx} fill={entry.fill} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div className="bg-card/50 border border-border/50 rounded-xl p-6 backdrop-blur-sm">
+          <h3 className="text-lg font-semibold text-foreground mb-6 flex items-center gap-2">
+            <Award className="w-5 h-5 text-primary" />
+            Top Performing Content
+          </h3>
+          {data.topContent.length === 0 ? (
+            <p className="text-center text-muted-foreground py-8">No published content to rank yet</p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border/50">
-                    <th className="text-left py-3 px-2 text-xs text-muted-foreground font-medium">Platform</th>
-                    <th className="text-left py-3 px-2 text-xs text-muted-foreground font-medium">Content</th>
-                    <th className="text-right py-3 px-2 text-xs text-muted-foreground font-medium">Impressions</th>
-                    <th className="text-right py-3 px-2 text-xs text-muted-foreground font-medium">Clicks</th>
-                    <th className="text-right py-3 px-2 text-xs text-muted-foreground font-medium">Likes</th>
-                    <th className="text-right py-3 px-2 text-xs text-muted-foreground font-medium">Shares</th>
-                    <th className="text-right py-3 px-2 text-xs text-muted-foreground font-medium">Comments</th>
-                    <th className="text-right py-3 px-2 text-xs text-muted-foreground font-medium">Reach</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredPosts.map((post) => (
-                    <tr key={post.id} className="border-b border-border/20 hover:bg-muted/20">
-                      <td className="py-2.5 px-2"><span>{PLATFORM_ICONS[post.platform] || "📱"}</span></td>
-                      <td className="py-2.5 px-2 max-w-[200px]">
-                        <p className="truncate text-foreground">{post.content}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : "—"}
-                        </p>
-                      </td>
-                      <td className="py-2.5 px-2 text-right text-foreground">{post.impressions.toLocaleString()}</td>
-                      <td className="py-2.5 px-2 text-right text-foreground">{post.clicks.toLocaleString()}</td>
-                      <td className="py-2.5 px-2 text-right text-foreground">{post.likes.toLocaleString()}</td>
-                      <td className="py-2.5 px-2 text-right text-foreground">{post.shares.toLocaleString()}</td>
-                      <td className="py-2.5 px-2 text-right text-foreground">{(post.comments || 0).toLocaleString()}</td>
-                      <td className="py-2.5 px-2 text-right text-foreground">{post.reach.toLocaleString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="space-y-3">
+              {data.topContent.map((post, idx) => (
+                <div key={post.id} className="flex items-start gap-4 p-4 rounded-lg border border-border/30 bg-muted/10 hover:bg-muted/20 transition-colors">
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 font-bold text-sm ${idx === 0 ? "bg-amber-500/20 text-amber-400" : idx === 1 ? "bg-slate-400/20 text-slate-300" : idx === 2 ? "bg-orange-500/20 text-orange-400" : "bg-muted/30 text-muted-foreground"}`}>
+                    #{idx + 1}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: `${PLATFORM_COLORS[post.platform]}20`, color: PLATFORM_COLORS[post.platform] }}>
+                        {PLATFORM_LABELS[post.platform] || post.platform}
+                      </span>
+                      <span className="text-xs text-emerald-400 font-semibold">{post.engagement}% engagement</span>
+                    </div>
+                    <p className="text-sm text-foreground">{post.content}</p>
+                  </div>
+                  <div className="hidden sm:grid grid-cols-4 gap-4 text-right shrink-0">
+                    {[
+                      { label: "Views", value: post.impressions },
+                      { label: "Clicks", value: post.clicks },
+                      { label: "Likes", value: post.likes },
+                      { label: "Shares", value: post.shares },
+                    ].map((m) => (
+                      <div key={m.label}>
+                        <p className="text-xs text-muted-foreground">{m.label}</p>
+                        <p className="text-sm font-semibold text-foreground">{m.value.toLocaleString()}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
           )}
+        </div>
+
+        <div className="bg-card/50 border border-border/50 rounded-xl p-6 backdrop-blur-sm">
+          <h3 className="text-lg font-semibold text-foreground mb-6 flex items-center gap-2">
+            <Activity className="w-5 h-5 text-primary" />
+            Posting Frequency Heatmap
+          </h3>
+          <div className="overflow-x-auto">
+            <div className="min-w-[600px]">
+              <div className="flex items-center gap-1 mb-1 pl-12">
+                {Array.from({ length: 24 }, (_, i) => (
+                  <div key={i} className="flex-1 text-center text-[9px] text-muted-foreground">
+                    {i % 3 === 0 ? `${i}:00` : ""}
+                  </div>
+                ))}
+              </div>
+              {data.postingHeatmap.map((dayRow, dayIdx) => (
+                <div key={dayIdx} className="flex items-center gap-1">
+                  <span className="w-10 text-xs text-muted-foreground text-right pr-2 shrink-0">{dayRow[0]?.day}</span>
+                  {dayRow.map((cell, hourIdx) => {
+                    const intensity = maxHeat > 0 ? cell.count / maxHeat : 0;
+                    let bg = "bg-muted/20";
+                    if (intensity > 0.8) bg = "bg-emerald-500";
+                    else if (intensity > 0.6) bg = "bg-emerald-500/70";
+                    else if (intensity > 0.4) bg = "bg-emerald-500/50";
+                    else if (intensity > 0.2) bg = "bg-emerald-500/30";
+                    else if (intensity > 0) bg = "bg-emerald-500/15";
+                    return (
+                      <div
+                        key={hourIdx}
+                        className={`flex-1 h-6 rounded-sm ${bg} transition-colors`}
+                        title={`${cell.day} ${cell.hour}:00 — ${cell.count} posts`}
+                      />
+                    );
+                  })}
+                </div>
+              ))}
+              <div className="flex items-center justify-end gap-2 mt-3">
+                <span className="text-[10px] text-muted-foreground">Less</span>
+                <div className="flex gap-0.5">
+                  {["bg-muted/20", "bg-emerald-500/15", "bg-emerald-500/30", "bg-emerald-500/50", "bg-emerald-500/70", "bg-emerald-500"].map((c) => (
+                    <div key={c} className={`w-3 h-3 rounded-sm ${c}`} />
+                  ))}
+                </div>
+                <span className="text-[10px] text-muted-foreground">More</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </SocialLayout>

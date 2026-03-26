@@ -125,3 +125,15 @@ export async function pollEngagement(postId: number) {
 export async function getEngagementFeed() {
   return apiRequest<any>("/social/engagement-feed");
 }
+
+export async function getDashboardData() {
+  return apiRequest<any>("/social-command/dashboard");
+}
+
+export async function getAnalyticsChartData() {
+  return apiRequest<any>("/social-command/analytics");
+}
+
+export async function suggestContent(data: { topic: string; pillar?: string; platforms?: string[] }) {
+  return apiRequest<any>("/social-command/suggest", { method: "POST", body: JSON.stringify(data) });
+}
