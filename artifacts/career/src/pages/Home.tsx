@@ -5,7 +5,7 @@ import {
   ExternalLink, Send, Linkedin, Github, Globe, ChevronDown,
   Shield, Brain, Zap, Server, BarChart3, Layers,
   Lock, Eye, ArrowUp, CheckCircle, Users, TrendingUp,
-  Target, Building2, GraduationCap
+  Target, Building2, GraduationCap, Lightbulb, Activity, Radar
 } from "lucide-react";
 
 function AnimatedSection({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
@@ -167,16 +167,25 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
-      <nav className="fixed top-0 w-full z-50 backdrop-blur-xl bg-background/70 border-b border-border/50">
+      <nav className="fixed top-0 w-full z-50 backdrop-blur-xl bg-background/80 border-b border-border/50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="font-display text-lg font-bold tracking-wide text-gold">SL</span>
-            <span className="hidden sm:inline-flex items-center gap-1.5 text-[9px] font-mono text-gray-500 bg-white/5 border border-white/5 px-2 py-0.5 rounded-full"><span className="w-1 h-1 rounded-full bg-emerald-400" />SZL Portfolio · Profile 83%</span>
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gold/25 to-gold/5 border border-gold/25 flex items-center justify-center">
+              <span className="font-display text-sm font-bold text-gold">SL</span>
+            </div>
+            <div className="hidden sm:block">
+              <p className="text-sm font-display font-semibold text-foreground leading-tight">Stephen Lutar</p>
+              <p className="text-[10px] text-muted-foreground">Founder & CEO, SZL Holdings</p>
+            </div>
           </div>
           <div className="hidden sm:flex items-center gap-6">
-            {["About", "Experience", "Case Studies", "Work", "Contact"].map(item => (
-              <a key={item} href={`#${item.toLowerCase().replace(" ", "-")}`} className="text-sm text-muted-foreground hover:text-foreground transition">{item}</a>
+            {["About", "Vision", "Experience", "Case Studies", "Work", "Contact"].map(item => (
+              <a key={item} href={`#${item.toLowerCase().replace(" ", "-")}`} className="text-sm text-muted-foreground hover:text-gold transition">{item}</a>
             ))}
+          </div>
+          <div className="flex sm:hidden items-center gap-3">
+            <a href="https://linkedin.com/in/stephenlutar" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-gold transition"><Linkedin className="w-4 h-4" /></a>
+            <a href="mailto:stephen@szlholdings.com" className="text-muted-foreground hover:text-gold transition"><Mail className="w-4 h-4" /></a>
           </div>
         </div>
       </nav>
@@ -188,39 +197,68 @@ export default function Home() {
           <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, hsl(40 80% 55%) 1px, transparent 0)", backgroundSize: "40px 40px" }} />
         </div>
 
-        <div className="max-w-4xl mx-auto text-center relative z-10">
+        <div className="max-w-5xl mx-auto relative z-10">
           <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, ease: "easeOut" }}>
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="w-28 h-28 rounded-full bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20 flex items-center justify-center mx-auto mb-8"
-            >
-              <span className="font-display text-4xl font-bold text-gold">SL</span>
-            </motion.div>
+            <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="shrink-0"
+              >
+                <div className="relative">
+                  <div className="w-44 h-44 sm:w-52 sm:h-52 rounded-full bg-gradient-to-br from-gold/20 to-gold/5 border-2 border-gold/25 flex items-center justify-center shadow-2xl shadow-gold/10">
+                    <span className="font-display text-6xl sm:text-7xl font-bold text-gold">SL</span>
+                  </div>
+                  <div className="absolute -bottom-2 -right-2 w-12 h-12 rounded-full bg-emerald-500 border-4 border-background flex items-center justify-center">
+                    <CheckCircle className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+              </motion.div>
 
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="text-xs uppercase tracking-[0.35em] text-gold/70 mb-5 font-medium">
-              Technology Leader &middot; Architect &middot; Founder
-            </motion.p>
+              <div className="text-center lg:text-left flex-1">
+                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="text-xs uppercase tracking-[0.35em] text-gold/70 mb-4 font-medium">
+                  Technology Leader &middot; Enterprise Architect &middot; Founder
+                </motion.p>
 
-            <h1 className="font-display text-5xl sm:text-7xl lg:text-8xl font-bold leading-[1.05] mb-6">
-              <span className="text-foreground">Stephen</span>
-              <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold via-amber-300 to-gold">Lutar</span>
-            </h1>
+                <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.05] mb-4">
+                  <span className="text-foreground">Stephen</span>
+                  <br />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold via-amber-300 to-gold">Lutar</span>
+                </h1>
 
-            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-12 leading-relaxed">
-              Building the future of enterprise security, AI infrastructure, and intelligent systems.
-              Founder of SZL Holdings — a portfolio of platforms protecting and powering digital operations worldwide.
-            </p>
+                <p className="text-lg text-muted-foreground font-medium mb-2">
+                  Founder & CEO, SZL Holdings
+                </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a href="#case-studies" className="px-8 py-4 rounded-full bg-gold text-background font-semibold text-sm tracking-wide hover:bg-gold/90 transition flex items-center justify-center gap-2">
-                View Case Studies <ArrowRight className="w-4 h-4" />
-              </a>
-              <a href="#contact" className="px-8 py-4 rounded-full border border-border text-foreground font-semibold text-sm tracking-wide hover:bg-muted/50 transition text-center">
-                Get in Touch
-              </a>
+                <p className="text-base sm:text-lg text-muted-foreground max-w-xl leading-relaxed mb-8 mx-auto lg:mx-0">
+                  Building the future of enterprise observability, AI infrastructure, and intelligent systems.
+                  Architecting a portfolio of 15+ platforms protecting and powering digital operations at enterprise scale.
+                </p>
+
+                <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-6">
+                  <a href="#case-studies" className="px-8 py-4 rounded-full bg-gold text-background font-semibold text-sm tracking-wide hover:bg-gold/90 transition flex items-center justify-center gap-2">
+                    View Case Studies <ArrowRight className="w-4 h-4" />
+                  </a>
+                  <a href="#contact" className="px-8 py-4 rounded-full border border-border text-foreground font-semibold text-sm tracking-wide hover:bg-muted/50 transition text-center">
+                    Get in Touch
+                  </a>
+                </div>
+
+                <div className="flex items-center gap-4 justify-center lg:justify-start">
+                  <a href="https://linkedin.com/in/stephenlutar" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-gold transition">
+                    <Linkedin className="w-4 h-4" /> LinkedIn
+                  </a>
+                  <span className="text-border">|</span>
+                  <a href="https://github.com/stephenlutar" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-gold transition">
+                    <Github className="w-4 h-4" /> GitHub
+                  </a>
+                  <span className="text-border">|</span>
+                  <a href="mailto:stephen@szlholdings.com" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-gold transition">
+                    <Mail className="w-4 h-4" /> Email
+                  </a>
+                </div>
+              </div>
             </div>
           </motion.div>
 
@@ -251,6 +289,74 @@ export default function Home() {
           ))}
         </div>
       </motion.section>
+
+      <section id="vision" className="py-24 px-6 bg-gradient-to-b from-muted/10 to-transparent">
+        <div className="max-w-5xl mx-auto">
+          <AnimatedSection>
+            <div className="text-center mb-16">
+              <p className="text-xs uppercase tracking-[0.25em] text-gold/70 mb-3">Leadership</p>
+              <h2 className="font-display text-3xl sm:text-4xl font-bold text-foreground">Founder's Vision</h2>
+            </div>
+          </AnimatedSection>
+
+          <AnimatedSection delay={0.1}>
+            <div className="rounded-2xl bg-card border border-gold/10 overflow-hidden">
+              <div className="h-1.5 bg-gradient-to-r from-gold/60 via-amber-300/40 to-gold/60" />
+              <div className="p-8 sm:p-10">
+                <div className="flex items-start gap-4 mb-6">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20 flex items-center justify-center shrink-0">
+                    <Lightbulb className="w-6 h-6 text-gold" />
+                  </div>
+                  <div>
+                    <h3 className="font-display text-xl font-bold text-foreground mb-1">Business Observability for the Modern Enterprise</h3>
+                    <p className="text-sm text-gold/70">A System of Intelligence — not just monitoring</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4 mb-8">
+                  <p className="text-muted-foreground leading-relaxed">
+                    The future of enterprise technology isn't about collecting more data — it's about transforming that data into decisive action. At SZL Holdings, we're building the next generation of intelligent observability: platforms that don't just monitor systems, but understand business outcomes, predict failures before they happen, and guide leadership through complexity with confidence.
+                  </p>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Our approach mirrors the evolution pioneered by industry leaders — moving from reactive alerting to a unified "System of Intelligence" that spans security, performance, cost, and revenue. Every platform in the SZL ecosystem is a sensor in this intelligence fabric, contributing real-time signals that paint a complete picture of organizational health.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {[
+                    { icon: Activity, title: "Unified Telemetry", desc: "Logs, metrics, and traces unified across 15+ platforms into a single pane of glass for executive decision-making." },
+                    { icon: Brain, title: "AI-Powered Insights", desc: "Predictive anomaly detection and automated root cause analysis that transforms raw signals into strategic intelligence." },
+                    { icon: Radar, title: "Business Outcomes", desc: "Revenue impact visibility, cost optimization, and risk quantification — observability that speaks the language of business." },
+                  ].map((pillar, i) => (
+                    <div key={i} className="p-5 rounded-xl bg-muted/30 border border-border/50">
+                      <pillar.icon className="w-6 h-6 text-gold mb-3" />
+                      <h4 className="text-sm font-semibold text-foreground mb-2">{pillar.title}</h4>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{pillar.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </AnimatedSection>
+
+          <AnimatedSection delay={0.2}>
+            <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {[
+                { label: "Portfolio Platforms", value: "15+", sub: "Enterprise-grade" },
+                { label: "System Uptime", value: "99.97%", sub: "Across all services" },
+                { label: "Daily Events", value: "50M+", sub: "Real-time processed" },
+                { label: "Revenue Protected", value: "$12M+", sub: "Annual platform value" },
+              ].map((metric, i) => (
+                <div key={i} className="p-5 rounded-xl bg-card border border-border text-center">
+                  <p className="text-2xl font-display font-bold text-gold mb-1">{metric.value}</p>
+                  <p className="text-xs font-semibold text-foreground mb-0.5">{metric.label}</p>
+                  <p className="text-[10px] text-muted-foreground">{metric.sub}</p>
+                </div>
+              ))}
+            </div>
+          </AnimatedSection>
+        </div>
+      </section>
 
       <section id="about" className="py-24 px-6">
         <div className="max-w-5xl mx-auto">
@@ -627,24 +733,65 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="border-t border-border/30 py-12 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20 flex items-center justify-center">
-                <span className="font-display text-sm font-bold text-gold">SL</span>
+      <footer className="border-t border-border/30 bg-card/30">
+        <div className="max-w-6xl mx-auto px-6 py-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20 flex items-center justify-center">
+                  <span className="font-display text-sm font-bold text-gold">SL</span>
+                </div>
+                <div>
+                  <p className="text-sm font-display font-semibold text-foreground">Stephen Lutar</p>
+                  <p className="text-[11px] text-muted-foreground">Founder & CEO, SZL Holdings</p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-display font-semibold text-foreground">Stephen Lutar</p>
-                <p className="text-[11px] text-muted-foreground">Technology Leader & Architect</p>
+              <p className="text-xs text-muted-foreground leading-relaxed max-w-xs">
+                Enterprise technology leader specializing in intelligent observability, AI infrastructure, and zero-trust security architecture.
+              </p>
+            </div>
+
+            <div>
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-gold/70 mb-4">Quick Links</h4>
+              <div className="space-y-2.5">
+                {[
+                  { label: "Executive Profile", href: "#about" },
+                  { label: "Founder's Vision", href: "#vision" },
+                  { label: "Case Studies", href: "#case-studies" },
+                  { label: "Portfolio", href: "#work" },
+                  { label: "Contact", href: "#contact" },
+                ].map(link => (
+                  <a key={link.label} href={link.href} className="block text-sm text-muted-foreground hover:text-gold transition">{link.label}</a>
+                ))}
               </div>
             </div>
+
+            <div>
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-gold/70 mb-4">Connect</h4>
+              <div className="space-y-3">
+                <a href="mailto:stephen@szlholdings.com" className="flex items-center gap-2.5 text-sm text-muted-foreground hover:text-gold transition">
+                  <Mail className="w-4 h-4" /> stephen@szlholdings.com
+                </a>
+                <a href="https://linkedin.com/in/stephenlutar" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-sm text-muted-foreground hover:text-gold transition">
+                  <Linkedin className="w-4 h-4" /> LinkedIn Profile
+                </a>
+                <a href="https://github.com/stephenlutar" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-sm text-muted-foreground hover:text-gold transition">
+                  <Github className="w-4 h-4" /> GitHub
+                </a>
+                <span className="flex items-center gap-2.5 text-sm text-muted-foreground">
+                  <MapPin className="w-4 h-4" /> Remote — Worldwide
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-8 border-t border-border/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} Stephen Lutar. All rights reserved.</p>
             <div className="flex items-center gap-4">
               <a href="https://linkedin.com/in/stephenlutar" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn profile" className="w-9 h-9 rounded-lg bg-muted/50 border border-border/50 flex items-center justify-center text-muted-foreground hover:text-gold hover:border-gold/30 transition-all"><Linkedin className="w-4 h-4" aria-hidden="true" /></a>
               <a href="https://github.com/stephenlutar" target="_blank" rel="noopener noreferrer" aria-label="GitHub profile" className="w-9 h-9 rounded-lg bg-muted/50 border border-border/50 flex items-center justify-center text-muted-foreground hover:text-gold hover:border-gold/30 transition-all"><Github className="w-4 h-4" aria-hidden="true" /></a>
               <a href="mailto:stephen@szlholdings.com" aria-label="Send email" className="w-9 h-9 rounded-lg bg-muted/50 border border-border/50 flex items-center justify-center text-muted-foreground hover:text-gold hover:border-gold/30 transition-all"><Mail className="w-4 h-4" aria-hidden="true" /></a>
             </div>
-            <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} All rights reserved.</p>
           </div>
         </div>
       </footer>

@@ -288,24 +288,62 @@ export default function Dashboard() {
   return (
     <Layout>
       <div className="space-y-8">
-        <div className="flex items-center justify-between rounded-lg bg-white/[0.02] border border-white/5 px-4 py-1.5 text-[10px] font-mono -mt-2">
-          <div className="flex items-center gap-3">
-            <span className="text-gray-500 uppercase tracking-wider">SZL Portfolio</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-            <span className="text-emerald-400">Operational</span>
-            <span className="text-gray-600">·</span>
-            <span className="text-emerald-400">Readiness 92%</span>
-            <span className="text-gray-600">·</span>
-            <span className="text-gray-500">0 Alerts</span>
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="relative overflow-hidden rounded-2xl border border-primary/20 -mt-2"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-cyan-500/5" />
+          <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-primary/3 rounded-full blur-[80px]" />
+          <div className="relative px-6 py-8 sm:py-10">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/40 to-primary/10 border border-primary/30 flex items-center justify-center">
+                    <BarChart3 className="w-4 h-4 text-primary" />
+                  </div>
+                  <span className="text-[10px] uppercase tracking-[0.3em] text-primary font-mono font-semibold">Beacon Command Center</span>
+                </div>
+                <h1 className="font-display text-2xl sm:text-3xl font-bold text-white mb-2">
+                  Unified Observability. <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-cyan-300 to-primary">Full-Stack Visibility.</span>
+                </h1>
+                <p className="text-sm text-muted-foreground max-w-xl leading-relaxed">
+                  Your System of Intelligence for the SZL ecosystem — aggregated telemetry, revenue analytics, and strategic initiative tracking across all active holdings.
+                </p>
+              </div>
+              <div className="flex flex-col gap-2 text-right shrink-0">
+                <div className="flex items-center gap-2 justify-end">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-xs font-mono text-emerald-400 font-semibold">OPERATIONAL</span>
+                </div>
+                <div className="text-[10px] text-muted-foreground font-mono space-y-0.5">
+                  <p>Uptime 99.98% · Readiness 92%</p>
+                  <p>Last sync 2 min ago</p>
+                </div>
+              </div>
+            </div>
+            <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {[
+                { label: "Platforms Monitored", value: "15+", color: "text-primary" },
+                { label: "System Health", value: "92%", color: "text-emerald-400" },
+                { label: "Active Alerts", value: "0", color: "text-emerald-400" },
+                { label: "Revenue Tracked", value: "Live", color: "text-cyan-400" },
+              ].map((s, i) => (
+                <motion.div
+                  key={s.label}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 + i * 0.1 }}
+                  className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]"
+                >
+                  <p className="text-[9px] text-muted-foreground uppercase tracking-wider mb-1">{s.label}</p>
+                  <p className={`text-lg font-display font-bold ${s.color}`}>{s.value}</p>
+                </motion.div>
+              ))}
+            </div>
           </div>
-          <div className="hidden sm:flex items-center gap-3 text-gray-500">
-            <span>Uptime 99.98%</span>
-            <span>·</span>
-            <span>Last sync 2 min ago</span>
-            <span>·</span>
-            <span className="text-emerald-400">Live</span>
-          </div>
-        </div>
+        </motion.div>
         {(metricsError || projectsError) && (
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3 bg-destructive/10 border border-destructive/20 rounded-xl px-5 py-3 text-destructive text-sm">
             <AlertTriangle className="w-5 h-5 shrink-0" />

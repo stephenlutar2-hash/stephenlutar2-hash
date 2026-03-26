@@ -8,7 +8,7 @@ import {
   SortDesc, Target, TrendingDown, TrendingUp, Users, Wifi, X, Zap,
   AlertCircle, ChevronUp, FileWarning, Gauge, Boxes, Sparkles,
   Milestone, Play, SquareArrowOutUpRight, Minus, ArrowRight, Crown,
-  Wrench, GitBranch, CircleDollarSign
+  Wrench, GitBranch, CircleDollarSign, Download
 } from "lucide-react";
 import type {
   Severity, SignalDomain, SignalStatus, SignalItem, Recommendation,
@@ -22,6 +22,162 @@ import SloPanelPage from "./SloPanel";
 import SyntheticProbesPage from "./SyntheticProbes";
 import ReleaseIntelligencePage from "./ReleaseIntelligence";
 import CostEfficiencyPage from "./CostEfficiency";
+
+function LyteLogo({ size = 200, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg width={size} height={size * 0.5} viewBox="0 0 240 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+      <defs>
+        <linearGradient id="bolt-grad" x1="20" y1="10" x2="55" y2="90" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#38bdf8" />
+          <stop offset="50%" stopColor="#3b82f6" />
+          <stop offset="100%" stopColor="#06b6d4" />
+        </linearGradient>
+        <filter id="bolt-glow">
+          <feGaussianBlur stdDeviation="3" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+      <g filter="url(#bolt-glow)">
+        <path d="M45 8 L22 48 L36 48 L28 92 L58 42 L42 42 Z" fill="url(#bolt-grad)" />
+      </g>
+      <text x="72" y="62" fontFamily="'Space Grotesk', sans-serif" fontWeight="700" fontSize="42" fill="white" letterSpacing="3">LYTE</text>
+      <text x="72" y="78" fontFamily="'Inter', sans-serif" fontWeight="400" fontSize="7" fill="#64748b" letterSpacing="2.5">INTELLIGENT OBSERVABILITY</text>
+    </svg>
+  );
+}
+
+function downloadLogo(format: "svg" | "png") {
+  const svgContent = `<svg width="960" height="400" viewBox="0 0 240 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="bolt-grad" x1="20" y1="10" x2="55" y2="90" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#38bdf8"/>
+        <stop offset="50%" stop-color="#3b82f6"/>
+        <stop offset="100%" stop-color="#06b6d4"/>
+      </linearGradient>
+    </defs>
+    <g>
+      <path d="M45 8 L22 48 L36 48 L28 92 L58 42 L42 42 Z" fill="url(#bolt-grad)"/>
+    </g>
+    <text x="72" y="62" font-family="'Space Grotesk', sans-serif" font-weight="700" font-size="42" fill="white" letter-spacing="3">LYTE</text>
+    <text x="72" y="78" font-family="'Inter', sans-serif" font-weight="400" font-size="7" fill="#64748b" letter-spacing="2.5">INTELLIGENT OBSERVABILITY</text>
+  </svg>`;
+
+  if (format === "svg") {
+    const blob = new Blob([svgContent], { type: "image/svg+xml" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "lyte-logo.svg";
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } else {
+    const canvas = document.createElement("canvas");
+    canvas.width = 960;
+    canvas.height = 400;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const img = new Image();
+    const svgBlob = new Blob([svgContent], { type: "image/svg+xml;charset=utf-8" });
+    const url = URL.createObjectURL(svgBlob);
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0, 960, 400);
+      canvas.toBlob((blob) => {
+        if (!blob) return;
+        const pngUrl = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = pngUrl;
+        a.download = "lyte-logo.png";
+        a.click();
+        URL.revokeObjectURL(pngUrl);
+      }, "image/png");
+      URL.revokeObjectURL(url);
+    };
+    img.src = url;
+  }
+}
+
+function LinkedInBanner() {
+  return (
+    <div className="relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-950 via-[hsl(225,25%,5%)] to-cyan-950" />
+      <div className="absolute inset-0">
+        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-blue-500/5 rounded-full blur-[120px]" />
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-cyan-500/4 rounded-full blur-[100px]" />
+        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, hsl(210 100% 60%) 0.5px, transparent 0)", backgroundSize: "32px 32px" }} />
+      </div>
+
+      <div className="relative max-w-[1500px] mx-auto px-4 sm:px-6 py-12 md:py-16">
+        <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8 }}
+            className="shrink-0"
+          >
+            <LyteLogo size={280} />
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="flex-1 text-center lg:text-left"
+          >
+            <p className="text-xs uppercase tracking-[0.4em] text-cyan-400/80 font-medium mb-4">System of Intelligence</p>
+            <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight mb-4">
+              <span className="text-foreground">In the darkness,</span>
+              <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-400">let Lyte guide you.</span>
+            </h1>
+            <p className="text-base sm:text-lg text-muted-foreground max-w-xl leading-relaxed mb-3">
+              Intelligent Observability for the Modern Enterprise. Navigate complexity with confidence through unified telemetry, AI-powered insights, and full-stack business outcome visibility.
+            </p>
+            <p className="text-sm text-blue-400/70 font-mono mb-6">
+              Executive-grade observability command center for the SZL ecosystem
+            </p>
+
+            <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
+              <button
+                onClick={() => downloadLogo("svg")}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary/15 text-primary border border-primary/30 hover:bg-primary/25 transition-all text-sm font-semibold"
+              >
+                <Download className="w-4 h-4" /> Download SVG
+              </button>
+              <button
+                onClick={() => downloadLogo("png")}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white/5 text-foreground border border-white/10 hover:bg-white/10 transition-all text-sm font-semibold"
+              >
+                <Download className="w-4 h-4" /> Download PNG
+              </button>
+            </div>
+          </motion.div>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8, duration: 0.6 }}
+          className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-4"
+        >
+          {[
+            { label: "Unified Telemetry", desc: "Logs, metrics, traces in one pane" },
+            { label: "AI-Powered Insights", desc: "Predictive anomaly detection" },
+            { label: "Business Outcomes", desc: "Revenue & cost impact visibility" },
+            { label: "Full-Stack Visibility", desc: "15+ platforms monitored" },
+          ].map((item, i) => (
+            <div key={i} className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.06] backdrop-blur-sm">
+              <p className="text-sm font-semibold text-foreground mb-1">{item.label}</p>
+              <p className="text-xs text-muted-foreground">{item.desc}</p>
+            </div>
+          ))}
+        </motion.div>
+      </div>
+    </div>
+  );
+}
 
 const portfolioProjects: PortfolioProject[] = [
   { name: "ROSIE", route: "/", readiness: 96, status: "deployed", category: "Security", owner: "Stephen L.", blockers: 0, nextAction: "Complete load testing", attentionLevel: "none", dns: true, tls: true, environment: "production", uptime: 99.97, lastDeploy: "2 hours ago" },
@@ -312,6 +468,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
+      <LinkedInBanner />
       <nav className="sticky top-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border">
         <div className="max-w-[1500px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
