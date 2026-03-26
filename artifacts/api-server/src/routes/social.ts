@@ -1,8 +1,25 @@
 import { Router } from "express";
+import { z } from "zod";
 import { requireAuth } from "./auth";
+import { validateBody, validateAndSanitizeBody } from "../middleware/validate";
+import type { AuthenticatedRequest } from "../types";
 import crypto from "crypto";
 
+const publishSchema = z.object({
+  platform: z.string().min(1),
+  content: z.string().min(1).max(10000),
+  mediaUrl: z.string().url().optional(),
+});
+
+const disconnectSchema = z.object({
+  platform: z.string().min(1),
+});
+
 const router = Router();
+
+router.get("/social/health", (_req, res) => {
+  res.json({ ok: true, group: "social", timestamp: new Date().toISOString() });
+});
 
 interface OAuthTokens {
   accessToken: string;
@@ -65,7 +82,7 @@ function getSocialStatus(username?: string): SocialPlatformStatus[] {
 }
 
 router.get("/social/status", requireAuth, (req, res) => {
-  const username = (req as any).user?.username || "unknown";
+  const username = (req as AuthenticatedRequest).user?.username || "unknown";
   const platforms = getSocialStatus(username);
   return res.json({
     platforms,
@@ -80,7 +97,7 @@ router.get("/social/oauth/meta/authorize", requireAuth, (req, res) => {
   const appId = process.env.META_APP_ID;
   if (!appId) return res.status(400).json({ error: "META_APP_ID not configured" });
 
-  const username = (req as any).user?.username || "unknown";
+  const username = (req as AuthenticatedRequest).user?.username || "unknown";
   const state = crypto.randomBytes(16).toString("hex");
   const redirectUri = `${req.protocol}://${req.get("host")}/api/social/oauth/meta/callback`;
 
@@ -143,7 +160,7 @@ router.get("/social/oauth/twitter/authorize", requireAuth, (req, res) => {
   const apiKey = process.env.TWITTER_API_KEY;
   if (!apiKey) return res.status(400).json({ error: "TWITTER_API_KEY not configured" });
 
-  const username = (req as any).user?.username || "unknown";
+  const username = (req as AuthenticatedRequest).user?.username || "unknown";
   const state = crypto.randomBytes(16).toString("hex");
   const codeVerifier = crypto.randomBytes(32).toString("base64url");
   const codeChallenge = crypto.createHash("sha256").update(codeVerifier).digest("base64url");
@@ -207,7 +224,7 @@ router.get("/social/oauth/linkedin/authorize", requireAuth, (req, res) => {
   const clientId = process.env.LINKEDIN_CLIENT_ID;
   if (!clientId) return res.status(400).json({ error: "LINKEDIN_CLIENT_ID not configured" });
 
-  const username = (req as any).user?.username || "unknown";
+  const username = (req as AuthenticatedRequest).user?.username || "unknown";
   const state = crypto.randomBytes(16).toString("hex");
   const redirectUri = `${req.protocol}://${req.get("host")}/api/social/oauth/linkedin/callback`;
 
@@ -308,14 +325,11 @@ function getAccessToken(username: string, platform: string): string | null {
   return tokens.accessToken;
 }
 
-router.post("/social/publish", requireAuth, async (req, res) => {
+router.post("/social/publish", requireAuth, validateAndSanitizeBody(publishSchema), async (req, res) => {
   try {
     const { platform, content, mediaUrl } = req.body;
-    if (!platform || !content) {
-      return res.status(400).json({ error: "Platform and content are required" });
-    }
 
-    const username = (req as any).user?.username || "unknown";
+    const username = (req as AuthenticatedRequest).user?.username || "unknown";
     const status = getSocialStatus(username);
     const platformConfig = status.find((s) => s.platform === platform);
 
@@ -421,7 +435,7 @@ router.post("/social/publish", requireAuth, async (req, res) => {
 router.get("/social/analytics", requireAuth, async (req, res) => {
   try {
     const platform = req.query.platform as string;
-    const username = (req as any).user?.username || "unknown";
+    const username = (req as AuthenticatedRequest).user?.username || "unknown";
     const status = getSocialStatus(username);
     const analytics: Record<string, any> = {};
 
@@ -509,9 +523,9 @@ router.get("/social/analytics", requireAuth, async (req, res) => {
   }
 });
 
-router.post("/social/disconnect", requireAuth, (req, res) => {
+router.post("/social/disconnect", requireAuth, validateBody(disconnectSchema), (req, res) => {
   const { platform } = req.body;
-  const username = (req as any).user?.username || "unknown";
+  const username = (req as AuthenticatedRequest).user?.username || "unknown";
   const store = getUserTokenStore(username);
   if (platform) {
     store.delete(platform);

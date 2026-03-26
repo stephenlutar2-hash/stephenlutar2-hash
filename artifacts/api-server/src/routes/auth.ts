@@ -1,14 +1,27 @@
 import { Router, type Request, type Response, type NextFunction } from "express";
+import { z } from "zod";
 import { db, isDatabaseAvailable } from "@szl-holdings/db";
 import { sessionsTable } from "@szl-holdings/db/schema";
 import { eq } from "drizzle-orm";
 import crypto from "crypto";
 import { isEntraConfigured, getEntraPublicConfig, validateEntraToken } from "../lib/entra";
 import { sessionGet, sessionSet, sessionDel } from "../lib/redis";
+import { validateBody } from "../middleware/validate";
+import { sanitizeString } from "../lib/sanitize";
+import type { AuthenticatedRequest, AuthenticatedUser } from "../types";
 
 const router = Router();
 
 const SESSION_TTL_HOURS = parseInt(process.env.SESSION_TTL_HOURS || "24", 10);
+
+const loginSchema = z.object({
+  username: z.string().min(1).max(100),
+  password: z.string().min(1).max(200),
+});
+
+const entraLoginSchema = z.object({
+  idToken: z.string().min(1),
+});
 
 function getUsers(): Record<string, { password: string; role: string }> {
   const username = process.env.DEMO_ADMIN_USERNAME;
@@ -32,11 +45,15 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
   if (isEntraConfigured()) {
     const result = await validateEntraToken(token);
     if (result.valid) {
-      (req as any).user = {
-        username: result.claims.preferred_username || result.claims.name || result.claims.sub || "entra-user",
-        role: "emperor",
+      const entraUsername = result.claims.preferred_username || result.claims.name || result.claims.sub || "entra-user";
+      const { getUserRole } = await import("../middleware/rbac");
+      const entraRole = await getUserRole(entraUsername);
+      const user: AuthenticatedUser = {
+        username: entraUsername,
+        role: entraRole,
         authMethod: "entra",
       };
+      (req as AuthenticatedRequest).user = user;
       return next();
     }
   }
@@ -46,7 +63,12 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     try {
       const sessionData = JSON.parse(cached) as { username: string; role: string; expiresAt: string };
       if (new Date(sessionData.expiresAt) >= new Date()) {
-        (req as any).user = { username: sessionData.username, role: sessionData.role, authMethod: "demo" };
+        const user: AuthenticatedUser = {
+          username: sessionData.username,
+          role: sessionData.role,
+          authMethod: "demo",
+        };
+        (req as AuthenticatedRequest).user = user;
         return next();
       }
       await sessionDel(token);
@@ -65,18 +87,25 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     res.status(401).json({ error: "Invalid or expired token" });
     return;
   }
-  const users = getUsers();
-  const userInfo = users[session.username];
-  const role = userInfo?.role || "user";
+  const role = session.role || "viewer";
 
   const ttlSeconds = Math.floor((new Date(session.expiresAt).getTime() - Date.now()) / 1000);
   if (ttlSeconds > 0) {
     await sessionSet(token, JSON.stringify({ username: session.username, role, expiresAt: session.expiresAt }), ttlSeconds);
   }
 
-  (req as any).user = { username: session.username, role, authMethod: "demo" };
+  const user: AuthenticatedUser = {
+    username: session.username,
+    role,
+    authMethod: "demo",
+  };
+  (req as AuthenticatedRequest).user = user;
   next();
 }
+
+router.get("/auth/health", (_req, res) => {
+  res.json({ ok: true, group: "auth", entraConfigured: isEntraConfigured(), timestamp: new Date().toISOString() });
+});
 
 router.get("/auth/entra-config", (_req, res) => {
   const config = getEntraPublicConfig();
@@ -86,12 +115,9 @@ router.get("/auth/entra-config", (_req, res) => {
   return res.json({ configured: true, ...config });
 });
 
-router.post("/auth/entra-login", async (req, res) => {
+router.post("/auth/entra-login", validateBody(entraLoginSchema), async (req, res) => {
   try {
-    const idToken = req.body.idToken;
-    if (!idToken) {
-      return res.status(400).json({ error: "ID token required" });
-    }
+    const { idToken } = req.body;
 
     if (!isEntraConfigured()) {
       return res.status(400).json({ error: "Entra External ID is not configured" });
@@ -102,15 +128,19 @@ router.post("/auth/entra-login", async (req, res) => {
       return res.status(401).json({ error: result.error });
     }
 
-    const username = result.claims.preferred_username || result.claims.name || result.claims.sub || "entra-user";
+    const username = sanitizeString(
+      result.claims.preferred_username || result.claims.name || result.claims.sub || "entra-user",
+    );
+    const { getUserRole } = await import("../middleware/rbac");
+    const role = await getUserRole(username);
     const token = crypto.randomBytes(32).toString("hex");
     const expiresAt = new Date(Date.now() + SESSION_TTL_HOURS * 60 * 60 * 1000);
-    await db.insert(sessionsTable).values({ token, username, expiresAt });
+    await db.insert(sessionsTable).values({ token, username, role, expiresAt });
 
     return res.json({
       token,
       username,
-      role: "emperor",
+      role,
       expiresAt: expiresAt.toISOString(),
       authMethod: "entra",
     });
@@ -120,7 +150,7 @@ router.post("/auth/entra-login", async (req, res) => {
   }
 });
 
-router.post("/auth/login", async (req, res) => {
+router.post("/auth/login", validateBody(loginSchema), async (req, res) => {
   try {
     const { username, password } = req.body;
     const users = getUsers();
@@ -129,11 +159,14 @@ router.post("/auth/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" });
     }
     const token = crypto.randomBytes(32).toString("hex");
+    const { getUserRole } = await import("../middleware/rbac");
+    const dbRole = await getUserRole(username);
+    const role = dbRole !== "viewer" ? dbRole : user.role;
     const expiresAt = new Date(Date.now() + SESSION_TTL_HOURS * 60 * 60 * 1000);
-    await db.insert(sessionsTable).values({ token, username, expiresAt });
+    await db.insert(sessionsTable).values({ token, username, role, expiresAt });
     const ttlSeconds = SESSION_TTL_HOURS * 60 * 60;
-    await sessionSet(token, JSON.stringify({ username, role: user.role, expiresAt: expiresAt.toISOString() }), ttlSeconds);
-    return res.json({ token, username, role: user.role, expiresAt: expiresAt.toISOString(), authMethod: "demo" });
+    await sessionSet(token, JSON.stringify({ username, role, expiresAt: expiresAt.toISOString() }), ttlSeconds);
+    return res.json({ token, username, role, expiresAt: expiresAt.toISOString(), authMethod: "demo" });
   } catch (e) {
     return res.status(500).json({ error: "Login failed" });
   }
@@ -150,9 +183,12 @@ router.get("/auth/me", async (req, res) => {
     if (isEntraConfigured()) {
       const result = await validateEntraToken(token);
       if (result.valid) {
+        const entraUsername = result.claims.preferred_username || result.claims.name || result.claims.sub || "entra-user";
+        const { getUserRole } = await import("../middleware/rbac");
+        const entraRole = await getUserRole(entraUsername);
         return res.json({
-          username: result.claims.preferred_username || result.claims.name || result.claims.sub || "entra-user",
-          role: "emperor",
+          username: entraUsername,
+          role: entraRole,
           authMethod: "entra",
         });
       }
@@ -164,9 +200,7 @@ router.get("/auth/me", async (req, res) => {
     if (!session || new Date(session.expiresAt) < new Date()) {
       return res.status(401).json({ error: "Invalid or expired token" });
     }
-    const users = getUsers();
-    const userInfo = users[session.username];
-    return res.json({ username: session.username, role: userInfo?.role || "user" });
+    return res.json({ username: session.username, role: session.role || "viewer" });
   } catch (e) {
     return res.status(500).json({ error: "Auth check failed" });
   }

@@ -42,6 +42,10 @@ class MockVesselAdapter implements VesselDataAdapter {
 
 const adapter: VesselDataAdapter = new MockVesselAdapter();
 
+router.get("/vessels/health", (_req, res) => {
+  res.json({ ok: true, group: "vessels", timestamp: new Date().toISOString() });
+});
+
 const responseCache = new Map<string, any>();
 function cached<T>(key: string, fn: () => T): T {
   if (!responseCache.has(key)) responseCache.set(key, fn());

@@ -1,27 +1,22 @@
 import { Router, type Request, type Response } from "express";
+import { z } from "zod";
+import { validateAndSanitizeBody } from "../middleware/validate";
+
+const contactSchema = z.object({
+  name: z.string().min(1),
+  email: z.string().email(),
+  inquiryType: z.string().min(1),
+  message: z.string().min(1).max(10000),
+});
 
 const router = Router();
 
-interface ContactPayload {
-  name: string;
-  email: string;
-  inquiryType: string;
-  message: string;
-}
+router.get("/contact/health", (_req: Request, res: Response) => {
+  res.json({ ok: true, group: "contact", timestamp: new Date().toISOString() });
+});
 
-router.post("/contact", async (req: Request, res: Response) => {
-  const { name, email, inquiryType, message } = req.body as ContactPayload;
-
-  if (!name || !email || !inquiryType || !message) {
-    res.status(400).json({ error: "All fields are required." });
-    return;
-  }
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    res.status(400).json({ error: "Invalid email address." });
-    return;
-  }
+router.post("/contact", validateAndSanitizeBody(contactSchema), async (req: Request, res: Response) => {
+  const { name, email, inquiryType, message } = req.body;
 
   console.log("[Contact Inquiry]", {
     timestamp: new Date().toISOString(),

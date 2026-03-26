@@ -1,7 +1,18 @@
 import { Router } from "express";
+import { z } from "zod";
 import { requireAuth } from "./auth";
+import { validateBody } from "../middleware/validate";
+import type { AuthenticatedRequest } from "../types";
+
+const exchangeTokenSchema = z.object({
+  publicToken: z.string().min(1),
+});
 
 const router = Router();
+
+router.get("/plaid/health", (_req, res) => {
+  res.json({ ok: true, group: "plaid", configured: !!(process.env.PLAID_CLIENT_ID && process.env.PLAID_SECRET), timestamp: new Date().toISOString() });
+});
 
 function getPlaidClient() {
   const clientId = process.env.PLAID_CLIENT_ID;
@@ -36,7 +47,7 @@ function getUserTokens(username: string): Map<string, string> {
 
 router.get("/plaid/status", requireAuth, (req, res) => {
   const configured = !!(process.env.PLAID_CLIENT_ID && process.env.PLAID_SECRET);
-  const username = (req as any).user?.username || "unknown";
+  const username = (req as AuthenticatedRequest).user?.username || "unknown";
   const userTokens = getUserTokens(username);
   return res.json({
     configured,
@@ -60,7 +71,7 @@ router.post("/plaid/create-link-token", requireAuth, async (req, res) => {
 
     const { CountryCode, Products } = require("plaid");
     const response = await client.linkTokenCreate({
-      user: { client_user_id: (req as any).user?.username || "szl-user" },
+      user: { client_user_id: (req as AuthenticatedRequest).user?.username || "szl-user" },
       client_name: "SZL Holdings - Lutar",
       products: [Products.Transactions, Products.Auth],
       country_codes: [CountryCode.Us],
@@ -73,7 +84,7 @@ router.post("/plaid/create-link-token", requireAuth, async (req, res) => {
   }
 });
 
-router.post("/plaid/exchange-token", requireAuth, async (req, res) => {
+router.post("/plaid/exchange-token", requireAuth, validateBody(exchangeTokenSchema), async (req, res) => {
   try {
     const client = getPlaidClient();
     if (!client) {
@@ -81,9 +92,6 @@ router.post("/plaid/exchange-token", requireAuth, async (req, res) => {
     }
 
     const { publicToken } = req.body;
-    if (!publicToken) {
-      return res.status(400).json({ error: "Public token is required" });
-    }
 
     const response = await client.itemPublicTokenExchange({
       public_token: publicToken,
@@ -91,7 +99,7 @@ router.post("/plaid/exchange-token", requireAuth, async (req, res) => {
 
     const accessToken = response.data.access_token;
     const itemId = response.data.item_id;
-    const username = (req as any).user?.username || "unknown";
+    const username = (req as AuthenticatedRequest).user?.username || "unknown";
     const userTokens = getUserTokens(username);
     userTokens.set(itemId, accessToken);
 
@@ -108,7 +116,7 @@ router.get("/plaid/accounts", requireAuth, async (req, res) => {
       return res.json({ configured: false, accounts: [] });
     }
 
-    const username = (req as any).user?.username || "unknown";
+    const username = (req as AuthenticatedRequest).user?.username || "unknown";
     const userTokens = getUserTokens(username);
     const allAccounts: any[] = [];
     for (const [itemId, accessToken] of userTokens.entries()) {
@@ -150,7 +158,7 @@ router.get("/plaid/transactions", requireAuth, async (req, res) => {
       return res.json({ configured: false, transactions: [] });
     }
 
-    const username = (req as any).user?.username || "unknown";
+    const username = (req as AuthenticatedRequest).user?.username || "unknown";
     const userTokens = getUserTokens(username);
     const allTransactions: any[] = [];
     const endDate = new Date().toISOString().split("T")[0];

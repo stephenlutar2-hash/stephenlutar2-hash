@@ -2,6 +2,7 @@ import { initAppInsights } from "./lib/appInsights";
 
 initAppInsights();
 
+import { validateEnvironment } from "./lib/envValidation";
 import { loadSecretsFromKeyVault } from "./lib/config";
 import { logger } from "./lib/logger";
 import { initRedis, isRedisConfigured } from "./lib/redis";
@@ -19,6 +20,7 @@ if (Number.isNaN(port) || port <= 0) {
 
 async function start() {
   await loadSecretsFromKeyVault();
+  validateEnvironment();
   await initRedis();
 
   const { default: app } = await import("./app");

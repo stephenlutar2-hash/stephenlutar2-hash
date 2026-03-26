@@ -1,6 +1,13 @@
 import { Router, type Request, type Response } from "express";
+import { z } from "zod";
 import { AdapterOrchestrator } from "./adapters.js";
+import { validateAndSanitizeBody } from "../../middleware/validate";
 import type { SignalFilters } from "./types.js";
+
+const analyzeSchema = z.object({
+  context: z.string().max(5000).optional(),
+  signalIds: z.array(z.string()).optional(),
+});
 
 const router = Router();
 const orchestrator = new AdapterOrchestrator();
@@ -77,7 +84,7 @@ router.get("/lyte/impact/summary", (_req: Request, res: Response) => {
   }
 });
 
-router.post("/lyte/ai/analyze", async (req: Request, res: Response) => {
+router.post("/lyte/ai/analyze", validateAndSanitizeBody(analyzeSchema), async (req: Request, res: Response) => {
   try {
     const { context, signalIds } = req.body || {};
     const { signals } = await orchestrator.getAllSignals();

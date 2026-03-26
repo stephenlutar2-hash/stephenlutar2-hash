@@ -20,6 +20,7 @@ import lyteRouter from "./lyte";
 import contactRouter from "./contact";
 import { auditMiddleware } from "../lib/audit";
 import { requireDatabase } from "../lib/dbGuard";
+import { authRateLimit } from "../middleware/rateLimit";
 
 const router: IRouter = Router();
 
@@ -27,6 +28,7 @@ router.use(auditMiddleware());
 router.use(healthRouter);
 
 router.use("/auth", requireDatabase);
+router.use("/auth", authRateLimit);
 router.use("/beacon", requireDatabase);
 router.use("/nimbus", requireDatabase);
 router.use("/zeus", requireDatabase);

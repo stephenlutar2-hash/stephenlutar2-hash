@@ -1,7 +1,17 @@
 import { Router } from "express";
+import { z } from "zod";
 import { requireAuth } from "./auth";
+import { validateBody } from "../middleware/validate";
+
+const checkoutSchema = z.object({
+  session: z.string().min(1),
+});
 
 const router = Router();
+
+router.get("/stripe/health", (_req, res) => {
+  res.json({ ok: true, group: "stripe", configured: !!process.env.STRIPE_SECRET_KEY, timestamp: new Date().toISOString() });
+});
 
 function getStripeClient() {
   const key = process.env.STRIPE_SECRET_KEY;
@@ -113,6 +123,10 @@ router.post("/stripe/webhook", async (req, res) => {
       return res.status(400).json({ error: "Stripe not configured" });
     }
 
+    if (!req.body || (Buffer.isBuffer(req.body) && req.body.length === 0)) {
+      return res.status(400).json({ error: "Empty webhook payload" });
+    }
+
     const sig = req.headers["stripe-signature"];
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
@@ -128,8 +142,9 @@ router.post("/stripe/webhook", async (req, res) => {
           webhookSecret
         );
         console.log(`[Stripe] Webhook event: ${event.type}`);
-      } catch (err: any) {
-        console.error("[Stripe] Webhook signature verification failed:", err.message);
+      } catch (err: unknown) {
+        const errMsg = err instanceof Error ? err.message : "Unknown error";
+        console.error("[Stripe] Webhook signature verification failed:", errMsg);
         return res.status(400).json({ error: "Invalid signature" });
       }
     } else {
@@ -137,8 +152,9 @@ router.post("/stripe/webhook", async (req, res) => {
     }
 
     return res.json({ received: true });
-  } catch (e: any) {
-    return res.status(500).json({ error: e.message });
+  } catch (e: unknown) {
+    const errMsg = e instanceof Error ? e.message : "Webhook processing failed";
+    return res.status(500).json({ error: errMsg });
   }
 });
 
@@ -148,7 +164,7 @@ const CONSULTATION_PRICES: Record<string, { name: string; amount: number }> = {
   retainer: { name: "Advisory Retainer", amount: 2500000 },
 };
 
-router.post("/stripe/checkout", async (req, res) => {
+router.post("/stripe/checkout", validateBody(checkoutSchema), async (req, res) => {
   const stripe = getStripeClient();
   if (!stripe) {
     return res.status(503).json({ error: "Stripe is not configured" });

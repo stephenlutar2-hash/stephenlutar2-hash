@@ -5,14 +5,18 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import router from "./routes";
 import { logger } from "./lib/logger";
+import { isDatabaseAvailable, pool } from "@szl-holdings/db";
 import { isKeyVaultConfigured } from "./lib/keyvault";
 import { isRedisConfigured, isRedisReady } from "./lib/redis";
 import { isBlobStorageConfigured } from "./lib/blobStorage";
+import { securityHeaders } from "./middleware/securityHeaders";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app: Express = express();
+
+app.use(securityHeaders());
 
 app.use(
   pinoHttp({
@@ -56,8 +60,39 @@ app.get("/health", (_req: Request, res: Response) => {
   });
 });
 
-app.get("/healthz", (_req: Request, res: Response) => {
-  res.json({ ok: true, project: "SZL Holdings", timestamp: new Date().toISOString() });
+app.get("/healthz", async (_req: Request, res: Response) => {
+  let dbOk = isDatabaseAvailable();
+  if (dbOk && pool) {
+    try {
+      const client = await pool.connect();
+      await client.query("SELECT 1");
+      client.release();
+    } catch {
+      dbOk = false;
+    }
+  }
+  const ok = dbOk;
+  res.status(ok ? 200 : 503).json({ ok, project: "SZL Holdings", timestamp: new Date().toISOString(), database: dbOk });
+});
+
+app.get("/readyz", async (_req: Request, res: Response) => {
+  const checks: Record<string, { ready: boolean; error?: string }> = {};
+  checks.database = { ready: isDatabaseAvailable() };
+  if (isDatabaseAvailable() && pool) {
+    try {
+      const client = await pool.connect();
+      await client.query("SELECT 1");
+      client.release();
+      checks.database = { ready: true };
+    } catch (err) {
+      checks.database = { ready: false, error: err instanceof Error ? err.message : "Connection failed" };
+    }
+  }
+  checks.redis = { ready: isRedisReady() };
+  checks.keyVault = { ready: isKeyVaultConfigured() };
+  checks.blobStorage = { ready: isBlobStorageConfigured() };
+  const allReady = checks.database.ready && (!isRedisConfigured() || checks.redis.ready);
+  res.status(allReady ? 200 : 503).json({ ok: allReady, project: "SZL Holdings", timestamp: new Date().toISOString(), checks });
 });
 
 app.use("/api", router);

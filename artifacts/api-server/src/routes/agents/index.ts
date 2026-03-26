@@ -1,7 +1,22 @@
 import { Router } from "express";
+import { z } from "zod";
 import { openai } from "@szl-holdings/integrations-openai-ai-server";
+import { validateBody, validateAndSanitizeBody } from "../../middleware/validate";
+
+const chatSchema = z.object({
+  message: z.string().min(1).max(10000),
+  context: z.string().min(1),
+  history: z.array(z.object({
+    role: z.enum(["user", "assistant"]),
+    content: z.string(),
+  })).optional(),
+});
 
 const router = Router();
+
+router.get("/agents/health", (_req, res) => {
+  res.json({ ok: true, group: "agents", timestamp: new Date().toISOString() });
+});
 
 const AGENT_CONFIGS: Record<string, { name: string; systemPrompt: string }> = {
   readiness: {
@@ -82,13 +97,9 @@ ROSIE (AI Security Monitoring), Aegis (Defensive Security), Beacon (Telemetry & 
   },
 };
 
-router.post("/agents/chat", async (req, res) => {
+router.post("/agents/chat", validateAndSanitizeBody(chatSchema), async (req, res) => {
   try {
     const { message, context, history } = req.body;
-
-    if (!message || typeof message !== "string") {
-      return res.status(400).json({ error: "Message is required" });
-    }
 
     const agentConfig = AGENT_CONFIGS[context];
     if (!agentConfig) {

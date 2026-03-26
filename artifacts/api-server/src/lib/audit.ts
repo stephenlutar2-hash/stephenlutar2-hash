@@ -1,5 +1,8 @@
 import type { Request, Response, NextFunction } from "express";
 import { logger } from "./logger";
+import { db, isDatabaseAvailable } from "@szl-holdings/db";
+import { auditLogsTable } from "@szl-holdings/db/schema";
+import type { AuthenticatedRequest } from "../types";
 
 interface AuditEntry {
   type: "audit";
@@ -18,28 +21,38 @@ const auditLogger = logger.child({ component: "audit" });
 
 export function logAudit(entry: Omit<AuditEntry, "type" | "timestamp">): void {
   auditLogger.info({ ...entry, type: "audit", timestamp: new Date().toISOString() });
+
+  if (isDatabaseAvailable()) {
+    db.insert(auditLogsTable)
+      .values({
+        userId: entry.userId,
+        action: entry.action,
+        resource: entry.resource,
+        method: entry.method,
+        path: entry.path,
+        statusCode: entry.statusCode,
+        outcome: entry.outcome,
+        ip: entry.ip,
+      })
+      .catch((err) => {
+        auditLogger.error({ err }, "Failed to write audit log to database");
+      });
+  }
 }
 
-const AUDITED_PATHS = [
-  "/api/auth/login",
-  "/api/auth/logout",
-  "/api/auth/entra-login",
-  "/api/stripe/",
-  "/api/plaid/",
-  "/api/social/",
-];
+const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
 export function auditMiddleware() {
   return (req: Request, res: Response, next: NextFunction): void => {
-    const shouldAudit = AUDITED_PATHS.some((p) => req.originalUrl.startsWith(p));
-    if (!shouldAudit || req.method === "GET") {
+    if (!MUTATING_METHODS.has(req.method)) {
       next();
       return;
     }
 
-    const user = (req as Record<string, unknown>).user as { username?: string } | undefined;
-
     res.on("finish", () => {
+      const authReq = req as AuthenticatedRequest;
+      const user = authReq.user;
+
       logAudit({
         userId: user?.username || "anonymous",
         action: `${req.method} ${req.route?.path || req.path}`,

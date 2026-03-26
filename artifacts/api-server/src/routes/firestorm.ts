@@ -5,6 +5,10 @@ const router = Router();
 
 router.use("/firestorm", requireAuth);
 
+router.get("/firestorm/health", (_req, res) => {
+  res.json({ ok: true, group: "firestorm", timestamp: new Date().toISOString() });
+});
+
 interface Scenario {
   id: string;
   name: string;

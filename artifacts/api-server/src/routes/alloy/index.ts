@@ -1,20 +1,36 @@
-import { Router } from "express";
+import { Router, type Request } from "express";
+import { z } from "zod";
 import { db } from "@szl-holdings/db";
 import { conversations, messages } from "@szl-holdings/db/schema";
 import { eq, desc, asc, and } from "drizzle-orm";
 import { requireAuth } from "../auth";
+import { validateBody, validateAndSanitizeBody } from "../../middleware/validate";
+import { sanitizeString } from "../../lib/sanitize";
+import type { AuthenticatedRequest } from "../../types";
 import { runAgentLoop } from "./agent";
 import { runHealthSweep } from "./monitor";
 
+const conversationSchema = z.object({
+  title: z.string().min(1).max(200).optional(),
+});
+
+const messageSchema = z.object({
+  content: z.string().min(1).max(50000),
+});
+
 const router = Router();
 
-function getUsername(req: any): string {
-  return req.user?.username || "unknown";
+router.get("/alloy/health", (_req, res) => {
+  res.json({ ok: true, group: "alloy", timestamp: new Date().toISOString() });
+});
+
+function getUsername(req: Request): string {
+  return (req as AuthenticatedRequest).user?.username || "unknown";
 }
 
-router.post("/alloy/conversations", requireAuth, async (req, res) => {
+router.post("/alloy/conversations", requireAuth, validateBody(conversationSchema), async (req, res) => {
   try {
-    const title = req.body.title || "New Conversation";
+    const title = sanitizeString(req.body.title || "New Conversation");
     const username = getUsername(req);
     const [created] = await db
       .insert(conversations)
@@ -85,14 +101,12 @@ router.delete("/alloy/conversations/:id", requireAuth, async (req, res) => {
 router.post(
   "/alloy/conversations/:id/messages",
   requireAuth,
+  validateAndSanitizeBody(messageSchema),
   async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const username = getUsername(req);
       const { content } = req.body;
-      if (!content || typeof content !== "string") {
-        return res.status(400).json({ error: "Message content is required" });
-      }
       const [conversation] = await db
         .select()
         .from(conversations)

@@ -66,12 +66,19 @@ The project is built as a pnpm workspace monorepo using Node.js 24, pnpm, and Ty
 
 **API Routes:** All API routes are prefixed with `/api/` and include endpoints for authentication, platform-specific CRUD operations, Alloy Engine interactions, and monitoring. Write operations on ROSIE are authenticated. Database-backed routes are guarded by `requireDatabase` middleware that returns 503 if `DATABASE_URL` is not configured. Firestorm simulation routes (`/api/firestorm/*`) are protected by `requireAuth` — all scenario, event, detection, and report endpoints require a valid session token. Vessels routes (`/api/vessels/*`) serve in-memory mock fleet/route/asset/alert/intelligence data.
 
-**Production Hardening:**
-- Health endpoints: `/health`, `/healthz` (root level), `/api/health`, `/api/healthz` — all return `{ok, project, timestamp}`.
-- RBAC: `lib/rbac.ts` with `requireRole()` middleware supporting emperor/admin/operator/client/user hierarchy.
-- Feature flags: `lib/featureFlags.ts` reads `FEATURE_*` env vars.
-- Audit logging: `lib/audit.ts` structured pino audit middleware on auth/payment/social routes.
+**Production Hardening / Security & Governance:**
+- Health endpoints: `/health`, `/healthz` (root level), `/api/health`, `/api/healthz`, `/api/readyz` (deep checks DB/Redis/KeyVault/Blob connectivity), per-group `/api/<group>/health` for all route groups.
+- Security headers middleware: CSP, HSTS, X-Content-Type-Options, X-Frame-Options, Referrer-Policy on all responses (`middleware/securityHeaders.ts`).
+- RBAC: `middleware/rbac.ts` with DB-backed `user_roles` table, `requireRole()` / `requireAdmin()` / `requireOperator()` middleware supporting admin/operator/viewer roles. Roles resolved from DB on all auth paths (login, Entra, requireAuth) with secure default "viewer". Admin role management API: GET/POST `/api/roles` (admin-only).
+- Rate limiting: `middleware/rateLimit.ts` — per-IP rate limiting on auth endpoints (20 req/15min), per-user rate limiting on write-heavy routes (60 req/min) keyed on `req.user.username`.
+- Schema validation: `middleware/validate.ts` with `validateBody()` / `validateAndSanitizeBody()` / `validateQuery()` middleware using Zod schemas with consistent 400 error format. Applied to ALL body-accepting routes.
+- Input sanitization: `lib/sanitize.ts` with `escapeHtml()`, `sanitizeString()`, `sanitizeObject()` for XSS prevention. DB-writing routes use `validateAndSanitizeBody` for HTML escaping; auth/token routes use plain `validateBody`.
+- Audit logging: `lib/audit.ts` structured pino audit middleware on ALL mutating operations (POST/PUT/PATCH/DELETE), writes to both pino logs and `audit_logs` database table.
+- Feature flags: `lib/featureFlags.ts` — database-backed feature flags (`feature_flags` table) with env var fallback, 30s cache TTL, API endpoints at `/api/feature-flags` (GET list, GET by key, POST to set — admin only).
+- Environment validation: `lib/envValidation.ts` validates required env vars on boot (after Key Vault loading), fails fast with clear messages.
+- Logger redaction: Pino logger redacts passwords, tokens, secrets, API keys, access tokens from structured log output.
 - DB graceful fallback: `@szl-holdings/db` warns on missing `DATABASE_URL` instead of crashing; `isDatabaseAvailable()` export + `requireDatabase` middleware.
+- Database schema: `user_roles`, `audit_logs`, and `feature_flags` tables in `lib/db/src/schema/governance.ts`.
 - Apps Showcase: `/catalog` page with grouped project cards including INCA (deployed).
 - SEO: Open Graph meta tags and descriptions on ROSIE, apps-showcase, and career HTML.
 - Accessibility: Skip-to-content links on apps-showcase pages.

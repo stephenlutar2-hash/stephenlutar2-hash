@@ -3,10 +3,17 @@ import { db } from "@szl-holdings/db";
 import { rosieThreatsTable, rosieIncidentsTable, rosieScansTable, insertRosieThreatSchema, insertRosieIncidentSchema, insertRosieScanSchema } from "@szl-holdings/db/schema";
 import { eq } from "drizzle-orm";
 import { requireAuth } from "./auth";
+import { requireOperator } from "../middleware/rbac";
+import { validateAndSanitizeBody } from "../middleware/validate";
+import { writeRateLimit } from "../middleware/rateLimit";
 
 const router = Router();
 
-router.get("/rosie/threats", async (_req, res) => {
+router.get("/rosie/health", (_req, res) => {
+  res.json({ ok: true, group: "rosie", timestamp: new Date().toISOString() });
+});
+
+router.get("/rosie/threats", requireAuth, async (_req, res) => {
   try {
     const threats = await db.select().from(rosieThreatsTable).orderBy(rosieThreatsTable.createdAt);
     return res.json(threats);
@@ -15,18 +22,16 @@ router.get("/rosie/threats", async (_req, res) => {
   }
 });
 
-router.post("/rosie/threats", requireAuth, async (req, res) => {
+router.post("/rosie/threats", requireAuth, writeRateLimit, requireOperator(), validateAndSanitizeBody(insertRosieThreatSchema), async (req, res) => {
   try {
-    const parsed = insertRosieThreatSchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ error: parsed.error.message });
-    const [created] = await db.insert(rosieThreatsTable).values(parsed.data).returning();
+    const [created] = await db.insert(rosieThreatsTable).values(req.body).returning();
     return res.status(201).json(created);
   } catch (e) {
     return res.status(500).json({ error: "Failed to create threat" });
   }
 });
 
-router.delete("/rosie/threats/:id", requireAuth, async (req, res) => {
+router.delete("/rosie/threats/:id", requireAuth, requireOperator(), async (req, res) => {
   try {
     const id = parseInt(String(req.params.id));
     await db.delete(rosieThreatsTable).where(eq(rosieThreatsTable.id, id));
@@ -36,7 +41,7 @@ router.delete("/rosie/threats/:id", requireAuth, async (req, res) => {
   }
 });
 
-router.get("/rosie/incidents", async (_req, res) => {
+router.get("/rosie/incidents", requireAuth, async (_req, res) => {
   try {
     const incidents = await db.select().from(rosieIncidentsTable).orderBy(rosieIncidentsTable.createdAt);
     return res.json(incidents);
@@ -45,23 +50,19 @@ router.get("/rosie/incidents", async (_req, res) => {
   }
 });
 
-router.post("/rosie/incidents", requireAuth, async (req, res) => {
+router.post("/rosie/incidents", requireAuth, writeRateLimit, requireOperator(), validateAndSanitizeBody(insertRosieIncidentSchema), async (req, res) => {
   try {
-    const parsed = insertRosieIncidentSchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ error: parsed.error.message });
-    const [created] = await db.insert(rosieIncidentsTable).values(parsed.data).returning();
+    const [created] = await db.insert(rosieIncidentsTable).values(req.body).returning();
     return res.status(201).json(created);
   } catch (e) {
     return res.status(500).json({ error: "Failed to create incident" });
   }
 });
 
-router.put("/rosie/incidents/:id", requireAuth, async (req, res) => {
+router.put("/rosie/incidents/:id", requireAuth, writeRateLimit, requireOperator(), validateAndSanitizeBody(insertRosieIncidentSchema), async (req, res) => {
   try {
     const id = parseInt(String(req.params.id));
-    const parsed = insertRosieIncidentSchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ error: parsed.error.message });
-    const [updated] = await db.update(rosieIncidentsTable).set(parsed.data).where(eq(rosieIncidentsTable.id, id)).returning();
+    const [updated] = await db.update(rosieIncidentsTable).set(req.body).where(eq(rosieIncidentsTable.id, id)).returning();
     if (!updated) return res.status(404).json({ error: "Not found" });
     return res.json(updated);
   } catch (e) {
@@ -69,7 +70,7 @@ router.put("/rosie/incidents/:id", requireAuth, async (req, res) => {
   }
 });
 
-router.delete("/rosie/incidents/:id", requireAuth, async (req, res) => {
+router.delete("/rosie/incidents/:id", requireAuth, requireOperator(), async (req, res) => {
   try {
     const id = parseInt(String(req.params.id));
     await db.delete(rosieIncidentsTable).where(eq(rosieIncidentsTable.id, id));
@@ -79,7 +80,7 @@ router.delete("/rosie/incidents/:id", requireAuth, async (req, res) => {
   }
 });
 
-router.get("/rosie/scans", async (_req, res) => {
+router.get("/rosie/scans", requireAuth, async (_req, res) => {
   try {
     const scans = await db.select().from(rosieScansTable).orderBy(rosieScansTable.createdAt);
     return res.json(scans);
@@ -88,11 +89,9 @@ router.get("/rosie/scans", async (_req, res) => {
   }
 });
 
-router.post("/rosie/scans", requireAuth, async (req, res) => {
+router.post("/rosie/scans", requireAuth, writeRateLimit, requireOperator(), validateAndSanitizeBody(insertRosieScanSchema), async (req, res) => {
   try {
-    const parsed = insertRosieScanSchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ error: parsed.error.message });
-    const [created] = await db.insert(rosieScansTable).values(parsed.data).returning();
+    const [created] = await db.insert(rosieScansTable).values(req.body).returning();
     return res.status(201).json(created);
   } catch (e) {
     return res.status(500).json({ error: "Failed to create scan" });
