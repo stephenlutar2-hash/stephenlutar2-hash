@@ -30,6 +30,7 @@ import agentStatusRouter from "./agent-status";
 import extensionsRouter from "./extensions";
 import readinessRouter from "./readiness";
 import googleRouter from "./google";
+import integrationsRouter from "./integrations";
 import { auditMiddleware } from "../lib/audit";
 import { requireDatabase } from "../lib/dbGuard";
 import { authRateLimit, apiRateLimit } from "../middleware/rateLimit";
@@ -90,5 +91,6 @@ router.use(agentStatusRouter);
 router.use(extensionsRouter);
 router.use(readinessRouter);
 router.use(googleRouter);
+router.use(integrationsRouter);
 
 export default router;

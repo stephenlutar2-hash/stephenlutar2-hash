@@ -475,4 +475,99 @@ router.post("/social-command/seed-campaign", requireAuth, async (req, res) => {
   }
 });
 
+router.post("/social-command/sync-to-calendar", requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const username = (req as AuthenticatedRequest).user?.username;
+    if (!username) return res.status(401).json({ error: "Authentication required" });
+
+    const scheduledPosts = await db
+      .select()
+      .from(socialPostsTable)
+      .where(
+        and(
+          eq(socialPostsTable.username, username),
+          eq(socialPostsTable.status, "scheduled"),
+        ),
+      );
+
+    if (scheduledPosts.length === 0) {
+      return res.json({ success: true, message: "No scheduled posts to sync", synced: 0 });
+    }
+
+    let synced = 0;
+    const errors: string[] = [];
+
+    try {
+      const { createEvent } = await import("../services/google-calendar");
+      for (const post of scheduledPosts) {
+        try {
+          const scheduledTime = post.scheduledAt
+            ? new Date(post.scheduledAt)
+            : new Date();
+          const endTime = new Date(scheduledTime.getTime() + 15 * 60 * 1000);
+          const platformLabel = post.platform === "twitter" ? "X/Twitter" : post.platform.charAt(0).toUpperCase() + post.platform.slice(1);
+          await createEvent(
+            `[SZL] ${platformLabel} Post`,
+            scheduledTime.toISOString(),
+            endTime.toISOString(),
+            `Auto-scheduled social post for ${platformLabel}.\n\nContent preview:\n${post.content.slice(0, 500)}`,
+          );
+          synced++;
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : "Unknown error";
+          errors.push(`Post #${post.id}: ${msg}`);
+        }
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Unknown error";
+      return res.status(500).json({ error: `Google Calendar not available: ${msg}` });
+    }
+
+    return res.json({
+      success: true,
+      message: `Synced ${synced}/${scheduledPosts.length} posts to Google Calendar`,
+      synced,
+      errors: errors.length > 0 ? errors : undefined,
+    });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : "Unknown error";
+    return res.status(500).json({ error: msg });
+  }
+});
+
+router.post("/social-command/email-report", requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const status = await getSchedulerStatus();
+    const { sendEmail } = await import("../services/google-gmail");
+
+    const html = `
+      <div style="font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0e17; color: #e5e5e5; padding: 32px; border-radius: 12px;">
+        <h1 style="color: #c9a84c; margin: 0 0 24px;">SZL Holdings — Social Media Report</h1>
+        <div style="background: #111827; padding: 20px; border-radius: 8px; margin-bottom: 16px;">
+          <h2 style="color: #38bdf8; margin: 0 0 12px; font-size: 16px;">Scheduler Status</h2>
+          <p style="margin: 4px 0;">Running: <strong>${status.running ? "Yes" : "No"}</strong></p>
+          <p style="margin: 4px 0;">Paused: <strong>${status.paused ? "Yes" : "No"}</strong></p>
+          <p style="margin: 4px 0;">Checks: <strong>${status.checksCount}</strong></p>
+          <p style="margin: 4px 0;">Last Check: <strong>${status.lastCheck || "Never"}</strong></p>
+        </div>
+        <div style="background: #111827; padding: 20px; border-radius: 8px; margin-bottom: 16px;">
+          <h2 style="color: #c9a84c; margin: 0 0 12px; font-size: 16px;">Campaign Metrics</h2>
+          <p style="margin: 4px 0;">Pending: <strong style="color: #fbbf24;">${status.postsPending}</strong></p>
+          <p style="margin: 4px 0;">Published: <strong style="color: #34d399;">${status.postsPublished}</strong></p>
+          <p style="margin: 4px 0;">Failed: <strong style="color: #f87171;">${status.postsFailed}</strong></p>
+        </div>
+        <p style="color: #6b7280; font-size: 12px; margin-top: 24px;">Generated ${new Date().toISOString()} — SZL Holdings Automation Engine</p>
+      </div>
+    `;
+
+    const to = req.body?.to || "stephenlutar2@gmail.com";
+    await sendEmail(to, "SZL Holdings — Social Media Campaign Report", html);
+
+    return res.json({ success: true, message: `Report sent to ${to}` });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : "Unknown error";
+    return res.status(500).json({ error: msg });
+  }
+});
+
 export default router;
