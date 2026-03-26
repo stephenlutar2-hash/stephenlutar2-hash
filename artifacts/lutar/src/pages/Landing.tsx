@@ -405,9 +405,55 @@ export default function Landing() {
         </motion.div>
       </section>
 
+      {/* FOUNDER SECTION */}
+      <section className="py-24 relative border-t border-border/50">
+        <div className="max-w-7xl mx-auto px-6 md:px-12">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={fadeInUp}
+          >
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 items-center">
+              <div className="lg:col-span-2 flex justify-center">
+                <div className="relative">
+                  <div className="w-48 h-48 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 flex items-center justify-center">
+                    <span className="font-display text-6xl font-bold text-primary">SL</span>
+                  </div>
+                  <div className="absolute -bottom-2 -right-2 px-3 py-1 rounded-lg bg-primary/20 border border-primary/30 text-[10px] text-primary font-bold uppercase tracking-widest">Founder</div>
+                </div>
+              </div>
+              <div className="lg:col-span-3">
+                <h2 className="text-3xl md:text-4xl font-display font-bold text-white mb-4 uppercase">Stephen Lutar</h2>
+                <p className="text-primary text-sm font-sans tracking-widest uppercase mb-4">Founder & CEO — SZL Holdings</p>
+                <p className="text-muted-foreground font-sans text-lg leading-relaxed mb-6">
+                  Architect of the SZL ecosystem. 10+ years building enterprise platforms across security, AI, and infrastructure. Every platform in this portfolio was designed, architected, and shipped from a single vision.
+                </p>
+                <div className="grid grid-cols-3 gap-4">
+                  {[
+                    { value: "15+", label: "Platforms" },
+                    { value: "10+", label: "Years" },
+                    { value: "$18.5M", label: "Valuation" },
+                  ].map(m => (
+                    <div key={m.label} className="p-3 rounded-lg border border-border/50 bg-card/30 text-center">
+                      <p className="text-xl font-display font-bold text-primary">{m.value}</p>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-0.5">{m.label}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* QUOTE */}
-      <section className="py-24 border-t border-border/30 bg-background">
-        <div className="max-w-4xl mx-auto px-6 text-center">
+      <section className="py-24 border-t border-border/30 bg-background relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
+          <div className="absolute top-1/2 right-1/4 w-48 h-48 bg-primary/3 rounded-full blur-3xl" />
+        </div>
+        <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
           <motion.h2 
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -423,11 +469,11 @@ export default function Landing() {
       {/* FOOTER */}
       <footer className="bg-card border-t border-border py-12">
         <div className="max-w-7xl mx-auto px-6 md:px-12 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-3 opacity-50">
-            <div className="w-6 h-6 rounded bg-foreground flex items-center justify-center">
-              <span className="font-display font-bold text-background text-xs">S</span>
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded bg-primary flex items-center justify-center shadow-[0_0_12px_rgba(16,185,129,0.2)]">
+              <span className="font-display font-bold text-black text-sm">L</span>
             </div>
-            <span className="font-display font-bold tracking-widest text-sm uppercase">SZL Holdings</span>
+            <span className="font-display font-bold tracking-widest text-sm uppercase text-white/50">SZL Holdings</span>
           </div>
           <p className="text-xs text-muted-foreground font-sans tracking-widest uppercase">
             © {new Date().getFullYear()} Lutar OS. All Rights Reserved.

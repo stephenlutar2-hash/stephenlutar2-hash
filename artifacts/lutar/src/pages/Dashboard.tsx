@@ -589,13 +589,19 @@ export default function Dashboard() {
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col md:flex-row md:items-end justify-between gap-4"
           >
-            <div>
-              <p className="text-muted-foreground font-sans mb-1">
-                Welcome back,
-              </p>
-              <h2 className="text-3xl font-display font-bold text-white uppercase tracking-wider">
-                {username}
-              </h2>
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 flex items-center justify-center shadow-lg shadow-primary/10">
+                <span className="font-display text-2xl font-bold text-primary">SL</span>
+              </div>
+              <div>
+                <p className="text-muted-foreground font-sans mb-0.5 text-sm">
+                  Welcome back,
+                </p>
+                <h2 className="text-2xl font-display font-bold text-white uppercase tracking-wider">
+                  {username}
+                </h2>
+                <p className="text-[10px] text-primary/60 font-mono uppercase tracking-widest mt-0.5">Founder & CEO — SZL Holdings</p>
+              </div>
             </div>
             <div className="flex items-center gap-2 text-sm text-primary font-mono bg-primary/10 border border-primary/20 px-4 py-2 rounded">
               <TrendingUp size={16} /> All systems operational — Net growth +340%

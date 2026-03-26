@@ -298,21 +298,51 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="py-16 px-6 bg-white/[0.01] border-y border-white/5">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
+            {[
+              { value: `${platforms.length}`, label: "Active Platforms" },
+              { value: "99.99%", label: "Avg Uptime" },
+              { value: "200+", label: "Enterprise Clients" },
+              { value: "50M+", label: "Daily Events" },
+            ].map((s, i) => (
+              <motion.div
+                key={s.label}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+              >
+                <p className="text-3xl font-display font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">{s.value}</p>
+                <p className="text-xs text-gray-500 uppercase tracking-wider mt-1">{s.label}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="py-24 px-6">
         <div className="max-w-4xl mx-auto">
-          <div className="rounded-3xl bg-gradient-to-br from-cyan-500/10 to-violet-500/10 border border-cyan-500/20 p-12 text-center">
-            <Crown className="w-12 h-12 text-cyan-400 mx-auto mb-6" />
-            <h2 className="text-3xl font-display font-bold text-white mb-4">Ready to Transform Your Operations?</h2>
-            <p className="text-gray-400 mb-8 max-w-lg mx-auto">
-              Join hundreds of enterprises already powered by SZL Holdings' platform suite. Start your journey today.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a href="/" className="px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold tracking-wider uppercase text-sm hover:opacity-90 transition shadow-lg shadow-cyan-500/25">
-                Get Started with ROSIE
-              </a>
-              <a href="#pricing" className="px-8 py-4 rounded-xl bg-white/5 border border-white/10 text-white font-bold tracking-wider uppercase text-sm hover:bg-white/10 transition text-center">
-                Compare Plans
-              </a>
+          <div className="rounded-3xl bg-gradient-to-br from-cyan-500/10 to-violet-500/10 border border-cyan-500/20 p-12 text-center relative overflow-hidden">
+            <div className="absolute inset-0 pointer-events-none">
+              <div className="absolute top-0 left-1/4 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl" />
+              <div className="absolute bottom-0 right-1/4 w-48 h-48 bg-violet-500/10 rounded-full blur-3xl" />
+            </div>
+            <div className="relative z-10">
+              <Crown className="w-12 h-12 text-cyan-400 mx-auto mb-6" />
+              <h2 className="text-3xl font-display font-bold text-white mb-4">Ready to Transform Your Operations?</h2>
+              <p className="text-gray-400 mb-8 max-w-lg mx-auto">
+                Join hundreds of enterprises already powered by SZL Holdings' platform suite. Start your journey today.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="/" className="px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold tracking-wider uppercase text-sm hover:opacity-90 transition shadow-lg shadow-cyan-500/25">
+                  Get Started with ROSIE
+                </a>
+                <a href="#pricing" className="px-8 py-4 rounded-xl bg-white/5 border border-white/10 text-white font-bold tracking-wider uppercase text-sm hover:bg-white/10 transition text-center">
+                  Compare Plans
+                </a>
+              </div>
             </div>
           </div>
         </div>

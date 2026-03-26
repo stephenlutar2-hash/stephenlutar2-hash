@@ -200,6 +200,37 @@ export default function Dashboard() {
           )}
         </div>
 
+        <div className="p-6 rounded-2xl bg-gradient-to-br from-violet-500/5 to-blue-500/5 border border-violet-500/10">
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h2 className="text-lg font-display font-bold text-white">Creative Inspiration</h2>
+              <p className="text-xs text-gray-500 mt-0.5">AI-generated story prompts to spark your next narrative</p>
+            </div>
+            <Sparkles className="w-5 h-5 text-violet-400" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {[
+              { prompt: "A clockmaker discovers their creations can manipulate time itself, but each adjustment erases a memory from their past.", genre: "Sci-Fi", energy: "High" },
+              { prompt: "In a world where dreams are shared, a lucid dreamer becomes the first person to dream alone — and finds something waiting.", genre: "Horror", energy: "Critical" },
+              { prompt: "Two cities exist in the same physical space but different dimensions. When the walls thin, residents begin switching places.", genre: "Fantasy", energy: "Medium" },
+            ].map((p, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 * i }}
+                className="p-4 rounded-xl bg-white/[0.03] border border-white/5 hover:border-violet-500/20 transition-all duration-300 cursor-pointer group"
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-violet-500/10 text-violet-400 border border-violet-500/20">{p.genre}</span>
+                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${p.energy === "High" ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : p.energy === "Critical" ? "bg-amber-500/10 text-amber-400 border border-amber-500/20" : "bg-blue-500/10 text-blue-400 border border-blue-500/20"}`}>{p.energy} Energy</span>
+                </div>
+                <p className="text-sm text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors">{p.prompt}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
         <SocialMediaSection />
       </main>
     </div>

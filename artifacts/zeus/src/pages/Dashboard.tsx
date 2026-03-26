@@ -137,26 +137,70 @@ export default function Dashboard() {
       </div>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-        <div>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <h2 className="text-2xl sm:text-3xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-amber-400">
             {selectedTab === "modules" ? "SYSTEM MODULES" : "CONFIGURATION PANEL"}
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
             {selectedTab === "modules" ? "Monitor and manage all Zeus architecture modules" : "Fine-tune system parameters and module settings"}
           </p>
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {stats.map(s => (
-            <div key={s.label} className="p-4 rounded-2xl bg-white/[0.03] border border-white/5">
+          {stats.map((s, i) => (
+            <motion.div
+              key={s.label}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.08 }}
+              className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 hover:border-yellow-500/20 transition-all duration-300"
+            >
               <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${s.color} flex items-center justify-center mb-3`}>
                 <s.icon className="w-5 h-5 text-white" />
               </div>
               <p className="text-2xl font-bold text-white">{s.value}</p>
               <p className="text-xs text-gray-500 mt-0.5">{s.label}</p>
-            </div>
+            </motion.div>
           ))}
         </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="p-5 rounded-2xl bg-yellow-500/[0.03] border border-yellow-500/10"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-display font-bold text-white text-sm uppercase tracking-wider">System Health Overview</h3>
+            <div className="flex items-center gap-1.5 text-[10px] font-mono text-emerald-400">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              All Systems Nominal
+            </div>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {[
+              { label: "CPU Usage", value: `${avgLoad}%`, bar: avgLoad, color: avgLoad > 70 ? "bg-amber-500" : "bg-emerald-500" },
+              { label: "Memory", value: "4.2 GB", bar: 52, color: "bg-blue-500" },
+              { label: "Network I/O", value: "1.8 Gbps", bar: 36, color: "bg-cyan-500" },
+              { label: "Disk", value: "128 GB", bar: 22, color: "bg-violet-500" },
+            ].map(h => (
+              <div key={h.label} className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                <div className="flex justify-between items-center mb-2">
+                  <p className="text-[10px] text-gray-500 uppercase tracking-wider">{h.label}</p>
+                  <p className="text-xs font-mono font-bold text-white">{h.value}</p>
+                </div>
+                <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${h.bar}%` }}
+                    transition={{ duration: 0.8, delay: 0.4 }}
+                    className={`h-full rounded-full ${h.color}`}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
 
         {selectedTab === "modules" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

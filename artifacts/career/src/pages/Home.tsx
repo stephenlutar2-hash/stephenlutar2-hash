@@ -230,7 +230,12 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-6 px-6 border-y border-border/30 bg-muted/20">
+      <motion.section
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.2 }}
+        className="py-6 px-6 border-y border-border/30 bg-muted/20"
+      >
         <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-center gap-x-12 gap-y-3">
           {[
             { label: "Years Experience", value: "10+" },
@@ -245,7 +250,7 @@ export default function Home() {
             </div>
           ))}
         </div>
-      </section>
+      </motion.section>
 
       <section id="about" className="py-24 px-6">
         <div className="max-w-5xl mx-auto">
@@ -622,18 +627,25 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="border-t border-border/30 py-8 px-6">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <span className="font-display text-lg font-bold text-gold">SL</span>
-            <span className="text-xs text-muted-foreground">Stephen Lutar — Technology Leader & Architect</span>
+      <footer className="border-t border-border/30 py-12 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20 flex items-center justify-center">
+                <span className="font-display text-sm font-bold text-gold">SL</span>
+              </div>
+              <div>
+                <p className="text-sm font-display font-semibold text-foreground">Stephen Lutar</p>
+                <p className="text-[11px] text-muted-foreground">Technology Leader & Architect</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <a href="https://linkedin.com/in/stephenlutar" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn profile" className="w-9 h-9 rounded-lg bg-muted/50 border border-border/50 flex items-center justify-center text-muted-foreground hover:text-gold hover:border-gold/30 transition-all"><Linkedin className="w-4 h-4" aria-hidden="true" /></a>
+              <a href="https://github.com/stephenlutar" target="_blank" rel="noopener noreferrer" aria-label="GitHub profile" className="w-9 h-9 rounded-lg bg-muted/50 border border-border/50 flex items-center justify-center text-muted-foreground hover:text-gold hover:border-gold/30 transition-all"><Github className="w-4 h-4" aria-hidden="true" /></a>
+              <a href="mailto:stephen@szlholdings.com" aria-label="Send email" className="w-9 h-9 rounded-lg bg-muted/50 border border-border/50 flex items-center justify-center text-muted-foreground hover:text-gold hover:border-gold/30 transition-all"><Mail className="w-4 h-4" aria-hidden="true" /></a>
+            </div>
+            <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} All rights reserved.</p>
           </div>
-          <div className="flex items-center gap-4">
-            <a href="https://linkedin.com/in/stephenlutar" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-gold transition"><Linkedin className="w-4 h-4" /></a>
-            <a href="https://github.com/stephenlutar" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-gold transition"><Github className="w-4 h-4" /></a>
-            <a href="mailto:stephen@szlholdings.com" className="text-muted-foreground hover:text-gold transition"><Mail className="w-4 h-4" /></a>
-          </div>
-          <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} All rights reserved.</p>
         </div>
       </footer>
     </div>

@@ -344,11 +344,37 @@ export default function Catalog() {
 
       <main id="main-content" className="pt-28 pb-24 px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-10"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold uppercase tracking-widest mb-6">
+              <Crown className="w-3.5 h-3.5" /> {projects.length} Platforms
+            </div>
             <h1 className="text-4xl sm:text-5xl font-display font-black text-white mb-4">Project Catalog</h1>
             <p className="text-gray-400 max-w-2xl mx-auto">
               A comprehensive view of every platform in the SZL Holdings portfolio, grouped by status with deployment and maturity details.
             </p>
+          </motion.div>
+
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-10 max-w-3xl mx-auto">
+            {allCategories.map(cat => {
+              const count = projects.filter(p => p.category === cat).length;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setCategoryFilter(categoryFilter === cat ? "All" : cat)}
+                  aria-pressed={categoryFilter === cat}
+                  aria-label={`Filter by ${cat} (${count} apps)`}
+                  className={`p-3 rounded-xl text-center transition-all duration-200 border ${categoryFilter === cat ? "bg-white/10 border-white/20" : "bg-white/[0.02] border-white/5 hover:bg-white/[0.05]"}`}
+                >
+                  <p className={`text-lg font-display font-bold ${categoryColors[cat]}`}>{count}</p>
+                  <p className="text-[9px] text-gray-500 uppercase tracking-wider mt-0.5">{cat}</p>
+                </button>
+              );
+            })}
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-10 max-w-3xl mx-auto">
