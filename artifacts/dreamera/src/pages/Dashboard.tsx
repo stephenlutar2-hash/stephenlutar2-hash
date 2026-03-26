@@ -411,10 +411,16 @@ function SocialMediaSection() {
           <h2 className="text-2xl sm:text-3xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-blue-400">Social Media Hub</h2>
           <p className="text-sm text-muted-foreground mt-1">Publish stories and track engagement across platforms</p>
         </div>
-        <button onClick={() => setShowPublisher(!showPublisher)}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-400 text-sm font-bold hover:bg-violet-500/20 transition">
-          <Share2 className="w-4 h-4" /> {showPublisher ? "Close" : "Publish"}
-        </button>
+        <div className="flex items-center gap-2">
+          <Link href="/social-command"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-violet-500/20 to-blue-500/20 border border-violet-500/30 text-violet-300 text-sm font-bold hover:from-violet-500/30 hover:to-blue-500/30 transition">
+            <MessageSquare className="w-4 h-4" /> Command Center
+          </Link>
+          <button onClick={() => setShowPublisher(!showPublisher)}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-400 text-sm font-bold hover:bg-violet-500/20 transition">
+            <Share2 className="w-4 h-4" /> {showPublisher ? "Close" : "Publish"}
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

@@ -10,3 +10,4 @@ export * from "./messages";
 export * from "./governance";
 export * from "./vessels";
 export * from "./carlota-jo";
+export * from "./social-command";

@@ -26,7 +26,7 @@ The project is a pnpm workspace monorepo, built with Node.js 24, pnpm, and TypeS
 
 The monorepo includes several distinct applications covering various domains:
 
-*   **Security & AI:** ROSIE (AI security monitoring), AEGIS (enterprise security), BEACON (decision analytics), NIMBUS (predictive AI), FIRESTORM (security simulation), ALLOYSCAPE (AI infrastructure), DREAMERA (AI storytelling), DREAMSCAPE (creative systems), LYTE (observability), ZEUS (core architecture), INCA (intelligence/analytics).
+*   **Security & AI:** ROSIE (AI security monitoring), AEGIS (enterprise security), BEACON (decision analytics), NIMBUS (predictive AI), FIRESTORM (security simulation), ALLOYSCAPE (AI infrastructure), DREAMERA (AI storytelling + **Social Media Command Center** at `/dreamera/social-command/` with 7 pages, DB-backed), DREAMSCAPE (creative systems), LYTE (observability), ZEUS (core architecture), INCA (intelligence/analytics).
 *   **Logistics & Management:** VESSELS (maritime/logistics intelligence), LUTAR (personal command center), CARLOTA JO (consulting/family-office).
 *   **Corporate & Showcase:** SZL Holdings (founder experience), Apps Showcase, Readiness Report, Career (public information).
 
