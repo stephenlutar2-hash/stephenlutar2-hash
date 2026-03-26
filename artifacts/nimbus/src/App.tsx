@@ -1,6 +1,6 @@
 import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "@szl-holdings/ui";
+import { Toaster, DomainChatWidget } from "@szl-holdings/ui";
 import { TooltipProvider } from "@szl-holdings/ui";
 import { ErrorBoundary, AuthGuard } from "@szl-holdings/platform";
 import { Layout } from "@/components/Layout";
@@ -40,6 +40,20 @@ function App() {
             <Router />
           </WouterRouter>
           <Toaster />
+          <DomainChatWidget
+            agentType="nimbus"
+            agentName="Nimbus Predictive Intelligence Analyst"
+            accentColor="#22d3ee"
+            accentHover="#06b6d4"
+            bgColor="#060612"
+            textColor="#e2e8f0"
+            borderColor="#1a1a3a"
+            inputBg="#0c0c20"
+            messageBgUser="#7c3aed"
+            messageBgAssistant="#0c0c20"
+            placeholderText="Ask about predictions, confidence scores, alert patterns, or emerging trends..."
+            getToken={() => localStorage.getItem("szl_token")}
+          />
         </TooltipProvider>
       </QueryClientProvider>
     </ErrorBoundary>

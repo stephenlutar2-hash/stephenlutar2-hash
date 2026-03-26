@@ -54,29 +54,28 @@ A unified login system supports:
 
 This is the central AI intelligence, powered by OpenAI gpt-5.2. It employs a "tool-first" approach with 40+ tools for database CRUD operations, ensuring data grounding and preventing hallucination.
 
-**Domain-Specific AI Agents:**
+Each of the 18 domain-specific AI agents has a distinct expert persona and system prompt, sharing a common SSE streaming backend engine (`artifacts/api-server/src/routes/domain-agents/`):
 
-Eighteen domain-specific AI agents share a common SSE streaming backend engine (`artifacts/api-server/src/routes/domain-agents/`):
-*   **INCA — Research Intelligence Agent**: DB-backed tools for projects, experiments, insights. Requires auth.
-*   **Vessels — Maritime Operations Agent**: DB-backed tools for fleet, vessel, voyage, emissions, alerts. Requires auth.
-*   **ROSIE — Security Intelligence Agent**: DB-backed tools for threats, incidents, scans.
-*   **Beacon — Analytics Agent**: DB-backed tools for KPI metrics and projects.
-*   **Nimbus — Predictive Intelligence Agent**: DB-backed tools for predictions and alerts.
-*   **Zeus — Architecture Agent**: DB-backed tools for modules and system logs.
-*   **DreamEra — Creative Intelligence Agent**: DB-backed tools for content and campaigns.
-*   **Aegis — Defensive Security Agent**: API-backed tools for posture score, vulnerabilities, compliance.
-*   **Firestorm — Red Team Agent**: API-backed tools for scenarios and detection coverage.
-*   **Lyte — Observability Agent**: API-backed tools for dashboard summary, executive scorecard, SLO status.
+*   **INCA — Research Intelligence Agent**: DB-backed tools for projects, experiments, model comparison, accuracy trends, and insights. Requires auth.
+*   **Vessels — Maritime Operations Agent**: DB-backed tools for fleet, vessel, voyage, emissions, maintenance, alerts, certificates, and shipments. Requires auth.
+*   **ROSIE — Security Intelligence Agent**: DB-backed tools for threats, incidents, and scans.
+*   **Aegis — Governance & Compliance Advisor**: DB-backed tools for security posture, audit logs, user roles, feature flags, compliance summaries. Requires auth.
+*   **Firestorm — Incident Response Strategist**: DB-backed tools for active incidents, threat landscape, scan results, incident details, attack surface summaries. Requires auth.
+*   **Beacon — Performance Analyst**: DB-backed tools for KPI metrics, projects, category filtering, project health, and performance dashboards. Requires auth.
+*   **Nimbus — Predictive Intelligence Analyst**: DB-backed tools for predictions, alerts, category filtering, unread alerts, and predictive intelligence briefings. Requires auth.
+*   **Lyte — Observability Engineer**: DB-backed tools for system health, recent logs, infrastructure status, alert triage, and platform KPIs. Requires auth.
+*   **Zeus — Infrastructure Architect**: DB-backed tools for modules, system logs, module details, architecture overview, and health reports. Requires auth.
+*   **DreamEra — Creative Director**: DB-backed tools for content listing, campaigns, content by type, performance reports, and campaign analytics. Requires auth.
+*   **Dreamscape — World-Building Companion**: Tools for world regions, character archetypes, story elements, world seeds, and narrative connections. Public access.
 *   **Lutar — Command Agent**: Static tools for platform overview and capabilities.
-*   **AlloyScape — Operations Agent**: Static tools for infrastructure overview.
-*   **Dreamscape — Creative Agent**: Static tools for creative systems overview.
-*   **SZL Holdings — Portfolio Concierge**: Tools for app links, listing all 18 platforms, and search.
-*   **Carlota Jo — Strategic Engagement Advisor**: Submit-inquiry tool for consultation booking.
+*   **AlloyScape — Operations Commander**: Cross-platform tools for platform overview, security status, infrastructure health, analytics summaries, and operations briefings. Requires auth.
+*   **SZL Holdings — Portfolio Concierge**: Tools for app links, listing all 18 platforms, searching the portfolio, and ecosystem stats. Public access.
+*   **Carlota Jo — Strategic Engagement Advisor**: Tools for consultation booking, service matching, and portfolio insights. Public access.
 *   **Readiness Report — Assessment Agent**: Static tools for platform info.
 *   **Career — Portfolio Agent**: Static tools for career milestones.
 *   **Apps Showcase — Catalog Guide**: Static tools for platform catalog.
 
-Each agent has a distinct system prompt and persona. Routes: `/api/domain-agents/:agentType/conversations` (CRUD) and `/api/domain-agents/:agentType/conversations/:id/messages` (SSE streaming). Anonymous sessions use HMAC-derived usernames for security. Each frontend app integrates a themed `DomainChatWidget` component (floating button → collapsible chat panel). The `conversations` table has an `agentType` column (default "alloy") to isolate agent conversations.
+Each agent has a distinct expert persona and system prompt. Routes: `/api/domain-agents/:agentType/conversations` (CRUD) and `/api/domain-agents/:agentType/conversations/:id/messages` (SSE streaming). Anonymous sessions use HMAC-derived usernames for security. Each frontend app integrates a themed `DomainChatWidget` component (floating button → collapsible chat panel). The `conversations` table has an `agentType` column (default "alloy") to isolate agent conversations. Tool files: `tools-{agentSlug}.ts` in the domain-agents directory.
 
 **Registered Artifacts (18 apps + API server):**
 

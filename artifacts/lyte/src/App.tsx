@@ -1,4 +1,5 @@
 import { Switch, Route, Router as WouterRouter } from "wouter";
+import { DomainChatWidget } from "@szl-holdings/ui";
 import Home from "@/pages/Home";
 import ImportCenter from "@/pages/ImportCenter";
 
@@ -20,6 +21,20 @@ function App() {
   return (
     <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
       <Router />
+      <DomainChatWidget
+        agentType="lyte"
+        agentName="Lyte Observability Engineer"
+        accentColor="#3b82f6"
+        accentHover="#2563eb"
+        bgColor="#0a0e14"
+        textColor="#e2e8f0"
+        borderColor="#1e2d4a"
+        inputBg="#0f1520"
+        messageBgUser="#3b82f6"
+        messageBgAssistant="#0f1520"
+        placeholderText="Ask about system health, infrastructure status, log analysis, or alert triage..."
+        getToken={() => localStorage.getItem("szl_token")}
+      />
     </WouterRouter>
   );
 }

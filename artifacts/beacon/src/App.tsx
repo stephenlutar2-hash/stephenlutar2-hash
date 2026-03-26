@@ -1,7 +1,7 @@
 import { Switch, Route, Router as WouterRouter, Redirect, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { Toaster } from "@szl-holdings/ui";
+import { Toaster, DomainChatWidget } from "@szl-holdings/ui";
 import { TooltipProvider } from "@szl-holdings/ui";
 import { ErrorBoundary, AuthGuard } from "@szl-holdings/platform";
 import NotFound from "@/pages/not-found";
@@ -60,6 +60,20 @@ function App() {
             <Router />
           </WouterRouter>
           <Toaster />
+          <DomainChatWidget
+            agentType="beacon"
+            agentName="Beacon Performance Analyst"
+            accentColor="#0ea5e9"
+            accentHover="#0284c7"
+            bgColor="#0a0e1a"
+            textColor="#e2e8f0"
+            borderColor="#1e2d4a"
+            inputBg="#0f1528"
+            messageBgUser="#0ea5e9"
+            messageBgAssistant="#0f1528"
+            placeholderText="Ask about KPI trends, project health, performance anomalies, or business metrics..."
+            getToken={() => localStorage.getItem("szl_token")}
+          />
         </TooltipProvider>
       </QueryClientProvider>
     </ErrorBoundary>

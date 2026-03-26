@@ -9,7 +9,7 @@ import {
   vesselShipmentsTable,
   vesselLogsTable,
 } from "@szl-holdings/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import type { ChatCompletionTool } from "openai/resources/chat/completions";
 
 export const vesselsTools: ChatCompletionTool[] = [
@@ -91,6 +91,22 @@ export const vesselsTools: ChatCompletionTool[] = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "get_fleet_compliance_report",
+      description: "Generate a fleet-wide compliance report showing CII rating distribution, EEXI compliance status, certificate expiry warnings, and regulatory risk assessment",
+      parameters: { type: "object", properties: {}, required: [] },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_fleet_commercial_summary",
+      description: "Generate a commercial performance summary showing fleet utilization, TCE distribution, shipment SLA performance, and demurrage risk exposure",
+      parameters: { type: "object", properties: {}, required: [] },
+    },
+  },
 ];
 
 export async function vesselsExecuteTool(name: string, args: Record<string, any>): Promise<string> {
@@ -138,6 +154,56 @@ export async function vesselsExecuteTool(name: string, args: Record<string, any>
           db.select().from(vesselCertificatesTable).where(eq(vesselCertificatesTable.vesselId, args.vesselId)),
         ]);
         return JSON.stringify({ vessel, voyages, emissions, maintenance, certificates });
+      }
+      case "get_fleet_compliance_report": {
+        const [vessels, certificates, emissions] = await Promise.all([
+          db.select().from(vesselsTable),
+          db.select().from(vesselCertificatesTable),
+          db.select().from(vesselEmissionsTable),
+        ]);
+        const ciiDist: Record<string, number> = {};
+        let eexiCompliant = 0;
+        let eexiNonCompliant = 0;
+        for (const v of vessels) {
+          const cii = v.cii || "unknown";
+          ciiDist[cii] = (ciiDist[cii] || 0) + 1;
+          if (v.eexi === "compliant" || v.eexi === "yes") eexiCompliant++;
+          else eexiNonCompliant++;
+        }
+        const now = new Date();
+        const thirtyDays = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+        const expiringCerts = certificates.filter(c => c.expiryDate && new Date(c.expiryDate) <= thirtyDays);
+        const totalCO2 = emissions.reduce((s, e) => s + Number(e.co2Tons || 0), 0);
+        return JSON.stringify({
+          fleetSize: vessels.length,
+          ciiDistribution: ciiDist,
+          eexiCompliance: { compliant: eexiCompliant, nonCompliant: eexiNonCompliant },
+          certificateWarnings: expiringCerts.map(c => ({ vesselId: c.vesselId, name: c.name, expiryDate: c.expiryDate })),
+          emissionsSummary: { totalCO2Tons: Math.round(totalCO2 * 100) / 100, recordCount: emissions.length },
+        });
+      }
+      case "get_fleet_commercial_summary": {
+        const [vessels, shipments] = await Promise.all([
+          db.select().from(vesselsTable),
+          db.select().from(vesselShipmentsTable),
+        ]);
+        const avgUtilization = vessels.length > 0
+          ? Math.round(vessels.reduce((s, v) => s + Number(v.utilization || 0), 0) / vessels.length * 100) / 100
+          : 0;
+        const tceValues = vessels.map(v => Number(v.tce || 0)).filter(t => t > 0);
+        const avgTCE = tceValues.length > 0 ? Math.round(tceValues.reduce((s, t) => s + t, 0) / tceValues.length) : 0;
+        const slaBreaches = shipments.filter(s => s.slaStatus === "breached" || s.slaStatus === "at-risk");
+        const demurrageRisk = shipments.filter(s => Number(s.demurrageRisk) >= 7);
+        return JSON.stringify({
+          fleetUtilization: { average: avgUtilization, byVessel: vessels.map(v => ({ name: v.name, utilization: v.utilization })) },
+          tcePerformance: { average: avgTCE, count: tceValues.length },
+          shipmentPerformance: {
+            total: shipments.length,
+            slaBreaches: slaBreaches.length,
+            demurrageAtRisk: demurrageRisk.length,
+            atRiskShipments: demurrageRisk.map(s => ({ code: s.shipmentCode, cargo: s.cargo, riskScore: s.demurrageRisk })),
+          },
+        });
       }
       default:
         return JSON.stringify({ error: `Unknown tool: ${name}` });

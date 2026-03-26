@@ -1,6 +1,7 @@
 import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
 import { AuthGuard } from "@szl-holdings/platform";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { DomainChatWidget } from "@szl-holdings/ui";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Dashboard from "@/pages/Dashboard";
@@ -27,6 +28,20 @@ function App() {
       <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
         <Router />
       </WouterRouter>
+      <DomainChatWidget
+        agentType="zeus"
+        agentName="Zeus Infrastructure Architect"
+        accentColor="#eab308"
+        accentHover="#ca8a04"
+        bgColor="#0a0e14"
+        textColor="#e2e8f0"
+        borderColor="#2a2510"
+        inputBg="#121014"
+        messageBgUser="#eab308"
+        messageBgAssistant="#121014"
+        placeholderText="Ask about system modules, architecture, logs, or infrastructure health..."
+        getToken={() => localStorage.getItem("szl_token")}
+      />
     </QueryClientProvider>
   );
 }

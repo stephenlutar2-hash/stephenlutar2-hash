@@ -1,6 +1,6 @@
 import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Toaster, TooltipProvider } from "@szl-holdings/ui";
+import { Toaster, TooltipProvider, DomainChatWidget } from "@szl-holdings/ui";
 import { AuthGuard, ErrorBoundary } from "@szl-holdings/platform";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
@@ -31,6 +31,20 @@ function App() {
             <Router />
           </WouterRouter>
           <Toaster />
+          <DomainChatWidget
+            agentType="aegis"
+            agentName="Aegis Governance & Compliance Advisor"
+            accentColor="#10b981"
+            accentHover="#059669"
+            bgColor="#0a0f14"
+            textColor="#e2e8f0"
+            borderColor="#1e3a2f"
+            inputBg="#0f1a16"
+            messageBgUser="#10b981"
+            messageBgAssistant="#0f1a16"
+            placeholderText="Ask about compliance posture, audit logs, access control, or security policies..."
+            getToken={() => localStorage.getItem("szl_token")}
+          />
         </TooltipProvider>
       </QueryClientProvider>
     </ErrorBoundary>

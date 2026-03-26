@@ -92,7 +92,18 @@ async function optionalAuth(req: Request, _res: Response, next: NextFunction) {
   next();
 }
 
-const AGENTS_REQUIRING_AUTH = new Set(["inca", "vessels"]);
+const AGENTS_REQUIRING_AUTH = new Set([
+  "inca",
+  "vessels",
+  "aegis",
+  "firestorm",
+  "beacon",
+  "nimbus",
+  "lyte",
+  "zeus",
+  "dreamera",
+  "alloyscape",
+]);
 
 function isAuthenticated(req: Request): boolean {
   const user = (req as AuthenticatedRequest).user;

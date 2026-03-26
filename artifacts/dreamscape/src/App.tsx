@@ -1,5 +1,6 @@
 import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { DomainChatWidget } from "@szl-holdings/ui";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Dashboard from "@/pages/Dashboard";
@@ -44,6 +45,19 @@ function App() {
       <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
         <Router />
       </WouterRouter>
+      <DomainChatWidget
+        agentType="dreamscape"
+        agentName="Dreamscape World-Building Companion"
+        accentColor="#06b6d4"
+        accentHover="#0891b2"
+        bgColor="#080816"
+        textColor="#e2e8f0"
+        borderColor="#1a2040"
+        inputBg="#0c0c20"
+        messageBgUser="#7c3aed"
+        messageBgAssistant="#0c0c20"
+        placeholderText="Ask about world regions, character archetypes, story elements, or creative inspiration..."
+      />
     </QueryClientProvider>
   );
 }
