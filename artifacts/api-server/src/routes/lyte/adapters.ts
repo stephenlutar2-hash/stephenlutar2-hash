@@ -1,4 +1,5 @@
 import type { Signal, Recommendation, IntegrationStatus, ImpactMetric, DashboardSummary, AiAnalysis, SignalFilters } from "./types.js";
+import { logger } from "../../lib/logger";
 
 type AdapterMode = "live" | "demo";
 
@@ -20,7 +21,7 @@ function resolveMode(): AdapterMode {
 
 function logAdapterStartup(name: string, mode: AdapterMode, envKey: string): void {
   const configured = !!process.env[envKey];
-  console.log(`[Lyte] ${name} initialized — mode: ${mode}, env(${envKey}): ${configured ? "configured" : "not set"}`);
+  logger.info({ name, mode, envKey, configured }, `[Lyte] ${name} initialized`);
 }
 
 abstract class BaseAdapter {
@@ -48,7 +49,7 @@ abstract class BaseAdapter {
         const liveData = await this.fetchLiveSignals();
         return adapterOutput(liveData, this.adapterName, "live");
       } catch (err) {
-        console.warn(`[Lyte] ${this.adapterName} live fetch failed, falling back to demo:`, (err as Error).message);
+        logger.warn({ adapter: this.adapterName, error: (err as Error).message }, `[Lyte] ${this.adapterName} live fetch failed, falling back to demo`);
         return adapterOutput(this.getDemoSignals(), this.adapterName, "demo", true);
       }
     }
@@ -192,7 +193,7 @@ export class AiInsightAdapter extends BaseAdapter {
           timestamp: new Date().toISOString(),
         }, "AiInsightAdapter", "live");
       } catch (err) {
-        console.warn(`[Lyte] AiInsightAdapter live analysis failed, falling back to deterministic:`, (err as Error).message);
+        logger.warn({ error: (err as Error).message }, "[Lyte] AiInsightAdapter live analysis failed, falling back to deterministic");
       }
     }
 

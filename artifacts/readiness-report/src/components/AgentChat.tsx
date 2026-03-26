@@ -42,7 +42,7 @@ export default function AgentChat() {
     setMessages(prev => [...prev, assistantMsg]);
 
     try {
-      const res = await fetch("/api/agents/chat", {
+      const res = await fetch(`${import.meta.env.BASE_URL}../api/agents/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

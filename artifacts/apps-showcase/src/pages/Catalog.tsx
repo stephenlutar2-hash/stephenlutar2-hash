@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import {
   Shield, Flame, Satellite, Leaf, Cloud, Zap, Sparkles, Eye,
   Crown, ExternalLink, type LucideIcon, Search, BarChart3,
-  Briefcase, Ship, Coffee, Activity, Layers, Globe, Monitor, Cpu,
+  Briefcase, Ship, Coffee, Activity, Layers, Globe, Monitor, Cpu, Network,
 } from "lucide-react";
 import { getAppUrl } from "@szl-holdings/domain-utils";
 
@@ -208,13 +208,13 @@ const projects: Project[] = [
   },
   {
     name: "INCA",
-    description: "AI research and experimentation platform for managing projects, experiments, model training, and accuracy tracking.",
-    icon: Cpu,
-    color: "from-violet-500 to-purple-600",
+    description: "Intelligence platform for network configuration, automation, and infrastructure analysis across the SZL ecosystem.",
+    icon: Network,
+    color: "from-emerald-500 to-green-600",
     status: "Active",
-    maturity: "Production",
+    maturity: "Beta",
     environment: "Production",
-    category: "AI/ML",
+    category: "Operations",
     domain: "szlholdings.com",
     path: "/inca/",
   },

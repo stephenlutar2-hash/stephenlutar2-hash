@@ -29,7 +29,7 @@ export default function Contact() {
     setError(null);
 
     try {
-      const res = await fetch(`/api/contact`, {
+      const res = await fetch(`${import.meta.env.BASE_URL}../api/contact`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formState),

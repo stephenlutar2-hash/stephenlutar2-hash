@@ -73,12 +73,12 @@ const products: Product[] = [
   },
   {
     name: "INCA",
-    description: "Intelligent network configuration and automation for infrastructure management.",
+    description: "Intelligence platform for network and infrastructure analysis.",
     icon: Layers,
     gradient: "from-emerald-500 to-teal-600",
-    status: "In Development",
-    href: "/apps-showcase/",
-    techStack: ["NetOps", "Automation", "Config"],
+    status: "Live",
+    href: "/inca/",
+    techStack: ["Intelligence", "Automation", "Analysis"],
     category: "Infrastructure",
   },
   {
@@ -113,12 +113,12 @@ const products: Product[] = [
   },
   {
     name: "Lyte",
-    description: "Lightweight analytics and performance monitoring for modern applications.",
+    description: "Intelligent observability command center with unified signals and AI-driven insights.",
     icon: Lightbulb,
     gradient: "from-lime-400 to-green-600",
-    status: "In Development",
-    href: "/apps-showcase/",
-    techStack: ["APM", "Metrics", "Lightweight"],
+    status: "Live",
+    href: "/lyte/",
+    techStack: ["Observability", "AI", "Telemetry"],
     category: "Analytics",
   },
   {

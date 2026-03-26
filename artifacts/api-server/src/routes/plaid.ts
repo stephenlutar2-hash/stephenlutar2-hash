@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireAuth } from "./auth";
 import { validateBody } from "../middleware/validate";
 import type { AuthenticatedRequest } from "../types";
+import { logger } from "../lib/logger";
 
 const exchangeTokenSchema = z.object({
   publicToken: z.string().min(1),
@@ -137,7 +138,7 @@ router.get("/plaid/accounts", requireAuth, async (req, res) => {
           }))
         );
       } catch (err: any) {
-        console.error(`[Plaid] Failed to fetch accounts for item ${itemId}:`, err.message);
+        logger.error({ itemId, error: err.message }, "[Plaid] Failed to fetch accounts");
       }
     }
 
@@ -187,7 +188,7 @@ router.get("/plaid/transactions", requireAuth, async (req, res) => {
           }))
         );
       } catch (err: any) {
-        console.error("[Plaid] Failed to fetch transactions:", err.message);
+        logger.error({ error: err.message }, "[Plaid] Failed to fetch transactions");
       }
     }
 
