@@ -1,31 +1,75 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { DollarSign, TrendingUp, BarChart3, ArrowUp, ArrowDown, Globe, Brain, Shield, Clock, Filter } from "lucide-react";
+import { DollarSign, TrendingUp, BarChart3, ArrowUp, ArrowDown, Globe, Brain, Shield, Clock, Filter, Loader2, AlertTriangle } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-
-const revenueData = Array.from({ length: 12 }, (_, i) => ({
-  month: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][i],
-  revenue: 800 + i * 120 + Math.sin(i) * 100,
-  expenses: 600 + i * 80 + Math.cos(i) * 60,
-  profit: 200 + i * 40 + Math.sin(i) * 40,
-}));
-
-const holdingsAnalysis = [
-  { entity: "Vessels Maritime", revenue: "$4.8M", margin: "78%", growth: "+42%", risk: "Low", valuation: "$48M", status: "Star" },
-  { entity: "Beacon Analytics", revenue: "$2.9M", margin: "84%", growth: "+28%", risk: "Low", valuation: "$32M", status: "Cash Cow" },
-  { entity: "INCA Intelligence", revenue: "$2.1M", margin: "72%", growth: "+56%", risk: "Medium", valuation: "$28M", status: "Rising Star" },
-  { entity: "Rosie Security", revenue: "$1.8M", margin: "81%", growth: "+31%", risk: "Low", valuation: "$22M", status: "Performer" },
-  { entity: "AlloyScape AI", revenue: "$1.4M", margin: "68%", growth: "+67%", risk: "Medium", valuation: "$24M", status: "Rising Star" },
-  { entity: "Nimbus Weather", revenue: "$1.2M", margin: "76%", growth: "+23%", risk: "Low", valuation: "$14M", status: "Maturing" },
-];
-
-const insights = [
-  { type: "opportunity", title: "Maritime SaaS consolidation wave accelerating", detail: "Three maritime tech companies acquired in Q1 2026 at 12-18x ARR multiples. Vessels positioning aligns with acquirer criteria — recommend exploring strategic partnership discussions." },
-  { type: "risk", title: "GPU compute costs rising 22% YoY", detail: "Cloud GPU pricing pressures impacting INCA and Nimbus ML pipeline margins. Recommend evaluating reserved capacity commitments for 12-month term to lock current rates." },
-  { type: "opportunity", title: "Cross-sell revenue acceleration", detail: "Clients using 3+ SZL platforms show 4.2x higher lifetime value than single-platform users. Recommend bundled pricing strategy for Q2 go-to-market." },
-];
+import { useResearchItems, useFinancialData, useInsights } from "@/hooks/useLutarApi";
 
 export default function FinancialResearch() {
+  const { data: researchItems = [], isLoading: rl, isError: re } = useResearchItems();
+  const { data: financialData = [], isLoading: fl, isError: fe } = useFinancialData();
+  const { data: apiInsights = [], isLoading: il, isError: ie } = useInsights();
+
+  if (rl || fl || il) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0f] text-white flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
+      </div>
+    );
+  }
+
+  if (re || fe || ie) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0f] text-white flex flex-col items-center justify-center gap-3">
+        <AlertTriangle className="w-8 h-8 text-amber-400" />
+        <p className="text-gray-400">Failed to load financial data.</p>
+      </div>
+    );
+  }
+
+  const revenueData = financialData.length > 0
+    ? financialData.map((d: any) => ({
+        month: d.month,
+        revenue: Number(d.revenue) * 1000,
+        expenses: Number(d.expenses) * 1000,
+        profit: (Number(d.revenue) - Number(d.expenses)) * 1000,
+      }))
+    : Array.from({ length: 12 }, (_, i) => ({
+        month: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][i],
+        revenue: 800 + i * 120 + Math.sin(i) * 100,
+        expenses: 600 + i * 80 + Math.cos(i) * 60,
+        profit: 200 + i * 40 + Math.sin(i) * 40,
+      }));
+
+  const holdingsAnalysis = researchItems.length > 0
+    ? researchItems.map((r: any) => ({
+        entity: r.entity || r.name,
+        revenue: r.revenue || "$0M",
+        margin: r.margin || "0%",
+        growth: r.growth || "+0%",
+        risk: r.risk || "Low",
+        valuation: r.valuation || "$0M",
+        status: r.status || "Performer",
+      }))
+    : [
+        { entity: "Vessels Maritime", revenue: "$4.8M", margin: "78%", growth: "+42%", risk: "Low", valuation: "$48M", status: "Star" },
+        { entity: "Beacon Analytics", revenue: "$2.9M", margin: "84%", growth: "+28%", risk: "Low", valuation: "$32M", status: "Cash Cow" },
+        { entity: "INCA Intelligence", revenue: "$2.1M", margin: "72%", growth: "+56%", risk: "Medium", valuation: "$28M", status: "Rising Star" },
+        { entity: "Rosie Security", revenue: "$1.8M", margin: "81%", growth: "+31%", risk: "Low", valuation: "$22M", status: "Performer" },
+        { entity: "AlloyScape AI", revenue: "$1.4M", margin: "68%", growth: "+67%", risk: "Medium", valuation: "$24M", status: "Rising Star" },
+        { entity: "Nimbus Weather", revenue: "$1.2M", margin: "76%", growth: "+23%", risk: "Low", valuation: "$14M", status: "Maturing" },
+      ];
+
+  const insights = apiInsights.length > 0
+    ? apiInsights.map((ins: any) => ({
+        type: ins.type || "opportunity",
+        title: ins.title,
+        detail: ins.detail || ins.description || "",
+      }))
+    : [
+        { type: "opportunity", title: "Maritime SaaS consolidation wave accelerating", detail: "Three maritime tech companies acquired in Q1 2026 at 12-18x ARR multiples." },
+        { type: "risk", title: "GPU compute costs rising 22% YoY", detail: "Cloud GPU pricing pressures impacting INCA and Nimbus ML pipeline margins." },
+        { type: "opportunity", title: "Cross-sell revenue acceleration", detail: "Clients using 3+ SZL platforms show 4.2x higher lifetime value." },
+      ];
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white p-6 md:p-10">
       <div className="max-w-6xl mx-auto space-y-6">

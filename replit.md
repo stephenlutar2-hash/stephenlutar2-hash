@@ -35,6 +35,10 @@ Five frontends dynamically fetch data from the backend API using a state+fallbac
 *   **Apps Showcase:** Catalogs 18 applications with real-time health, uptime, and response data.
 *   **Aegis:** Offers compliance frameworks, vulnerability tracking, MITRE ATT&CK coverage, threat intelligence, and a comprehensive security posture score.
 
+**Backend-Connected Frontends (AlloyScape, Dreamscape, Lutar):**
+
+AlloyScape, Dreamscape, and Lutar have full Drizzle ORM schemas, API routes, seed data, and react-query hooks connecting frontends to real PostgreSQL data. Schema files: `lib/db/src/schema/alloyscape.ts`, `dreamscape.ts`, `lutar.ts`. API routes: `artifacts/api-server/src/routes/alloyscape.ts`, `dreamscape.ts`, `lutar.ts`. Services: `artifacts/api-server/src/services/alloyscape.ts`, `dreamscape.ts`, `lutar.ts`. Frontend hooks: `useAlloyscapeApi.ts`, `useDreamscapeApi.ts`, `useLutarApi.ts`. All API-connected pages have loading spinners and error states. Framer Motion animations are applied throughout all three apps. WorkflowTemplates and UserRoles in AlloyScape still use demo data (no DB tables for those).
+
 **Authentication and AI System:**
 
 Authentication supports both Demo Login and Enterprise Single Sign-On (SSO) via Microsoft Entra External ID (MSAL) with JWKS validation.

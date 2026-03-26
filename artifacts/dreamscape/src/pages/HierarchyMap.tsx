@@ -5,13 +5,13 @@ import {
   GitBranch, Minimize2, Maximize2, Search, BarChart3, Zap,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
-import { useSimulatedLoading, PageLoadingSkeleton } from "@/components/LoadingSkeleton";
-import { worlds, getProjectsByWorld, getArtifactsByProject, type World, type Project } from "@/data/demo";
+import { Loader2, AlertTriangle } from "lucide-react";
+import { useWorlds, useProjects, useArtifacts } from "@/hooks/useDreamscapeApi";
 
 interface TreeNode {
-  world: World;
+  world: any;
   expanded: boolean;
-  projects: { project: Project; expanded: boolean }[];
+  projects: { project: any; expanded: boolean }[];
 }
 
 const containerVariants = {
@@ -25,18 +25,25 @@ const itemVariants = {
 };
 
 export default function HierarchyMap() {
-  const loading = useSimulatedLoading();
-  const [treeData, setTreeData] = useState<TreeNode[]>(
-    worlds.map(w => ({
-      world: w,
-      expanded: false,
-      projects: getProjectsByWorld(w.id).map(p => ({ project: p, expanded: false })),
-    }))
-  );
+  const { data: worlds = [], isLoading: wl, isError: we } = useWorlds();
+  const { data: allProjects = [], isLoading: pl, isError: pe } = useProjects();
+  const { data: allArtifacts = [], isLoading: artL, isError: ae } = useArtifacts();
+  const [treeData, setTreeData] = useState<TreeNode[]>([]);
   const [viewMode, setViewMode] = useState<"tree" | "grid">("tree");
   const [searchQuery, setSearchQuery] = useState("");
+  const [initialized, setInitialized] = useState(false);
 
-  if (loading) return <AppShell><PageLoadingSkeleton /></AppShell>;
+  if (!initialized && worlds.length > 0 && allProjects.length > 0) {
+    setTreeData(worlds.map((w: any) => ({
+      world: w,
+      expanded: false,
+      projects: allProjects.filter((p: any) => p.worldId === w.id).map((p: any) => ({ project: p, expanded: false })),
+    })));
+    setInitialized(true);
+  }
+
+  if (wl || pl || artL) return <AppShell><div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 text-cyan-400 animate-spin" /></div></AppShell>;
+  if (we || pe || ae) return <AppShell><div className="flex flex-col items-center justify-center h-64 gap-3"><AlertTriangle className="w-8 h-8 text-amber-400" /><p className="text-gray-400">Failed to load hierarchy data.</p></div></AppShell>;
 
   function toggleWorld(worldId: string) {
     setTreeData(prev => prev.map(n =>
@@ -158,7 +165,7 @@ export default function HierarchyMap() {
                   </div>
                   <div className="space-y-2">
                     {wProjects.map(p => {
-                      const pArtifacts = getArtifactsByProject(p.id);
+                      const pArtifacts = allArtifacts.filter((a: any) => a.projectId === p.id);
                       return (
                         <div key={p.id} className="p-3 rounded-xl bg-white/[0.03] border border-white/5">
                           <div className="flex items-center justify-between">
@@ -234,7 +241,7 @@ export default function HierarchyMap() {
                     className="ml-6 mt-1 space-y-1 border-l-2 border-white/5 pl-4"
                   >
                     {node.projects.map(pNode => {
-                      const pArtifacts = getArtifactsByProject(pNode.project.id);
+                      const pArtifacts = allArtifacts.filter((a: any) => a.projectId === pNode.project.id);
                       return (
                         <div key={pNode.project.id}>
                           <button

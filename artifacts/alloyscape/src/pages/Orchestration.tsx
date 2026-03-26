@@ -1,13 +1,12 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import DashboardLayout from "@/components/DashboardLayout";
-import { useSimulatedLoading, PageLoadingSkeleton } from "@/components/LoadingSkeleton";
 import {
-  GitBranch, Play, Pause, RotateCcw, CheckCircle2, XCircle,
+  GitBranch, Play, Pause, RotateCcw, CheckCircle2, XCircle, AlertTriangle,
   Clock, Loader2, ChevronDown, ArrowRight, Circle,
   Layers, Zap, Activity, Box, Database, Shield, BarChart3, Cpu
 } from "lucide-react";
-import { workflows } from "@/data/demo";
+import { useWorkflows, useTriggerWorkflow } from "@/hooks/useAlloyscapeApi";
 
 const statusConfig: Record<string, { label: string; icon: typeof Loader2; color: string; iconClass: string; nodeColor: string }> = {
   running: { label: "Running", icon: Loader2, color: "text-cyan-400 bg-cyan-500/10 border-cyan-500/20", iconClass: "animate-spin", nodeColor: "bg-cyan-500 shadow-cyan-500/40" },
@@ -117,7 +116,8 @@ const ganttStatusColors: Record<string, string> = {
 const GANTT_HOURS = 12;
 
 export default function Orchestration() {
-  const loading = useSimulatedLoading();
+  const { data: workflows = [], isLoading, isError } = useWorkflows();
+  const triggerWorkflow = useTriggerWorkflow();
   const [filter, setFilter] = useState<string>("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"list" | "pipeline" | "canvas" | "gantt">("list");
@@ -133,10 +133,21 @@ export default function Orchestration() {
     feedbackTimer.current = setTimeout(() => setActionFeedback(null), 2500);
   }, []);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <DashboardLayout>
-        <PageLoadingSkeleton title="Orchestration" />
+        <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 text-cyan-400 animate-spin" /></div>
+      </DashboardLayout>
+    );
+  }
+
+  if (isError) {
+    return (
+      <DashboardLayout>
+        <div className="flex flex-col items-center justify-center h-64 gap-3">
+          <AlertTriangle className="w-8 h-8 text-amber-400" />
+          <p className="text-gray-400">Failed to load workflows. Please try again.</p>
+        </div>
       </DashboardLayout>
     );
   }

@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { Palette, Wand2, CheckCircle2, Clock, Eye, Sparkles, Layers, Brain, ArrowRight } from "lucide-react";
+import { Palette, Wand2, CheckCircle2, Clock, Eye, Sparkles, Layers, Brain, ArrowRight, Loader2, AlertTriangle } from "lucide-react";
+import { usePipelineItems } from "@/hooks/useDreamscapeApi";
 
 const pipelineStages = [
   { id: "concept", label: "Concept", icon: Brain, color: "text-purple-400" },
@@ -9,20 +10,31 @@ const pipelineStages = [
   { id: "published", label: "Published", icon: CheckCircle2, color: "text-emerald-400" },
 ];
 
-const assets = [
-  { id: 1, name: "Crystal Caverns — Environmental Set", type: "Environment", stage: "published", prompts: 12, variations: 48, selectedFinal: 3, quality: 94, timeToComplete: "2h 14m", description: "Underground crystal cave system with bioluminescent flora. Used for Chapter 7 of 'Beneath the Copper Sky' world.", tags: ["fantasy", "underground", "bioluminescent"] },
-  { id: 2, name: "Dr. Chen Portrait Series", type: "Character", stage: "review", prompts: 8, variations: 32, selectedFinal: 2, quality: 89, timeToComplete: "1h 45m", description: "Character portrait series for Dr. Sarah Chen from 'The Last Algorithm'. Multiple expressions and lighting conditions.", tags: ["sci-fi", "portrait", "character-design"] },
-  { id: 3, name: "Floating Market — Concept Art", type: "Environment", stage: "refinement", prompts: 15, variations: 60, selectedFinal: 0, quality: 86, timeToComplete: "3h 20m (in progress)", description: "Aerial marketplace on suspended copper platforms. Key location for Act 2 of 'Beneath the Copper Sky'.", tags: ["fantasy", "architecture", "aerial"] },
-  { id: 4, name: "ARIA Interface — UI Mockups", type: "UI/UX", stage: "generation", prompts: 6, variations: 24, selectedFinal: 0, quality: 0, timeToComplete: "In progress", description: "Holographic user interface design for the ARIA artificial intelligence system. Sci-fi HUD aesthetic.", tags: ["sci-fi", "interface", "holographic"] },
-  { id: 5, name: "Storm Sequence — Storyboard", type: "Storyboard", stage: "concept", prompts: 3, variations: 0, selectedFinal: 0, quality: 0, timeToComplete: "Not started", description: "Storyboard frames for the climactic storm sequence in Chapter 12. Dynamic action panels.", tags: ["action", "weather", "climax"] },
-];
-
 const stageColor = (stage: string) => {
   const colors: Record<string, string> = { concept: "bg-purple-500/10 text-purple-400 border-purple-500/20", generation: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20", refinement: "bg-amber-500/10 text-amber-400 border-amber-500/20", review: "bg-blue-500/10 text-blue-400 border-blue-500/20", published: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" };
   return colors[stage] || "";
 };
 
 export default function CreativePipeline() {
+  const { data: assets = [], isLoading, isError } = usePipelineItems();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0f] text-white flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0f] text-white flex flex-col items-center justify-center gap-3">
+        <AlertTriangle className="w-8 h-8 text-amber-400" />
+        <p className="text-gray-400">Failed to load pipeline data.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white p-6 md:p-10">
       <div className="max-w-6xl mx-auto space-y-6">
@@ -35,7 +47,7 @@ export default function CreativePipeline() {
         <div className="flex items-center justify-center gap-2 p-4 bg-white/[0.02] border border-white/5 rounded-xl overflow-x-auto">
           {pipelineStages.map((stage, i) => {
             const Icon = stage.icon;
-            const count = assets.filter(a => a.stage === stage.id).length;
+            const count = assets.filter((a: any) => a.stage === stage.id).length;
             return (
               <div key={stage.id} className="flex items-center gap-2">
                 <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.1 }} className="flex flex-col items-center gap-1 min-w-[80px]">

@@ -6,8 +6,8 @@ import {
   Search, Filter, Tag, BarChart3, Sparkles,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
-import { useSimulatedLoading, PageLoadingSkeleton } from "@/components/LoadingSkeleton";
-import { worlds, projects, getProjectsByWorld, getWorldById, getArtifactsByProject } from "@/data/demo";
+import { Loader2, AlertTriangle } from "lucide-react";
+import { useWorlds, useProjects, useArtifacts } from "@/hooks/useDreamscapeApi";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -20,19 +20,22 @@ const itemVariants = {
 };
 
 export default function Explorer() {
-  const loading = useSimulatedLoading();
   const params = useParams<{ worldId?: string }>();
   const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const { data: worlds = [], isLoading: wl, isError: we } = useWorlds();
+  const { data: allProjects = [], isLoading: pl, isError: pe } = useProjects();
+  const { data: allArtifacts = [], isLoading: artL, isError: ae } = useArtifacts();
 
-  if (loading) return <AppShell><PageLoadingSkeleton /></AppShell>;
+  if (wl || pl || artL) return <AppShell><div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 text-cyan-400 animate-spin" /></div></AppShell>;
+  if (we || pe || ae) return <AppShell><div className="flex flex-col items-center justify-center h-64 gap-3"><AlertTriangle className="w-8 h-8 text-amber-400" /><p className="text-gray-400">Failed to load explorer data.</p></div></AppShell>;
 
-  const selectedWorld = params.worldId ? getWorldById(params.worldId) : null;
-  const worldProjects = selectedWorld ? getProjectsByWorld(selectedWorld.id) : [];
+  const selectedWorld = params.worldId ? worlds.find((w: any) => w.id === params.worldId) : null;
+  const worldProjects = selectedWorld ? allProjects.filter((p: any) => p.worldId === selectedWorld.id) : [];
 
-  const allTags = Array.from(new Set(worlds.flatMap(w => w.tags)));
-  const filteredWorlds = worlds.filter(w => {
+  const allTags = Array.from(new Set(worlds.flatMap((w: any) => w.tags || [])));
+  const filteredWorlds = worlds.filter((w: any) => {
     const matchesSearch = w.name.toLowerCase().includes(searchQuery.toLowerCase()) || w.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesTag = !selectedTag || w.tags.includes(selectedTag);
     return matchesSearch && matchesTag;
@@ -108,7 +111,7 @@ export default function Explorer() {
             ) : (
               <motion.div className="grid grid-cols-1 md:grid-cols-2 gap-4" variants={containerVariants} initial="hidden" animate="visible">
                 {worldProjects.map((p) => {
-                  const projArtifacts = getArtifactsByProject(p.id);
+                  const projArtifacts = allArtifacts.filter((a: any) => a.projectId === p.id);
                   return (
                     <motion.div
                       key={p.id}

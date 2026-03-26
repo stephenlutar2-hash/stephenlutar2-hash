@@ -7,9 +7,9 @@ import {
   Grid3x3, LayoutGrid, Columns
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
-import { useSimulatedLoading, PageLoadingSkeleton } from "@/components/LoadingSkeleton";
+import { Loader2, AlertTriangle } from "lucide-react";
 import Lightbox from "@/components/Lightbox";
-import { artifacts, worlds, getArtifactsByWorld, getArtifactById, type Artifact } from "@/data/demo";
+import { useWorlds, useArtifacts } from "@/hooks/useDreamscapeApi";
 
 type SortBy = "newest" | "popular" | "title";
 type LayoutMode = "masonry" | "grid" | "list";
@@ -25,26 +25,30 @@ const itemVariants = {
 };
 
 export default function Gallery() {
-  const loading = useSimulatedLoading();
   const params = useParams<{ worldId?: string }>();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedWorld, setSelectedWorld] = useState<string>(params.worldId || "all");
   const [sortBy, setSortBy] = useState<SortBy>("newest");
-  const [lightboxArtifact, setLightboxArtifact] = useState<Artifact | null>(null);
+  const [lightboxArtifact, setLightboxArtifact] = useState<any | null>(null);
   const [immersiveMode, setImmersiveMode] = useState(false);
   const [immersiveIndex, setImmersiveIndex] = useState(0);
   const [layoutMode, setLayoutMode] = useState<LayoutMode>("masonry");
+  const { data: worlds = [], isLoading: wl, isError: we } = useWorlds();
+  const { data: artifacts = [], isLoading: al, isError: ae } = useArtifacts();
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const artifactId = urlParams.get("artifact");
-    if (artifactId) {
-      const found = getArtifactById(artifactId);
+    if (artifactId && artifacts.length) {
+      const found = artifacts.find((a: any) => a.id === artifactId);
       if (found) setLightboxArtifact(found);
     }
-  }, []);
+  }, [artifacts]);
 
-  const filteredArtifacts = (selectedWorld === "all" ? artifacts : getArtifactsByWorld(selectedWorld))
+  if (wl || al) return <AppShell><div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 text-cyan-400 animate-spin" /></div></AppShell>;
+  if (we || ae) return <AppShell><div className="flex flex-col items-center justify-center h-64 gap-3"><AlertTriangle className="w-8 h-8 text-amber-400" /><p className="text-gray-400">Failed to load gallery.</p></div></AppShell>;
+
+  const filteredArtifacts = (selectedWorld === "all" ? artifacts : artifacts.filter((a: any) => a.worldId === selectedWorld))
     .filter(a =>
       a.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       a.description.toLowerCase().includes(searchQuery.toLowerCase()) ||

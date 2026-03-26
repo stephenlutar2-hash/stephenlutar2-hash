@@ -5,8 +5,8 @@ import {
   Image, Compass, GitBranch, Sparkles, BarChart3, Zap, Eye,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
-import { useSimulatedLoading, PageLoadingSkeleton } from "@/components/LoadingSkeleton";
-import { worlds, artifacts, projects, generationHistory } from "@/data/demo";
+import { useWorlds, useProjects, useArtifacts, useGenerationHistory } from "@/hooks/useDreamscapeApi";
+import { Loader2 as Spin } from "lucide-react";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -19,10 +19,15 @@ const itemVariants = {
 };
 
 export default function Dashboard() {
-  const loading = useSimulatedLoading();
   const [, setLocation] = useLocation();
+  const { data: worlds = [], isLoading: wl, isError: we } = useWorlds();
+  const { data: projects = [], isLoading: pl, isError: pe } = useProjects();
+  const { data: artifacts = [], isLoading: al, isError: ae } = useArtifacts();
+  const { data: generationHistory = [], isLoading: gl, isError: ge } = useGenerationHistory();
 
-  if (loading) return <AppShell><PageLoadingSkeleton /></AppShell>;
+  if (wl || pl || al || gl) return <AppShell><div className="flex items-center justify-center h-64"><Spin className="w-8 h-8 text-cyan-400 animate-spin" /></div></AppShell>;
+
+  if (we || pe || ae || ge) return <AppShell><div className="flex flex-col items-center justify-center h-64 gap-3"><Spin className="w-8 h-8 text-amber-400" /><p className="text-gray-400">Failed to load dashboard data.</p></div></AppShell>;
 
   const stats = [
     { label: "Worlds", value: worlds.length, icon: Globe, color: "from-cyan-500 to-blue-500", path: "/explore", trend: "+2" },
@@ -31,8 +36,8 @@ export default function Dashboard() {
     { label: "Generations", value: generationHistory.length, icon: Wand2, color: "from-emerald-500 to-teal-500", path: "/history", trend: "+3" },
   ];
 
-  const recentArtifacts = [...artifacts].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 4);
-  const recentHistory = [...generationHistory].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5);
+  const recentArtifacts = [...artifacts].sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 4);
+  const recentHistory = [...generationHistory].sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5);
 
   const quickLinks = [
     { label: "Explore Worlds", icon: Compass, path: "/explore", color: "text-cyan-400 bg-cyan-500/10 border-cyan-500/20" },
@@ -41,14 +46,14 @@ export default function Dashboard() {
     { label: "Prompt Studio", icon: Wand2, path: "/studio", color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" },
   ];
 
-  const completedCount = generationHistory.filter(g => g.status === "completed").length;
-  const processingCount = generationHistory.filter(g => g.status === "processing").length;
-  const failedCount = generationHistory.filter(g => g.status === "failed").length;
-  const totalLikes = artifacts.reduce((sum, a) => sum + a.likes, 0);
-  const avgDuration = Math.round(generationHistory.filter(g => g.duration).reduce((sum, g) => sum + (g.duration || 0), 0) / Math.max(generationHistory.filter(g => g.duration).length, 1));
+  const completedCount = generationHistory.filter((g: any) => g.status === "completed").length;
+  const processingCount = generationHistory.filter((g: any) => g.status === "processing").length;
+  const failedCount = generationHistory.filter((g: any) => g.status === "failed").length;
+  const totalLikes = artifacts.reduce((sum: number, a: any) => sum + (a.likes || 0), 0);
+  const avgDuration = Math.round(generationHistory.filter((g: any) => g.duration).reduce((sum: number, g: any) => sum + (g.duration || 0), 0) / Math.max(generationHistory.filter((g: any) => g.duration).length, 1));
 
-  const activeProjects = projects.filter(p => p.status === "active").length;
-  const draftProjects = projects.filter(p => p.status === "draft").length;
+  const activeProjects = projects.filter((p: any) => p.status === "active").length;
+  const draftProjects = projects.filter((p: any) => p.status === "draft").length;
 
   return (
     <AppShell>

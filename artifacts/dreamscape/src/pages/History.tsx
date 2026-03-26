@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import {
-  Clock, CheckCircle2, Loader2, XCircle, Image,
+  Clock, CheckCircle2, Loader2, XCircle, Image, AlertTriangle,
   Search, Filter, Download, Share2, ExternalLink, Zap, BarChart3,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
-import { useSimulatedLoading, PageLoadingSkeleton } from "@/components/LoadingSkeleton";
-import { generationHistory, type GenerationRecord } from "@/data/demo";
+import { useGenerationHistory } from "@/hooks/useDreamscapeApi";
 
 type StatusFilter = "all" | "completed" | "processing" | "failed";
 
@@ -21,32 +20,33 @@ const itemVariants = {
 };
 
 export default function History() {
-  const loading = useSimulatedLoading();
+  const { data: generationHistory = [], isLoading, isError } = useGenerationHistory();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  if (loading) return <AppShell><PageLoadingSkeleton /></AppShell>;
+  if (isLoading) return <AppShell><div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 text-cyan-400 animate-spin" /></div></AppShell>;
+  if (isError) return <AppShell><div className="flex flex-col items-center justify-center h-64 gap-3"><AlertTriangle className="w-8 h-8 text-amber-400" /><p className="text-gray-400">Failed to load history.</p></div></AppShell>;
 
   const filtered = generationHistory
-    .filter(h => {
+    .filter((h: any) => {
       const matchesSearch = h.prompt.toLowerCase().includes(searchQuery.toLowerCase()) ||
         h.worldName.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesStatus = statusFilter === "all" || h.status === statusFilter;
       return matchesSearch && matchesStatus;
     })
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   const statusCounts = {
     all: generationHistory.length,
-    completed: generationHistory.filter(h => h.status === "completed").length,
-    processing: generationHistory.filter(h => h.status === "processing").length,
-    failed: generationHistory.filter(h => h.status === "failed").length,
+    completed: generationHistory.filter((h: any) => h.status === "completed").length,
+    processing: generationHistory.filter((h: any) => h.status === "processing").length,
+    failed: generationHistory.filter((h: any) => h.status === "failed").length,
   };
 
   const avgDuration = Math.round(
-    generationHistory.filter(g => g.duration).reduce((sum, g) => sum + (g.duration || 0), 0) /
-    Math.max(generationHistory.filter(g => g.duration).length, 1)
+    generationHistory.filter((g: any) => g.duration).reduce((sum: number, g: any) => sum + (g.duration || 0), 0) /
+    Math.max(generationHistory.filter((g: any) => g.duration).length, 1)
   );
 
   function handleShare(id: string) {

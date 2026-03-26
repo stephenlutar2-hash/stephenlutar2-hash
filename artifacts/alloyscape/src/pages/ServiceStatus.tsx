@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import DashboardLayout from "@/components/DashboardLayout";
-import { useSimulatedLoading, PageLoadingSkeleton } from "@/components/LoadingSkeleton";
 import {
   Activity, CheckCircle2, AlertTriangle, XCircle, HelpCircle,
-  Clock, Globe, Zap, ArrowUpDown, Search,
+  Clock, Globe, Zap, ArrowUpDown, Search, Loader2,
 } from "lucide-react";
-import { serviceHealthData } from "@/data/demo";
+import { useServices } from "@/hooks/useAlloyscapeApi";
 
 const statusConfig: Record<string, { label: string; icon: typeof CheckCircle2; color: string; dot: string; bar: string }> = {
   healthy: { label: "Healthy", icon: CheckCircle2, color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20", dot: "bg-emerald-400", bar: "bg-emerald-500" },
@@ -25,17 +24,28 @@ function getResponseTimeColor(ms: number) {
 type SortKey = "name" | "responseTime" | "uptime" | "status";
 
 export default function ServiceStatus() {
-  const loading = useSimulatedLoading();
+  const { data: serviceHealthData = [], isLoading, isError } = useServices();
   const [sortBy, setSortBy] = useState<SortKey>("status");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <DashboardLayout>
-        <PageLoadingSkeleton title="Service Status" />
+        <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 text-cyan-400 animate-spin" /></div>
+      </DashboardLayout>
+    );
+  }
+
+  if (isError) {
+    return (
+      <DashboardLayout>
+        <div className="flex flex-col items-center justify-center h-64 gap-3">
+          <AlertTriangle className="w-8 h-8 text-amber-400" />
+          <p className="text-gray-400">Failed to load service status. Please try again.</p>
+        </div>
       </DashboardLayout>
     );
   }

@@ -1,10 +1,8 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Download, Share2, Heart, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
-import type { Artifact } from "@/data/demo";
-
 interface LightboxProps {
-  artifact: Artifact | null;
+  artifact: any | null;
   onClose: () => void;
   onPrev?: () => void;
   onNext?: () => void;

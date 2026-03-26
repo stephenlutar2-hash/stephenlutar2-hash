@@ -6,8 +6,7 @@ import {
   Palette, Eye, Layers, History, Copy, Star, Brush
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
-import { useSimulatedLoading, PageLoadingSkeleton } from "@/components/LoadingSkeleton";
-import { worlds, getProjectsByWorld } from "@/data/demo";
+import { useWorlds, useProjects } from "@/hooks/useDreamscapeApi";
 
 const PLACEHOLDER_RESULTS = [
   "https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?w=600&h=400&fit=crop",
@@ -62,10 +61,10 @@ interface PromptHistoryItem {
 }
 
 export default function PromptStudio() {
-  const loading = useSimulatedLoading();
+  const { data: worlds = [] } = useWorlds();
   const [prompt, setPrompt] = useState("");
   const [genType, setGenType] = useState<GenerationType>("image");
-  const [selectedWorld, setSelectedWorld] = useState(worlds[0].id);
+  const [selectedWorld, setSelectedWorld] = useState("");
   const [selectedProject, setSelectedProject] = useState("");
   const [generating, setGenerating] = useState(false);
   const [results, setResults] = useState<GenerationResult[]>([]);
@@ -84,11 +83,12 @@ export default function PromptStudio() {
     { prompt: "Bioluminescent underwater city with coral-covered skyscrapers", timestamp: "Yesterday", type: "image" },
   ]);
 
+  const { data: allProjects = [] } = useProjects();
+
   useEffect(() => () => { if (genTimer.current) clearTimeout(genTimer.current); }, []);
+  useEffect(() => { if (worlds.length && !selectedWorld) setSelectedWorld(worlds[0].id); }, [worlds, selectedWorld]);
 
-  if (loading) return <AppShell><PageLoadingSkeleton /></AppShell>;
-
-  const worldProjects = getProjectsByWorld(selectedWorld);
+  const worldProjects = allProjects.filter((p: any) => p.worldId === selectedWorld);
 
   function handleGenerate(e: React.FormEvent) {
     e.preventDefault();

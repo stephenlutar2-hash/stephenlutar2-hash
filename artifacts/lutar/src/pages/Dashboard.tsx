@@ -53,8 +53,9 @@ import {
 } from "recharts";
 import { Badge } from "@szl-holdings/ui";
 import { Progress } from "@szl-holdings/ui";
+import { useDashboardSummary } from "@/hooks/useLutarApi";
 
-const INITIAL_REVENUE_DATA = [
+const FALLBACK_REVENUE_DATA = [
   { month: "Jan", revenue: 2.1, expenses: 1.4 },
   { month: "Feb", revenue: 2.8, expenses: 1.6 },
   { month: "Mar", revenue: 3.2, expenses: 1.8 },
@@ -69,7 +70,7 @@ const INITIAL_REVENUE_DATA = [
   { month: "Dec", revenue: 18.5, expenses: 4.5 },
 ];
 
-const INITIAL_DIVISION_DATA = [
+const FALLBACK_DIVISION_DATA = [
   { name: "Security", value: 42 },
   { name: "Technology", value: 28 },
   { name: "Media", value: 18 },
@@ -444,10 +445,31 @@ function FinancialIntegrationsSection() {
 type LutarTab = "command" | "holdings" | "goals" | "security" | "settings";
 
 export default function Dashboard() {
+  const { data: dashboardSummary } = useDashboardSummary();
   const [currentTime, setCurrentTime] = useState("");
   const [, setLocation] = useLocation();
-  const [revenueData, setRevenueData] = useState(INITIAL_REVENUE_DATA);
-  const [divisionData, setDivisionData] = useState(INITIAL_DIVISION_DATA);
+  const [revenueData, setRevenueData] = useState(FALLBACK_REVENUE_DATA);
+  const [divisionData, setDivisionData] = useState(FALLBACK_DIVISION_DATA);
+  const [apiLoaded, setApiLoaded] = useState(false);
+
+  useEffect(() => {
+    if (dashboardSummary && !apiLoaded) {
+      if (dashboardSummary.financial?.length > 0) {
+        setRevenueData(dashboardSummary.financial.map((d: any) => ({
+          month: d.month,
+          revenue: Number(d.revenue),
+          expenses: Number(d.expenses),
+        })));
+      }
+      if (dashboardSummary.divisions?.length > 0) {
+        setDivisionData(dashboardSummary.divisions.map((d: any) => ({
+          name: d.name,
+          value: Number(d.value || d.revenue || 0),
+        })));
+      }
+      setApiLoaded(true);
+    }
+  }, [dashboardSummary, apiLoaded]);
   const [projects, setProjects] = useState<ProjectItem[]>(INITIAL_PROJECTS);
   const [editingProject, setEditingProject] = useState<number | null>(null);
   const [editStatus, setEditStatus] = useState("");

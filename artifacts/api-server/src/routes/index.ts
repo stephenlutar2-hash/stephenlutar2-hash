@@ -35,6 +35,9 @@ import googleRouter from "./google";
 import integrationsRouter from "./integrations";
 import analyticsRouter from "./analytics";
 import newsletterRouter from "./newsletter";
+import alloyscapeRouter from "./alloyscape";
+import dreamscapeRouter from "./dreamscape";
+import lutarRouter from "./lutar";
 import { auditMiddleware } from "../lib/audit";
 import { requireDatabase } from "../lib/dbGuard";
 import { authRateLimit, apiRateLimit } from "../middleware/rateLimit";
@@ -64,6 +67,9 @@ router.use("/carlota-jo", requireDatabase);
 router.use("/szl-holdings", requireDatabase);
 router.use("/platform", requireDatabase);
 router.use("/social-command", requireDatabase);
+router.use("/alloyscape", requireDatabase);
+router.use("/dreamscape", requireDatabase);
+router.use("/lutar", requireDatabase);
 
 router.use(authRouter);
 router.use(beaconRouter);
@@ -100,5 +106,8 @@ router.use(googleRouter);
 router.use(integrationsRouter);
 router.use(analyticsRouter);
 router.use(newsletterRouter);
+router.use(alloyscapeRouter);
+router.use(dreamscapeRouter);
+router.use(lutarRouter);
 
 export default router;

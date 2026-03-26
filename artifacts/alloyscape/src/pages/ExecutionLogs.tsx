@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import DashboardLayout from "@/components/DashboardLayout";
-import { useSimulatedLoading, PageLoadingSkeleton } from "@/components/LoadingSkeleton";
-import { ScrollText, Search, Filter } from "lucide-react";
-import { logEntries } from "@/data/demo";
+import { ScrollText, Search, Filter, Loader2, AlertTriangle } from "lucide-react";
+import { useLogs } from "@/hooks/useAlloyscapeApi";
 
 const levelConfig: Record<string, { label: string; color: string }> = {
   info: { label: "INFO", color: "text-cyan-400 bg-cyan-500/10 border-cyan-500/20" },
@@ -20,22 +19,33 @@ const levelTextColor: Record<string, string> = {
 };
 
 export default function ExecutionLogs() {
-  const loading = useSimulatedLoading();
+  const { data: logEntries = [], isLoading, isError } = useLogs();
   const [search, setSearch] = useState("");
   const [levelFilter, setLevelFilter] = useState<string>("all");
   const [serviceFilter, setServiceFilter] = useState<string>("all");
 
-  if (loading) {
+  if (isLoading) {
     return (
       <DashboardLayout>
-        <PageLoadingSkeleton title="Execution Logs" />
+        <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 text-cyan-400 animate-spin" /></div>
       </DashboardLayout>
     );
   }
 
-  const services = ["all", ...Array.from(new Set(logEntries.map(l => l.service)))];
+  if (isError) {
+    return (
+      <DashboardLayout>
+        <div className="flex flex-col items-center justify-center h-64 gap-3">
+          <AlertTriangle className="w-8 h-8 text-amber-400" />
+          <p className="text-gray-400">Failed to load logs. Please try again.</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
-  const filtered = logEntries.filter(log => {
+  const services = ["all", ...Array.from(new Set(logEntries.map((l: any) => l.service)))];
+
+  const filtered = logEntries.filter((log: any) => {
     const matchesSearch = log.message.toLowerCase().includes(search.toLowerCase()) ||
       log.service.toLowerCase().includes(search.toLowerCase()) ||
       (log.traceId && log.traceId.toLowerCase().includes(search.toLowerCase()));

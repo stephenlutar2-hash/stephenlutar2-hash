@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import DashboardLayout from "@/components/DashboardLayout";
-import { useSimulatedLoading, PageLoadingSkeleton } from "@/components/LoadingSkeleton";
 import {
-  Plug, ArrowRight, CheckCircle2, XCircle, AlertCircle, Zap,
-  Search, ArrowUpDown, Activity, Clock, Shield, TrendingUp
+  Plug, ArrowRight, CheckCircle2, XCircle, AlertCircle, AlertTriangle, Zap,
+  Search, ArrowUpDown, Activity, Clock, Shield, TrendingUp, Loader2
 } from "lucide-react";
-import { connectors } from "@/data/demo";
+import { useConnectors } from "@/hooks/useAlloyscapeApi";
 
 const statusConfig: Record<string, { label: string; color: string; dot: string }> = {
   active: { label: "Active", color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20", dot: "bg-emerald-400" },
@@ -25,26 +24,37 @@ const typeColors: Record<string, string> = {
   "Metrics Stream": "from-gray-500 to-slate-500",
 };
 
-const uptimeData: Record<string, number[]> = {};
-connectors.forEach(c => {
-  const base = c.status === "active" ? 99 : c.status === "error" ? 85 : 95;
-  uptimeData[c.id] = Array.from({ length: 30 }, () => Math.min(100, Math.max(80, base + (Math.random() - 0.3) * 8)));
-});
-
 type SortKey = "name" | "events" | "status";
 
 export default function Connectors() {
-  const loading = useSimulatedLoading();
+  const { data: connectors = [], isLoading, isError } = useConnectors();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<SortKey>("events");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  if (loading) {
+  const uptimeData: Record<string, number[]> = {};
+  connectors.forEach((c: any) => {
+    const base = c.status === "active" ? 99 : c.status === "error" ? 85 : 95;
+    uptimeData[c.connectorId || c.id] = Array.from({ length: 30 }, () => Math.min(100, Math.max(80, base + (Math.random() - 0.3) * 8)));
+  });
+
+  if (isLoading) {
     return (
       <DashboardLayout>
-        <PageLoadingSkeleton title="Connector Management" />
+        <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 text-cyan-400 animate-spin" /></div>
+      </DashboardLayout>
+    );
+  }
+
+  if (isError) {
+    return (
+      <DashboardLayout>
+        <div className="flex flex-col items-center justify-center h-64 gap-3">
+          <AlertTriangle className="w-8 h-8 text-amber-400" />
+          <p className="text-gray-400">Failed to load connectors. Please try again.</p>
+        </div>
       </DashboardLayout>
     );
   }
