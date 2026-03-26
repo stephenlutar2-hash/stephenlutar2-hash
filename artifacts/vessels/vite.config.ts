@@ -4,9 +4,10 @@ import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 import { createPwaPlugin } from "../../lib/platform/src/pwa-config";
+import { compression } from "vite-plugin-compression2";
 
-const port = Number(process.env.PORT) || 5173;
-const basePath = process.env.BASE_PATH || "/vessels/";
+  const rawPort = process.env.PORT || "3000";
+  const port = Number(rawPort);
 
 export default defineConfig({
   base: basePath,
@@ -28,6 +29,12 @@ export default defineConfig({
           ),
         ]
       : []),
+    ...(process.env.NODE_ENV === "production"
+      ? [
+          compression({ algorithm: "gzip", exclude: [/\.(br|gz)$/] }),
+          compression({ algorithm: "brotliCompress", exclude: [/\.(br|gz)$/] }),
+        ]
+      : []),
   ],
   resolve: {
     alias: {
@@ -35,24 +42,33 @@ export default defineConfig({
       "@assets": path.resolve(import.meta.dirname, "..", "..", "attached_assets"),
     },
     dedupe: ["react", "react-dom"],
-  },
-  root: path.resolve(import.meta.dirname),
-  build: {
-    outDir: path.resolve(import.meta.dirname, "dist/public"),
-    emptyOutDir: true,
-  },
-  server: {
-    port,
-    host: "0.0.0.0",
-    allowedHosts: true,
-    fs: {
-      strict: true,
-      deny: ["**/.*"],
     },
-  },
-  preview: {
-    port,
-    host: "0.0.0.0",
-    allowedHosts: true,
-  },
-});
+    root: path.resolve(import.meta.dirname),
+    build: {
+      outDir: path.resolve(import.meta.dirname, "dist/public"),
+      emptyOutDir: true,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            "vendor-react": ["react", "react-dom"],
+            "vendor-motion": ["framer-motion"],
+          },
+        },
+      },
+    },
+    server: {
+      port,
+      host: "0.0.0.0",
+      allowedHosts: true,
+      fs: {
+        strict: true,
+        deny: ["**/.*"],
+      },
+    },
+    preview: {
+      port,
+      host: "0.0.0.0",
+      allowedHosts: true,
+    },
+  });
+  

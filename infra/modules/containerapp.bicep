@@ -105,8 +105,8 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
           name: 'api-server'
           image: '${acrLoginServer}/${imageName}:${imageTag}'
           resources: {
-            cpu: json('0.5')
-            memory: '1Gi'
+            cpu: json('1.0')
+            memory: '2Gi'
           }
           env: [
             { name: 'NODE_ENV', value: 'production' }
@@ -121,13 +121,13 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
       ]
       scale: {
         minReplicas: 1
-        maxReplicas: 5
+        maxReplicas: 10
         rules: [
           {
             name: 'http-scaling'
             http: {
               metadata: {
-                concurrentRequests: '50'
+                concurrentRequests: '25'
               }
             }
           }

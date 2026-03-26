@@ -146,6 +146,71 @@ resource swaOrigins 'Microsoft.Cdn/profiles/originGroups/origins@2024-02-01' = [
   }
 }]
 
+resource staticAssetRuleSet 'Microsoft.Cdn/profiles/ruleSets@2024-02-01' = {
+  parent: frontDoor
+  name: 'StaticAssetCaching'
+}
+
+resource cacheHashedAssetsRule 'Microsoft.Cdn/profiles/ruleSets/rules@2024-02-01' = {
+  parent: staticAssetRuleSet
+  name: 'CacheHashedAssets'
+  properties: {
+    order: 1
+    conditions: [
+      {
+        name: 'UrlPath'
+        parameters: {
+          typeName: 'DeliveryRuleUrlPathMatchConditionParameters'
+          operator: 'RegEx'
+          matchValues: ['\\.[a-f0-9]{8,}\\.(js|css|woff2?|ttf|eot|otf|png|jpg|jpeg|gif|webp|avif|svg)$']
+          transforms: ['Lowercase']
+        }
+      }
+    ]
+    actions: [
+      {
+        name: 'CacheExpiration'
+        parameters: {
+          typeName: 'DeliveryRuleCacheExpirationActionParameters'
+          cacheBehavior: 'Override'
+          cacheType: 'All'
+          cacheDuration: '365.00:00:00'
+        }
+      }
+    ]
+  }
+}
+
+resource cacheStaticAssetsRule 'Microsoft.Cdn/profiles/ruleSets/rules@2024-02-01' = {
+  parent: staticAssetRuleSet
+  name: 'CacheStaticAssets'
+  properties: {
+    order: 2
+    conditions: [
+      {
+        name: 'UrlFileExtension'
+        parameters: {
+          typeName: 'DeliveryRuleUrlFileExtensionMatchConditionParameters'
+          operator: 'Contains'
+          matchValues: ['js', 'css', 'woff2', 'woff', 'ttf', 'eot', 'otf', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'avif', 'ico', 'svg']
+          transforms: ['Lowercase']
+        }
+      }
+    ]
+    actions: [
+      {
+        name: 'CacheExpiration'
+        parameters: {
+          typeName: 'DeliveryRuleCacheExpirationActionParameters'
+          cacheBehavior: 'Override'
+          cacheType: 'All'
+          cacheDuration: '1.00:00:00'
+        }
+      }
+    ]
+  }
+}
+
 resource apiRoute 'Microsoft.Cdn/profiles/afdEndpoints/routes@2024-02-01' = {
   parent: endpoint
   name: 'api-route'
@@ -174,6 +239,9 @@ resource swaRoutes 'Microsoft.Cdn/profiles/afdEndpoints/routes@2024-02-01' = [fo
     httpsRedirect: 'Enabled'
     linkToDefaultDomain: 'Enabled'
     supportedProtocols: ['Http', 'Https']
+    ruleSets: [
+      { id: staticAssetRuleSet.id }
+    ]
   }
   dependsOn: [swaOrigins[i], apiRoute]
 }]
@@ -222,6 +290,9 @@ resource customDomainSwaRoutes 'Microsoft.Cdn/profiles/afdEndpoints/routes@2024-
     forwardingProtocol: 'HttpsOnly'
     httpsRedirect: 'Enabled'
     supportedProtocols: ['Http', 'Https']
+    ruleSets: [
+      { id: staticAssetRuleSet.id }
+    ]
   }
   dependsOn: [swaOrigins[i], customDomainApiRoute]
 }]
