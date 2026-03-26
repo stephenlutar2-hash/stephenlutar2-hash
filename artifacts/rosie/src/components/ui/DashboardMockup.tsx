@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip, BarChart, Bar } from "recharts";
 import { Activity, AlertTriangle, CheckCircle2, Server, ShieldAlert, Terminal } from "lucide-react";
 
-// Fake data for charts
 const activityData = Array.from({ length: 20 }).map((_, i) => ({
   time: i,
   threats: Math.floor(Math.random() * 50) + 10,
@@ -36,10 +35,9 @@ export function DashboardMockup() {
         <div className="lg:col-span-1 space-y-6">
           <div className="p-5 rounded-xl bg-white/[0.02] border border-white/5">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-display text-sm font-semibold text-white/80">LIVE THREAT FEED</h3>
-              <div className="flex items-center gap-2 text-xs text-primary bg-primary/10 px-2 py-1 rounded-md">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
-                ACTIVE
+              <h3 className="font-display text-sm font-semibold text-white/80">THREAT FEED</h3>
+              <div className="flex items-center gap-2 text-xs text-amber-400 bg-amber-500/10 px-2 py-1 rounded-md border border-amber-500/20">
+                DEMO
               </div>
             </div>
             <div className="space-y-3">

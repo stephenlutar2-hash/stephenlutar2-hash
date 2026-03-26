@@ -142,7 +142,7 @@ export default function Dashboard() {
             <span>·</span>
             <span>Last sync 2 min ago</span>
             <span>·</span>
-            <span className="text-emerald-400">Live</span>
+            <span className="text-amber-400">Demo Mode</span>
           </div>
         </div>
       </div>

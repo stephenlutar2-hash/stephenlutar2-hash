@@ -17,10 +17,12 @@ const TARGETS = ["External Perimeter (US-East)", "Cloud Endpoint (EU-West)", "AP
 
 export function LiveOperationsFeed() {
   const [operations, setOperations] = useState<Operation[]>([]);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     const initial: Operation[] = Array.from({ length: 6 }).map((_, i) => createRandomOp(i));
     setOperations(initial);
+    setLoaded(true);
 
     const interval = setInterval(() => {
       setOperations(prev => {
@@ -54,10 +56,10 @@ export function LiveOperationsFeed() {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-500 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-3 w-3 bg-orange-500"></span>
           </div>
-          <h3 className="font-display font-semibold tracking-widest text-sm text-muted-foreground">LIVE OPERATIONS FEED</h3>
+          <h3 className="font-display font-semibold tracking-widest text-sm text-muted-foreground">SIMULATED OPERATIONS FEED</h3>
         </div>
-        <div className="text-xs text-primary font-mono bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
-          OFFENSIVE OPS ACTIVE
+        <div className="text-xs text-amber-400 font-mono bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
+          DEMO DATA
         </div>
       </div>
 
@@ -73,6 +75,24 @@ export function LiveOperationsFeed() {
             </tr>
           </thead>
           <tbody className="divide-y divide-border/50 font-mono">
+            {!loaded ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <tr key={i} className="animate-pulse">
+                  <td className="px-6 py-4"><div className="h-4 bg-white/5 rounded w-20" /></td>
+                  <td className="px-6 py-4"><div className="h-4 bg-white/5 rounded w-28" /></td>
+                  <td className="px-6 py-4"><div className="h-4 bg-white/5 rounded w-24" /></td>
+                  <td className="px-6 py-4"><div className="h-4 bg-white/5 rounded w-16" /></td>
+                  <td className="px-6 py-4 text-right"><div className="h-4 bg-white/5 rounded w-16 ml-auto" /></td>
+                </tr>
+              ))
+            ) : operations.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="px-6 py-12 text-center text-muted-foreground">
+                  <ShieldCheck className="w-10 h-10 mx-auto mb-3 opacity-20" />
+                  <p className="text-sm">No simulated operations active. Feed idle.</p>
+                </td>
+              </tr>
+            ) : (
             <AnimatePresence initial={false}>
               {operations.map((op) => (
                 <motion.tr
@@ -118,6 +138,7 @@ export function LiveOperationsFeed() {
                 </motion.tr>
               ))}
             </AnimatePresence>
+            )}
           </tbody>
         </table>
       </div>

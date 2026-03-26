@@ -1,5 +1,3 @@
-// Mock hook to show standard structure
-// In a real app with an API, this would use @szl-holdings/api-client-react
 import { useState, useEffect } from "react";
 
 export function useAuth() {
@@ -9,9 +7,7 @@ export function useAuth() {
     role: "EMPEROR"
   });
 
-  // Mock checking session
   useEffect(() => {
-    // In real app: fetch('/api/me')
     const checkAuth = async () => {
       setIsAuthenticated(true);
     };

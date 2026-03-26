@@ -1,5 +1,5 @@
 import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
-import { AuthGuard } from "@szl-holdings/platform";
+import { AuthGuard, ErrorBoundary } from "@szl-holdings/platform";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@szl-holdings/ui";
 import { TooltipProvider } from "@szl-holdings/ui";
@@ -32,15 +32,17 @@ function Router() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <LabBanner />
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-          <Router />
-        </WouterRouter>
-        <Toaster />
-      </TooltipProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <LabBanner />
+          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+            <Router />
+          </WouterRouter>
+          <Toaster />
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 

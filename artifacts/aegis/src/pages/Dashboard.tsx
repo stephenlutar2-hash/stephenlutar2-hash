@@ -311,7 +311,7 @@ export default function Dashboard() {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" />
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
                   </span>
-                  <span className="text-[10px] font-mono text-red-400 tracking-wider">LIVE TELEMETRY</span>
+                  <span className="text-[10px] font-mono text-amber-400 tracking-wider">DEMO</span>
                 </div>
               </div>
               <div className="relative w-full h-[280px] rounded-lg bg-[#0a0a0a] border border-white/5 overflow-hidden">
@@ -427,8 +427,8 @@ export default function Dashboard() {
                 <h3 className="font-display font-bold text-white tracking-wide uppercase">
                   Threat Activity (24h)
                 </h3>
-                <Badge className="bg-white/5 text-gray-400 border-white/10 hover:bg-white/10">
-                  Live
+                <Badge className="bg-amber-500/10 text-amber-400 border-amber-500/20 hover:bg-amber-500/20">
+                  Demo
                 </Badge>
               </div>
               <div className="flex-1 min-h-[300px] w-full">

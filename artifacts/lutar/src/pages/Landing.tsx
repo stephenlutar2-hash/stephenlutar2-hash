@@ -34,7 +34,7 @@ const staggerContainer = {
   }
 };
 
-const mockChartData = [
+const growthChartData = [
   { name: 'Jan', value: 100 },
   { name: 'Feb', value: 120 },
   { name: 'Mar', value: 115 },
@@ -192,9 +192,7 @@ export default function Landing() {
                   <div className="w-3 h-3 rounded-full bg-green-500/80" />
                   <div className="mx-auto text-[10px] text-muted-foreground font-mono tracking-widest uppercase">Lutar Secure Terminal</div>
                 </div>
-                {/* Fake Dashboard Body */}
                 <div className="p-6 flex gap-6">
-                  {/* Fake Sidebar */}
                   <div className="w-1/4 space-y-4">
                     <div className="h-4 w-2/3 bg-border/50 rounded" />
                     <div className="space-y-2 mt-8">
@@ -203,7 +201,6 @@ export default function Landing() {
                       ))}
                     </div>
                   </div>
-                  {/* Fake Main Content */}
                   <div className="w-3/4 space-y-6">
                     <div className="flex gap-4">
                       {[...Array(3)].map((_, i) => (
@@ -212,7 +209,7 @@ export default function Landing() {
                     </div>
                     <div className="h-32 w-full bg-card/80 border border-border/50 rounded-lg relative overflow-hidden">
                       <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={mockChartData}>
+                        <LineChart data={growthChartData}>
                           <Line type="monotone" dataKey="value" stroke="hsl(158 84% 39%)" strokeWidth={2} dot={false} />
                         </LineChart>
                       </ResponsiveContainer>
