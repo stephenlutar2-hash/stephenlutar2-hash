@@ -1,0 +1,91 @@
+rosie:
+  - changed-files:
+      - any-glob-to-any-file: 'artifacts/rosie/**'
+
+aegis:
+  - changed-files:
+      - any-glob-to-any-file: 'artifacts/aegis/**'
+
+beacon:
+  - changed-files:
+      - any-glob-to-any-file: 'artifacts/beacon/**'
+
+lutar:
+  - changed-files:
+      - any-glob-to-any-file: 'artifacts/lutar/**'
+
+nimbus:
+  - changed-files:
+      - any-glob-to-any-file: 'artifacts/nimbus/**'
+
+firestorm:
+  - changed-files:
+      - any-glob-to-any-file: 'artifacts/firestorm/**'
+
+dreamera:
+  - changed-files:
+      - any-glob-to-any-file: 'artifacts/dreamera/**'
+
+dreamscape:
+  - changed-files:
+      - any-glob-to-any-file: 'artifacts/dreamscape/**'
+
+zeus:
+  - changed-files:
+      - any-glob-to-any-file: 'artifacts/zeus/**'
+
+apps-showcase:
+  - changed-files:
+      - any-glob-to-any-file: 'artifacts/apps-showcase/**'
+
+readiness-report:
+  - changed-files:
+      - any-glob-to-any-file: 'artifacts/readiness-report/**'
+
+career:
+  - changed-files:
+      - any-glob-to-any-file: 'artifacts/career/**'
+
+vessels:
+  - changed-files:
+      - any-glob-to-any-file: 'artifacts/vessels/**'
+
+inca:
+  - changed-files:
+      - any-glob-to-any-file: 'artifacts/inca/**'
+
+lyte:
+  - changed-files:
+      - any-glob-to-any-file: 'artifacts/lyte/**'
+
+carlota-jo:
+  - changed-files:
+      - any-glob-to-any-file: 'artifacts/carlota-jo/**'
+
+szl-holdings:
+  - changed-files:
+      - any-glob-to-any-file: 'artifacts/szl-holdings/**'
+
+alloyscape:
+  - changed-files:
+      - any-glob-to-any-file: 'artifacts/alloyscape/**'
+
+api-server:
+  - changed-files:
+      - any-glob-to-any-file: 'artifacts/api-server/**'
+
+infrastructure:
+  - changed-files:
+      - any-glob-to-any-file: 'infra/**'
+
+shared-libs:
+  - changed-files:
+      - any-glob-to-any-file: 'lib/**'
+
+ci-cd:
+  - changed-files:
+      - any-glob-to-any-file: '.github/**'
+
+docker:
+  - changed-files:
+      - any-glob-to-any-file: 'Dockerfile'

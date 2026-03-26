@@ -21,6 +21,13 @@ COPY artifacts/zeus/package.json artifacts/zeus/
 COPY artifacts/apps-showcase/package.json artifacts/apps-showcase/
 COPY artifacts/readiness-report/package.json artifacts/readiness-report/
 COPY artifacts/career/package.json artifacts/career/
+COPY artifacts/vessels/package.json artifacts/vessels/
+COPY artifacts/inca/package.json artifacts/inca/
+COPY artifacts/lyte/package.json artifacts/lyte/
+COPY artifacts/carlota-jo/package.json artifacts/carlota-jo/
+COPY artifacts/szl-holdings/package.json artifacts/szl-holdings/
+COPY artifacts/dreamscape/package.json artifacts/dreamscape/
+COPY artifacts/alloyscape/package.json artifacts/alloyscape/
 RUN pnpm install --frozen-lockfile
 
 FROM base AS build
@@ -48,6 +55,13 @@ COPY --from=build /app/artifacts/zeus/dist/public ./artifacts/zeus/dist/public
 COPY --from=build /app/artifacts/apps-showcase/dist/public ./artifacts/apps-showcase/dist/public
 COPY --from=build /app/artifacts/readiness-report/dist/public ./artifacts/readiness-report/dist/public
 COPY --from=build /app/artifacts/career/dist/public ./artifacts/career/dist/public
+COPY --from=build /app/artifacts/vessels/dist/public ./artifacts/vessels/dist/public
+COPY --from=build /app/artifacts/inca/dist/public ./artifacts/inca/dist/public
+COPY --from=build /app/artifacts/lyte/dist/public ./artifacts/lyte/dist/public
+COPY --from=build /app/artifacts/carlota-jo/dist/public ./artifacts/carlota-jo/dist/public
+COPY --from=build /app/artifacts/szl-holdings/dist/public ./artifacts/szl-holdings/dist/public
+COPY --from=build /app/artifacts/dreamscape/dist/public ./artifacts/dreamscape/dist/public
+COPY --from=build /app/artifacts/alloyscape/dist/public ./artifacts/alloyscape/dist/public
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY package.json pnpm-workspace.yaml ./

@@ -73,10 +73,17 @@ jobs:
             artifacts/nimbus/dist/public/
             artifacts/firestorm/dist/public/
             artifacts/dreamera/dist/public/
+            artifacts/dreamscape/dist/public/
             artifacts/zeus/dist/public/
             artifacts/apps-showcase/dist/public/
             artifacts/readiness-report/dist/public/
             artifacts/career/dist/public/
+            artifacts/vessels/dist/public/
+            artifacts/inca/dist/public/
+            artifacts/lyte/dist/public/
+            artifacts/carlota-jo/dist/public/
+            artifacts/szl-holdings/dist/public/
+            artifacts/alloyscape/dist/public/
 
   deploy-infra:
     if: github.event.inputs.deploy_infra == 'true'
@@ -151,10 +158,17 @@ jobs:
           - nimbus
           - firestorm
           - dreamera
+          - dreamscape
           - zeus
           - apps-showcase
           - readiness-report
           - career
+          - vessels
+          - inca
+          - lyte
+          - carlota-jo
+          - szl-holdings
+          - alloyscape
     steps:
       - uses: actions/checkout@v4
 
@@ -171,10 +185,14 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Resolve SWA token name
+        id: swa
+        run: echo "token_key=SWA_TOKEN_$(echo '${{ matrix.app }}' | tr '-' '_')" >> $GITHUB_OUTPUT
+
       - name: Deploy ${{ matrix.app }} to Static Web App
         uses: azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets[format('SWA_TOKEN_{0}', matrix.app)] }}
+          azure_static_web_apps_api_token: ${{ secrets[steps.swa.outputs.token_key] }}
           action: upload
           app_location: build-output/artifacts/${{ matrix.app }}/dist/public
           skip_app_build: true

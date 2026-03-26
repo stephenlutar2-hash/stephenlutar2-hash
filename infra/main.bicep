@@ -167,10 +167,17 @@ var frontendApps = [
   'nimbus'
   'firestorm'
   'dreamera'
+  'dreamscape'
   'zeus'
   'apps-showcase'
   'readiness-report'
   'career'
+  'vessels'
+  'inca'
+  'lyte'
+  'carlota-jo'
+  'szl-holdings'
+  'alloyscape'
 ]
 
 module staticWebApps 'modules/staticwebapp.bicep' = [for app in frontendApps: {
