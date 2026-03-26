@@ -19,6 +19,7 @@ The project is structured as a pnpm workspace monorepo, utilizing Node.js 24, pn
 **Core Architectural Principles:**
 
 *   **Single-Port Consolidation:** A single API server on port 3000 serves all frontend applications as static files and handles all API routes under `/api/`.
+*   **Development Workflow:** The API server dev workflow (`pnpm --filter @workspace/api-server run dev`) assumes frontends are already built. Run `pnpm run build:frontends` first if frontend dist files are missing or stale, or use `pnpm run dev` at the workspace root to build frontends then start the server.
 *   **Custom Domain Routing:** Middleware detects the `Host` header for domain-based routing, with configuration in `config/domainMap.ts`. This supports standalone domains (e.g., `szlholdings.com`) and product subdomains (e.g., `{app}.szlholdings.com`).
 *   **Shared Design System:** Three workspace packages (`@szl-holdings/ui`, `@workspace/branding`, `@szl-holdings/platform`) provide reusable UI components, styling, and core platform functionalities like error handling, authentication, and layout shells.
 
