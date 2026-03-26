@@ -297,6 +297,121 @@ router.get("/firestorm/reports", (_req, res) => {
   });
 });
 
+router.get("/firestorm/analytics/simulation-history", (_req, res) => {
+  const history = scenarios.map((s) => {
+    const scenarioEvents = activeEvents.filter((e) => e.scenarioId === s.id);
+    const detected = scenarioEvents.filter((e) => e.detected).length;
+    const total = scenarioEvents.length || 1;
+    return {
+      scenarioId: s.id,
+      scenarioName: s.name,
+      category: s.category,
+      severity: s.severity,
+      status: s.status,
+      totalEvents: scenarioEvents.length,
+      detectedEvents: detected,
+      missedEvents: scenarioEvents.length - detected,
+      successRate: Math.round((detected / total) * 100),
+      lastRun: scenarioEvents.length > 0 ? scenarioEvents[0].timestamp : null,
+    };
+  });
+
+  const totalRuns = history.filter((h) => h.totalEvents > 0).length;
+  const avgSuccessRate = totalRuns > 0
+    ? Math.round(history.filter((h) => h.totalEvents > 0).reduce((sum, h) => sum + h.successRate, 0) / totalRuns)
+    : 0;
+
+  res.json({
+    history,
+    summary: {
+      totalScenarios: scenarios.length,
+      scenariosRun: totalRuns,
+      averageSuccessRate: avgSuccessRate,
+      totalEvents: activeEvents.length,
+    },
+  });
+});
+
+router.get("/firestorm/analytics/detection-rates", (_req, res) => {
+  const byCategory: Record<string, { total: number; detected: number }> = {};
+  const bySeverity: Record<string, { total: number; detected: number }> = {};
+
+  for (const evt of activeEvents) {
+    const scenario = scenarios.find((s) => s.id === evt.scenarioId);
+    const cat = scenario?.category || "Unknown";
+
+    if (!byCategory[cat]) byCategory[cat] = { total: 0, detected: 0 };
+    byCategory[cat].total++;
+    if (evt.detected) byCategory[cat].detected++;
+
+    if (!bySeverity[evt.severity]) bySeverity[evt.severity] = { total: 0, detected: 0 };
+    bySeverity[evt.severity].total++;
+    if (evt.detected) bySeverity[evt.severity].detected++;
+  }
+
+  const categoryRates = Object.entries(byCategory).map(([category, data]) => ({
+    category,
+    total: data.total,
+    detected: data.detected,
+    rate: Math.round((data.detected / (data.total || 1)) * 100),
+  }));
+
+  const severityRates = Object.entries(bySeverity).map(([severity, data]) => ({
+    severity,
+    total: data.total,
+    detected: data.detected,
+    rate: Math.round((data.detected / (data.total || 1)) * 100),
+  }));
+
+  res.json({
+    overall: {
+      total: activeEvents.length,
+      detected: activeEvents.filter((e) => e.detected).length,
+      rate: activeEvents.length > 0 ? Math.round((activeEvents.filter((e) => e.detected).length / activeEvents.length) * 100) : 0,
+    },
+    byCategory: categoryRates,
+    bySeverity: severityRates,
+  });
+});
+
+router.get("/firestorm/analytics/scenario-comparison", (_req, res) => {
+  const comparison = scenarios.map((s) => {
+    const events = activeEvents.filter((e) => e.scenarioId === s.id);
+    const detected = events.filter((e) => e.detected).length;
+    const total = events.length || 1;
+    const detectionRate = Math.round((detected / total) * 100);
+
+    const typeBreakdown: Record<string, number> = {};
+    for (const e of events) {
+      typeBreakdown[e.type] = (typeBreakdown[e.type] || 0) + 1;
+    }
+
+    return {
+      scenarioId: s.id,
+      scenarioName: s.name,
+      category: s.category,
+      severity: s.severity,
+      estimatedDuration: s.estimatedDuration,
+      expectedDetections: s.expectedDetections.length,
+      totalEvents: events.length,
+      detectionRate,
+      eventTypeBreakdown: typeBreakdown,
+      performanceRating: detectionRate >= 90 ? "excellent"
+        : detectionRate >= 75 ? "good"
+        : detectionRate >= 50 ? "fair"
+        : "poor",
+    };
+  });
+
+  res.json({
+    scenarios: comparison,
+    bestPerforming: comparison.reduce((best, current) =>
+      current.detectionRate > best.detectionRate ? current : best, comparison[0]),
+    worstPerforming: comparison.reduce((worst, current) =>
+      current.detectionRate < worst.detectionRate ? current : worst, comparison[0]),
+  });
+});
+
 router.get("/firestorm/reports/export", (req, res) => {
   const format = req.query.format || "json";
 
@@ -332,5 +447,35 @@ router.get("/firestorm/reports/export", (req, res) => {
   res.setHeader("Content-Disposition", "attachment; filename=firestorm-report.json");
   return res.json(data);
 });
+
+export function getFirestormMetrics() {
+  const total = activeEvents.length;
+  const detected = activeEvents.filter((e) => e.detected).length;
+  const runningCount = scenarios.filter((s) => s.status === "running").length;
+  const completedCount = scenarios.filter((s) => s.status === "complete").length;
+
+  return {
+    totalScenarios: scenarios.length,
+    runningScenarios: runningCount,
+    completedScenarios: completedCount,
+    totalEvents: total,
+    detectedEvents: detected,
+    missedEvents: total - detected,
+    detectionRate: total > 0 ? Math.round((detected / total) * 100) : 0,
+    scenarioBreakdown: scenarios.map((s) => {
+      const events = activeEvents.filter((e) => e.scenarioId === s.id);
+      const scenarioDetected = events.filter((e) => e.detected).length;
+      return {
+        id: s.id,
+        name: s.name,
+        category: s.category,
+        severity: s.severity,
+        status: s.status,
+        eventCount: events.length,
+        detectionRate: events.length > 0 ? Math.round((scenarioDetected / events.length) * 100) : 0,
+      };
+    }),
+  };
+}
 
 export default router;
