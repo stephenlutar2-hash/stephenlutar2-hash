@@ -1,14 +1,22 @@
 import React, { useState } from "react";
 import { format } from "date-fns";
-import { Plus, Target, Trash2, Brain, Activity, Clock, AlertTriangle, RefreshCw } from "lucide-react";
+import { Plus, Target, Trash2, Brain, Activity, Clock, AlertTriangle, RefreshCw, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
-import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, CartesianGrid, AreaChart, Area, LineChart, Line } from "recharts";
 import { usePredictions, useDeletePrediction } from "@/hooks/use-predictions";
 import { Button } from "@workspace/ui";
 import { Badge } from "@workspace/ui";
 import { Dialog } from "@workspace/ui";
 import { CircularProgress } from "@/components/CircularProgress";
 import { PredictionForm } from "@/components/PredictionForm";
+
+const chartTooltipStyle = {
+  backgroundColor: 'hsl(var(--card))',
+  borderColor: 'hsl(var(--border))',
+  color: '#fff',
+  borderRadius: '8px',
+  fontSize: '12px',
+};
 
 function ConfirmDialog({ isOpen, onClose, onConfirm, name }: { isOpen: boolean; onClose: () => void; onConfirm: () => void; name: string }) {
   if (!isOpen) return null;
@@ -57,6 +65,32 @@ export default function Predictions() {
       else ranges[3].count++;
     });
     return ranges;
+  }, [predictions]);
+
+  const trendData = React.useMemo(() => {
+    if (!predictions) return [];
+    return predictions.slice(0, 10).map((p, i) => ({
+      name: p.title.slice(0, 8),
+      confidence: p.confidence,
+      upper: Math.min(100, p.confidence + 15),
+      lower: Math.max(0, p.confidence - 15),
+    })).reverse();
+  }, [predictions]);
+
+  const avgConfidence = React.useMemo(() => {
+    if (!predictions || predictions.length === 0) return 0;
+    return Math.round(predictions.reduce((s, p) => s + p.confidence, 0) / predictions.length);
+  }, [predictions]);
+
+  const statusCounts = React.useMemo(() => {
+    if (!predictions) return { pending: 0, confirmed: 0, refuted: 0 };
+    const counts = { pending: 0, confirmed: 0, refuted: 0 };
+    predictions.forEach(p => {
+      if (counts[p.status as keyof typeof counts] !== undefined) {
+        counts[p.status as keyof typeof counts]++;
+      }
+    });
+    return counts;
   }, [predictions]);
 
   const getStatusColor = (status: string) => {
@@ -114,6 +148,26 @@ export default function Predictions() {
         </Button>
       </div>
 
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {[
+          { label: "Avg Confidence", value: `${avgConfidence}%`, color: "text-primary", border: "border-primary/20" },
+          { label: "Pending", value: statusCounts.pending, color: "text-amber-400", border: "border-amber-500/20" },
+          { label: "Confirmed", value: statusCounts.confirmed, color: "text-emerald-400", border: "border-emerald-500/20" },
+          { label: "Refuted", value: statusCounts.refuted, color: "text-red-400", border: "border-red-500/20" },
+        ].map((stat, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.08 }}
+            className={`glass-panel rounded-xl p-4 border ${stat.border}`}
+          >
+            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">{stat.label}</p>
+            <p className={`text-2xl font-display font-bold ${stat.color}`}>{stat.value}</p>
+          </motion.div>
+        ))}
+      </div>
+
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen} title="New Prediction Vector">
         <PredictionForm onSuccess={() => setIsFormOpen(false)} />
       </Dialog>
@@ -125,26 +179,77 @@ export default function Predictions() {
         name={deleteConfirm.name}
       />
 
-      <div className="glass-panel p-4 sm:p-6 rounded-xl border border-primary/10 h-56 sm:h-64">
-        <h3 className="text-xs sm:text-sm font-display uppercase tracking-widest text-primary mb-3 sm:mb-4 flex items-center gap-2">
-          <Activity className="w-4 h-4" /> Confidence Distribution
-        </h3>
-        {isLoading ? (
-          <div className="w-full h-full flex items-center justify-center text-muted-foreground animate-pulse text-sm">Loading neural data...</div>
-        ) : (
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-              <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
-              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
-              <RechartsTooltip 
-                cursor={{ fill: 'hsl(var(--muted))' }}
-                contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', color: '#fff' }}
-              />
-              <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        )}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="glass-panel p-4 sm:p-6 rounded-xl border border-primary/10 h-56 sm:h-64">
+          <h3 className="text-xs sm:text-sm font-display uppercase tracking-widest text-primary mb-3 sm:mb-4 flex items-center gap-2">
+            <Activity className="w-4 h-4" /> Confidence Distribution
+          </h3>
+          {isLoading ? (
+            <div className="w-full h-full flex items-center justify-center">
+              <div className="space-y-4 w-full">
+                {[1,2,3,4].map(i => (
+                  <div key={i} className="flex items-center gap-3 animate-pulse">
+                    <div className="h-3 bg-white/5 rounded w-12" />
+                    <div className="h-8 bg-white/5 rounded flex-1" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                <RechartsTooltip 
+                  cursor={{ fill: 'hsl(var(--muted))' }}
+                  contentStyle={chartTooltipStyle}
+                />
+                <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="glass-panel p-4 sm:p-6 rounded-xl border border-secondary/10 h-56 sm:h-64"
+        >
+          <h3 className="text-xs sm:text-sm font-display uppercase tracking-widest text-secondary mb-3 sm:mb-4 flex items-center gap-2">
+            <TrendingUp className="w-4 h-4" /> Confidence Trend with Intervals
+          </h3>
+          {isLoading || trendData.length === 0 ? (
+            <div className="w-full h-full flex items-center justify-center">
+              <div className="space-y-3 w-full animate-pulse">
+                <div className="h-full bg-white/5 rounded" />
+              </div>
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={trendData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="confInterval" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#a78bfa" stopOpacity={0.15} />
+                    <stop offset="100%" stopColor="#a78bfa" stopOpacity={0.02} />
+                  </linearGradient>
+                  <linearGradient id="confLine" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.4} />
+                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={false} />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} domain={[0, 100]} />
+                <RechartsTooltip contentStyle={chartTooltipStyle} />
+                <Area type="monotone" dataKey="upper" stroke="none" fill="url(#confInterval)" />
+                <Area type="monotone" dataKey="lower" stroke="none" fill="transparent" />
+                <Line type="monotone" dataKey="confidence" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ fill: 'hsl(var(--primary))', r: 3 }} />
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
+        </motion.div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">

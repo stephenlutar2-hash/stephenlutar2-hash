@@ -1,11 +1,21 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { format } from "date-fns";
+import { motion } from "framer-motion";
 import { useContent, useMutateContent, useCampaigns, useMutateCampaigns } from "@/hooks/use-dreamera";
 import { Layout } from "@/components/Layout";
 import { Modal } from "@/components/Modal";
-import { Plus, Edit2, Trash2, MonitorPlay, FileVideo, Eye, Heart } from "lucide-react";
+import { Plus, Edit2, Trash2, MonitorPlay, FileVideo, Eye, Heart, BarChart3, TrendingUp } from "lucide-react";
 import { cn } from "@workspace/ui";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, AreaChart, Area, LineChart, Line } from "recharts";
 import type { DreameraContent } from "@workspace/api-client-react";
+
+const chartTooltipStyle = {
+  backgroundColor: 'hsl(var(--card))',
+  borderColor: 'hsl(var(--border))',
+  color: '#fff',
+  borderRadius: '8px',
+  fontSize: '12px',
+};
 
 export default function DreamEra() {
   const { data: content, isLoading: loadingContent } = useContent();
@@ -15,6 +25,37 @@ export default function DreamEra() {
 
   const [contentModal, setContentModal] = useState<{ isOpen: boolean; data?: DreameraContent }>({ isOpen: false });
   const [campaignModal, setCampaignModal] = useState({ isOpen: false });
+
+  const contentChartData = useMemo(() => {
+    if (!content) return [];
+    const types: Record<string, { views: number; engagement: number; count: number }> = {};
+    content.forEach(item => {
+      if (!types[item.type]) types[item.type] = { views: 0, engagement: 0, count: 0 };
+      types[item.type].views += item.views;
+      types[item.type].engagement += item.engagement;
+      types[item.type].count += 1;
+    });
+    return Object.entries(types).map(([type, data]) => ({
+      type: type.charAt(0).toUpperCase() + type.slice(1),
+      views: data.views,
+      avgEngagement: Math.round(data.engagement / data.count * 10) / 10,
+    }));
+  }, [content]);
+
+  const engagementTrend = useMemo(() => {
+    if (!content) return [];
+    return content.slice(0, 8).map((item, i) => ({
+      name: item.title.slice(0, 12),
+      views: item.views,
+      engagement: item.engagement,
+    })).reverse();
+  }, [content]);
+
+  const totalViews = useMemo(() => content?.reduce((s, c) => s + c.views, 0) || 0, [content]);
+  const avgEngagement = useMemo(() => {
+    if (!content || content.length === 0) return 0;
+    return Math.round(content.reduce((s, c) => s + c.engagement, 0) / content.length * 10) / 10;
+  }, [content]);
 
   const handleContentSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -54,7 +95,11 @@ export default function DreamEra() {
   return (
     <Layout>
       <div className="space-y-8">
-        <div className="flex items-center justify-between border-b border-border/50 pb-6">
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center justify-between border-b border-border/50 pb-6"
+        >
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-pink-500/10 border border-pink-500/30 flex items-center justify-center">
               <MonitorPlay className="w-6 h-6 text-pink-400" />
@@ -64,9 +109,83 @@ export default function DreamEra() {
               <p className="text-muted-foreground text-sm font-mono tracking-wider">GLOBAL MEDIA & LIFESTYLE PLATFORM</p>
             </div>
           </div>
+        </motion.div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {[
+            { label: "Total Views", value: totalViews.toLocaleString(), color: "text-pink-400", border: "border-pink-500/20" },
+            { label: "Avg Engagement", value: `${avgEngagement}%`, color: "text-violet-400", border: "border-violet-500/20" },
+            { label: "Content Items", value: (content?.length || 0).toString(), color: "text-cyan-400", border: "border-cyan-500/20" },
+          ].map((stat, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.08 }}
+              className={`glass-panel rounded-xl p-5 border ${stat.border}`}
+            >
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">{stat.label}</p>
+              <p className={`text-2xl font-display font-bold ${stat.color}`}>{stat.value}</p>
+            </motion.div>
+          ))}
         </div>
 
-        {/* CONTENT GRID */}
+        {!loadingContent && content && content.length > 0 && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="glass-panel rounded-xl p-5 border border-pink-500/10"
+            >
+              <div className="flex items-center gap-2 mb-4">
+                <BarChart3 className="w-4 h-4 text-pink-400" />
+                <h3 className="text-sm font-display uppercase tracking-widest text-pink-400">Views by Content Type</h3>
+              </div>
+              <div className="h-48">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={contentChartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                    <XAxis dataKey="type" stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} />
+                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} />
+                    <Tooltip contentStyle={chartTooltipStyle} />
+                    <Bar dataKey="views" fill="#ec4899" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="glass-panel rounded-xl p-5 border border-violet-500/10"
+            >
+              <div className="flex items-center gap-2 mb-4">
+                <TrendingUp className="w-4 h-4 text-violet-400" />
+                <h3 className="text-sm font-display uppercase tracking-widest text-violet-400">Engagement Trend</h3>
+              </div>
+              <div className="h-48">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={engagementTrend} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="engGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#a78bfa" stopOpacity={0.3} />
+                        <stop offset="100%" stopColor="#a78bfa" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                    <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={false} />
+                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} />
+                    <Tooltip contentStyle={chartTooltipStyle} />
+                    <Area type="monotone" dataKey="engagement" stroke="#a78bfa" strokeWidth={2} fill="url(#engGrad)" dot={{ fill: '#a78bfa', r: 3 }} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
         <div>
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-display font-bold text-white">Content Pipeline</h3>
@@ -81,12 +200,30 @@ export default function DreamEra() {
           
           {loadingContent ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3].map(i => <div key={i} className="h-40 glass-panel rounded-xl animate-pulse border-pink-500/20" />)}
+              {[1, 2, 3].map(i => (
+                <div key={i} className="glass-panel rounded-xl p-5 animate-pulse border-pink-500/20 space-y-3">
+                  <div className="flex items-start gap-3">
+                    <div className="w-5 h-5 bg-white/5 rounded" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-5 bg-white/5 rounded w-3/4" />
+                      <div className="h-3 bg-white/5 rounded w-1/2" />
+                    </div>
+                  </div>
+                  <div className="h-10 bg-white/5 rounded" />
+                  <div className="h-4 bg-white/5 rounded w-1/3" />
+                </div>
+              ))}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {content?.map(item => (
-                <div key={item.id} className="glass-panel rounded-xl p-5 border-pink-500/10 hover:border-pink-500/30 transition-all group relative">
+              {content?.map((item, i) => (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                  className="glass-panel rounded-xl p-5 border-pink-500/10 hover:border-pink-500/30 transition-all group relative"
+                >
                   <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button onClick={() => setContentModal({ isOpen: true, data: item })} className="text-muted-foreground hover:text-white"><Edit2 className="w-4 h-4" /></button>
                     <button onClick={() => removeContent.mutate({ id: item.id })} className="text-destructive hover:text-red-400"><Trash2 className="w-4 h-4" /></button>
@@ -119,13 +256,12 @@ export default function DreamEra() {
                       <Heart className="w-4 h-4 text-muted-foreground" /> {item.engagement}%
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           )}
         </div>
 
-        {/* CAMPAIGNS TABLE */}
         <div className="pt-8">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-display font-bold text-white">Active Campaigns</h3>
@@ -152,9 +288,24 @@ export default function DreamEra() {
               </thead>
               <tbody className="divide-y divide-white/5 text-sm">
                 {loadingCampaigns ? (
-                  <tr><td colSpan={6} className="px-6 py-8 text-center text-muted-foreground animate-pulse">Loading campaigns...</td></tr>
-                ) : campaigns?.map(camp => (
-                  <tr key={camp.id} className="hover:bg-white/[0.02] transition-colors">
+                  Array.from({ length: 3 }).map((_, i) => (
+                    <tr key={i} className="animate-pulse">
+                      <td className="px-6 py-4"><div className="h-5 bg-white/5 rounded w-40" /><div className="h-3 bg-white/5 rounded w-56 mt-2" /></td>
+                      <td className="px-6 py-4"><div className="h-5 bg-white/5 rounded w-16" /></td>
+                      <td className="px-6 py-4"><div className="h-5 bg-white/5 rounded w-20" /></td>
+                      <td className="px-6 py-4"><div className="h-5 bg-white/5 rounded w-20" /></td>
+                      <td className="px-6 py-4"><div className="h-5 bg-white/5 rounded w-32" /></td>
+                      <td className="px-6 py-4"><div className="h-5 bg-white/5 rounded w-8" /></td>
+                    </tr>
+                  ))
+                ) : campaigns?.map((camp, i) => (
+                  <motion.tr
+                    key={camp.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: i * 0.05 }}
+                    className="hover:bg-white/[0.02] transition-colors"
+                  >
                     <td className="px-6 py-4">
                       <div className="font-semibold text-white">{camp.name}</div>
                       <div className="text-muted-foreground text-xs line-clamp-1 mt-0.5">{camp.description}</div>
@@ -177,7 +328,7 @@ export default function DreamEra() {
                     <td className="px-6 py-4 text-right">
                       <button onClick={() => removeCampaign.mutate({ id: camp.id })} className="text-destructive hover:text-red-400 p-1"><Trash2 className="w-4 h-4" /></button>
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))}
               </tbody>
             </table>

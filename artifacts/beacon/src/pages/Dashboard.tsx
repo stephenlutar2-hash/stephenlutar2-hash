@@ -1,11 +1,25 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useMetrics, useMutateMetrics, useProjects, useMutateProjects } from "@/hooks/use-beacon";
 import { Layout } from "@/components/Layout";
 import { Modal } from "@/components/Modal";
 import { Plus, TrendingUp, TrendingDown, Edit2, Trash2, AlertTriangle, BarChart3, FolderOpen, RefreshCw, CreditCard, DollarSign, ArrowUpRight, ArrowDownRight, Receipt, Wallet, AlertCircle } from "lucide-react";
 import { cn } from "@workspace/ui";
+import { LineChart, Line, AreaChart, Area, ResponsiveContainer, Tooltip } from "recharts";
 import type { BeaconMetric, BeaconProject } from "@workspace/api-client-react";
+
+function generateSparklineData(value: number, change: number) {
+  const points = 12;
+  const data = [];
+  const startVal = value / (1 + change / 100);
+  for (let i = 0; i < points; i++) {
+    const progress = i / (points - 1);
+    const noise = (Math.sin(i * 2.1 + value) * 0.08 + Math.cos(i * 1.3 + change) * 0.05);
+    const v = startVal + (value - startVal) * progress + value * noise;
+    data.push({ v: Math.max(0, v) });
+  }
+  return data;
+}
 
 interface StripeRevenue {
   configured: boolean;
@@ -53,10 +67,16 @@ function StripeRevenueSection() {
 
   if (loading) {
     return (
-      <div className="glass-panel rounded-xl p-6 animate-pulse space-y-4">
-        <div className="h-5 bg-white/5 rounded w-48" />
+      <div className="glass-panel rounded-xl p-6 space-y-4">
+        <div className="h-5 bg-white/5 rounded w-48 animate-pulse" />
         <div className="grid grid-cols-4 gap-4">
-          {[1,2,3,4].map(i => <div key={i} className="h-20 bg-white/5 rounded" />)}
+          {[1,2,3,4].map(i => (
+            <div key={i} className="space-y-3 animate-pulse">
+              <div className="h-4 bg-white/5 rounded w-20" />
+              <div className="h-8 bg-white/5 rounded w-24" />
+              <div className="h-16 bg-white/5 rounded" />
+            </div>
+          ))}
         </div>
       </div>
     );
@@ -89,13 +109,13 @@ function StripeRevenueSection() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Total Revenue (30d)", value: `$${revenue.totalRevenue.toLocaleString()}`, icon: DollarSign, color: "text-green-400", bg: "bg-green-500/10", border: "border-green-500/20" },
-          { label: "Monthly Recurring", value: `$${revenue.mrr.toLocaleString()}`, icon: Wallet, color: "text-cyan-400", bg: "bg-cyan-500/10", border: "border-cyan-500/20" },
-          { label: "Transactions", value: revenue.transactionCount.toString(), icon: Receipt, color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20" },
-          { label: "Available Balance", value: `$${(revenue.balanceAvailable || 0).toLocaleString()}`, icon: CreditCard, color: "text-primary", bg: "bg-primary/10", border: "border-primary/20" },
+          { label: "Total Revenue (30d)", value: `$${revenue.totalRevenue.toLocaleString()}`, icon: DollarSign, color: "text-green-400", bg: "bg-green-500/10", border: "border-green-500/20", stroke: "#4ade80" },
+          { label: "Monthly Recurring", value: `$${revenue.mrr.toLocaleString()}`, icon: Wallet, color: "text-cyan-400", bg: "bg-cyan-500/10", border: "border-cyan-500/20", stroke: "#22d3ee" },
+          { label: "Transactions", value: revenue.transactionCount.toString(), icon: Receipt, color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20", stroke: "#60a5fa" },
+          { label: "Available Balance", value: `$${(revenue.balanceAvailable || 0).toLocaleString()}`, icon: CreditCard, color: "text-primary", bg: "bg-primary/10", border: "border-primary/20", stroke: "hsl(var(--primary))" },
         ].map((s, i) => (
           <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
-            className={`glass-panel rounded-xl p-5 ${s.border} border`}>
+            className={`glass-panel rounded-xl p-5 ${s.border} border overflow-hidden`}>
             <div className="flex justify-between items-start mb-3">
               <p className="text-xs text-muted-foreground uppercase tracking-wider">{s.label}</p>
               <s.icon className={`w-4 h-4 ${s.color}`} />
@@ -180,6 +200,33 @@ function formatMetricValue(value: number, unit: string) {
   return value.toLocaleString();
 }
 
+function MiniSparkline({ data, color }: { data: { v: number }[]; color: string }) {
+  return (
+    <div className="h-10 mt-2 -mx-1">
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={data} margin={{ top: 2, right: 0, left: 0, bottom: 0 }}>
+          <defs>
+            <linearGradient id={`spark-${color.replace('#', '')}`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={color} stopOpacity={0.3} />
+              <stop offset="100%" stopColor={color} stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <Area
+            type="monotone"
+            dataKey="v"
+            stroke={color}
+            strokeWidth={1.5}
+            fill={`url(#spark-${color.replace('#', '')})`}
+            dot={false}
+            isAnimationActive={true}
+            animationDuration={1200}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const { data: metrics, isLoading: loadingMetrics, error: metricsError, refetch: refetchMetrics } = useMetrics();
   const { data: projects, isLoading: loadingProjects, error: projectsError, refetch: refetchProjects } = useProjects();
@@ -236,6 +283,8 @@ export default function Dashboard() {
     }
   };
 
+  const sparkColors = ["#4ade80", "#22d3ee", "#a78bfa", "#f472b6", "#facc15", "#fb923c"];
+
   return (
     <Layout>
       <div className="space-y-8">
@@ -286,35 +335,41 @@ export default function Dashboard() {
               <div key={i} className="glass-panel rounded-xl p-6 animate-pulse space-y-4">
                 <div className="h-3 bg-white/5 rounded w-2/3" />
                 <div className="h-8 bg-white/5 rounded w-1/2" />
+                <div className="h-10 bg-white/5 rounded w-full" />
                 <div className="h-3 bg-white/5 rounded w-1/3" />
               </div>
             ))}
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            {metrics?.map((metric, i) => (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                key={metric.id} 
-                className="glass-panel rounded-xl p-5 sm:p-6 group relative overflow-hidden"
-              >
-                <div className="absolute top-3 right-3 sm:top-4 sm:right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-                  <button onClick={() => setMetricModal({ isOpen: true, data: metric })} className="text-muted-foreground hover:text-white"><Edit2 className="w-4 h-4" /></button>
-                  <button onClick={() => setDeleteConfirm({ isOpen: true, type: "metric", id: metric.id, name: metric.name })} className="text-destructive hover:text-red-400"><Trash2 className="w-4 h-4" /></button>
-                </div>
-                <p className="text-xs sm:text-sm font-mono text-muted-foreground mb-3 sm:mb-4">{metric.category} // {metric.name}</p>
-                <div className="flex items-end gap-2">
-                  <span className="text-3xl sm:text-4xl font-display font-bold text-white">{formatMetricValue(metric.value, metric.unit)}</span>
-                  <span className="text-base sm:text-lg text-muted-foreground mb-1">{metric.unit}</span>
-                </div>
-                <div className={cn("mt-3 sm:mt-4 flex items-center gap-1.5 text-sm font-medium", metric.change >= 0 ? "text-green-400" : "text-destructive")}>
-                  {metric.change >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-                  <span>{metric.change >= 0 ? "+" : ""}{Math.abs(metric.change)}% from last cycle</span>
-                </div>
-              </motion.div>
-            ))}
+            {metrics?.map((metric, i) => {
+              const sparkData = generateSparklineData(metric.value, metric.change);
+              const color = sparkColors[i % sparkColors.length];
+              return (
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  key={metric.id} 
+                  className="glass-panel rounded-xl p-5 sm:p-6 group relative overflow-hidden"
+                >
+                  <div className="absolute top-3 right-3 sm:top-4 sm:right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2 z-10">
+                    <button onClick={() => setMetricModal({ isOpen: true, data: metric })} className="text-muted-foreground hover:text-white"><Edit2 className="w-4 h-4" /></button>
+                    <button onClick={() => setDeleteConfirm({ isOpen: true, type: "metric", id: metric.id, name: metric.name })} className="text-destructive hover:text-red-400"><Trash2 className="w-4 h-4" /></button>
+                  </div>
+                  <p className="text-xs sm:text-sm font-mono text-muted-foreground mb-2">{metric.category} // {metric.name}</p>
+                  <div className="flex items-end gap-2">
+                    <span className="text-3xl sm:text-4xl font-display font-bold text-white">{formatMetricValue(metric.value, metric.unit)}</span>
+                    <span className="text-base sm:text-lg text-muted-foreground mb-1">{metric.unit}</span>
+                  </div>
+                  <MiniSparkline data={sparkData} color={color} />
+                  <div className={cn("mt-2 flex items-center gap-1.5 text-sm font-medium", metric.change >= 0 ? "text-green-400" : "text-destructive")}>
+                    {metric.change >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+                    <span>{metric.change >= 0 ? "+" : ""}{Math.abs(metric.change)}% from last cycle</span>
+                  </div>
+                </motion.div>
+              );
+            })}
             {(!metrics || metrics.length === 0) && (
               <div className="col-span-full py-12 text-center text-muted-foreground glass-panel rounded-xl">
                 <BarChart3 className="w-12 h-12 mx-auto mb-3 opacity-20" />
@@ -437,7 +492,7 @@ export default function Dashboard() {
             </div>
             <div className="space-y-2">
               <label className="text-xs font-display text-muted-foreground uppercase tracking-wider">Unit</label>
-              <input required name="unit" placeholder="e.g. M, %, ms" defaultValue={metricModal.data?.unit} className="w-full bg-input border border-border rounded-lg px-4 py-2 text-foreground focus:outline-none focus:border-primary transition-all" />
+              <input required name="unit" defaultValue={metricModal.data?.unit} placeholder="e.g. %, ms, users" className="w-full bg-input border border-border rounded-lg px-4 py-2 text-foreground focus:outline-none focus:border-primary transition-all" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -447,51 +502,51 @@ export default function Dashboard() {
             </div>
             <div className="space-y-2">
               <label className="text-xs font-display text-muted-foreground uppercase tracking-wider">Category</label>
-              <input required name="category" defaultValue={metricModal.data?.category} className="w-full bg-input border border-border rounded-lg px-4 py-2 text-foreground focus:outline-none focus:border-primary transition-all" />
+              <input required name="category" defaultValue={metricModal.data?.category} placeholder="e.g. GROWTH, PERF" className="w-full bg-input border border-border rounded-lg px-4 py-2 text-foreground focus:outline-none focus:border-primary transition-all" />
             </div>
           </div>
           <div className="pt-4 flex justify-end gap-3">
             <button type="button" onClick={() => setMetricModal({ isOpen: false })} className="px-4 py-2 text-muted-foreground hover:text-white transition-colors">Cancel</button>
-            <button type="submit" disabled={createMetric.isPending || updateMetric.isPending} className="px-6 py-2 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 glow-border transition-all">
-              {createMetric.isPending || updateMetric.isPending ? "Deploying..." : "Save Metric"}
+            <button type="submit" disabled={createMetric.isPending || updateMetric.isPending} className="px-6 py-2 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 glow-border transition-all disabled:opacity-50">
+              {(createMetric.isPending || updateMetric.isPending) ? "Saving…" : "Save Metric"}
             </button>
           </div>
         </form>
       </Modal>
 
-      <Modal isOpen={projectModal.isOpen} onClose={() => setProjectModal({ isOpen: false })} title={projectModal.data ? "Edit Initiative" : "New Initiative"}>
+      <Modal isOpen={projectModal.isOpen} onClose={() => setProjectModal({ isOpen: false })} title={projectModal.data ? "Edit Initiative" : "Launch New Initiative"}>
         <form onSubmit={handleProjectSubmit} className="space-y-4">
           <div className="space-y-2">
-            <label className="text-xs font-display text-muted-foreground uppercase tracking-wider">Project Name</label>
+            <label className="text-xs font-display text-muted-foreground uppercase tracking-wider">Initiative Name</label>
             <input required name="name" defaultValue={projectModal.data?.name} className="w-full bg-input border border-border rounded-lg px-4 py-2 text-foreground focus:outline-none focus:border-primary transition-all" />
           </div>
           <div className="space-y-2">
             <label className="text-xs font-display text-muted-foreground uppercase tracking-wider">Description</label>
-            <textarea required name="description" defaultValue={projectModal.data?.description} rows={3} className="w-full bg-input border border-border rounded-lg px-4 py-2 text-foreground focus:outline-none focus:border-primary transition-all resize-none" />
+            <textarea required name="description" defaultValue={projectModal.data?.description} rows={2} className="w-full bg-input border border-border rounded-lg px-4 py-2 text-foreground focus:outline-none focus:border-primary transition-all resize-none" />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
               <label className="text-xs font-display text-muted-foreground uppercase tracking-wider">Status</label>
               <select required name="status" defaultValue={projectModal.data?.status || 'planning'} className="w-full bg-input border border-border rounded-lg px-4 py-2 text-foreground focus:outline-none focus:border-primary transition-all">
-                <option value="active">Active</option>
-                <option value="building">Building</option>
                 <option value="planning">Planning</option>
+                <option value="building">Building</option>
+                <option value="active">Active</option>
                 <option value="paused">Paused</option>
               </select>
             </div>
             <div className="space-y-2">
               <label className="text-xs font-display text-muted-foreground uppercase tracking-wider">Platform</label>
-              <input required name="platform" defaultValue={projectModal.data?.platform} className="w-full bg-input border border-border rounded-lg px-4 py-2 text-foreground focus:outline-none focus:border-primary transition-all" />
+              <input required name="platform" defaultValue={projectModal.data?.platform} placeholder="e.g. Web, Mobile" className="w-full bg-input border border-border rounded-lg px-4 py-2 text-foreground focus:outline-none focus:border-primary transition-all" />
             </div>
-          </div>
-          <div className="space-y-2">
-            <label className="text-xs font-display text-muted-foreground uppercase tracking-wider">Progress ({projectModal.data?.progress || 0}%)</label>
-            <input required type="range" name="progress" min="0" max="100" defaultValue={projectModal.data?.progress || 0} className="w-full accent-primary" />
+            <div className="space-y-2">
+              <label className="text-xs font-display text-muted-foreground uppercase tracking-wider">Progress %</label>
+              <input required type="number" min="0" max="100" name="progress" defaultValue={projectModal.data?.progress || 0} className="w-full bg-input border border-border rounded-lg px-4 py-2 text-foreground focus:outline-none focus:border-primary transition-all" />
+            </div>
           </div>
           <div className="pt-4 flex justify-end gap-3">
             <button type="button" onClick={() => setProjectModal({ isOpen: false })} className="px-4 py-2 text-muted-foreground hover:text-white transition-colors">Cancel</button>
-            <button type="submit" disabled={createProject.isPending || updateProject.isPending} className="px-6 py-2 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 glow-border transition-all">
-              Save Initiative
+            <button type="submit" disabled={createProject.isPending || updateProject.isPending} className="px-6 py-2 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 glow-border transition-all disabled:opacity-50">
+              {(createProject.isPending || updateProject.isPending) ? "Saving…" : "Save Initiative"}
             </button>
           </div>
         </form>

@@ -185,6 +185,42 @@ export default function Dashboard() {
           ))}
         </div>
 
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6 sm:mb-8">
+          {[
+            { label: "Nuro Engine", desc: "AI Assistant", icon: Bot, color: "from-cyan-500/20 to-violet-600/20", link: "/alloy" },
+            { label: "Threat Intel", desc: "Real-time feed", icon: ShieldAlert, color: "from-red-500/20 to-orange-500/20", action: () => setTab("threats") },
+            { label: "Scan Status", desc: "Auto-scanning", icon: Scan, color: "from-emerald-500/20 to-cyan-500/20", action: () => setTab("scans") },
+            { label: "Monitoring", desc: "Server health", icon: Server, color: "from-violet-500/20 to-indigo-500/20", action: () => setTab("monitoring") },
+          ].map((card, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 + i * 0.06 }}
+            >
+              {card.link ? (
+                <Link
+                  href={card.link}
+                  className={`block bg-gradient-to-br ${card.color} to-transparent border border-white/10 rounded-xl p-3 sm:p-4 hover:border-white/20 transition-all cursor-pointer group`}
+                >
+                  <card.icon className="w-5 h-5 text-white/70 group-hover:text-white mb-2 transition-colors" />
+                  <p className="text-sm font-bold text-white">{card.label}</p>
+                  <p className="text-[10px] text-gray-500 uppercase tracking-wider">{card.desc}</p>
+                </Link>
+              ) : (
+                <button
+                  onClick={card.action}
+                  className={`w-full text-left bg-gradient-to-br ${card.color} to-transparent border border-white/10 rounded-xl p-3 sm:p-4 hover:border-white/20 transition-all cursor-pointer group`}
+                >
+                  <card.icon className="w-5 h-5 text-white/70 group-hover:text-white mb-2 transition-colors" />
+                  <p className="text-sm font-bold text-white">{card.label}</p>
+                  <p className="text-[10px] text-gray-500 uppercase tracking-wider">{card.desc}</p>
+                </button>
+              )}
+            </motion.div>
+          ))}
+        </div>
+
         <div className="flex gap-2 mb-6 overflow-x-auto pb-1">
           {(["threats", "incidents", "scans", "monitoring"] as const).map(t => (
             <button key={t} onClick={() => setTab(t)} className={`relative px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition whitespace-nowrap ${tab === t ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30" : "bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10"}`}>

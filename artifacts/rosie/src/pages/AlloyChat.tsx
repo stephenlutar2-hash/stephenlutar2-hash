@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation } from "wouter";
+import { motion } from "framer-motion";
 import {
   Bot,
   Send,
@@ -224,45 +225,78 @@ export default function AlloyChat() {
         <div className="flex-1 overflow-y-auto px-4 py-6">
           {messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center">
-              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-violet-600/20 border border-white/5 flex items-center justify-center mb-6">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+                className="w-20 h-20 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-violet-600/20 border border-white/5 flex items-center justify-center mb-6"
+              >
                 <Bot className="w-10 h-10 text-cyan-400/60" />
-              </div>
-              <h3 className="text-xl font-bold mb-1">Alloy Nuro Engine</h3>
-              <p className="text-xs text-cyan-400/60 font-mono tracking-widest mb-2">SZL HOLDINGS NEURAL CORE</p>
-              <p className="text-gray-500 text-sm max-w-md mb-8">
+              </motion.div>
+              <motion.h3
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="text-xl font-bold mb-1"
+              >
+                Alloy Nuro Engine
+              </motion.h3>
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="text-xs text-cyan-400/60 font-mono tracking-widest mb-2"
+              >
+                SZL HOLDINGS NEURAL CORE
+              </motion.p>
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className="text-gray-500 text-sm max-w-md mb-8"
+              >
                 Your autonomous neural engine with direct database access to every SZL platform. All answers are grounded in real-time data — never fabricated.
-              </p>
+              </motion.p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-lg w-full">
                 {[
                   "Show me all active ROSIE security threats right now",
                   "Give me a full system health report across every platform",
                   "What are the current Beacon KPI metrics and project statuses?",
                   "How many Nimbus predictions are pending and what's their confidence?",
-                ].map((prompt) => (
-                  <button
+                ].map((prompt, i) => (
+                  <motion.button
                     key={prompt}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 + i * 0.08 }}
                     onClick={() => { setInput(prompt); inputRef.current?.focus(); }}
                     className="text-left px-4 py-3 rounded-xl bg-white/[0.03] border border-white/5 hover:bg-white/[0.06] hover:border-white/10 text-sm text-gray-400 transition-colors"
                   >
                     {prompt}
-                  </button>
+                  </motion.button>
                 ))}
               </div>
             </div>
           ) : (
             <div className="max-w-3xl mx-auto space-y-6">
               {messages.map((msg, i) => (
-                <div key={i} className={`flex gap-3 ${msg.role === "user" ? "justify-end" : ""}`}>
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className={`flex gap-3 ${msg.role === "user" ? "justify-end" : ""}`}
+                >
                   {msg.role === "assistant" && (
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center shrink-0 mt-0.5">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center shrink-0 mt-0.5 shadow-lg shadow-cyan-500/20">
                       <Bot className="w-4 h-4 text-white" />
                     </div>
                   )}
                   <div
                     className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                       msg.role === "user"
-                        ? "bg-cyan-500/15 border border-cyan-500/20 text-white"
-                        : "bg-white/[0.03] border border-white/5 text-gray-300"
+                        ? "bg-cyan-500/15 border border-cyan-500/20 text-white rounded-br-md"
+                        : "bg-white/[0.03] border border-white/5 text-gray-300 rounded-bl-md"
                     }`}
                   >
                     {msg.toolCalls && msg.toolCalls.length > 0 && (
@@ -275,15 +309,15 @@ export default function AlloyChat() {
                     <div className="whitespace-pre-wrap break-words">
                       {formatContent(msg.content)}
                       {msg.role === "assistant" && isStreaming && i === messages.length - 1 && !msg.content && (
-                        <span className="inline-flex gap-1 text-gray-500">
-                          <span className="animate-pulse">●</span>
-                          <span className="animate-pulse" style={{ animationDelay: "0.2s" }}>●</span>
-                          <span className="animate-pulse" style={{ animationDelay: "0.4s" }}>●</span>
-                        </span>
+                        <div className="flex items-center gap-1.5 py-1">
+                          <span className="w-2 h-2 rounded-full bg-cyan-400 animate-bounce" style={{ animationDelay: "0ms" }} />
+                          <span className="w-2 h-2 rounded-full bg-cyan-400 animate-bounce" style={{ animationDelay: "150ms" }} />
+                          <span className="w-2 h-2 rounded-full bg-cyan-400 animate-bounce" style={{ animationDelay: "300ms" }} />
+                        </div>
                       )}
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
               <div ref={messagesEndRef} />
             </div>

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { format } from "date-fns";
-import { AlertTriangle, Plus, Trash2, ShieldAlert, Zap, Radio, Circle, RefreshCw } from "lucide-react";
-import { motion } from "framer-motion";
+import { AlertTriangle, Plus, Trash2, ShieldAlert, Zap, Radio, Circle, RefreshCw, ChevronDown, ChevronUp } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { BarChart, Bar, Cell, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { useAlerts, useDeleteAlert } from "@/hooks/use-alerts";
 import { Button } from "@workspace/ui";
@@ -40,6 +40,7 @@ export default function Alerts() {
   const deleteMutation = useDeleteAlert();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; id: number; name: string }>({ isOpen: false, id: 0, name: "" });
+  const [expandedId, setExpandedId] = useState<number | null>(null);
 
   const chartData = React.useMemo(() => {
     if (!alerts) return [];
@@ -55,6 +56,17 @@ export default function Alerts() {
       { name: "Medium", count: counts.medium, fill: "#eab308" },
       { name: "Low", count: counts.low, fill: "hsl(var(--primary))" },
     ];
+  }, [alerts]);
+
+  const severityCounts = React.useMemo(() => {
+    if (!alerts) return { critical: 0, high: 0, medium: 0, low: 0 };
+    const counts = { critical: 0, high: 0, medium: 0, low: 0 };
+    alerts.forEach(a => {
+      if (counts[a.severity as keyof typeof counts] !== undefined) {
+        counts[a.severity as keyof typeof counts]++;
+      }
+    });
+    return counts;
   }, [alerts]);
 
   const getSeverityIcon = (severity: string) => {
@@ -100,6 +112,29 @@ export default function Alerts() {
         </Button>
       </div>
 
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {[
+          { label: "Critical", value: severityCounts.critical, color: "text-red-400", border: "border-red-500/20", dot: "bg-red-400" },
+          { label: "High", value: severityCounts.high, color: "text-amber-400", border: "border-amber-500/20", dot: "bg-amber-400" },
+          { label: "Medium", value: severityCounts.medium, color: "text-yellow-400", border: "border-yellow-500/20", dot: "bg-yellow-400" },
+          { label: "Low", value: severityCounts.low, color: "text-primary", border: "border-primary/20", dot: "bg-primary" },
+        ].map((stat, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.08 }}
+            className={`glass-panel rounded-xl p-4 border ${stat.border}`}
+          >
+            <div className="flex items-center gap-2 mb-1">
+              <div className={`w-2 h-2 rounded-full ${stat.dot}`} />
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">{stat.label}</p>
+            </div>
+            <p className={`text-2xl font-display font-bold ${stat.color}`}>{stat.value}</p>
+          </motion.div>
+        ))}
+      </div>
+
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen} title="New System Alert">
         <AlertForm onSuccess={() => setIsFormOpen(false)} />
       </Dialog>
@@ -116,7 +151,16 @@ export default function Alerts() {
           <ShieldAlert className="w-4 h-4" /> Severity Breakdown
         </h3>
         {isLoading ? (
-          <div className="w-full h-full flex items-center justify-center text-muted-foreground animate-pulse text-sm">Loading alert data...</div>
+          <div className="w-full h-full flex items-center justify-center">
+            <div className="space-y-3 w-full">
+              {[1,2,3,4].map(i => (
+                <div key={i} className="flex items-center gap-3 animate-pulse">
+                  <div className="h-3 bg-white/5 rounded w-16" />
+                  <div className="h-5 bg-white/5 rounded flex-1" />
+                </div>
+              ))}
+            </div>
+          </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData} layout="vertical" margin={{ top: 0, right: 0, left: 10, bottom: 0 }}>
@@ -125,7 +169,7 @@ export default function Alerts() {
               <YAxis dataKey="name" type="category" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
               <RechartsTooltip 
                 cursor={{ fill: 'hsl(var(--muted))' }}
-                contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', color: '#fff' }}
+                contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', color: '#fff', borderRadius: '8px' }}
               />
               <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={20}>
                 {chartData.map((entry, index) => (
@@ -162,40 +206,79 @@ export default function Alerts() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.04 }}
-              className={`glass-panel border-l-[3px] rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 group transition-all duration-300 hover:brightness-125 ${getSeverityColor(alert.severity)}`}
+              className={`glass-panel border-l-[3px] rounded-lg overflow-hidden transition-all duration-300 hover:brightness-125 ${getSeverityColor(alert.severity)}`}
             >
-              <div className="flex items-start gap-3 sm:gap-4 flex-1 min-w-0">
-                <div className="mt-0.5 bg-background p-2 rounded-md shadow-inner border border-white/5 shrink-0">
-                  {getSeverityIcon(alert.severity)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <h4 className={`font-display font-bold text-base sm:text-lg uppercase tracking-wide ${alert.isRead ? 'text-muted-foreground' : 'text-foreground'}`}>
-                      {alert.title}
-                    </h4>
-                    {!alert.isRead && (
-                      <span className="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_rgba(6,182,212,0.8)] animate-pulse shrink-0" />
-                    )}
-                    <Badge variant="outline" className="text-[10px] font-mono border-white/10 text-muted-foreground">
-                      {alert.category}
-                    </Badge>
+              <div
+                className="p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 group cursor-pointer"
+                onClick={() => setExpandedId(expandedId === alert.id ? null : alert.id)}
+              >
+                <div className="flex items-start gap-3 sm:gap-4 flex-1 min-w-0">
+                  <div className="mt-0.5 bg-background p-2 rounded-md shadow-inner border border-white/5 shrink-0">
+                    {getSeverityIcon(alert.severity)}
                   </div>
-                  <p className="text-sm text-muted-foreground line-clamp-1">{alert.message}</p>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <h4 className={`font-display font-bold text-base sm:text-lg uppercase tracking-wide ${alert.isRead ? 'text-muted-foreground' : 'text-foreground'}`}>
+                        {alert.title}
+                      </h4>
+                      {!alert.isRead && (
+                        <span className="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_rgba(6,182,212,0.8)] animate-pulse shrink-0" />
+                      )}
+                      <Badge variant="outline" className="text-[10px] font-mono border-white/10 text-muted-foreground">
+                        {alert.category}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground line-clamp-1">{alert.message}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4 sm:gap-6 sm:pl-4 sm:border-l sm:border-white/5 pl-12 sm:pl-4">
+                  <div className="text-right hidden sm:block">
+                    <div className="text-xs text-muted-foreground font-mono uppercase tracking-wider">Detection</div>
+                    <div className="text-sm font-medium font-mono">{format(new Date(alert.createdAt), "HH:mm:ss")}</div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setDeleteConfirm({ isOpen: true, id: alert.id, name: alert.title }); }}
+                      className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md transition-colors opacity-0 group-hover:opacity-100"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                    <div className="text-muted-foreground">
+                      {expandedId === alert.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-4 sm:gap-6 sm:pl-4 sm:border-l sm:border-white/5 pl-12 sm:pl-4">
-                <div className="text-right hidden sm:block">
-                  <div className="text-xs text-muted-foreground font-mono uppercase tracking-wider">Detection</div>
-                  <div className="text-sm font-medium font-mono">{format(new Date(alert.createdAt), "HH:mm:ss")}</div>
-                </div>
-                <button 
-                  onClick={() => setDeleteConfirm({ isOpen: true, id: alert.id, name: alert.title })}
-                  className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md transition-colors opacity-0 group-hover:opacity-100"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
+              <AnimatePresence>
+                {expandedId === alert.id && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="px-4 pb-4 pt-0 border-t border-white/5 ml-[52px] sm:ml-[60px]">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-3">
+                        <div>
+                          <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider mb-1">Full Message</p>
+                          <p className="text-sm text-foreground/80">{alert.message}</p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider mb-1">Severity</p>
+                          <Badge variant="outline" className="text-xs uppercase">{alert.severity}</Badge>
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider mb-1">Detected At</p>
+                          <p className="text-sm font-mono text-foreground/80">{format(new Date(alert.createdAt), "MMM d, yyyy HH:mm:ss")}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           ))
         )}

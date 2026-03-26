@@ -1,10 +1,20 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { motion } from "framer-motion";
 import { useIncaProjects, useMutateIncaProjects, useExperiments, useMutateExperiments } from "@/hooks/use-inca";
 import { Layout } from "@/components/Layout";
 import { Modal } from "@/components/Modal";
-import { Plus, Edit2, Trash2, Brain, FlaskConical, ChevronRight } from "lucide-react";
+import { Plus, Edit2, Trash2, Brain, FlaskConical, ChevronRight, Target } from "lucide-react";
 import { cn } from "@workspace/ui";
+import { BarChart, Bar, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, RadialBarChart, RadialBar, Legend } from "recharts";
 import type { IncaProject } from "@workspace/api-client-react";
+
+const chartTooltipStyle = {
+  backgroundColor: 'hsl(var(--card))',
+  borderColor: 'hsl(var(--border))',
+  color: '#fff',
+  borderRadius: '8px',
+  fontSize: '12px',
+};
 
 export default function Inca() {
   const { data: projects, isLoading: loadingProjects } = useIncaProjects();
@@ -14,6 +24,35 @@ export default function Inca() {
 
   const [projectModal, setProjectModal] = useState<{ isOpen: boolean; data?: IncaProject }>({ isOpen: false });
   const [expModal, setExpModal] = useState({ isOpen: false, projectId: 0 });
+
+  const accuracyChartData = useMemo(() => {
+    if (!projects) return [];
+    return projects.map(p => ({
+      name: p.name.length > 12 ? p.name.slice(0, 12) + '…' : p.name,
+      accuracy: p.accuracy,
+      fill: p.status === 'deployed' ? '#4ade80' : '#a78bfa',
+    }));
+  }, [projects]);
+
+  const expStatusData = useMemo(() => {
+    if (!experiments) return [];
+    const counts = { running: 0, completed: 0, failed: 0 };
+    experiments.forEach(e => {
+      if (counts[e.status as keyof typeof counts] !== undefined) {
+        counts[e.status as keyof typeof counts]++;
+      }
+    });
+    return [
+      { name: 'Completed', value: counts.completed, fill: '#4ade80' },
+      { name: 'Running', value: counts.running, fill: '#facc15' },
+      { name: 'Failed', value: counts.failed, fill: '#f87171' },
+    ];
+  }, [experiments]);
+
+  const avgAccuracy = useMemo(() => {
+    if (!projects || projects.length === 0) return 0;
+    return Math.round(projects.reduce((s, p) => s + p.accuracy, 0) / projects.length * 10) / 10;
+  }, [projects]);
 
   const handleProjSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -51,7 +90,11 @@ export default function Inca() {
   return (
     <Layout>
       <div className="space-y-8">
-        <div className="flex items-center justify-between border-b border-border/50 pb-6">
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center justify-between border-b border-border/50 pb-6"
+        >
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/30 flex items-center justify-center">
               <Brain className="w-6 h-6 text-violet-400" />
@@ -68,19 +111,84 @@ export default function Inca() {
             <Plus className="w-4 h-4" />
             <span>Initialize Model</span>
           </button>
+        </motion.div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {[
+            { label: "Active Models", value: (projects?.length || 0).toString(), color: "text-violet-400", border: "border-violet-500/20" },
+            { label: "Avg Accuracy", value: `${avgAccuracy}%`, color: "text-emerald-400", border: "border-emerald-500/20" },
+            { label: "Experiments", value: (experiments?.length || 0).toString(), color: "text-cyan-400", border: "border-cyan-500/20" },
+          ].map((stat, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.08 }}
+              className={`glass-panel rounded-xl p-5 border ${stat.border}`}
+            >
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">{stat.label}</p>
+              <p className={`text-2xl font-display font-bold ${stat.color}`}>{stat.value}</p>
+            </motion.div>
+          ))}
         </div>
 
-        {/* PROJECTS GRID */}
+        {!loadingProjects && projects && projects.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="glass-panel rounded-xl p-5 border border-violet-500/10"
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <Target className="w-4 h-4 text-violet-400" />
+              <h3 className="text-sm font-display uppercase tracking-widest text-violet-400">Model Accuracy Comparison</h3>
+            </div>
+            <div className="h-48">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={accuracyChartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                  <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} />
+                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} domain={[0, 100]} />
+                  <Tooltip contentStyle={chartTooltipStyle} />
+                  <Bar dataKey="accuracy" radius={[4, 4, 0, 0]}>
+                    {accuracyChartData.map((entry, index) => (
+                      <Cell key={index} fill={entry.fill} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </motion.div>
+        )}
+
         <div>
           <h3 className="text-lg font-display font-bold text-white mb-6">Neural Models in Training</h3>
           {loadingProjects ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {[1, 2].map(i => <div key={i} className="h-48 glass-panel rounded-xl animate-pulse border-violet-500/20" />)}
+              {[1, 2].map(i => (
+                <div key={i} className="glass-panel rounded-xl p-6 animate-pulse border-violet-500/20 space-y-4">
+                  <div className="flex gap-4">
+                    <div className="w-16 h-16 rounded-full bg-white/5" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-5 bg-white/5 rounded w-1/2" />
+                      <div className="h-3 bg-white/5 rounded w-1/3" />
+                      <div className="h-3 bg-white/5 rounded w-full" />
+                    </div>
+                  </div>
+                  <div className="h-8 bg-white/5 rounded" />
+                </div>
+              ))}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {projects?.map(proj => (
-                <div key={proj.id} className="glass-panel rounded-xl p-6 border-violet-500/10 hover:border-violet-500/30 transition-all group relative overflow-hidden">
+              {projects?.map((proj, i) => (
+                <motion.div
+                  key={proj.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.08 }}
+                  className="glass-panel rounded-xl p-6 border-violet-500/10 hover:border-violet-500/30 transition-all group relative overflow-hidden"
+                >
                   <div className="absolute top-0 right-0 p-4 flex gap-2 z-10">
                     <button onClick={() => setProjectModal({ isOpen: true, data: proj })} className="text-muted-foreground hover:text-white"><Edit2 className="w-4 h-4" /></button>
                     <button onClick={() => removeProj.mutate({ id: proj.id })} className="text-destructive hover:text-red-400"><Trash2 className="w-4 h-4" /></button>
@@ -106,7 +214,23 @@ export default function Inca() {
                       <p className="text-sm text-muted-foreground">{proj.description}</p>
                     </div>
                   </div>
-                  <div className="mt-6 pt-4 border-t border-white/5 flex justify-end">
+
+                  <div className="mt-4 pt-3 border-t border-white/5">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">Accuracy</span>
+                      <span className="text-[10px] font-mono text-violet-400">{proj.accuracy}%</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                      <motion.div
+                        className={cn("h-full rounded-full", proj.accuracy >= 90 ? "bg-emerald-500" : proj.accuracy >= 70 ? "bg-violet-500" : "bg-amber-500")}
+                        initial={{ width: 0 }}
+                        animate={{ width: `${proj.accuracy}%` }}
+                        transition={{ duration: 1.2, ease: "easeOut" }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-white/5 flex justify-end">
                     <button 
                       onClick={() => setExpModal({ isOpen: true, projectId: proj.id })}
                       className="text-xs font-mono text-violet-400 hover:text-violet-300 flex items-center gap-1 transition-colors"
@@ -114,13 +238,12 @@ export default function Inca() {
                       RUN EXPERIMENT <ChevronRight className="w-3 h-3" />
                     </button>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           )}
         </div>
 
-        {/* EXPERIMENTS TABLE */}
         <div className="pt-8">
           <div className="flex items-center gap-2 text-white mb-6">
             <FlaskConical className="w-5 h-5 text-violet-400" />
@@ -140,9 +263,23 @@ export default function Inca() {
               </thead>
               <tbody className="divide-y divide-white/5">
                 {loadingExperiments ? (
-                  <tr><td colSpan={5} className="px-6 py-8 text-center text-muted-foreground animate-pulse">Loading logs...</td></tr>
-                ) : experiments?.map(exp => (
-                  <tr key={exp.id} className="hover:bg-white/[0.02] transition-colors">
+                  Array.from({ length: 3 }).map((_, i) => (
+                    <tr key={i} className="animate-pulse">
+                      <td className="px-6 py-4"><div className="h-4 bg-white/5 rounded w-8" /></td>
+                      <td className="px-6 py-4"><div className="h-4 bg-white/5 rounded w-32" /></td>
+                      <td className="px-6 py-4"><div className="h-4 bg-white/5 rounded w-full" /><div className="h-3 bg-white/5 rounded w-2/3 mt-2" /></td>
+                      <td className="px-6 py-4"><div className="h-4 bg-white/5 rounded w-16" /></td>
+                      <td className="px-6 py-4"><div className="h-4 bg-white/5 rounded w-12 ml-auto" /></td>
+                    </tr>
+                  ))
+                ) : experiments?.map((exp, i) => (
+                  <motion.tr
+                    key={exp.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: i * 0.04 }}
+                    className="hover:bg-white/[0.02] transition-colors"
+                  >
                     <td className="px-6 py-4 text-muted-foreground font-mono text-sm">#{exp.id}</td>
                     <td className="px-6 py-4 font-semibold text-white text-sm">{exp.name}</td>
                     <td className="px-6 py-4 text-sm">
@@ -162,7 +299,7 @@ export default function Inca() {
                     <td className="px-6 py-4 text-right font-mono text-white">
                       {exp.accuracy}%
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))}
               </tbody>
             </table>
