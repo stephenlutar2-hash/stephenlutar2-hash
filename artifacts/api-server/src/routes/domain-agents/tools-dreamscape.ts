@@ -230,7 +230,7 @@ export async function dreamscapeExecuteTool(name: string, args: Record<string, a
         });
       }
       default:
-        return JSON.stringify({ error: \`Unknown tool: \${name}\` });
+        return JSON.stringify({ error: `Unknown tool: ${name}` });
     }
   } catch (error: any) {
     return JSON.stringify({ error: error.message || "Tool execution failed" });

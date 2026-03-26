@@ -13,15 +13,15 @@
     "@replit/vite-plugin-cartographer": "catalog:",
     "@replit/vite-plugin-dev-banner": "catalog:",
     "@replit/vite-plugin-runtime-error-modal": "catalog:",
+    "@szl-holdings/lyte-types": "workspace:*",
+    "@szl-holdings/platform": "workspace:*",
+    "@szl-holdings/ui": "workspace:*",
     "@tailwindcss/vite": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
     "@workspace/branding": "workspace:*",
-    "@szl-holdings/lyte-types": "workspace:*",
-    "@szl-holdings/platform": "workspace:*",
-    "@szl-holdings/ui": "workspace:*",
     "framer-motion": "catalog:",
     "lucide-react": "catalog:",
     "react": "catalog:",
@@ -30,5 +30,8 @@
     "tw-animate-css": "^1.4.0",
     "vite": "catalog:",
     "wouter": "^3.3.5"
+  },
+  "dependencies": {
+    "recharts": "^3.8.1"
   }
 }

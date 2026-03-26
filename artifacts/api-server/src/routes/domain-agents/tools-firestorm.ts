@@ -112,4 +112,19 @@ export async function firestormExecuteTool(name: string, args: Record<string, an
             totalScans: scans.length,
             threatsFound: totalThreatsFound,
             threatsBlocked: totalThreatsBlocked,
-            detectionRate: \`\${detectionRate}
+            detectionRate: `${detectionRate}%`,
+          },
+          incidentResponse: {
+            total: incidents.length,
+            resolved: resolvedCount,
+            open: incidents.length - resolvedCount,
+          },
+        });
+      }
+      default:
+        return JSON.stringify({ error: `Unknown tool: ${name}` });
+    }
+  } catch (error: any) {
+    return JSON.stringify({ error: error.message || "Tool execution failed" });
+  }
+}

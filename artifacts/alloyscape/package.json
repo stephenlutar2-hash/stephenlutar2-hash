@@ -13,6 +13,7 @@
     "@replit/vite-plugin-cartographer": "catalog:",
     "@replit/vite-plugin-dev-banner": "catalog:",
     "@replit/vite-plugin-runtime-error-modal": "catalog:",
+    "@szl-holdings/ui": "workspace:*",
     "@tailwindcss/vite": "catalog:",
     "@tanstack/react-query": "catalog:",
     "@types/node": "catalog:",
@@ -25,7 +26,9 @@
     "react-dom": "catalog:",
     "tailwindcss": "catalog:",
     "vite": "catalog:",
-    "wouter": "^3.3.5",
-    "@szl-holdings/ui": "workspace:*"
+    "wouter": "^3.3.5"
+  },
+  "dependencies": {
+    "recharts": "^3.8.1"
   }
 }
