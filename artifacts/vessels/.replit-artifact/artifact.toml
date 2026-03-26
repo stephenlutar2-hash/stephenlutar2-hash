@@ -17,15 +17,6 @@ localPort = 18485
 [services.development]
 run = "pnpm --filter @workspace/vessels run dev"
 
-[services.production]
-build = [ "pnpm", "--filter", "@workspace/vessels", "run", "build" ]
-publicDir = "artifacts/vessels/dist/public"
-serve = "static"
-
-[[services.production.rewrites]]
-from = "/*"
-to = "/index.html"
-
 [services.env]
 PORT = "18485"
 BASE_PATH = "/vessels/"
