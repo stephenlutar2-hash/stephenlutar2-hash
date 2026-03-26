@@ -14,7 +14,7 @@
 | **Web Apps Rendering** | 18/18 PASS |
 | **Health Endpoints** | 3/3 PASS |
 | **API Public Endpoints** | 11/11 PASS |
-| **Auth-Gated Endpoints** | 3/3 PASS |
+| **Auth-Gated Endpoints** | 5/5 PASS |
 | **Authentication Flow** | PASS |
 | **Vessels Six Pillars Data** | 5/5 PASS |
 | **INCA Auth-Gated Data** | 2/2 PASS |
@@ -87,7 +87,9 @@ Azure services (Redis, Key Vault, Blob Storage) show as not configured — expec
 |---|---|---|---|
 | `/api/inca/projects` | 401 | 200 | Returns 5 projects |
 | `/api/inca/experiments` | 401 | 200 | Returns 5 experiments |
-| `/api/firestorm` | 401 | 401 | Auth-gated simulation lab |
+| `/api/firestorm/scenarios` | 401 | 200 | Returns 7 simulation scenarios with full detail |
+| `/api/firestorm/health` | 401 | N/A | Auth required even for health check |
+| `/api/firestorm` (base) | 401 | 404 | No GET handler on base path (by design — use sub-routes) |
 
 ---
 
@@ -95,13 +97,14 @@ Azure services (Redis, Key Vault, Blob Storage) show as not configured — expec
 
 | Step | Result |
 |---|---|
-| POST `/api/auth/login` with `slutar`/`Topshelf14@` | 200 — Token returned |
+| POST `/api/auth/login` with demo credentials | 200 — Token returned |
 | Token format | 64-char hex string |
 | Role | `emperor` |
 | Expiry | 24 hours from login |
 | Auth method | `demo` |
 | Bearer token on INCA projects | 200 — 5 projects returned |
 | Bearer token on INCA experiments | 200 — 5 experiments returned |
+| Bearer token on Firestorm scenarios | 200 — 7 scenarios returned (port-scan-sweep, brute-force-login, sql-injection, ddos-surge, suspicious-admin-login, lateral-movement, data-staging) |
 
 ---
 
@@ -174,14 +177,20 @@ Azure services (Redis, Key Vault, Blob Storage) show as not configured — expec
 
 The SZL Holdings platform passes all stress tests:
 
-- **18/18 web applications** render correctly with no blank screens
+- **18/18 web applications** render correctly with no blank screens (screenshot verified)
 - **All API endpoints** respond with correct status codes
-- **Authentication** works end-to-end (login → token → auth-gated API access)
-- **Vessels Six Pillars** return rich, deterministic data
-- **INCA** properly gates data behind authentication
-- **Domain AI agents** correctly enforce auth policies
+- **Authentication** works end-to-end (login → token → auth-gated API access returns data)
+- **Firestorm** correctly requires auth; returns 7 simulation scenarios when authenticated
+- **Vessels Six Pillars** return rich, deterministic data across all 5 endpoints
+- **INCA** properly gates data behind authentication; returns 5 projects + 5 experiments when authenticated
+- **Domain AI agents** correctly enforce auth policies (INCA/Vessels require auth, SZL/Carlota Jo allow anonymous)
 - **All sub-routes** resolve properly (SPA fallback working)
-- **Database connectivity** confirmed
+- **Database connectivity** confirmed via healthz endpoint
 - **No critical or blocking issues**
 
-The platform is production-ready.
+Known minor items (non-blocking):
+- Lutar CSP needs `cdn.plaid.com` in `script-src` for production Plaid Link
+- Firestorm health endpoint is behind auth middleware (not publicly accessible)
+- Azure services (Redis, Key Vault, Blob Storage) not configured in development
+
+The platform is verified and operational.
