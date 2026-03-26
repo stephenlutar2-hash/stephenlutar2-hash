@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import { isKeyVaultConfigured } from "../lib/keyvault";
 import { isRedisConfigured, isRedisReady } from "../lib/redis";
 import { isBlobStorageConfigured } from "../lib/blobStorage";
+import { checkFreshness } from "../lib/model-registry";
 import { getAllFlags, isFeatureEnabled } from "../lib/featureFlags";
 import { requireAuth } from "./auth";
 import { requireAdmin, setUserRole, resolveRole } from "../middleware/rbac";
@@ -62,6 +63,9 @@ router.get("/readyz", async (_req, res) => {
   checks.redis = { ready: isRedisReady() };
   checks.keyVault = { ready: isKeyVaultConfigured() };
   checks.blobStorage = { ready: isBlobStorageConfigured() };
+
+  const modelFreshness = checkFreshness();
+  checks.modelRegistry = { ready: !modelFreshness.reviewDue, error: modelFreshness.reviewDue ? `Models not reviewed in ${modelFreshness.daysSinceReview} days` : undefined };
 
   const criticalReady = checks.database.ready;
   const allReady =

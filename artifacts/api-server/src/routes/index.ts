@@ -25,6 +25,7 @@ import szlHoldingsRouter from "./szl-holdings";
 import platformRouter from "./platform";
 import importRouter from "./import";
 import mcpRouter from "./mcp";
+import agentStatusRouter from "./agent-status";
 import { auditMiddleware } from "../lib/audit";
 import { requireDatabase } from "../lib/dbGuard";
 import { authRateLimit, apiRateLimit } from "../middleware/rateLimit";
@@ -79,5 +80,6 @@ router.use(szlHoldingsRouter);
 router.use(platformRouter);
 router.use(importRouter);
 router.use(mcpRouter);
+router.use(agentStatusRouter);
 
 export default router;

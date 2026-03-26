@@ -2,6 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { openai } from "@szl-holdings/integrations-openai-ai-server";
 import { validateBody, validateAndSanitizeBody } from "../../middleware/validate";
+import { getModelConfig } from "../../lib/model-registry";
 
 const chatSchema = z.object({
   message: z.string().min(1).max(10000),
@@ -117,9 +118,13 @@ router.post("/agents/chat", validateAndSanitizeBody(chatSchema), async (req, res
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
 
+    const agentId = context === "readiness" ? "atlas" : "concierge";
+    const modelConfig = getModelConfig(agentId);
     const stream = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      max_completion_tokens: 1024,
+      model: modelConfig.model,
+      max_completion_tokens: modelConfig.maxCompletionTokens,
+      temperature: modelConfig.temperature,
+      top_p: modelConfig.topP,
       messages: [
         { role: "system", content: agentConfig.systemPrompt },
         ...chatHistory,

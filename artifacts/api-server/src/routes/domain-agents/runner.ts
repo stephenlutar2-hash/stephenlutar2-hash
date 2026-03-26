@@ -5,6 +5,7 @@ import { eq, asc } from "drizzle-orm";
 import type { Response } from "express";
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 import { AGENT_CONFIGS, getAgentConfigWithMcp, type AgentType } from "./configs";
+import { getModelConfig } from "../../lib/model-registry";
 
 const MAX_TOOL_ROUNDS = 10;
 
@@ -42,11 +43,15 @@ export async function runDomainAgentLoop(
 
   const hasTools = config.tools.length > 0;
 
+  const modelConfig = getModelConfig(agentType);
+
   if (!hasTools) {
     let fullResponse = "";
     const stream = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      max_completion_tokens: 4096,
+      model: modelConfig.model,
+      max_completion_tokens: modelConfig.maxCompletionTokens,
+      temperature: modelConfig.temperature,
+      top_p: modelConfig.topP,
       messages: chatMessages,
       stream: true,
     });
@@ -79,8 +84,10 @@ export async function runDomainAgentLoop(
     rounds++;
 
     const stream = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      max_completion_tokens: 4096,
+      model: modelConfig.model,
+      max_completion_tokens: modelConfig.maxCompletionTokens,
+      temperature: modelConfig.temperature,
+      top_p: modelConfig.topP,
       messages: chatMessages,
       tools: config.tools,
       tool_choice: rounds === 1 && config.requiresToolCall ? "required" : "auto",

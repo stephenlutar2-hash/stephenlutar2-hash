@@ -8,6 +8,7 @@ import {
   dreameraCampaignsTable,
 } from "@szl-holdings/db/schema";
 import { openai } from "@szl-holdings/integrations-openai-ai-server";
+import { getModelConfig } from "../../lib/model-registry";
 
 interface PlatformHealth {
   platform: string;
@@ -161,9 +162,12 @@ export async function runHealthSweep(): Promise<HealthReport> {
     2,
   );
 
+  const monitorModelConfig = getModelConfig("alloy");
   const aiResponse = await openai.chat.completions.create({
-    model: "gpt-5.2",
-    max_completion_tokens: 8192,
+    model: monitorModelConfig.model,
+    max_completion_tokens: monitorModelConfig.maxCompletionTokens,
+    temperature: monitorModelConfig.temperature,
+    top_p: monitorModelConfig.topP,
     messages: [
       {
         role: "system",

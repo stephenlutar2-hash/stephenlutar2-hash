@@ -9,6 +9,7 @@ import { initRedis, isRedisConfigured } from "./lib/redis";
 import { isKeyVaultConfigured } from "./lib/keyvault";
 import { isBlobStorageConfigured } from "./lib/blobStorage";
 import { getEnabledFeatures } from "./lib/featureFlags";
+import { startFreshnessMonitor } from "./lib/model-registry";
 import path from "path";
 
 const rawPort = process.env["PORT"] || "3000";
@@ -30,6 +31,8 @@ async function start() {
       logger.error({ err }, "Error listening on port");
       process.exit(1);
     }
+
+    startFreshnessMonitor();
 
     const features = getEnabledFeatures();
     const buildPath = path.resolve(__dirname, "..", "..");

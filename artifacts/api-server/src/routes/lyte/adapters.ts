@@ -1,5 +1,6 @@
 import type { Signal, Recommendation, IntegrationStatus, ImpactMetric, DashboardSummary, AiAnalysis, SignalFilters } from "./types.js";
 import { logger } from "../../lib/logger";
+import { getModelConfig } from "../../lib/model-registry";
 
 type AdapterMode = "live" | "demo";
 
@@ -169,16 +170,19 @@ export class AiInsightAdapter extends BaseAdapter {
     if (this.isLiveConfigured()) {
       try {
         const apiKey = process.env.LYTE_AI_API_KEY!;
+        const lyteModelConfig = getModelConfig("lyte-ai");
         const res = await fetch("https://api.openai.com/v1/chat/completions", {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
           body: JSON.stringify({
-            model: "gpt-4",
+            model: lyteModelConfig.model,
             messages: [
               { role: "system", content: "You are an operations analyst for SZL Holdings. Analyze the provided signals and context, then return a JSON object with fields: analysis (string), suggestedActions (string[]), confidence (number 0-100)." },
               { role: "user", content: `Signals: ${JSON.stringify(signals.map(s => ({ title: s.title, severity: s.severity, domain: s.domain, owner: s.owner, businessImpact: s.businessImpact })))}\n\nAdditional context: ${context || "None provided"}` },
             ],
-            max_tokens: 500,
+            max_tokens: lyteModelConfig.maxCompletionTokens,
+            temperature: lyteModelConfig.temperature,
+            top_p: lyteModelConfig.topP,
           }),
           signal: AbortSignal.timeout(15000),
         });

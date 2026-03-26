@@ -9,6 +9,7 @@ import {
   getMcpToolsForDomain,
   createMcpAwareExecutor,
 } from "../domain-agents/configs";
+import { getModelConfig } from "../../lib/model-registry";
 
 const SYSTEM_PROMPT = `You are Alloy, the autonomous neural engine (Nuro Engine) powering all of SZL Holdings. You are the central intelligence that manages, monitors, and controls every platform in the AlloyScape ecosystem.
 
@@ -106,9 +107,12 @@ export async function runAgentLoop(
   while (rounds < MAX_TOOL_ROUNDS) {
     rounds++;
 
+    const modelConfig = getModelConfig("alloy");
     const stream = await openai.chat.completions.create({
-      model: "gpt-5.2",
-      max_completion_tokens: 8192,
+      model: modelConfig.model,
+      max_completion_tokens: modelConfig.maxCompletionTokens,
+      temperature: modelConfig.temperature,
+      top_p: modelConfig.topP,
       messages: chatMessages,
       tools: combinedTools,
       tool_choice: isFirstRound ? "required" : "auto",

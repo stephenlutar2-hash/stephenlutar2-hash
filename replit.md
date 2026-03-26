@@ -51,9 +51,9 @@ A unified login system supports:
 *   **Demo Login:** Predefined credentials (`slutar` / `Topshelf14@`).
 *   **Entra External ID (MSAL):** Enterprise Single Sign-On (SSO) with JWKS validation.
 
-**Alloy Nuro Engine:**
+**Alloy Nuro Engine & Model Registry:**
 
-This is the central AI intelligence, powered by OpenAI gpt-5.2. It employs a "tool-first" approach with 40+ tools for database CRUD operations, ensuring data grounding and preventing hallucination.
+All AI agents use a centralized model registry (`artifacts/api-server/src/lib/model-registry.ts`) that defines which OpenAI model, temperature, max tokens, and top_p each agent uses. Models are resolved at request time (not import time), enabling hot-swap via environment variables (e.g. `AGENT_MODEL_DEFAULT=gpt-4o`, `AGENT_MODEL_ALLOY=gpt-4o`). A bi-weekly freshness monitor logs warnings when models haven't been reviewed in 14+ days. Admin endpoint: `GET /api/agents/status` (requires auth+admin). Public endpoint: `GET /api/agents/freshness`. The registry status is also included in `/readyz` health checks.
 
 Each of the 18 domain-specific AI agents has a distinct expert persona and system prompt, sharing a common SSE streaming backend engine (`artifacts/api-server/src/routes/domain-agents/`):
 
