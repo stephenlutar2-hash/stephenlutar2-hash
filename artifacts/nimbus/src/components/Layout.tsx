@@ -38,6 +38,7 @@ export function Layout({ children }: { children: ReactNode }) {
         linkComponent={WouterLink}
         onLogout={() => { window.location.href = `${import.meta.env.BASE_URL}login`; }}
         variant="topbar"
+        bottomNavItems={NAV_ITEMS}
       >
         {children}
       </LayoutShell>

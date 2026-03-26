@@ -5,7 +5,7 @@ import {
   ChevronDown, ChevronRight, ChevronLeft, ArrowRight, ArrowUp,
   Briefcase, TrendingUp, Shield, Code, BarChart3, GitMerge,
   Quote, Star, CheckCircle2, Clock, DollarSign, Users,
-  Mail, Phone, MapPin, Linkedin, Twitter
+  Mail, Phone, MapPin, Linkedin, Twitter, Menu, X
 } from "lucide-react";
 
 function AnimatedSection({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
@@ -289,6 +289,7 @@ export default function Home() {
   const [contactSubmitted, setContactSubmitted] = useState(false);
   const [contactLoading, setContactLoading] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const heroRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
@@ -382,10 +383,27 @@ export default function Home() {
             </Link>
           </nav>
 
-          <Link href="/consultation" className="md:hidden btn-primary px-4 py-2 text-sm font-medium rounded-sm">
-            Book
-          </Link>
+          <div className="flex md:hidden items-center gap-2">
+            <Link href="/consultation" className="btn-primary px-4 py-2 text-sm font-medium rounded-sm">
+              Book
+            </Link>
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2 text-foreground hover:text-primary transition touch-target">
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-border/50 bg-background/95 backdrop-blur-xl px-6 py-4 space-y-1">
+            {[
+              { label: "Services", href: "#services" },
+              { label: "About", href: "#about" },
+              { label: "Case Studies", href: "#case-studies" },
+              { label: "Contact", href: "#contact" },
+            ].map((link) => (
+              <a key={link.label} href={link.href} onClick={() => setMobileMenuOpen(false)} className="block px-4 py-3 text-sm text-foreground hover:text-primary rounded-lg hover:bg-white/5 transition touch-target">{link.label}</a>
+            ))}
+          </div>
+        )}
       </header>
 
       <section id="hero" ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">

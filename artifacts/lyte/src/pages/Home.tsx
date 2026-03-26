@@ -506,7 +506,7 @@ export default function Home() {
         </div>
       </nav>
 
-      <div className="max-w-[1500px] mx-auto px-4 sm:px-6 py-6">
+      <div className="max-w-[1500px] mx-auto px-4 sm:px-6 py-6 pb-20 md:pb-6">
         {activeTab === "dashboard" && (loading.dashboard ? <LoadingSpinner /> : errors.dashboard ? <ErrorMessage message={errors.dashboard} onRetry={loadDashboard} /> : <DashboardTab healthScore={healthScore} avgReadiness={avgReadiness} deployed={deployed} criticals={criticals} attentionNeeded={attentionNeeded} activeSignals={activeSignalCount} signals={signals} projects={portfolioProjects} onSignalClick={setDrawerSignal} onProjectClick={setDrawerProject} mode={platformMode} />)}
         {activeTab === "scorecard" && <ExecutiveScorecardPage />}
         {activeTab === "operator" && <OperatorCommandCenterPage />}
@@ -533,6 +533,23 @@ export default function Home() {
           <ProjectDrawer project={drawerProject} signals={signals} onClose={() => setDrawerProject(null)} />
         )}
       </AnimatePresence>
+
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-t border-border safe-bottom">
+        <div className="flex items-center justify-around px-1 h-16">
+          {tabs.slice(0, 5).map(t => (
+            <button
+              key={t.id}
+              onClick={() => setActiveTab(t.id)}
+              className={`flex flex-col items-center justify-center gap-1 flex-1 py-2 px-0.5 rounded-lg transition-colors touch-target ${
+                activeTab === t.id ? "text-primary" : "text-muted-foreground"
+              }`}
+            >
+              <t.icon className="w-5 h-5" />
+              <span className="text-[9px] font-medium truncate max-w-[56px]">{t.label}</span>
+            </button>
+          ))}
+        </div>
+      </nav>
     </div>
   );
 }

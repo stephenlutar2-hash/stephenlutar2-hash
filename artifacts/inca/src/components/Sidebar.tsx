@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { useLocation, Link } from "wouter";
 import { motion } from "framer-motion";
-import { Brain, LayoutDashboard, FolderKanban, FlaskConical, Lightbulb, Activity, Upload, Newspaper, FileText, Radar, GitCompare, Gauge, Trophy, SlidersHorizontal, HeartPulse, Cpu, Zap } from "lucide-react";
+import { Brain, LayoutDashboard, FolderKanban, FlaskConical, Lightbulb, Activity, Upload, Newspaper, FileText, Radar, GitCompare, Gauge, Trophy, SlidersHorizontal, HeartPulse, Cpu, Zap, Menu, X } from "lucide-react";
 
 const navItems = [
   { path: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -21,18 +22,21 @@ const navItems = [
   { path: "/discovery-radar", label: "Discovery Radar", icon: Radar },
 ];
 
+const bottomNavItems = navItems.slice(0, 5);
+
 export default function Sidebar() {
   const [location] = useLocation();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const isActive = (path: string) => {
     if (path === "/") return location === "/";
     return location.startsWith(path);
   };
 
-  return (
-    <aside className="fixed left-0 top-0 bottom-0 w-64 bg-sidebar-bg border-r border-sidebar-border flex flex-col z-50">
+  const sidebarContent = (
+    <>
       <div className="p-6 border-b border-sidebar-border">
-        <Link href="/" className="flex items-center gap-3 group">
+        <Link href="/" className="flex items-center gap-3 group" onClick={() => setMobileOpen(false)}>
           <motion.div
             className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan to-violet flex items-center justify-center"
             whileHover={{ scale: 1.05, rotate: 3 }}
@@ -48,7 +52,7 @@ export default function Sidebar() {
         </Link>
       </div>
 
-      <nav className="flex-1 p-4 space-y-1">
+      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         {navItems.map(({ path, label, icon: Icon }) => {
           const active = isActive(path);
           return (
@@ -56,6 +60,7 @@ export default function Sidebar() {
               key={path}
               href={path}
               className="relative block"
+              onClick={() => setMobileOpen(false)}
             >
               <motion.div
                 className={`sidebar-link relative overflow-hidden ${active ? "sidebar-link-active" : "sidebar-link-inactive"}`}
@@ -121,6 +126,56 @@ export default function Sidebar() {
           </div>
         </motion.div>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      <button
+        onClick={() => setMobileOpen(true)}
+        className="md:hidden fixed top-3 left-3 z-50 p-2 rounded-lg bg-sidebar-bg border border-sidebar-border text-muted-foreground hover:text-white transition-colors touch-target"
+      >
+        <Menu className="w-5 h-5" />
+      </button>
+
+      {mobileOpen && (
+        <div className="md:hidden fixed inset-0 z-50">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
+          <div className="relative w-72 h-full bg-sidebar-bg border-r border-sidebar-border flex flex-col safe-top">
+            <button
+              onClick={() => setMobileOpen(false)}
+              className="absolute top-4 right-4 p-2 rounded-lg text-muted-foreground hover:text-white transition-colors touch-target z-10"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            {sidebarContent}
+          </div>
+        </div>
+      )}
+
+      <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-64 bg-sidebar-bg border-r border-sidebar-border flex-col z-50">
+        {sidebarContent}
+      </aside>
+
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-sidebar-bg/95 backdrop-blur-xl border-t border-sidebar-border safe-bottom">
+        <div className="flex items-center justify-around px-2 h-16">
+          {bottomNavItems.map(({ path, label, icon: Icon }) => {
+            const active = isActive(path);
+            return (
+              <Link
+                key={path}
+                href={path}
+                className={`flex flex-col items-center justify-center gap-1 flex-1 py-2 px-1 rounded-lg transition-colors touch-target ${
+                  active ? "text-cyan-400" : "text-muted-foreground"
+                }`}
+              >
+                <Icon className="w-5 h-5" />
+                <span className="text-[10px] font-medium truncate max-w-[64px]">{label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
+    </>
   );
 }

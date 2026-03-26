@@ -27,6 +27,7 @@ export interface LayoutShellProps {
   linkComponent?: React.ComponentType<{ href: string; className?: string; onClick?: () => void; children: ReactNode }>;
   onLogout?: () => void;
   variant?: "sidebar" | "topbar";
+  bottomNavItems?: NavItem[];
 }
 
 function DefaultLink({ href, className, onClick, children }: { href: string; className?: string; onClick?: () => void; children: ReactNode }) {
@@ -46,6 +47,7 @@ export function LayoutShell({
   linkComponent: LinkComp = DefaultLink,
   onLogout,
   variant = "sidebar",
+  bottomNavItems,
 }: LayoutShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -66,19 +68,22 @@ export function LayoutShell({
         breadcrumbs={breadcrumbs}
         linkComponent={LinkComp}
         onLogout={handleLogout}
+        bottomNavItems={bottomNavItems}
       >
         {children}
       </TopbarLayout>
     );
   }
 
+  const mobileBottomNav = bottomNavItems || navItems.slice(0, 5);
+
   return (
     <div className="min-h-screen flex w-full relative">
       {sidebarOpen && (
-        <div className="fixed inset-0 z-30 bg-black/50 md:hidden" onClick={() => setSidebarOpen(false)} />
+        <div className="fixed inset-0 z-30 bg-black/50 md:hidden backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
       )}
 
-      <aside className={`w-72 fixed inset-y-0 left-0 z-40 glass-panel border-r border-border/50 flex flex-col transition-transform duration-300 ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
+      <aside className={`w-72 fixed inset-y-0 left-0 z-40 glass-panel border-r border-border/50 flex flex-col transition-transform duration-300 safe-top ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
         <div className="p-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             {BrandIcon && (
@@ -93,12 +98,12 @@ export function LayoutShell({
               )}
             </div>
           </div>
-          <button className="md:hidden p-1.5 rounded-lg hover:bg-white/10 text-muted-foreground" onClick={() => setSidebarOpen(false)}>
+          <button className="md:hidden p-2 rounded-lg hover:bg-white/10 text-muted-foreground touch-target" onClick={() => setSidebarOpen(false)}>
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <nav className="flex-1 px-4 py-6 space-y-2">
+        <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
           {navItems.map((item) => {
             const isActive = currentPath === item.path;
             return (
@@ -130,9 +135,9 @@ export function LayoutShell({
       </aside>
 
       <main className="flex-1 md:ml-72 relative z-10 flex flex-col min-h-screen">
-        <header className="h-16 sm:h-20 glass-panel border-b border-border/50 flex items-center justify-between px-4 sm:px-8 sticky top-0 z-30">
+        <header className="h-14 sm:h-16 lg:h-20 glass-panel border-b border-border/50 flex items-center justify-between px-4 sm:px-8 sticky top-0 z-30 safe-top">
           <div className="flex items-center gap-3 sm:gap-4">
-            <button className="md:hidden p-2 rounded-lg hover:bg-white/10 text-muted-foreground" onClick={() => setSidebarOpen(true)}>
+            <button className="md:hidden p-2 rounded-lg hover:bg-white/10 text-muted-foreground touch-target" onClick={() => setSidebarOpen(true)}>
               <Menu className="w-5 h-5" />
             </button>
             {breadcrumbs && breadcrumbs.length > 0 && (
@@ -142,13 +147,53 @@ export function LayoutShell({
           {headerRight}
         </header>
 
-        <div className="p-4 sm:p-6 lg:p-8 flex-1">
+        <div className="p-4 sm:p-6 lg:p-8 flex-1 pb-20 md:pb-8">
           <PageTransition locationKey={currentPath}>
             {children}
           </PageTransition>
         </div>
       </main>
+
+      <BottomNav
+        items={mobileBottomNav}
+        currentPath={currentPath}
+        linkComponent={LinkComp}
+      />
     </div>
+  );
+}
+
+function BottomNav({
+  items,
+  currentPath,
+  linkComponent: LinkComp = DefaultLink,
+}: {
+  items: NavItem[];
+  currentPath: string;
+  linkComponent?: React.ComponentType<{ href: string; className?: string; onClick?: () => void; children: ReactNode }>;
+}) {
+  return (
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass-panel border-t border-border/50 safe-bottom bg-background/95 backdrop-blur-xl">
+      <div className="flex items-center justify-around px-2 h-16">
+        {items.map((item) => {
+          const isActive = currentPath === item.path;
+          return (
+            <LinkComp
+              key={item.path}
+              href={item.path}
+              className={`flex flex-col items-center justify-center gap-1 flex-1 py-2 px-1 rounded-lg transition-colors touch-target ${
+                isActive
+                  ? "text-primary"
+                  : "text-muted-foreground"
+              }`}
+            >
+              <item.icon className={`w-5 h-5 ${isActive ? "text-primary" : ""}`} />
+              <span className="text-[10px] font-medium truncate max-w-[64px]">{item.label}</span>
+            </LinkComp>
+          );
+        })}
+      </div>
+    </nav>
   );
 }
 
@@ -163,12 +208,13 @@ function TopbarLayout({
   breadcrumbs,
   linkComponent: LinkComp = DefaultLink,
   onLogout,
+  bottomNavItems,
 }: Omit<LayoutShellProps, "variant" | "sidebar">) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden text-foreground">
-      <header className="sticky top-0 z-40 w-full backdrop-blur-xl bg-background/80 border-b border-white/5">
+      <header className="sticky top-0 z-40 w-full backdrop-blur-xl bg-background/80 border-b border-white/5 safe-top">
         <div className="container mx-auto px-4 h-14 sm:h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             {BrandIcon && (
@@ -212,48 +258,50 @@ function TopbarLayout({
                 <LogOut className="w-3.5 h-3.5" /> Disconnect
               </button>
             )}
-            <button className="md:hidden p-2 rounded-lg hover:bg-white/10 text-muted-foreground" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+            <button className="md:hidden p-2 rounded-lg hover:bg-white/10 text-muted-foreground touch-target" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
 
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-t border-white/5 bg-background/95 backdrop-blur-xl"
-          >
-            <div className="p-4 space-y-1">
-              {navItems.map((item) => {
-                const isActive = currentPath === item.path;
-                const Icon = item.icon;
-                return (
-                  <LinkComp
-                    key={item.path}
-                    href={item.path}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-display font-medium tracking-wide uppercase transition-colors ${
-                      isActive ? "text-primary bg-primary/10 border border-primary/30" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-                    }`}
-                  >
-                    <Icon className="w-4 h-4" />
-                    {item.label}
-                  </LinkComp>
-                );
-              })}
-              {onLogout && (
-                <button onClick={onLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors">
-                  <LogOut className="w-4 h-4" /> Disconnect
-                </button>
-              )}
-            </div>
-          </motion.div>
-        )}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden border-t border-white/5 bg-background/95 backdrop-blur-xl overflow-hidden"
+            >
+              <div className="p-4 space-y-1">
+                {navItems.map((item) => {
+                  const isActive = currentPath === item.path;
+                  const Icon = item.icon;
+                  return (
+                    <LinkComp
+                      key={item.path}
+                      href={item.path}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-display font-medium tracking-wide uppercase transition-colors touch-target ${
+                        isActive ? "text-primary bg-primary/10 border border-primary/30" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                      }`}
+                    >
+                      <Icon className="w-4 h-4" />
+                      {item.label}
+                    </LinkComp>
+                  );
+                })}
+                {onLogout && (
+                  <button onClick={onLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors touch-target">
+                    <LogOut className="w-4 h-4" /> Disconnect
+                  </button>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </header>
 
-      <main className="flex-1 container mx-auto px-4 py-6 sm:py-8 relative z-10">
+      <main className="flex-1 container mx-auto px-4 py-6 sm:py-8 relative z-10 pb-20 md:pb-8">
         {breadcrumbs && breadcrumbs.length > 0 && (
           <div className="mb-4">
             <Breadcrumbs items={breadcrumbs} linkComponent={LinkComp} />
@@ -263,6 +311,14 @@ function TopbarLayout({
           {children}
         </PageTransition>
       </main>
+
+      {bottomNavItems && (
+        <BottomNav
+          items={bottomNavItems}
+          currentPath={currentPath}
+          linkComponent={LinkComp}
+        />
+      )}
     </div>
   );
 }
@@ -284,15 +340,32 @@ function Breadcrumbs({ items, linkComponent: LinkComp = DefaultLink }: { items: 
   );
 }
 
+const reducedMotionVariants = {
+  initial: { opacity: 1, y: 0 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 1, y: 0 },
+};
+
+const fullMotionVariants = {
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -12 },
+};
+
 export function PageTransition({ children, locationKey }: { children: ReactNode; locationKey: string }) {
+  const prefersReduced = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const variants = prefersReduced ? reducedMotionVariants : fullMotionVariants;
+
   return (
     <AnimatePresence mode="wait">
       <motion.div
         key={locationKey}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        transition={{ duration: 0.3 }}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+        variants={variants}
+        transition={{ duration: prefersReduced ? 0 : 0.2 }}
+        style={{ willChange: "transform, opacity" }}
       >
         {children}
       </motion.div>

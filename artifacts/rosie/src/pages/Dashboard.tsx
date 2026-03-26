@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useLocation, Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { Shield, ShieldAlert, ShieldCheck, Activity, LogOut, Zap, AlertTriangle, CheckCircle, Clock, XCircle, Loader2, Bug, Scan, Bot, RefreshCw, Server, Cpu, HardDrive, Upload } from "lucide-react";
@@ -9,6 +9,7 @@ import AlertTriageQueue from "@/components/AlertTriageQueue";
 import EntityInvestigation from "@/components/EntityInvestigation";
 import SocWorkflow from "@/components/SocWorkflow";
 import CrossAppSummary from "@/components/CrossAppSummary";
+import { PullToRefresh } from "@szl-holdings/ui";
 
 interface Threat { id: number; type: string; source: string; target: string; severity: string; status: string; description: string; createdAt: string; }
 interface Incident { id: number; title: string; description: string; severity: string; status: string; assignee: string; platform: string; resolved: boolean; createdAt: string; }
@@ -115,7 +116,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+      <PullToRefresh onRefresh={async () => { fetchData(); fetchMonitoring(); }} className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 pb-20 md:pb-8">
         {error && (
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
             className="mb-6 flex items-center gap-3 bg-red-500/10 border border-red-500/20 rounded-xl px-5 py-3 text-red-400 text-sm"
@@ -335,7 +336,29 @@ export default function Dashboard() {
             </motion.div>
           )}
         </AnimatePresence>
-      </main>
+      </PullToRefresh>
+
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#0a0a0f]/95 backdrop-blur-xl border-t border-white/10 safe-bottom">
+        <div className="flex items-center justify-around px-2 h-16">
+          {([
+            { id: "threats" as const, icon: ShieldAlert, label: "Threats" },
+            { id: "incidents" as const, icon: Bug, label: "Incidents" },
+            { id: "scans" as const, icon: Scan, label: "Scans" },
+            { id: "monitoring" as const, icon: Server, label: "Monitor" },
+          ]).map(item => (
+            <button
+              key={item.id}
+              onClick={() => setTab(item.id)}
+              className={`flex flex-col items-center justify-center gap-1 flex-1 py-2 px-1 rounded-lg transition-colors touch-target ${
+                tab === item.id ? "text-cyan-400" : "text-gray-500"
+              }`}
+            >
+              <item.icon className="w-5 h-5" />
+              <span className="text-[10px] font-medium">{item.label}</span>
+            </button>
+          ))}
+        </div>
+      </nav>
     </div>
   );
 }

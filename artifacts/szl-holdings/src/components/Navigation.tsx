@@ -85,7 +85,7 @@ export default function Navigation() {
 
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="lg:hidden w-10 h-10 flex items-center justify-center text-muted hover:text-foreground transition-colors"
+              className="lg:hidden w-11 h-11 flex items-center justify-center text-muted hover:text-foreground transition-colors touch-target"
               aria-label="Toggle menu"
             >
               {mobileOpen ? <X size={20} /> : <Menu size={20} />}

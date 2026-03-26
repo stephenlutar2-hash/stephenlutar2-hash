@@ -92,10 +92,27 @@ export default function Sidebar() {
     <>
       <button
         onClick={() => setMobileOpen(true)}
-        className="lg:hidden fixed top-3 left-3 z-50 p-2 rounded-lg bg-card border border-white/10 text-gray-400 hover:text-white transition-colors"
+        className="lg:hidden fixed top-3 left-3 z-50 p-2 rounded-lg bg-card border border-white/10 text-gray-400 hover:text-white transition-colors touch-target"
       >
         <Menu className="w-5 h-5" />
       </button>
+
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#0a0c14]/95 backdrop-blur-xl border-t border-white/5 safe-bottom">
+        <div className="flex items-center justify-around h-16 px-1">
+          {navItems.slice(0, 5).map(item => (
+            <button
+              key={item.path}
+              onClick={() => setLocation(item.path)}
+              className={`flex flex-col items-center justify-center gap-1 flex-1 py-2 rounded-lg transition-colors touch-target ${
+                location === item.path ? "text-cyan-400" : "text-gray-500"
+              }`}
+            >
+              <item.icon className="w-5 h-5" />
+              <span className="text-[9px] font-medium truncate max-w-[56px]">{item.label}</span>
+            </button>
+          ))}
+        </div>
+      </nav>
 
       {mobileOpen && (
         <div className="lg:hidden fixed inset-0 z-40">

@@ -357,24 +357,24 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
-      <nav className="sticky top-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border">
-        <div className="max-w-[1400px] mx-auto px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
+      <nav className="sticky top-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border safe-top">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
               <Activity className="w-4 h-4 text-primary" />
             </div>
-            <div>
-              <span className="font-semibold text-sm tracking-wide">SZL HOLDINGS</span>
-              <span className="text-muted-foreground text-xs ml-2">Readiness Report</span>
+            <div className="min-w-0">
+              <span className="font-semibold text-sm tracking-wide">SZL</span>
+              <span className="text-muted-foreground text-xs ml-1.5 hidden sm:inline">Readiness Report</span>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-muted-foreground font-mono hidden sm:inline">Last updated: {new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
-            <a href="/lyte/" className="px-3 py-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 border border-primary/20 transition text-xs font-medium text-primary flex items-center gap-1.5">
-              <Activity className="w-3.5 h-3.5" /> Lyte Command Center
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground font-mono hidden md:inline">Last updated: {new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+            <a href="/lyte/" className="hidden sm:flex px-3 py-2 rounded-lg bg-primary/10 hover:bg-primary/20 border border-primary/20 transition text-xs font-medium text-primary items-center gap-1.5 touch-target">
+              <Activity className="w-3.5 h-3.5" /> Lyte
             </a>
-            <button onClick={() => setPrintMode(true)} className="px-3 py-1.5 rounded-lg bg-muted hover:bg-muted/80 transition text-xs font-medium text-muted-foreground flex items-center gap-1.5">
-              <Printer className="w-3.5 h-3.5" /> Generate Report
+            <button onClick={() => setPrintMode(true)} className="px-3 py-2 rounded-lg bg-muted hover:bg-muted/80 transition text-xs font-medium text-muted-foreground flex items-center gap-1.5 touch-target">
+              <Printer className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Generate</span> Report
             </button>
           </div>
         </div>

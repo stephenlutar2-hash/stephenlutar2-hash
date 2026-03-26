@@ -302,6 +302,12 @@ export default function Home() {
               Go to ROSIE
             </a>
           </div>
+          <div className="flex sm:hidden items-center gap-2">
+            <a href="#platforms" className="text-xs text-gray-400 hover:text-white transition touch-target px-2 py-2">Platforms</a>
+            <a href="/" className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-xs font-semibold hover:bg-white/10 transition touch-target">
+              ROSIE
+            </a>
+          </div>
         </div>
       </nav>
 

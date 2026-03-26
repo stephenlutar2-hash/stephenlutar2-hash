@@ -50,7 +50,7 @@ export default function Home() {
           </div>
           <button
             onClick={() => setLocation("/login")}
-            className="px-5 py-2 rounded-xl bg-white/5 border border-white/10 text-sm font-semibold hover:bg-white/10 transition"
+            className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm font-semibold hover:bg-white/10 transition touch-target"
           >
             Sign In
           </button>

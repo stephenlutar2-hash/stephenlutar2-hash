@@ -5,7 +5,7 @@ import {
   Flame, Shield, Activity, BarChart3, Play, Square, Eye,
   FileText, Zap, Clock, Server, Network, LogOut, Bell,
   AlertTriangle, ChevronRight, Settings, LayoutDashboard,
-  Target, Users, Cpu, Upload,
+  Target, Users, Cpu, Upload, Menu, X,
 } from "lucide-react";
 import { Badge } from "@szl-holdings/ui";
 import { fetchScenarios, startScenario, stopScenario, fetchLiveEvents, fetchDetectionCoverage, downloadExport } from "@/lib/api";
@@ -56,7 +56,7 @@ export default function Dashboard() {
   const [detections, setDetections] = useState<DetectionData | null>(null);
   const [currentTime, setCurrentTime] = useState("");
   const [initialLoaded, setInitialLoaded] = useState(false);
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const [dashView, setDashView] = useState<DashView>("command");
 
   const loadData = useCallback(async () => {
@@ -82,7 +82,9 @@ export default function Dashboard() {
   }
 
   const username = localStorage.getItem("szl_user") || "Operator";
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const runningCount = scenarios.filter((s) => s.status === "running").length;
+  const bottomNavItems = navItems.slice(0, 4);
 
   return (
     <div className="min-h-screen flex bg-[#0c0a08] text-white overflow-hidden">
@@ -115,22 +117,58 @@ export default function Dashboard() {
         </div>
       </aside>
 
-      <main className="flex-1 flex flex-col h-screen overflow-y-auto">
-        <header className="h-16 border-b border-orange-500/10 bg-[#0a0908]/80 backdrop-blur-md sticky top-0 z-10 flex items-center justify-between px-8">
-          <div className="flex items-center gap-4">
-            <h1 className="text-xl font-display font-semibold text-white tracking-wide">Simulation Command Center</h1>
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
+          <aside className="absolute left-0 top-0 bottom-0 w-72 bg-[#0a0908] border-r border-orange-500/10 flex flex-col z-10 safe-top">
+            <div className="h-16 flex items-center justify-between px-5 border-b border-orange-500/10">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
+                  <Flame className="w-5 h-5 text-white" />
+                </div>
+                <span className="font-display font-bold text-lg tracking-[0.2em] text-white">FIRESTORM</span>
+              </div>
+              <button onClick={() => setMobileMenuOpen(false)} className="p-2 rounded-lg text-gray-400 hover:text-white touch-target">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 flex-1 space-y-1">
+              {navItems.map((item) => (
+                <Link key={item.path} href={item.path} onClick={() => setMobileMenuOpen(false)} className={`flex items-center gap-3 px-3 py-3 rounded-lg transition-colors touch-target ${item.path === "/dashboard" ? "bg-orange-500/10 text-orange-500" : "text-gray-500 hover:bg-white/5 hover:text-white"}`}>
+                  <item.icon size={18} />
+                  <span className="text-sm font-medium">{item.label}</span>
+                </Link>
+              ))}
+            </div>
+            <div className="p-4 border-t border-orange-500/10">
+              <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors touch-target">
+                <LogOut size={18} />
+                <span className="text-sm font-medium">Disconnect</span>
+              </button>
+            </div>
+          </aside>
+        </div>
+      )}
+
+      <main className="flex-1 flex flex-col h-screen overflow-y-auto pb-20 md:pb-0">
+        <header className="h-14 sm:h-16 border-b border-orange-500/10 bg-[#0a0908]/80 backdrop-blur-md sticky top-0 z-10 flex items-center justify-between px-4 sm:px-8 safe-top">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <button className="md:hidden p-2 rounded-lg hover:bg-white/10 text-gray-400 touch-target" onClick={() => setMobileMenuOpen(true)}>
+              <Menu className="w-5 h-5" />
+            </button>
+            <h1 className="text-base sm:text-xl font-display font-semibold text-white tracking-wide">Simulation Command</h1>
             <Badge className="hidden sm:inline-flex bg-amber-500/10 text-amber-400 border-amber-500/20 hover:bg-amber-500/20">LAB MODE</Badge>
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3 sm:gap-6">
             <div className="hidden md:flex items-center text-xs font-mono text-gray-500 bg-white/5 px-3 py-1.5 rounded border border-white/10">
               <Activity className="w-3 h-3 text-orange-500 mr-2" />
               {currentTime || "00:00:00 UTC"}
             </div>
-            <button className="text-gray-500 hover:text-white transition-colors relative">
+            <button className="text-gray-500 hover:text-white transition-colors relative touch-target">
               <Bell size={20} />
               {runningCount > 0 && <span className="absolute top-0 right-0 w-2 h-2 bg-orange-500 rounded-full" />}
             </button>
-            <div className="w-9 h-9 rounded bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
+            <div className="hidden sm:flex w-9 h-9 rounded bg-gradient-to-br from-orange-500 to-red-600 items-center justify-center">
               <span className="font-display font-bold text-white text-sm">{username[0]?.toUpperCase()}</span>
             </div>
           </div>
@@ -327,6 +365,23 @@ export default function Dashboard() {
           </>)}
         </div>
       </main>
+
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#0a0908]/95 backdrop-blur-xl border-t border-orange-500/10 safe-bottom">
+        <div className="flex items-center justify-around px-2 h-16">
+          {bottomNavItems.map(item => (
+            <Link
+              key={item.path}
+              href={item.path}
+              className={`flex flex-col items-center justify-center gap-1 flex-1 py-2 px-1 rounded-lg transition-colors touch-target ${
+                location === item.path ? "text-orange-500" : "text-gray-500"
+              }`}
+            >
+              <item.icon className="w-5 h-5" />
+              <span className="text-[10px] font-medium truncate max-w-[64px]">{item.label.split(" ")[0]}</span>
+            </Link>
+          ))}
+        </div>
+      </nav>
     </div>
   );
 }

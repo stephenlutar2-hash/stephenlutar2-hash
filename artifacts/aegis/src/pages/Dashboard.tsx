@@ -3,8 +3,8 @@ import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import {
   Shield, ShieldAlert, ShieldCheck, LayoutDashboard, Globe, Activity,
-  Settings, LogOut, Bell, Lock, Eye, AlertTriangle, CheckCircle2,
-  XCircle, ChevronRight, Server, Wifi, Cpu, Upload, Users, BarChart3
+  Settings, LogOut, Bell, TrendingUp, Lock, Eye, AlertTriangle, CheckCircle2,
+  XCircle, ChevronRight, Server, Wifi, Cpu, Upload, Users, BarChart3, Menu, X
 } from "lucide-react";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -73,7 +73,18 @@ export default function Dashboard() {
     setLocation("/login");
   }
 
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const username = localStorage.getItem("szl_user") || "Operator";
+
+  const sidebarTabs = [
+    { id: "overview" as SidebarTab, icon: LayoutDashboard, label: "Threat Overview" },
+    { id: "threats" as SidebarTab, icon: ShieldAlert, label: "Active Threats" },
+    { id: "perimeter" as SidebarTab, icon: Globe, label: "Network Perimeter" },
+    { id: "access" as SidebarTab, icon: Lock, label: "Access Control" },
+    { id: "forensics" as SidebarTab, icon: Eye, label: "Forensics" },
+  ];
+
+  const bottomNavTabs = sidebarTabs.slice(0, 4);
 
   return (
     <div className="min-h-screen flex bg-[#0c0c0c] text-white overflow-hidden">
@@ -92,13 +103,7 @@ export default function Dashboard() {
             <p className="text-[10px] tracking-[0.2em] text-gray-500 uppercase">Security Operations</p>
           </div>
 
-          {([
-            { id: "overview" as SidebarTab, icon: LayoutDashboard, label: "Threat Overview" },
-            { id: "threats" as SidebarTab, icon: ShieldAlert, label: "Active Threats" },
-            { id: "perimeter" as SidebarTab, icon: Globe, label: "Network Perimeter" },
-            { id: "access" as SidebarTab, icon: Lock, label: "Access Control" },
-            { id: "forensics" as SidebarTab, icon: Eye, label: "Forensics" },
-          ]).map(item => (
+          {sidebarTabs.map(item => (
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
@@ -133,10 +138,54 @@ export default function Dashboard() {
         </div>
       </aside>
 
-      <main className="flex-1 flex flex-col h-screen overflow-y-auto">
-        <header className="h-20 border-b border-amber-500/10 bg-[#0a0a0a]/80 backdrop-blur-md sticky top-0 z-10 flex items-center justify-between px-8">
-          <div className="flex items-center gap-4">
-            <h1 className="text-xl font-display font-semibold text-white tracking-wide">
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
+          <aside className="absolute left-0 top-0 bottom-0 w-72 bg-[#0a0a0a] border-r border-amber-500/10 flex flex-col z-10 safe-top">
+            <div className="h-16 flex items-center justify-between px-5 border-b border-amber-500/10">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded bg-gradient-to-br from-amber-500 to-yellow-600 flex items-center justify-center">
+                  <Shield className="w-5 h-5 text-black" />
+                </div>
+                <span className="font-display font-bold text-lg tracking-[0.2em] text-white">AEGIS</span>
+              </div>
+              <button onClick={() => setMobileMenuOpen(false)} className="p-2 rounded-lg text-gray-400 hover:text-white touch-target">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 flex-1 space-y-1">
+              {sidebarTabs.map(item => (
+                <button
+                  key={item.id}
+                  onClick={() => { setActiveTab(item.id); setMobileMenuOpen(false); }}
+                  className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-colors touch-target ${activeTab === item.id ? "bg-amber-500/10 text-amber-500" : "text-gray-500 hover:bg-white/5 hover:text-white"}`}
+                >
+                  <item.icon size={18} />
+                  <span className="text-sm font-medium">{item.label}</span>
+                </button>
+              ))}
+              <Link href="/import" onClick={() => setMobileMenuOpen(false)} className="w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-colors text-gray-500 hover:bg-white/5 hover:text-white touch-target">
+                <Upload size={18} />
+                <span className="text-sm font-medium">Import Center</span>
+              </Link>
+            </div>
+            <div className="p-4 border-t border-amber-500/10">
+              <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors touch-target">
+                <LogOut size={18} />
+                <span className="text-sm font-medium">Disconnect</span>
+              </button>
+            </div>
+          </aside>
+        </div>
+      )}
+
+      <main className="flex-1 flex flex-col h-screen overflow-y-auto pb-20 md:pb-0">
+        <header className="h-14 sm:h-20 border-b border-amber-500/10 bg-[#0a0a0a]/80 backdrop-blur-md sticky top-0 z-10 flex items-center justify-between px-4 sm:px-8 safe-top">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <button className="md:hidden p-2 rounded-lg hover:bg-white/10 text-gray-400 touch-target" onClick={() => setMobileMenuOpen(true)}>
+              <Menu className="w-5 h-5" />
+            </button>
+            <h1 className="text-base sm:text-xl font-display font-semibold text-white tracking-wide">
               {{ overview: "Threat Overview", threats: "Active Threats", perimeter: "Network Perimeter", access: "Access Control", forensics: "Forensics", config: "Configuration" }[activeTab]}
             </h1>
             <Badge className="hidden sm:inline-flex bg-amber-500/10 text-amber-500 border-amber-500/20 hover:bg-amber-500/20">
@@ -611,6 +660,23 @@ export default function Dashboard() {
           )}
         </div>
       </main>
+
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#0a0a0a]/95 backdrop-blur-xl border-t border-amber-500/10 safe-bottom">
+        <div className="flex items-center justify-around px-2 h-16">
+          {bottomNavTabs.map(item => (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id)}
+              className={`flex flex-col items-center justify-center gap-1 flex-1 py-2 px-1 rounded-lg transition-colors touch-target ${
+                activeTab === item.id ? "text-amber-500" : "text-gray-500"
+              }`}
+            >
+              <item.icon className="w-5 h-5" />
+              <span className="text-[10px] font-medium truncate max-w-[64px]">{item.label.split(" ")[0]}</span>
+            </button>
+          ))}
+        </div>
+      </nav>
     </div>
   );
 }

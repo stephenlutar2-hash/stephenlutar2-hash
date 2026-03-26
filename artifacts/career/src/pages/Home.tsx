@@ -6,7 +6,7 @@ import {
   Shield, Brain, Zap, Server, BarChart3, Layers,
   Lock, Eye, ArrowUp, CheckCircle, Users, TrendingUp,
   Target, Building2, GraduationCap, Lightbulb, Activity, Radar,
-  Sun, Moon
+  Sun, Moon, Menu, X
 } from "lucide-react";
 
 function AnimatedSection({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
@@ -172,9 +172,12 @@ export default function Home() {
     setAccessForm({ name: "", email: "", company: "", reason: "" });
   };
 
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const careerNavItems = ["About", "Vision", "Experience", "Case Studies", "Work", "Contact"];
+
   return (
     <div className="min-h-screen">
-      <nav className="fixed top-0 w-full z-50 backdrop-blur-xl bg-background/80 border-b border-border/50">
+      <nav className="fixed top-0 w-full z-50 backdrop-blur-xl bg-background/80 border-b border-border/50 safe-top">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gold/25 to-gold/5 border border-gold/25 flex items-center justify-center">
@@ -185,23 +188,38 @@ export default function Home() {
               <p className="text-[10px] text-muted-foreground">Founder & CEO, SZL Holdings</p>
             </div>
           </div>
-          <div className="hidden sm:flex items-center gap-6">
-            {["About", "Vision", "Experience", "Case Studies", "Work", "Contact"].map(item => (
+          <div className="hidden md:flex items-center gap-6">
+            {careerNavItems.map(item => (
               <a key={item} href={`#${item.toLowerCase().replace(" ", "-")}`} className="text-sm text-muted-foreground hover:text-gold transition">{item}</a>
             ))}
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <button
               onClick={() => setIsDark(!isDark)}
-              className="w-9 h-9 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-gold transition-colors"
+              className="w-9 h-9 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-gold transition-colors touch-target"
               aria-label="Toggle theme"
             >
               {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
-            <a href="https://linkedin.com/in/stephenlutar" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-gold transition sm:hidden"><Linkedin className="w-4 h-4" /></a>
-            <a href="mailto:stephen@szlholdings.com" className="text-muted-foreground hover:text-gold transition sm:hidden"><Mail className="w-4 h-4" /></a>
+            <div className="flex md:hidden items-center gap-2">
+              <a href="https://linkedin.com/in/stephenlutar" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-gold transition p-2 touch-target"><Linkedin className="w-4 h-4" /></a>
+              <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2 text-muted-foreground hover:text-foreground touch-target">
+                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+            </div>
+            <div className="hidden md:flex items-center gap-3">
+              <a href="https://linkedin.com/in/stephenlutar" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-gold transition"><Linkedin className="w-4 h-4" /></a>
+              <a href="mailto:stephen@szlholdings.com" className="text-muted-foreground hover:text-gold transition"><Mail className="w-4 h-4" /></a>
+            </div>
           </div>
         </div>
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-border/50 bg-background/95 backdrop-blur-xl px-6 py-4 space-y-1">
+            {careerNavItems.map(item => (
+              <a key={item} href={`#${item.toLowerCase().replace(" ", "-")}`} onClick={() => setMobileMenuOpen(false)} className="block px-4 py-3 text-sm text-foreground hover:text-gold rounded-lg hover:bg-white/5 transition touch-target">{item}</a>
+            ))}
+          </div>
+        )}
       </nav>
 
       <section className="relative min-h-screen flex items-center justify-center px-6 overflow-hidden">

@@ -111,9 +111,29 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </AnimatePresence>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 pb-20 md:pb-8">
         {children}
       </main>
+
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-t border-white/5 safe-bottom">
+        <div className="flex items-center justify-around px-2 h-16">
+          {navItems.slice(0, 5).map(item => {
+            const isActive = location === item.path || location.startsWith(item.path + "/");
+            return (
+              <button
+                key={item.path}
+                onClick={() => setLocation(item.path)}
+                className={`flex flex-col items-center justify-center gap-1 flex-1 py-2 px-1 rounded-lg transition-colors touch-target ${
+                  isActive ? "text-cyan-400" : "text-gray-500"
+                }`}
+              >
+                <item.icon className="w-5 h-5" />
+                <span className="text-[10px] font-medium truncate max-w-[64px]">{item.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
     </div>
   );
 }

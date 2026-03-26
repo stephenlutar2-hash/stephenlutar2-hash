@@ -230,10 +230,10 @@ export default function Dashboard() {
         </div>
       )}
 
-      <main className="flex-1 flex flex-col h-screen overflow-y-auto">
-        <header className="h-14 border-b border-cyan-500/10 bg-[#0a0e17]/80 backdrop-blur-md sticky top-0 z-10 flex items-center justify-between px-4 md:px-6">
+      <main className="flex-1 flex flex-col h-screen overflow-y-auto pb-20 md:pb-0">
+        <header className="h-14 border-b border-cyan-500/10 bg-[#0a0e17]/80 backdrop-blur-md sticky top-0 z-10 flex items-center justify-between px-4 md:px-6 safe-top">
           <div className="flex items-center gap-3">
-            <button onClick={() => setMobileOpen(true)} className="md:hidden text-gray-400 hover:text-white">
+            <button onClick={() => setMobileOpen(true)} className="md:hidden text-gray-400 hover:text-white touch-target p-2">
               <Menu size={20} />
             </button>
             <h1 className="text-base font-display font-semibold text-white tracking-wide">
@@ -282,6 +282,23 @@ export default function Dashboard() {
           <ActivePage />
         </div>
       </main>
+
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#0a0e17]/95 backdrop-blur-xl border-t border-cyan-500/10 safe-bottom">
+        <div className="flex items-center justify-around px-2 h-16">
+          {SECTIONS.slice(0, 5).map(item => (
+            <button
+              key={item.id}
+              onClick={() => navTo(item.id)}
+              className={`flex flex-col items-center justify-center gap-1 flex-1 py-2 px-1 rounded-lg transition-colors touch-target ${
+                currentSection === item.id ? item.color : "text-gray-500"
+              }`}
+            >
+              <item.icon className="w-5 h-5" />
+              <span className="text-[10px] font-medium truncate max-w-[56px]">{item.label.split(" ")[0]}</span>
+            </button>
+          ))}
+        </div>
+      </nav>
     </div>
   );
 }

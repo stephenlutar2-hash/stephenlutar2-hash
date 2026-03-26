@@ -27,7 +27,7 @@ function Router() {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <main className="flex-1 ml-64 p-8 overflow-auto">
+      <main className="flex-1 md:ml-64 p-4 sm:p-6 lg:p-8 overflow-auto pb-20 md:pb-8">
         <AnimatePresence mode="wait">
           <Switch>
             <Route path="/" component={Dashboard} />

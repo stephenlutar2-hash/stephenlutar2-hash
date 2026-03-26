@@ -75,27 +75,32 @@ All 18 frontend apps are registered as Replit artifacts with their own artifact.
 
 **Security & Governance:**
 
-The system includes:
-*   Health Endpoints
-*   Security Headers (CSP, HSTS)
-*   Role-Based Access Control (RBAC)
-*   Rate Limiting (global, auth-specific, write-specific)
-*   Zod-based Schema Validation and Input Sanitization
-*   Structured Audit Logging for mutating operations
-*   Database-backed Feature Flags
-*   Zod-based Environment Validation
-*   Centralized Error Handling with consistent response shapes
-*   Request ID Propagation
-*   Mock/Live Provider Pattern for external services (Redis, Blob storage, Stripe, Plaid)
-*   Typed Service Layer for business logic
-*   Pagination Middleware for list endpoints
-*   Dedicated Analytics Endpoints for INCA, Vessels, and Nimbus
-*   SSE Streaming for real-time updates
-*   Search Endpoints (`/api/{platform}/search`)
-*   Bulk Operations with authorization
-*   Pino logger Redaction for sensitive information
-*   DB Graceful Fallback
-*   SEO & Accessibility features.
+The system incorporates robust security and governance features:
+
+*   **Health Endpoints:** Comprehensive health checks at various levels.
+*   **Security Headers:** Middleware for CSP, HSTS, and other security headers.
+*   **RBAC:** Role-Based Access Control using a DB-backed `user_roles` table with `requireRole()` middleware.
+*   **Rate Limiting:** Global API rate limiting (200 req/min), auth-specific (20/15min), and write-specific (60/min) per-IP and per-user rate limiting.
+*   **Schema Validation:** Zod-based validation and sanitization for all incoming data.
+*   **Input Sanitization:** HTML escaping for XSS prevention.
+*   **Audit Logging:** Structured audit logs for all mutating operations to both logs and a database table.
+*   **Feature Flags:** Database-backed feature flags with API management.
+*   **Environment Validation:** Zod-based config schema (`lib/envValidation.ts`) with typed `AppConfig` and `getConfig()` accessor. Fails fast on missing required vars.
+*   **Centralized Error Handling:** `lib/errors.ts` (AppError class with static factories), `middleware/errorHandler.ts` (asyncHandler wrapper, global error middleware). Consistent error response shape: `{ status, code, message, requestId?, timestamp, details? }`.
+*   **Request ID Propagation:** `lib/requestContext.ts` — AsyncLocalStorage-based request context middleware with `getRequestId()` helper. Request IDs included in all error responses.
+*   **Mock/Live Provider Pattern:** `providers/` directory with interfaces and mock/live implementations for Redis cache, Blob storage, Stripe, and Plaid. Controlled via `MOCK_PROVIDERS` env var (comma-separated). Factory at `providers/factory.ts`.
+*   **Typed Service Layer:** `services/` directory with service classes for each platform (RosieService, BeaconService, NimbusService, ZeusService, IncaService, DreameraService, AlloyService, StripeService). Routes delegate to services for business logic.
+*   **Pagination Middleware:** Reusable `middleware/pagination.ts` provides `parsePagination()`, `paginateArray()`, `sortArray()`, `filterByFields()`, and `searchItems()` utilities for all list endpoints. Supports `?page=1&limit=25&sort=field&order=asc` query params plus field-based filtering and date range filtering.
+*   **Analytics Endpoints:** INCA (`/api/inca/analytics/*`), Vessels (`/api/vessels/analytics/*`), and Nimbus (`/api/nimbus/analytics/*`) have dedicated aggregation endpoints for dashboards (experiment success rates, model leaderboard, project health, fleet utilization, emissions trends, voyage efficiency, port dwell, maintenance costs, prediction accuracy, alert frequency, confidence distribution).
+*   **SSE Streaming:** Each platform (INCA, Vessels, Nimbus) exposes `/api/{platform}/stream` for real-time dashboard updates on creates, updates, status changes, and bulk operations.
+*   **Search Endpoints:** `/api/{platform}/search?q=term` provides full-text matching across key fields (vessel names, project titles, experiment hypotheses, alert titles, etc.).
+*   **Bulk Operations:** Bulk status updates and bulk deletes with `requireOperator()` authorization on all three platforms.
+*   **Logger Redaction:** Pino logger redacts sensitive information.
+*   **DB Graceful Fallback:** Handles missing `DATABASE_URL` gracefully.
+*   **SEO & Accessibility:** Open Graph tags, descriptions, and skip-to-content links.
+*   **Mobile-First UX:** All 19 apps enhanced with touch-first interactions (44×44px min tap targets via `.touch-target` CSS class), safe area handling for notch devices (`.safe-top`, `.safe-bottom`), and mobile-optimized navigation. Dashboard apps (INCA, Aegis, Firestorm, Vessels, Dreamscape, Zeus, Rosie, Lyte, AlloyScape, Beacon, Nimbus) have bottom navigation bars on mobile. Landing pages (Career, Carlota Jo, Apps Showcase, DreamEra) have hamburger menus. Shared hooks (`useDeviceType`, `useOrientation`, `usePrefersReducedMotion`, `useSafeArea`) in `lib/ui/src/hooks/use-mobile.tsx`. Reduced-motion support in `PageTransition`. Skeleton loading animation via `.skeleton-pulse` CSS class. `PullToRefresh` and `MobileSheet` interaction primitives available from `@szl-holdings/ui`.
+*   **PWA Support:** `vite-plugin-pwa` installed with shared `createPwaPlugin()` helper in `lib/platform/src/pwa-config.ts`. All 18 apps have autoUpdate service workers, runtime caching (fonts/API), offline fallback to `index.html`, and web app manifests with app-specific names/theme colors. PWA meta tags in all `index.html` files (`viewport-fit=cover`, `apple-mobile-web-app-capable`).
+*   **Premium Extensions & Monetization:** Shared extension infrastructure with 60+ API endpoints, automation engine, webhook management, notification center, scheduled report generator, and developer API key portal. Domain-specific features for Security, Intelligence, Operations, Creative, and Business applications. Integrated Command Palette (Cmd+K) across all 18 apps.
 
 **Import & Data Integration (Import Center):**
 

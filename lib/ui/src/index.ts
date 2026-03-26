@@ -3,7 +3,7 @@ export { cn } from "./utils";
 export type { ClassValue } from "clsx";
 
 // Hooks
-export { useIsMobile } from "./hooks/use-mobile";
+export { useIsMobile, useDeviceType, useOrientation, usePrefersReducedMotion, useSafeArea } from "./hooks/use-mobile";
 export { useToast, toast } from "./hooks/use-toast";
 
 // Components
@@ -62,6 +62,10 @@ export * from "./components/toast";
 export * from "./components/toggle-group";
 export * from "./components/toggle";
 export * from "./components/tooltip";
+
+// Mobile interactions
+export { PullToRefresh } from "./components/pull-to-refresh";
+export { MobileSheet } from "./components/mobile-sheet";
 
 // Domain Chat
 export { DomainChatWidget } from "./components/domain-chat-widget";

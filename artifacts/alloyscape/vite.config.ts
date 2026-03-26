@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
+import { createPwaPlugin } from "../../lib/platform/src/pwa-config";
 
 const rawPort = process.env.PORT || "3000";
 const port = Number(rawPort);
@@ -19,6 +20,7 @@ export default defineConfig({
     react(),
     tailwindcss(),
     runtimeErrorOverlay(),
+    createPwaPlugin({ name: "AlloyScape", shortName: "AlloyScape", description: "Infrastructure Operations", themeColor: "#0a0c14" }),
     ...(process.env.NODE_ENV !== "production" &&
     process.env.REPL_ID !== undefined
       ? [
