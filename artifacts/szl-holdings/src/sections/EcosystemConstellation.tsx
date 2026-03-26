@@ -6,6 +6,7 @@ import {
   Layers, MonitorCheck, ExternalLink,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { getAppUrl } from "@szl-holdings/domain-utils";
 
 interface PlatformNode {
   id: string;
@@ -73,7 +74,7 @@ function MobileCard({ platform }: { platform: PlatformNode }) {
 
   return (
     <a
-      href={platform.href}
+      href={getAppUrl(platform.href.replace(/\/$/, "") || "/", "/")}
       className="group flex items-start gap-4 p-4 rounded-xl border border-white/[0.06] bg-surface-elevated/50 hover:border-gold/20 transition-all duration-300"
     >
       <div
@@ -170,7 +171,7 @@ function DesktopConstellation({ filteredIds, hoveredNode, setActiveNode }: {
               }}
             >
               <a
-                href={platform.href}
+                href={getAppUrl(platform.href.replace(/\/$/, "") || "/", "/")}
                 onMouseEnter={() => setActiveNode(platform.id)}
                 onMouseLeave={() => setActiveNode(null)}
                 onFocus={() => setActiveNode(platform.id)}
@@ -217,7 +218,7 @@ function DesktopConstellation({ filteredIds, hoveredNode, setActiveNode }: {
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] uppercase tracking-wider text-gold/60 font-medium">{platform.category}</span>
                       <a
-                        href={platform.href}
+                        href={getAppUrl(platform.href.replace(/\/$/, "") || "/", "/")}
                         className="inline-flex items-center gap-1 text-[10px] font-medium text-gold-light hover:text-gold transition-colors"
                         onClick={(e) => e.stopPropagation()}
                       >

@@ -10,6 +10,7 @@ import { isKeyVaultConfigured } from "./lib/keyvault";
 import { isRedisConfigured, isRedisReady } from "./lib/redis";
 import { isBlobStorageConfigured } from "./lib/blobStorage";
 import { securityHeaders } from "./middleware/securityHeaders";
+import { domainRoutingMiddleware } from "./middleware/domainRouting";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,6 +18,7 @@ const __dirname = path.dirname(__filename);
 const app: Express = express();
 
 app.use(securityHeaders());
+app.use(domainRoutingMiddleware());
 
 app.use(
   pinoHttp({
@@ -39,7 +41,7 @@ app.use(
 );
 app.use(cors());
 app.use((req: Request, res: Response, next: Function) => {
-  if (req.originalUrl === "/api/stripe/webhook") {
+  if (req.originalUrl === "/api/stripe/webhook" || req.url === "/api/stripe/webhook") {
     express.raw({ type: "application/json" })(req, res, next);
   } else {
     express.json()(req, res, next);

@@ -5,6 +5,7 @@ import {
   Crown, ExternalLink, type LucideIcon, Search, BarChart3,
   Briefcase, Ship, Coffee, Activity, Layers, Globe, Monitor,
 } from "lucide-react";
+import { getAppUrl } from "@szl-holdings/domain-utils";
 
 type Status = "Active" | "In Progress" | "Planned";
 type Maturity = "Production" | "Beta" | "Alpha" | "Concept";
@@ -287,7 +288,7 @@ function ProjectCard({ project }: { project: Project }) {
         </div>
 
         <a
-          href={project.path}
+          href={getAppUrl(project.path.replace(/\/$/, "") || "/", "/")}
           className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-sm font-semibold text-white hover:bg-white/10 transition"
         >
           Open <ExternalLink className="w-3.5 h-3.5" />

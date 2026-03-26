@@ -27,6 +27,7 @@
     "wouter": "^3.3.5",
     "@szl-holdings/ui": "workspace:*",
     "@workspace/branding": "workspace:*",
-    "@szl-holdings/platform": "workspace:*"
+    "@szl-holdings/platform": "workspace:*",
+    "@szl-holdings/domain-utils": "workspace:*"
   }
 }

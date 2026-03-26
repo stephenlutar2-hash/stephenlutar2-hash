@@ -27,6 +27,8 @@ The project is built as a pnpm workspace monorepo using Node.js 24, pnpm, and Ty
 - Serving all frontend applications as static files from their `dist/public` directories (e.g., `/` for Rosie, `/aegis/` for Aegis).
 - Handling all API routes under the `/api/` prefix.
 
+**Custom Domain Routing:** Domain-based routing middleware (`middleware/domainRouting.ts`) detects the `Host` header and routes to the correct artifact at root path. Configuration is centralized in `config/domainMap.ts`. Standalone domains: `szlholdings.com` → SZL Holdings, `carlotajo.com` → Carlota Jo, `vesselsintel.com` → Vessels. Product subdomains: `{app}.szlholdings.com` → respective app. Infrastructure: `api.szlholdings.com` → API, `apps.szlholdings.com` → Apps Showcase, etc. Existing path-based routing is preserved as fallback. Cross-app links use `@szl-holdings/domain-utils` (`lib/domain-utils`) which detects custom domains at runtime and generates correct URLs.
+
 **Platform Portfolio:** The monorepo includes several distinct applications, each serving a specific purpose:
 - **ROSIE**: AI-powered security monitoring.
 - **AEGIS**: Enterprise security fortress.

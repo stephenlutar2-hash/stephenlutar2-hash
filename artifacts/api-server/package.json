@@ -28,6 +28,7 @@
     "@szl-holdings/api-zod": "workspace:*",
     "@szl-holdings/db": "workspace:*",
     "@szl-holdings/integrations-openai-ai-server": "workspace:*",
+    "@szl-holdings/domain-utils": "workspace:*",
     "@szl-holdings/lyte-types": "workspace:*",
     "applicationinsights": "^3.14.0",
     "cookie-parser": "^1.4.7",

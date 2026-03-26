@@ -5,6 +5,7 @@ import {
   Layers, MonitorCheck, ExternalLink,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { getAppUrl } from "@szl-holdings/domain-utils";
 
 type Status = "Live" | "Beta" | "In Development";
 
@@ -193,7 +194,7 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
       }}
     >
       <a
-        href={product.href}
+        href={getAppUrl(product.href.replace(/\/$/, "") || "/", "/")}
         className="group block h-full rounded-2xl border border-white/[0.06] bg-surface-elevated/50 hover:border-gold/20 hover:bg-surface-elevated transition-all duration-500 relative overflow-hidden"
       >
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-gold/[0.02] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
