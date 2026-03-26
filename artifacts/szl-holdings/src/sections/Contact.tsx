@@ -1,6 +1,8 @@
+import { trackEvent } from "@szl-holdings/platform";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send, CheckCircle, Linkedin, Github, Globe } from "lucide-react";
+import NewsletterSignup from "../components/NewsletterSignup";
 
 const inquiryTypes = [
   "General Inquiry",
@@ -37,6 +39,7 @@ export default function Contact() {
 
       if (res.ok) {
         setSubmitted(true);
+        trackEvent("contact", "submit", formState.inquiryType);
       } else {
         const data = await res.json().catch(() => null);
         setError(data?.error || "Unable to send your message. You can reach us directly via email instead.");
@@ -290,6 +293,8 @@ export default function Contact() {
                 </a>
               </div>
             </div>
+
+            <NewsletterSignup />
 
             <div className="p-6 rounded-2xl border border-gold/10 bg-gold/[0.03]">
               <h3 className="text-sm font-semibold text-gold-light mb-3">

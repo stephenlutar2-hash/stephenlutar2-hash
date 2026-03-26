@@ -12,6 +12,10 @@
     <meta property="og:type" content="profile" />
     <meta property="og:url" content="https://szlholdings.com/career/" />
     <meta property="og:site_name" content="Stephen Lutar Portfolio" />
+    <meta property="og:image" content="https://szlholdings.com/career/opengraph.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:image" content="https://szlholdings.com/career/opengraph.jpg" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Stephen Lutar — Technology Leader & Architect" />
     <meta name="twitter:description" content="Founder of SZL Holdings. Building enterprise security, AI infrastructure, and intelligent systems." />
@@ -19,6 +23,7 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" as="style" />
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script type="application/ld+json">
     {
@@ -54,5 +59,8 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-  </body>
+      <script>
+        window.szlTrack=function(c,a,l,v){try{navigator.sendBeacon('/api/analytics/event',JSON.stringify({category:c,action:a,label:l,path:location.pathname,value:v}))}catch(e){}};(function(){var d={p:location.pathname,r:document.referrer,t:document.title,w:window.innerWidth};try{navigator.sendBeacon('/api/analytics/pageview',JSON.stringify(d))}catch(e){var x=new XMLHttpRequest();x.open('POST','/api/analytics/pageview');x.setRequestHeader('Content-Type','application/json');x.send(JSON.stringify(d))}})();
+      </script>
+    </body>
 </html>

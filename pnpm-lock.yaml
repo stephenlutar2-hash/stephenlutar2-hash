@@ -295,6 +295,9 @@ importers:
       '@replit/vite-plugin-runtime-error-modal':
         specifier: 'catalog:'
         version: 0.0.6
+      '@szl-holdings/platform':
+        specifier: workspace:*
+        version: link:../../lib/platform
       '@szl-holdings/ui':
         specifier: workspace:*
         version: link:../../lib/ui
@@ -1773,6 +1776,9 @@ importers:
       '@szl-holdings/api-client-react':
         specifier: workspace:*
         version: link:../../lib/api-client-react
+      '@szl-holdings/platform':
+        specifier: workspace:*
+        version: link:../../lib/platform
       '@szl-holdings/ui':
         specifier: workspace:*
         version: link:../../lib/ui

@@ -26,3 +26,4 @@ export type {
   LayoutShellProps,
 } from "./layout-shell";
 export { validateEnv, getEnv } from "./env";
+export { trackEvent } from "./analytics";

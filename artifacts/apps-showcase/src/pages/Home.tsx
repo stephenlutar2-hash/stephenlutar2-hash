@@ -1,10 +1,55 @@
+import { trackEvent } from "@szl-holdings/platform";
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Shield, Flame, Satellite, Leaf, Cloud, Zap, Sparkles, Eye,
   ArrowRight, Check, Crown, Star, Rocket, Globe, Layers, BarChart3,
   Briefcase, Ship, Coffee, Monitor, Cpu, Activity, Search, X,
+  Mail, CheckCircle,
 } from "lucide-react";
+
+function NewsletterForm() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [msg, setMsg] = useState("");
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email.trim()) return;
+    setStatus("loading");
+    try {
+      const res = await fetch(`${import.meta.env.BASE_URL}../api/newsletter/subscribe`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+      const data = await res.json();
+      if (res.ok) { setStatus("success"); setMsg(data.message); setEmail(""); trackEvent("newsletter", "subscribe", "apps-showcase"); }
+      else { setStatus("error"); setMsg(data.error); }
+    } catch { setStatus("error"); setMsg("Unable to connect."); }
+  }
+
+  return (
+    <div className="mt-8 max-w-md mx-auto">
+      {status === "success" ? (
+        <div className="flex items-center justify-center gap-2 text-emerald-400 text-sm">
+          <CheckCircle className="w-4 h-4" /><span>{msg}</span>
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="flex gap-2">
+          <div className="relative flex-1">
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+            <input type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="Get platform updates" className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-3 text-white placeholder:text-gray-500 focus:outline-none focus:border-cyan-500/50 text-sm" />
+          </div>
+          <button type="submit" disabled={status === "loading"} className="px-5 py-3 rounded-lg bg-cyan-500 text-white font-semibold text-sm hover:bg-cyan-600 transition disabled:opacity-60">
+            {status === "loading" ? "..." : "Subscribe"}
+          </button>
+        </form>
+      )}
+      {status === "error" && <p className="text-xs text-red-400 mt-2 text-center">{msg}</p>}
+    </div>
+  );
+}
 
 type Platform = {
   name: string;
@@ -363,6 +408,7 @@ export default function Home() {
             <motion.a
               key={featuredIndex}
               href={featured[featuredIndex].path}
+              onClick={() => trackEvent("spotlight", "click", featured[featuredIndex].name)}
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
@@ -474,6 +520,7 @@ export default function Home() {
                 <motion.a
                   key={p.name}
                   href={p.path}
+                  onClick={() => trackEvent("catalog", "click", p.name)}
                   layout
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -640,6 +687,7 @@ export default function Home() {
                   Compare Plans
                 </a>
               </div>
+              <NewsletterForm />
             </div>
           </div>
         </div>

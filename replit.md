@@ -48,6 +48,36 @@ The system incorporates health endpoints, security headers (CSP, HSTS), Role-Bas
 
 A shared import infrastructure provides reusable components for file uploads, data preview, and column mapping, supporting CSV, JSON, XML, YAML, ICS, and IPYNB formats. API routes handle domain-specific imports.
 
+*   **Health Endpoints:** Comprehensive health checks at various levels.
+*   **Security Headers:** Middleware for CSP, HSTS, and other security headers.
+*   **RBAC:** Role-Based Access Control using a DB-backed `user_roles` table with `requireRole()` middleware.
+*   **Rate Limiting:** Global API rate limiting (200 req/min), auth-specific (20/15min), and write-specific (60/min) per-IP and per-user rate limiting.
+*   **Schema Validation:** Zod-based validation and sanitization for all incoming data.
+*   **Input Sanitization:** HTML escaping for XSS prevention.
+*   **Audit Logging:** Structured audit logs for all mutating operations to both logs and a database table.
+*   **Feature Flags:** Database-backed feature flags with API management.
+*   **Environment Validation:** Zod-based config schema (`lib/envValidation.ts`) with typed `AppConfig` and `getConfig()` accessor. Fails fast on missing required vars.
+*   **Centralized Error Handling:** `lib/errors.ts` (AppError class with static factories), `middleware/errorHandler.ts` (asyncHandler wrapper, global error middleware). Consistent error response shape: `{ status, code, message, requestId?, timestamp, details? }`.
+*   **Request ID Propagation:** `lib/requestContext.ts` — AsyncLocalStorage-based request context middleware with `getRequestId()` helper. Request IDs included in all error responses.
+*   **Mock/Live Provider Pattern:** `providers/` directory with interfaces and mock/live implementations for Redis cache, Blob storage, Stripe, and Plaid. Controlled via `MOCK_PROVIDERS` env var (comma-separated). Factory at `providers/factory.ts`.
+*   **Typed Service Layer:** `services/` directory with service classes for each platform (RosieService, BeaconService, NimbusService, ZeusService, IncaService, DreameraService, AlloyService, StripeService). Routes delegate to services for business logic.
+*   **Pagination Middleware:** Reusable `middleware/pagination.ts` provides `parsePagination()`, `paginateArray()`, `sortArray()`, `filterByFields()`, and `searchItems()` utilities for all list endpoints. Supports `?page=1&limit=25&sort=field&order=asc` query params plus field-based filtering and date range filtering.
+*   **Analytics Endpoints:** INCA (`/api/inca/analytics/*`), Vessels (`/api/vessels/analytics/*`), and Nimbus (`/api/nimbus/analytics/*`) have dedicated aggregation endpoints for dashboards (experiment success rates, model leaderboard, project health, fleet utilization, emissions trends, voyage efficiency, port dwell, maintenance costs, prediction accuracy, alert frequency, confidence distribution).
+*   **SSE Streaming:** Each platform (INCA, Vessels, Nimbus) exposes `/api/{platform}/stream` for real-time dashboard updates on creates, updates, status changes, and bulk operations.
+*   **Search Endpoints:** `/api/{platform}/search?q=term` provides full-text matching across key fields (vessel names, project titles, experiment hypotheses, alert titles, etc.).
+*   **Bulk Operations:** Bulk status updates and bulk deletes with `requireOperator()` authorization on all three platforms.
+*   **Logger Redaction:** Pino logger redacts sensitive information.
+*   **DB Graceful Fallback:** Handles missing `DATABASE_URL` gracefully.
+*   **SEO & Accessibility:** Full OG + Twitter Card meta tags on all 18 apps (og:title, og:description, og:image, og:type, twitter:card, twitter:title, twitter:description), font preloading via `rel="preload"`, skip-to-content links.
+*   **Analytics:** Self-hosted pageview tracking via `navigator.sendBeacon` in every index.html, POST `/api/analytics/pageview` logging endpoint.
+*   **Newsletter:** Email capture on SZL Holdings Contact section and Apps Showcase CTA. POST `/api/newsletter/subscribe` with `newsletter_subscribers` DB table (Drizzle schema at `lib/db/src/schema/newsletter.ts`).
+*   **Demo Mode:** "Explore Demo" button on 8 gated app login pages (Rosie, Aegis, Firestorm, Lutar, Vessels, Beacon, Nimbus, AlloyScape). Sets `szl_demo_mode=true` in localStorage to bypass auth. Brand-colored `DemoBanner` fixed banner with "Sign up for full access" link in each App.tsx.
+*   **Press Kit:** `/press` route on SZL Holdings with company overview, founder bio, brand color palette, key metrics, boilerplate copy, and asset download links (`PressKit.tsx`).
+*   **Mobile-First UX:** All 19 apps enhanced with touch-first interactions (44×44px min tap targets via `.touch-target` CSS class), safe area handling for notch devices (`.safe-top`, `.safe-bottom`), and mobile-optimized navigation. Dashboard apps (INCA, Aegis, Firestorm, Vessels, Dreamscape, Zeus, Rosie, Lyte, AlloyScape, Beacon, Nimbus) have bottom navigation bars on mobile. Landing pages (Career, Carlota Jo, Apps Showcase, DreamEra) have hamburger menus. Shared hooks (`useDeviceType`, `useOrientation`, `usePrefersReducedMotion`, `useSafeArea`) in `lib/ui/src/hooks/use-mobile.tsx`. Reduced-motion support in `PageTransition`. Skeleton loading animation via `.skeleton-pulse` CSS class. `PullToRefresh` and `MobileSheet` interaction primitives available from `@szl-holdings/ui`.
+*   **PWA Support:** `vite-plugin-pwa` installed with shared `createPwaPlugin()` helper in `lib/platform/src/pwa-config.ts`. All 18 apps have autoUpdate service workers, runtime caching (fonts/API), offline fallback to `index.html`, and web app manifests with app-specific names/theme colors. PWA meta tags in all `index.html` files (`viewport-fit=cover`, `apple-mobile-web-app-capable`).
+*   **Premium Extensions & Monetization:** Shared extension infrastructure with 60+ API endpoints, automation engine, webhook management, notification center, scheduled report generator, and developer API key portal. Domain-specific features for Security, Intelligence, Operations, Creative, and Business applications. Integrated Command Palette (Cmd+K) across all 18 apps.
+*   **Performance Hardening:** Express `compression` middleware (Brotli/Gzip, Stripe webhook excluded), static asset caching headers (1-year immutable for hashed assets, 1-day for non-hashed static assets, 1-hour for index.html), pre-compressed `.br`/`.gz` file serving, request timeout middleware (30s API, 10s health), HTTP keep-alive/headers timeout configuration, 1MB JSON body limit, graceful shutdown handling, branded static error page fallback. Vite builds produce pre-compressed files via `vite-plugin-compression2`. Manual chunk splitting separates `vendor-react` and `vendor-motion`. Azure Container Apps scaled to 1 CPU / 2Gi RAM per instance, max 10 replicas, concurrency trigger at 25. Front Door static asset caching rules. Load test script at `scripts/load-test.mjs`.
+
 **MCP Registry Integration:**
 
 A centralized Model Context Protocol (MCP) client layer connects to community MCP servers, bridging their tools into the OpenAI function-calling format. It includes an MCP Client Library, an MCP-to-OpenAI Bridge, and an MCP Registry Config mapping 14 MCP servers.

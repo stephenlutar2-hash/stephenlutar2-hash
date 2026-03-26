@@ -1,3 +1,4 @@
+import { trackEvent } from "@szl-holdings/platform";
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { Hexagon, Lock, User, AlertCircle } from "lucide-react";
@@ -62,7 +63,25 @@ export default function Login() {
           <button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold py-3 rounded-lg tracking-wider uppercase text-sm hover:opacity-90 transition disabled:opacity-50">
             {loading ? "Connecting..." : "Enter AlloyScape"}
           </button>
-          <p className="text-center text-gray-600 text-xs">Clearance: INFRASTRUCTURE OPS</p>
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-px bg-white/10" />
+            <span className="text-xs text-gray-500 uppercase tracking-wider">or</span>
+            <div className="flex-1 h-px bg-white/10" />
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              localStorage.setItem("szl_token", "demo_token_alloyscape");
+              localStorage.setItem("szl_user", "demo");
+              localStorage.setItem("szl_demo_mode", "true"); trackEvent("demo", "enter", "alloyscape");
+              setLocation("/dashboard");
+            }}
+            className="w-full border border-cyan-500/30 text-cyan-400 font-semibold py-3 rounded-lg tracking-wide text-sm hover:bg-cyan-500/10 transition"
+          >
+            Explore Demo
+          </button>
+          <p className="text-center text-gray-600 text-xs">No credentials needed — browse with sample data</p>
         </form>
       </div>
     </div>

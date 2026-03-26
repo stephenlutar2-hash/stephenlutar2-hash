@@ -11,6 +11,16 @@ import FinancialResearch from "@/pages/FinancialResearch";
 import NotFound from "@/pages/not-found";
 import Extensions from "@/pages/Extensions";
 
+function DemoBanner() {
+  const isDemo = typeof window !== "undefined" && localStorage.getItem("szl_demo_mode") === "true";
+  if (!isDemo) return null;
+  return (
+    <div className="fixed top-0 left-0 right-0 z-[9999] bg-gradient-to-r from-emerald-600 to-green-500 text-white text-center py-2 px-4 text-sm font-semibold">
+      Demo Mode — <button onClick={() => { localStorage.removeItem("szl_demo_mode"); localStorage.removeItem("szl_token"); localStorage.removeItem("szl_user"); window.location.href = import.meta.env.BASE_URL + "login"; }} className="underline ml-1">Sign up for full access</button>
+    </div>
+  );
+}
+
 const queryClient = new QueryClient();
 
 function Router() {
@@ -41,6 +51,7 @@ function App() {
         <TooltipProvider>
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
         <CommandPaletteWrapper />
+            <DemoBanner />
             <Router />
           </WouterRouter>
           <Toaster />

@@ -33,6 +33,8 @@ import careerRouter from "./career";
 import appsShowcaseRouter from "./apps-showcase";
 import googleRouter from "./google";
 import integrationsRouter from "./integrations";
+import analyticsRouter from "./analytics";
+import newsletterRouter from "./newsletter";
 import { auditMiddleware } from "../lib/audit";
 import { requireDatabase } from "../lib/dbGuard";
 import { authRateLimit, apiRateLimit } from "../middleware/rateLimit";
@@ -96,5 +98,7 @@ router.use(careerRouter);
 router.use(appsShowcaseRouter);
 router.use(googleRouter);
 router.use(integrationsRouter);
+router.use(analyticsRouter);
+router.use(newsletterRouter);
 
 export default router;

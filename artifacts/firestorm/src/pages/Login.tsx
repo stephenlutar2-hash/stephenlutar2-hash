@@ -1,3 +1,4 @@
+import { trackEvent } from "@szl-holdings/platform";
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Flame, Lock, User, AlertCircle, Shield } from "lucide-react";
@@ -143,7 +144,24 @@ export default function Login() {
             </button>
           </form>
 
-          <p className="text-center text-gray-600 text-xs">Clearance Level: SIMULATION OPERATOR</p>
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-px bg-white/10" />
+            <span className="text-xs text-gray-500 uppercase tracking-wider">or</span>
+            <div className="flex-1 h-px bg-white/10" />
+          </div>
+
+          <button
+            onClick={() => {
+              localStorage.setItem("szl_token", "demo_token_firestorm");
+              localStorage.setItem("szl_user", "demo");
+              localStorage.setItem("szl_demo_mode", "true"); trackEvent("demo", "enter", "firestorm");
+              setLocation("/dashboard");
+            }}
+            className="w-full border border-orange-500/30 text-orange-400 font-semibold py-3 rounded-lg tracking-wide text-sm hover:bg-orange-500/10 transition"
+          >
+            Explore Demo
+          </button>
+          <p className="text-center text-gray-600 text-xs">No credentials needed — browse with sample data</p>
         </div>
       </div>
     </div>

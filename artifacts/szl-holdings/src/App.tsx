@@ -6,6 +6,8 @@ import Footer from "./components/Footer";
 import ImportCenter from "./pages/ImportCenter";
 import { DomainChatWidget, CommandPalette, useAppCommands } from "@szl-holdings/ui";
 
+const PressKit = lazy(() => import("./pages/PressKit"));
+
 const Vision = lazy(() => import("./sections/Vision"));
 const EcosystemConstellation = lazy(() => import("./sections/EcosystemConstellation"));
 const Metrics = lazy(() => import("./sections/Metrics"));
@@ -82,6 +84,7 @@ function App() {
       <Switch>
         <Route path="/import" component={ImportCenter} />
         <Route path="/extensions" component={Extensions} />
+        <Route path="/press">{() => <Suspense fallback={<SectionFallback />}><PressKit /></Suspense>}</Route>
         <Route component={LandingPage} />
       </Switch>
       <DomainChatWidget

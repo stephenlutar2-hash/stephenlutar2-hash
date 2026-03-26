@@ -1,3 +1,4 @@
+import { trackEvent } from "@szl-holdings/platform";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -75,6 +76,7 @@ function MobileCard({ platform }: { platform: PlatformNode }) {
   return (
     <a
       href={getAppUrl(platform.href.replace(/\/$/, "") || "/", "/")}
+      onClick={() => trackEvent("ecosystem", "click", platform.name)}
       className="group flex items-start gap-4 p-4 rounded-xl border border-white/[0.06] bg-surface-elevated/50 hover:border-gold/20 transition-all duration-300"
     >
       <div
