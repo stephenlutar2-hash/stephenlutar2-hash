@@ -1,6 +1,6 @@
 import { useLocation, Link } from "wouter";
 import { motion } from "framer-motion";
-import { Brain, LayoutDashboard, FolderKanban, FlaskConical, Lightbulb, Activity, Upload, Newspaper, FileText, Radar, GitCompare, Gauge, Trophy, SlidersHorizontal, HeartPulse, Cpu } from "lucide-react";
+import { Brain, LayoutDashboard, FolderKanban, FlaskConical, Lightbulb, Activity, Upload, Newspaper, FileText, Radar, GitCompare, Gauge, Trophy, SlidersHorizontal, HeartPulse, Cpu, Zap } from "lucide-react";
 
 const navItems = [
   { path: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -14,6 +14,7 @@ const navItems = [
   { path: "/resources", label: "Resources", icon: Cpu },
   { path: "/insights", label: "Insights", icon: Lightbulb },
   { path: "/models", label: "Models", icon: Activity },
+  { path: "/extensions", label: "Extensions", icon: Zap },
   { path: "/import", label: "Import Center", icon: Upload },
   { path: "/research-feed", label: "Research Feed", icon: Newspaper },
   { path: "/document-intelligence", label: "Doc Intelligence", icon: FileText },

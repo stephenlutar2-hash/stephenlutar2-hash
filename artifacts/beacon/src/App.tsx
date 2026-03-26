@@ -1,7 +1,7 @@
 import { Switch, Route, Router as WouterRouter, Redirect, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { Toaster, DomainChatWidget } from "@szl-holdings/ui";
+import { Toaster, DomainChatWidget, CommandPalette, useAppCommands } from "@szl-holdings/ui";
 import { TooltipProvider } from "@szl-holdings/ui";
 import { ErrorBoundary, AuthGuard } from "@szl-holdings/platform";
 import NotFound from "@/pages/not-found";
@@ -15,6 +15,7 @@ import AnomalyCorrelation from "./pages/AnomalyCorrelation";
 import TrendForecasting from "./pages/TrendForecasting";
 import MetricTileGrid from "./pages/MetricTileGrid";
 import CrossAppHealthMatrix from "./pages/CrossAppHealthMatrix";
+import Extensions from "@/pages/Extensions";
 
 const queryClient = new QueryClient();
 
@@ -53,18 +54,27 @@ function Router() {
         <Route path="/trend-forecasting">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><AnimatedRoute><TrendForecasting /></AnimatedRoute></AuthGuard>}</Route>
         <Route path="/metric-tiles">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><AnimatedRoute><MetricTileGrid /></AnimatedRoute></AuthGuard>}</Route>
         <Route path="/health-matrix">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><AnimatedRoute><CrossAppHealthMatrix /></AnimatedRoute></AuthGuard>}</Route>
+        <Route path="/extensions">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><AnimatedRoute><Extensions /></AnimatedRoute></AuthGuard>}</Route>
         <Route component={NotFound} />
       </Switch>
     </AnimatePresence>
   );
 }
 
+
+  function CommandPaletteWrapper() {
+    const [, navigate] = useLocation();
+    const commands = useAppCommands(navigate);
+    return <CommandPalette actions={commands} brandName="BEACON" accentColor="#06b6d4" />;
+  }
+  
 function App() {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+        <CommandPaletteWrapper />
             <Router />
           </WouterRouter>
           <Toaster />

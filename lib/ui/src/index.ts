@@ -67,5 +67,9 @@ export * from "./components/tooltip";
 export { DomainChatWidget } from "./components/domain-chat-widget";
 export type { DomainChatWidgetProps } from "./components/domain-chat-widget";
 
+// Command Palette
+export { CommandPalette, useAppCommands } from "./components/command-palette";
+export type { CommandAction } from "./components/command-palette";
+
 // Import & Data Integration
 export * from "./components/import";

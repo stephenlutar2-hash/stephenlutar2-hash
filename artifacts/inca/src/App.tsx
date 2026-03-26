@@ -1,4 +1,4 @@
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import {Switch, Route, Router as WouterRouter, useLocation} from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AnimatePresence } from "framer-motion";
 import Sidebar from "@/components/Sidebar";
@@ -18,7 +18,8 @@ import ImportCenter from "@/pages/ImportCenter";
 import ResearchFeed from "@/pages/ResearchFeed";
 import DocumentIntelligence from "@/pages/DocumentIntelligence";
 import DiscoveryRadar from "@/pages/DiscoveryRadar";
-import { DomainChatWidget } from "@szl-holdings/ui";
+import { DomainChatWidget, CommandPalette, useAppCommands } from "@szl-holdings/ui";
+import Extensions from "@/pages/Extensions";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +46,7 @@ function Router() {
             <Route path="/research-feed" component={ResearchFeed} />
             <Route path="/document-intelligence" component={DocumentIntelligence} />
             <Route path="/discovery-radar" component={DiscoveryRadar} />
+            <Route path="/extensions" component={Extensions} />
             <Route>
               <Dashboard />
             </Route>
@@ -55,10 +57,18 @@ function Router() {
   );
 }
 
+
+  function CommandPaletteWrapper() {
+    const [, navigate] = useLocation();
+    const commands = useAppCommands(navigate);
+    return <CommandPalette actions={commands} brandName="INCA" accentColor="#6366f1" />;
+  }
+  
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+        <CommandPaletteWrapper />
         <Router />
         <DomainChatWidget
           agentType="inca"

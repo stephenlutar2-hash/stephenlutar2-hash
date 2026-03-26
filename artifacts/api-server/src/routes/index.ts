@@ -26,6 +26,7 @@ import platformRouter from "./platform";
 import importRouter from "./import";
 import mcpRouter from "./mcp";
 import agentStatusRouter from "./agent-status";
+import extensionsRouter from "./extensions";
 import { auditMiddleware } from "../lib/audit";
 import { requireDatabase } from "../lib/dbGuard";
 import { authRateLimit, apiRateLimit } from "../middleware/rateLimit";
@@ -81,5 +82,6 @@ router.use(platformRouter);
 router.use(importRouter);
 router.use(mcpRouter);
 router.use(agentStatusRouter);
+router.use(extensionsRouter);
 
 export default router;

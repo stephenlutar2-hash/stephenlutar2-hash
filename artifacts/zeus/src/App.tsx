@@ -1,4 +1,5 @@
-import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
+import { CommandPalette, useAppCommands } from "@szl-holdings/ui";
+import {Switch, Route, Router as WouterRouter, Redirect, useLocation} from "wouter";
 import { AuthGuard } from "@szl-holdings/platform";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DomainChatWidget } from "@szl-holdings/ui";
@@ -10,6 +11,7 @@ import ImportCenter from "@/pages/ImportCenter";
 import ArchitectureMap from "@/pages/ArchitectureMap";
 import LogExplorer from "@/pages/LogExplorer";
 import ModuleDependencyGraph from "@/pages/ModuleDependencyGraph";
+import Extensions from "@/pages/Extensions";
 
 const queryClient = new QueryClient();
 
@@ -22,16 +24,25 @@ function Router() {
       <Route path="/architecture">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><ArchitectureMap /></AuthGuard>}</Route>
       <Route path="/logs">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><LogExplorer /></AuthGuard>}</Route>
       <Route path="/dependencies">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><ModuleDependencyGraph /></AuthGuard>}</Route>
+      <Route path="/extensions">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Extensions /></AuthGuard>}</Route>
       <Route path="/" component={Home} />
       <Route component={NotFound} />
     </Switch>
   );
 }
 
+
+  function CommandPaletteWrapper() {
+    const [, navigate] = useLocation();
+    const commands = useAppCommands(navigate);
+    return <CommandPalette actions={commands} brandName="ZEUS" accentColor="#eab308" />;
+  }
+  
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+        <CommandPaletteWrapper />
         <Router />
       </WouterRouter>
       <DomainChatWidget

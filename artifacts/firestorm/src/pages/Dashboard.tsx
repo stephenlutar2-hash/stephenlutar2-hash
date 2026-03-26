@@ -45,6 +45,7 @@ const navItems = [
   { icon: Shield, label: "Response Trainer", path: "/response-trainer" },
   { icon: FileText, label: "Reports", path: "/reports" },
   { icon: Upload, label: "Import Center", path: "/import" },
+  { icon: Zap, label: "Extensions", path: "/extensions" },
 ];
 
 type DashView = "command" | "timeline" | "matrix" | "compare" | "trainer";

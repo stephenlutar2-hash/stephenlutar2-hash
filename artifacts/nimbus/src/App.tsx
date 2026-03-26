@@ -1,6 +1,6 @@
-import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
+import {Switch, Route, Router as WouterRouter, Redirect, useLocation} from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Toaster, DomainChatWidget } from "@szl-holdings/ui";
+import { Toaster, DomainChatWidget, CommandPalette, useAppCommands } from "@szl-holdings/ui";
 import { TooltipProvider } from "@szl-holdings/ui";
 import { ErrorBoundary, AuthGuard } from "@szl-holdings/platform";
 import { Layout } from "@/components/Layout";
@@ -14,6 +14,7 @@ import ConfidenceHistogram from "@/pages/ConfidenceHistogram";
 import Login from "@/pages/Login";
 import NotFound from "@/pages/not-found";
 import ImportCenter from "@/pages/ImportCenter";
+import Extensions from "@/pages/Extensions";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -36,17 +37,26 @@ function Router() {
       <Route path="/confidence">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Layout><ConfidenceHistogram /></Layout></AuthGuard>}</Route>
       <Route path="/import">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Layout><ImportCenter /></Layout></AuthGuard>}</Route>
       <Route path="/ensemble">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Layout><EnsembleStudio /></Layout></AuthGuard>}</Route>
+      <Route path="/extensions">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Layout><Extensions /></Layout></AuthGuard>}</Route>
       <Route component={NotFound} />
     </Switch>
   );
 }
 
+
+  function CommandPaletteWrapper() {
+    const [, navigate] = useLocation();
+    const commands = useAppCommands(navigate);
+    return <CommandPalette actions={commands} brandName="NIMBUS" accentColor="#8b5cf6" />;
+  }
+  
 function App() {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+        <CommandPaletteWrapper />
             <Router />
           </WouterRouter>
           <Toaster />

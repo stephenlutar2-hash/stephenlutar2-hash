@@ -1,7 +1,7 @@
 import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { Toaster } from "@szl-holdings/ui";
+import { Toaster, CommandPalette, useAppCommands } from "@szl-holdings/ui";
 import { TooltipProvider } from "@szl-holdings/ui";
 import { ErrorBoundary } from "@szl-holdings/platform";
 import NotFound from "@/pages/not-found";
@@ -11,6 +11,7 @@ import Dashboard from "@/pages/Dashboard";
 import AlloyChat from "@/pages/AlloyChat";
 import ImportCenter from "@/pages/ImportCenter";
 import ThreatIntelFeed from "@/pages/ThreatIntelFeed";
+import Extensions from "@/pages/Extensions";
 
 const queryClient = new QueryClient();
 
@@ -45,18 +46,27 @@ function Router() {
         <Route path="/alloy">{() => <AnimatedRoute component={AlloyChat} />}</Route>
         <Route path="/import">{() => <AnimatedRoute component={ImportCenter} />}</Route>
         <Route path="/threat-intel">{() => <AnimatedRoute component={ThreatIntelFeed} />}</Route>
+        <Route path="/extensions">{() => <AnimatedRoute component={Extensions} />}</Route>
         <Route component={NotFound} />
       </Switch>
     </AnimatePresence>
   );
 }
 
+
+  function CommandPaletteWrapper() {
+    const [, navigate] = useLocation();
+    const commands = useAppCommands(navigate);
+    return <CommandPalette actions={commands} brandName="ROSIE" accentColor="#ef4444" />;
+  }
+  
 function App() {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+        <CommandPaletteWrapper />
             <Router />
           </WouterRouter>
           <Toaster />

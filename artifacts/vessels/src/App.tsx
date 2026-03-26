@@ -1,4 +1,4 @@
-import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
+import {Switch, Route, Router as WouterRouter, Redirect, useLocation} from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Login from "@/pages/Login";
 import Dashboard from "@/pages/Dashboard";
@@ -6,7 +6,8 @@ import ImportCenter from "@/pages/ImportCenter";
 import MaritimeIntel from "@/pages/MaritimeIntel";
 import DocumentProcessing from "@/pages/DocumentProcessing";
 import SignalIntelligence from "@/pages/SignalIntelligence";
-import { DomainChatWidget } from "@szl-holdings/ui";
+import Extensions from "@/pages/Extensions";
+import { DomainChatWidget, CommandPalette, useAppCommands } from "@szl-holdings/ui";
 
 const queryClient = new QueryClient();
 
@@ -25,16 +26,25 @@ function Router() {
       <Route path="/maritime-intel">{() => <AuthGuard component={MaritimeIntel} />}</Route>
       <Route path="/document-processing">{() => <AuthGuard component={DocumentProcessing} />}</Route>
       <Route path="/signal-intelligence">{() => <AuthGuard component={SignalIntelligence} />}</Route>
+      <Route path="/extensions">{() => <AuthGuard component={Extensions} />}</Route>
       <Route path="/">{() => <Redirect to="/dashboard" />}</Route>
       <Route>{() => <Redirect to="/dashboard" />}</Route>
     </Switch>
   );
 }
 
+
+  function CommandPaletteWrapper() {
+    const [, navigate] = useLocation();
+    const commands = useAppCommands(navigate);
+    return <CommandPalette actions={commands} brandName="VESSELS" accentColor="#0ea5e9" />;
+  }
+  
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+        <CommandPaletteWrapper />
         <Router />
         <DomainChatWidget
           agentType="vessels"

@@ -1,4 +1,4 @@
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import {Switch, Route, Router as WouterRouter, useLocation} from "wouter";
 import Home from "@/pages/Home";
 import Consultation from "@/pages/Consultation";
 import ImportCenter from "@/pages/ImportCenter";
@@ -6,7 +6,8 @@ import Pipeline from "@/pages/Pipeline";
 import MeetingIntelligence from "@/pages/MeetingIntelligence";
 import ClientDossier from "@/pages/ClientDossier";
 import NotFound from "@/pages/not-found";
-import { DomainChatWidget } from "@szl-holdings/ui";
+import { DomainChatWidget, CommandPalette, useAppCommands } from "@szl-holdings/ui";
+import Extensions from "@/pages/Extensions";
 
 function Router() {
   return (
@@ -17,14 +18,23 @@ function Router() {
       <Route path="/pipeline" component={Pipeline} />
       <Route path="/meeting-intelligence" component={MeetingIntelligence} />
       <Route path="/client-dossier" component={ClientDossier} />
+      <Route path="/extensions" component={Extensions} />
       <Route component={NotFound} />
     </Switch>
   );
 }
 
+
+  function CommandPaletteWrapper() {
+    const [, navigate] = useLocation();
+    const commands = useAppCommands(navigate);
+    return <CommandPalette actions={commands} brandName="CARLOTA JO" accentColor="#d946ef" />;
+  }
+  
 function App() {
   return (
     <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+        <CommandPaletteWrapper />
       <Router />
       <DomainChatWidget
         agentType="carlota-jo"

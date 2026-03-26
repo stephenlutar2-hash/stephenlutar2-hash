@@ -1,10 +1,10 @@
 import { lazy, Suspense } from "react";
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import {Switch, Route, Router as WouterRouter, useLocation} from "wouter";
 import Navigation from "./components/Navigation";
 import Hero from "./sections/Hero";
 import Footer from "./components/Footer";
 import ImportCenter from "./pages/ImportCenter";
-import { DomainChatWidget } from "@szl-holdings/ui";
+import { DomainChatWidget, CommandPalette, useAppCommands } from "@szl-holdings/ui";
 
 const Vision = lazy(() => import("./sections/Vision"));
 const EcosystemConstellation = lazy(() => import("./sections/EcosystemConstellation"));
@@ -17,6 +17,7 @@ const ThoughtLeadership = lazy(() => import("./sections/ThoughtLeadership"));
 const Innovation = lazy(() => import("./sections/Innovation"));
 const InvestorBrief = lazy(() => import("./sections/InvestorBrief"));
 const Contact = lazy(() => import("./sections/Contact"));
+import Extensions from "@/pages/Extensions";
 
 function SectionFallback() {
   return <div className="min-h-[200px]" />;
@@ -67,11 +68,20 @@ function LandingPage() {
   );
 }
 
+
+  function CommandPaletteWrapper() {
+    const [, navigate] = useLocation();
+    const commands = useAppCommands(navigate);
+    return <CommandPalette actions={commands} brandName="SZL" accentColor="#6366f1" />;
+  }
+  
 function App() {
   return (
     <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+        <CommandPaletteWrapper />
       <Switch>
         <Route path="/import" component={ImportCenter} />
+        <Route path="/extensions" component={Extensions} />
         <Route component={LandingPage} />
       </Switch>
       <DomainChatWidget

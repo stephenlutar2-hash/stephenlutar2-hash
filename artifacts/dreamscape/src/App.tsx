@@ -1,4 +1,5 @@
-import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
+import { CommandPalette, useAppCommands } from "@szl-holdings/ui";
+import {Switch, Route, Router as WouterRouter, Redirect, useLocation} from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DomainChatWidget } from "@szl-holdings/ui";
 import NotFound from "@/pages/not-found";
@@ -12,6 +13,7 @@ import PromptStudio from "@/pages/PromptStudio";
 import History from "@/pages/History";
 import ImportCenter from "@/pages/ImportCenter";
 import CreativePipeline from "@/pages/CreativePipeline";
+import Extensions from "@/pages/Extensions";
 
 const queryClient = new QueryClient();
 
@@ -35,16 +37,25 @@ function Router() {
       <Route path="/history">{() => <AuthGuard component={History} />}</Route>
       <Route path="/import">{() => <AuthGuard component={ImportCenter} />}</Route>
       <Route path="/creative-pipeline">{() => <AuthGuard component={CreativePipeline} />}</Route>
+      <Route path="/extensions">{() => <AuthGuard component={Extensions} />}</Route>
       <Route path="/" component={Home} />
       <Route component={NotFound} />
     </Switch>
   );
 }
 
+
+  function CommandPaletteWrapper() {
+    const [, navigate] = useLocation();
+    const commands = useAppCommands(navigate);
+    return <CommandPalette actions={commands} brandName="DREAMSCAPE" accentColor="#a855f7" />;
+  }
+  
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+        <CommandPaletteWrapper />
         <Router />
       </WouterRouter>
       <DomainChatWidget

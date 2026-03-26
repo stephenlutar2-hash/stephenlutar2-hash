@@ -105,6 +105,22 @@ A shared import infrastructure provides reusable components for file uploads, da
 
 A centralized Model Context Protocol (MCP) client layer connects to community MCP servers, bridging their tools into the existing OpenAI function-calling format used by domain agents. It includes an MCP Client Library, an MCP-to-OpenAI Bridge, and an MCP Registry Config mapping 14 MCP servers. Each agent dynamically loads MCP tools based on registry mappings. Registry API Endpoints provide full CRUD for server connections and tool execution, with a Lyte MCP Dashboard for status and mappings.
 
+**Extensions & Premium Monetization Layer:**
+
+A shared extension infrastructure (`artifacts/api-server/src/services/extensions.ts`, `app-extensions.ts`, `routes/extensions.ts`) provides 60+ API endpoints across all 18 apps:
+
+*   **Shared Services**: Automation engine (rules with triggers/actions/conditions), webhook management, notification center, scheduled report generator, developer API key portal.
+*   **Per-App Domain Extensions**: Each app has tailored extension features mapped in `app-extensions.ts`:
+    *   Security apps (ROSIE, Aegis, Firestorm): Threat hunting rules, compliance policies, red team playbooks, detection signatures.
+    *   Intelligence apps (INCA, Nimbus, Beacon): Experiment templates, model pipelines, prediction models, KPI formulas, decision frameworks.
+    *   Operations apps (Vessels, Zeus, Lyte): Fleet optimization rules, voyage templates, architecture blueprints, module templates, observability dashboards, SLO definitions.
+    *   Creative apps (DreamEra, Dreamscape, AlloyScape): Content templates, campaign workflows, world-building presets, style libraries, infrastructure blueprints, scaling policies.
+    *   Business apps (SZL Holdings, Carlota Jo, Lutar, Career, Apps Showcase, Readiness Report): Portfolio strategies, engagement templates, empire expansion playbooks, career milestones, showcase templates, assessment checklists.
+*   **Frontend**: Each app has an Extensions page (`/extensions` route) with tabbed UI (Automation, Webhooks, Notifications, Reports, API Keys, domain-specific features) using AnimatePresence transitions.
+*   **Command Palette**: Reusable `CommandPalette` component (`lib/ui/src/components/command-palette.tsx`) with Cmd+K shortcut, fuzzy search, and `useAppCommands` hook providing navigation commands. Wired into all 18 apps.
+*   **Auth**: All extension endpoints require valid JWT tokens (`requireAuth` middleware). In-memory storage (Maps/arrays) — no DB schema changes.
+*   **Routes**: `GET/POST/PUT/DELETE /api/extensions/{domain}/{feature}` mounted via extensionsRouter in `routes/index.ts`.
+
 ## External Dependencies
 
 *   **PostgreSQL**: Primary database.

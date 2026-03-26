@@ -10,6 +10,7 @@ const NAV_ITEMS: NavItem[] = [
   { path: "/anomalies", label: "Anomaly Timeline", icon: Zap },
   { path: "/correlation", label: "Alert Correlation", icon: Link2 },
   { path: "/confidence", label: "Confidence", icon: BarChart3 },
+  { path: "/extensions", label: "Extensions", icon: Zap },
   { path: "/import", label: "Import Center", icon: Upload },
 ];
 

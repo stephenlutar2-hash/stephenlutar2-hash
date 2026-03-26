@@ -1,7 +1,7 @@
 import { useLocation } from "wouter";
 import {
   LayoutDashboard, GitBranch, Boxes, FileCode2, ScrollText,
-  Activity, Plug, Users, LogOut, ChevronLeft, Hexagon, Menu, Upload,
+  Activity, Plug, Users, LogOut, ChevronLeft, Hexagon, Menu, Upload, Zap,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -14,6 +14,7 @@ const navItems = [
   { path: "/services", label: "Service Status", icon: Activity },
   { path: "/connectors", label: "Connectors", icon: Plug },
   { path: "/users", label: "Users & Roles", icon: Users },
+  { path: "/extensions", label: "Extensions", icon: Zap },
   { path: "/import", label: "Import Center", icon: Upload },
 ];
 

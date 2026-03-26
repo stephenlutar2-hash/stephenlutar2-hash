@@ -1,6 +1,6 @@
-import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
+import {Switch, Route, Router as WouterRouter, Redirect, useLocation} from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Toaster, TooltipProvider, DomainChatWidget } from "@szl-holdings/ui";
+import { Toaster, TooltipProvider, DomainChatWidget, CommandPalette, useAppCommands } from "@szl-holdings/ui";
 import { AuthGuard, ErrorBoundary } from "@szl-holdings/platform";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
@@ -8,6 +8,7 @@ import Dashboard from "@/pages/Dashboard";
 import Login from "@/pages/Login";
 import ImportCenter from "@/pages/ImportCenter";
 import ComplianceMatrix from "@/pages/ComplianceMatrix";
+import Extensions from "@/pages/Extensions";
 
 const queryClient = new QueryClient();
 
@@ -19,17 +20,26 @@ function Router() {
       <Route path="/import">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><ImportCenter /></AuthGuard>}</Route>
       <Route path="/compliance">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><ComplianceMatrix /></AuthGuard>}</Route>
       <Route path="/" component={Home} />
-      <Route component={NotFound} />
+      <Route path="/extensions">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Extensions /></AuthGuard>}</Route>
+        <Route component={NotFound} />
     </Switch>
   );
 }
 
+
+  function CommandPaletteWrapper() {
+    const [, navigate] = useLocation();
+    const commands = useAppCommands(navigate);
+    return <CommandPalette actions={commands} brandName="AEGIS" accentColor="#3b82f6" />;
+  }
+  
 function App() {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+        <CommandPaletteWrapper />
             <Router />
           </WouterRouter>
           <Toaster />

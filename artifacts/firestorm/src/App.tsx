@@ -1,7 +1,7 @@
-import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
+import {Switch, Route, Router as WouterRouter, Redirect, useLocation} from "wouter";
 import { AuthGuard, ErrorBoundary } from "@szl-holdings/platform";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Toaster, DomainChatWidget } from "@szl-holdings/ui";
+import { Toaster, DomainChatWidget, CommandPalette, useAppCommands } from "@szl-holdings/ui";
 import { TooltipProvider } from "@szl-holdings/ui";
 import { LabBanner } from "@/components/LabBanner";
 import NotFound from "@/pages/not-found";
@@ -14,6 +14,7 @@ import ResponseTrainer from "@/pages/ResponseTrainer";
 import Reports from "@/pages/Reports";
 import ImportCenter from "@/pages/ImportCenter";
 import AfterAction from "@/pages/AfterAction";
+import Extensions from "@/pages/Extensions";
 
 const queryClient = new QueryClient();
 
@@ -28,12 +29,20 @@ function Router() {
       <Route path="/reports">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Reports /></AuthGuard>}</Route>
       <Route path="/import">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><ImportCenter /></AuthGuard>}</Route>
       <Route path="/after-action">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><AfterAction /></AuthGuard>}</Route>
+      <Route path="/extensions">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Extensions /></AuthGuard>}</Route>
       <Route path="/" component={Home} />
-      <Route component={NotFound} />
+        <Route component={NotFound} />
     </Switch>
   );
 }
 
+
+  function CommandPaletteWrapper() {
+    const [, navigate] = useLocation();
+    const commands = useAppCommands(navigate);
+    return <CommandPalette actions={commands} brandName="FIRESTORM" accentColor="#f97316" />;
+  }
+  
 function App() {
   return (
     <ErrorBoundary>
@@ -41,6 +50,7 @@ function App() {
         <TooltipProvider>
           <LabBanner />
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+        <CommandPaletteWrapper />
             <Router />
           </WouterRouter>
           <Toaster />
