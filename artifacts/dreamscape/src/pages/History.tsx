@@ -2,17 +2,31 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   Clock, CheckCircle2, Loader2, XCircle, Image,
-  Search, Filter, Download, Share2, ExternalLink
+  Search, Filter, Download, Share2, ExternalLink, Zap, BarChart3,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
+import { useSimulatedLoading, PageLoadingSkeleton } from "@/components/LoadingSkeleton";
 import { generationHistory, type GenerationRecord } from "@/data/demo";
 
 type StatusFilter = "all" | "completed" | "processing" | "failed";
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.03 } },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, x: -10 },
+  visible: { opacity: 1, x: 0 },
+};
+
 export default function History() {
+  const loading = useSimulatedLoading();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  if (loading) return <AppShell><PageLoadingSkeleton /></AppShell>;
 
   const filtered = generationHistory
     .filter(h => {
@@ -29,6 +43,11 @@ export default function History() {
     processing: generationHistory.filter(h => h.status === "processing").length,
     failed: generationHistory.filter(h => h.status === "failed").length,
   };
+
+  const avgDuration = Math.round(
+    generationHistory.filter(g => g.duration).reduce((sum, g) => sum + (g.duration || 0), 0) /
+    Math.max(generationHistory.filter(g => g.duration).length, 1)
+  );
 
   function handleShare(id: string) {
     const base = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -48,18 +67,24 @@ export default function History() {
 
   return (
     <AppShell>
-      <div className="space-y-6">
-        <div>
+      <motion.div className="space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+        <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
           <h2 className="text-2xl sm:text-3xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">
             Generation History
           </h2>
           <p className="text-sm text-muted-foreground mt-1">Timeline of all your creative generations</p>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="grid grid-cols-2 sm:grid-cols-4 gap-3"
+        >
           {(["all", "completed", "processing", "failed"] as StatusFilter[]).map(s => (
-            <button
+            <motion.button
               key={s}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
               onClick={() => setStatusFilter(s)}
               className={`p-3 rounded-xl border text-center transition ${
                 statusFilter === s
@@ -72,9 +97,20 @@ export default function History() {
             >
               <p className="text-xl font-bold">{statusCounts[s]}</p>
               <p className="text-[10px] uppercase tracking-wider mt-0.5 capitalize">{s}</p>
-            </button>
+            </motion.button>
           ))}
-        </div>
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="flex flex-wrap gap-3">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.03] border border-white/5">
+            <Zap className="w-3.5 h-3.5 text-amber-400" />
+            <span className="text-xs text-gray-400">Avg duration: <span className="text-white font-bold">{avgDuration}s</span></span>
+          </div>
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.03] border border-white/5">
+            <BarChart3 className="w-3.5 h-3.5 text-cyan-400" />
+            <span className="text-xs text-gray-400">Success rate: <span className="text-white font-bold">{Math.round((statusCounts.completed / Math.max(statusCounts.all, 1)) * 100)}%</span></span>
+          </div>
+        </motion.div>
 
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
@@ -97,13 +133,12 @@ export default function History() {
           <div className="relative">
             <div className="absolute left-6 top-0 bottom-0 w-px bg-gradient-to-b from-cyan-500/20 via-purple-500/20 to-transparent hidden sm:block" />
 
-            <div className="space-y-4">
-              {filtered.map((h, i) => (
+            <motion.div className="space-y-4" variants={containerVariants} initial="hidden" animate="visible">
+              {filtered.map((h) => (
                 <motion.div
                   key={h.id}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.03 }}
+                  variants={itemVariants}
+                  whileHover={{ x: 4 }}
                   className="sm:pl-14 relative"
                 >
                   <div className="absolute left-4 top-5 w-4 h-4 rounded-full border-2 hidden sm:block z-10
@@ -140,7 +175,7 @@ export default function History() {
                           {h.duration && (
                             <>
                               <span>&middot;</span>
-                              <span>{h.duration}s</span>
+                              <span className="flex items-center gap-0.5 text-amber-400/70"><Zap className="w-2.5 h-2.5" />{h.duration}s</span>
                             </>
                           )}
                         </div>
@@ -156,20 +191,24 @@ export default function History() {
 
                     {h.result && h.status === "completed" && (
                       <div className="mt-4 flex items-end gap-3">
-                        <img src={h.result} alt="Result" className="w-24 h-24 sm:w-32 sm:h-32 rounded-xl object-cover border border-white/10" />
+                        <img src={h.result} alt="Result" className="w-24 h-24 sm:w-32 sm:h-32 rounded-xl object-cover border border-white/10 hover:border-cyan-500/30 transition" />
                         <div className="flex gap-2">
-                          <button
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
                             onClick={() => handleDownload(h.result!, h.prompt)}
                             className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold hover:bg-cyan-500/20 transition"
                           >
                             <Download className="w-3 h-3" /> Export
-                          </button>
-                          <button
+                          </motion.button>
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
                             onClick={() => handleShare(h.id)}
                             className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-bold hover:bg-purple-500/20 transition"
                           >
                             <Share2 className="w-3 h-3" /> {copiedId === h.id ? "Copied!" : "Share"}
-                          </button>
+                          </motion.button>
                         </div>
                       </div>
                     )}
@@ -182,10 +221,10 @@ export default function History() {
                   </div>
                 </motion.div>
               ))}
-            </div>
+            </motion.div>
           </div>
         )}
-      </div>
+      </motion.div>
     </AppShell>
   );
 }

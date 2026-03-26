@@ -2,15 +2,27 @@ import { useState, useEffect } from "react";
 import { useParams } from "wouter";
 import { motion } from "framer-motion";
 import {
-  Search, Heart, Image as ImageIcon, SlidersHorizontal
+  Search, Heart, Image as ImageIcon, SlidersHorizontal, BarChart3,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
+import { useSimulatedLoading, PageLoadingSkeleton } from "@/components/LoadingSkeleton";
 import Lightbox from "@/components/Lightbox";
 import { artifacts, worlds, getArtifactsByWorld, getArtifactById, type Artifact } from "@/data/demo";
 
 type SortBy = "newest" | "popular" | "title";
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.03 } },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0 },
+};
+
 export default function Gallery() {
+  const loading = useSimulatedLoading();
   const params = useParams<{ worldId?: string }>();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedWorld, setSelectedWorld] = useState<string>(params.worldId || "all");
@@ -26,6 +38,8 @@ export default function Gallery() {
     }
   }, []);
 
+  if (loading) return <AppShell><PageLoadingSkeleton /></AppShell>;
+
   const filteredArtifacts = (selectedWorld === "all" ? artifacts : getArtifactsByWorld(selectedWorld))
     .filter(a =>
       a.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -39,16 +53,34 @@ export default function Gallery() {
     });
 
   const currentIndex = lightboxArtifact ? filteredArtifacts.findIndex(a => a.id === lightboxArtifact.id) : -1;
+  const totalLikes = filteredArtifacts.reduce((sum, a) => sum + a.likes, 0);
+  const typeBreakdown = filteredArtifacts.reduce((acc, a) => { acc[a.type] = (acc[a.type] || 0) + 1; return acc; }, {} as Record<string, number>);
 
   return (
     <AppShell>
-      <div className="space-y-6">
-        <div>
+      <motion.div className="space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+        <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
           <h2 className="text-2xl sm:text-3xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">
             Artifact Gallery
           </h2>
           <p className="text-sm text-muted-foreground mt-1">Browse and explore generated creative content</p>
-        </div>
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="flex flex-wrap gap-3">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.03] border border-white/5">
+            <ImageIcon className="w-3.5 h-3.5 text-cyan-400" />
+            <span className="text-xs text-gray-400"><span className="text-white font-bold">{filteredArtifacts.length}</span> artifacts</span>
+          </div>
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.03] border border-white/5">
+            <Heart className="w-3.5 h-3.5 text-pink-400" />
+            <span className="text-xs text-gray-400"><span className="text-white font-bold">{totalLikes.toLocaleString()}</span> likes</span>
+          </div>
+          {Object.entries(typeBreakdown).map(([type, count]) => (
+            <div key={type} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.03] border border-white/5">
+              <span className="text-xs text-gray-400"><span className="text-white font-bold">{count}</span> {type}</span>
+            </div>
+          ))}
+        </motion.div>
 
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
@@ -89,13 +121,17 @@ export default function Gallery() {
             <p className="text-sm text-gray-600 mt-1">Try adjusting your search or filters</p>
           </div>
         ) : (
-          <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
-            {filteredArtifacts.map((a, i) => (
+          <motion.div
+            className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            {filteredArtifacts.map((a) => (
               <motion.div
                 key={a.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.03 }}
+                variants={itemVariants}
+                whileHover={{ scale: 1.02 }}
                 onClick={() => setLightboxArtifact(a)}
                 className="group break-inside-avoid rounded-2xl overflow-hidden border border-white/5 hover:border-cyan-500/20 transition-all cursor-pointer"
               >
@@ -125,9 +161,9 @@ export default function Gallery() {
                 </div>
               </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
-      </div>
+      </motion.div>
 
       <Lightbox
         artifact={lightboxArtifact}

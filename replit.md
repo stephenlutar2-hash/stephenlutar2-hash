@@ -35,8 +35,8 @@ The project is built as a pnpm workspace monorepo using Node.js 24, pnpm, and Ty
 - **NIMBUS**: Predictive AI analytics.
 - **FIRESTORM**: Security simulation lab for defensive strategy testing.
 - **DREAMERA**: AI storytelling and artifact mapping.
-- **ALLOYSCAPE**: Infrastructure operations platform — management interface for the Alloy AI engine. Provides orchestration monitoring, system module status, workflow templates, execution logs, service health, connector management, and user/role controls.
-- **DREAMSCAPE**: Premium creative systems platform — immersive gallery, world explorer, prompt studio, and generation history.
+- **ALLOYSCAPE**: Infrastructure operations platform — management interface for the Alloy AI engine. Provides orchestration monitoring (with visual pipeline view), system module status, workflow templates, execution logs, service health, connector management, and user/role controls. All pages feature Framer Motion animations, skeleton loading states, search/sort/filter controls, status badges, and animated progress bars.
+- **DREAMSCAPE**: Premium creative systems platform — immersive gallery, world explorer, hierarchy map, prompt studio, and generation history. All pages feature Framer Motion animations, skeleton loading states, search/filter controls, stats overview panels, status badges, and animated progress indicators.
 - **ZEUS**: Modular core architecture system.
 - **VESSELS**: Maritime/logistics fleet intelligence platform (ocean-blue/emerald theme).
 - **INCA**: Standalone intelligence/analytics platform — project management, experiment tracking, insight cards, model performance monitoring, and executive dashboard. Dark navy/cyan/violet theme with glassmorphism. Consumes existing INCA API endpoints.

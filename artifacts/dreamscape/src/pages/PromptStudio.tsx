@@ -5,6 +5,7 @@ import {
   ChevronDown, Loader2, CheckCircle2, Zap
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
+import { useSimulatedLoading, PageLoadingSkeleton } from "@/components/LoadingSkeleton";
 import { worlds, projects, getProjectsByWorld } from "@/data/demo";
 
 const PLACEHOLDER_RESULTS = [
@@ -42,6 +43,7 @@ interface GenerationResult {
 }
 
 export default function PromptStudio() {
+  const loading = useSimulatedLoading();
   const [prompt, setPrompt] = useState("");
   const [genType, setGenType] = useState<GenerationType>("image");
   const [selectedWorld, setSelectedWorld] = useState(worlds[0].id);
@@ -49,6 +51,8 @@ export default function PromptStudio() {
   const [generating, setGenerating] = useState(false);
   const [results, setResults] = useState<GenerationResult[]>([]);
   const [showAdvanced, setShowAdvanced] = useState(false);
+
+  if (loading) return <AppShell><PageLoadingSkeleton /></AppShell>;
 
   const worldProjects = getProjectsByWorld(selectedWorld);
 

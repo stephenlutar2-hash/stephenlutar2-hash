@@ -3,16 +3,30 @@ import { useLocation, useParams } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Globe, ChevronRight, Layers, Image, ArrowLeft,
-  Search, Filter, Tag
+  Search, Filter, Tag, BarChart3, Sparkles,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
+import { useSimulatedLoading, PageLoadingSkeleton } from "@/components/LoadingSkeleton";
 import { worlds, projects, getProjectsByWorld, getWorldById, getArtifactsByProject } from "@/data/demo";
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.05 } },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0 },
+};
+
 export default function Explorer() {
+  const loading = useSimulatedLoading();
   const params = useParams<{ worldId?: string }>();
   const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+
+  if (loading) return <AppShell><PageLoadingSkeleton /></AppShell>;
 
   const selectedWorld = params.worldId ? getWorldById(params.worldId) : null;
   const worldProjects = selectedWorld ? getProjectsByWorld(selectedWorld.id) : [];
@@ -25,17 +39,26 @@ export default function Explorer() {
   });
 
   if (selectedWorld) {
+    const activeCount = worldProjects.filter(p => p.status === "active").length;
+    const totalArtifacts = worldProjects.reduce((sum, p) => sum + p.artifactCount, 0);
+
     return (
       <AppShell>
-        <div className="space-y-6">
-          <button
+        <motion.div className="space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+          <motion.button
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
             onClick={() => setLocation("/explore")}
             className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition"
           >
             <ArrowLeft className="w-4 h-4" /> Back to Worlds
-          </button>
+          </motion.button>
 
-          <div className="relative rounded-2xl overflow-hidden">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative rounded-2xl overflow-hidden"
+          >
             <img src={selectedWorld.thumbnail} alt={selectedWorld.name} className="w-full h-48 sm:h-64 object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
             <div className="absolute bottom-6 left-6 right-6">
@@ -53,7 +76,27 @@ export default function Explorer() {
                 <span className="flex items-center gap-1"><Image className="w-3 h-3" /> {selectedWorld.artifactCount} artifacts</span>
               </div>
             </div>
-          </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="grid grid-cols-3 gap-3"
+          >
+            <div className="p-3 rounded-xl bg-white/[0.03] border border-white/5 text-center">
+              <p className="text-lg font-bold text-cyan-400">{activeCount}</p>
+              <p className="text-[10px] text-gray-500">Active</p>
+            </div>
+            <div className="p-3 rounded-xl bg-white/[0.03] border border-white/5 text-center">
+              <p className="text-lg font-bold text-purple-400">{totalArtifacts}</p>
+              <p className="text-[10px] text-gray-500">Artifacts</p>
+            </div>
+            <div className="p-3 rounded-xl bg-white/[0.03] border border-white/5 text-center">
+              <p className="text-lg font-bold text-emerald-400">{worldProjects.length}</p>
+              <p className="text-[10px] text-gray-500">Projects</p>
+            </div>
+          </motion.div>
 
           <div className="space-y-4">
             <h3 className="text-lg font-display font-bold text-white">Projects</h3>
@@ -63,15 +106,14 @@ export default function Explorer() {
                 <p className="text-gray-500">No projects in this world yet</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {worldProjects.map((p, i) => {
+              <motion.div className="grid grid-cols-1 md:grid-cols-2 gap-4" variants={containerVariants} initial="hidden" animate="visible">
+                {worldProjects.map((p) => {
                   const projArtifacts = getArtifactsByProject(p.id);
                   return (
                     <motion.div
                       key={p.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.05 }}
+                      variants={itemVariants}
+                      whileHover={{ scale: 1.01 }}
                       className="group p-5 rounded-2xl bg-white/[0.03] border border-white/5 hover:border-cyan-500/20 transition-all"
                     >
                       <div className="flex items-start justify-between mb-3">
@@ -90,7 +132,7 @@ export default function Explorer() {
                       {projArtifacts.length > 0 && (
                         <div className="flex gap-2 mb-3 overflow-x-auto">
                           {projArtifacts.slice(0, 3).map(a => (
-                            <img key={a.id} src={a.thumbnail} alt={a.title} className="w-16 h-16 rounded-lg object-cover shrink-0 border border-white/10" />
+                            <img key={a.id} src={a.thumbnail} alt={a.title} className="w-16 h-16 rounded-lg object-cover shrink-0 border border-white/10 hover:border-cyan-500/30 transition" />
                           ))}
                           {projArtifacts.length > 3 && (
                             <div className="w-16 h-16 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
@@ -103,26 +145,54 @@ export default function Explorer() {
                         <span>{p.artifactCount} artifacts</span>
                         <span>{new Date(p.createdAt).toLocaleDateString()}</span>
                       </div>
+                      <div className="mt-2 h-1 bg-white/5 rounded-full overflow-hidden">
+                        <motion.div
+                          className="h-full bg-cyan-500/40 rounded-full"
+                          initial={{ width: 0 }}
+                          animate={{ width: `${Math.min((projArtifacts.length / Math.max(p.artifactCount, 1)) * 100, 100)}%` }}
+                          transition={{ duration: 0.8 }}
+                        />
+                      </div>
                     </motion.div>
                   );
                 })}
-              </div>
+              </motion.div>
             )}
           </div>
-        </div>
+        </motion.div>
       </AppShell>
     );
   }
 
   return (
     <AppShell>
-      <div className="space-y-6">
-        <div>
+      <motion.div className="space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+        <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
           <h2 className="text-2xl sm:text-3xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">
             World Explorer
           </h2>
           <p className="text-sm text-muted-foreground mt-1">Navigate creative worlds and discover their projects</p>
-        </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="grid grid-cols-3 gap-3"
+        >
+          <div className="p-3 rounded-xl bg-white/[0.03] border border-white/5 text-center">
+            <p className="text-lg font-bold text-cyan-400">{worlds.length}</p>
+            <p className="text-[10px] text-gray-500">Worlds</p>
+          </div>
+          <div className="p-3 rounded-xl bg-white/[0.03] border border-white/5 text-center">
+            <p className="text-lg font-bold text-purple-400">{worlds.reduce((s, w) => s + w.projectCount, 0)}</p>
+            <p className="text-[10px] text-gray-500">Total Projects</p>
+          </div>
+          <div className="p-3 rounded-xl bg-white/[0.03] border border-white/5 text-center">
+            <p className="text-lg font-bold text-emerald-400">{worlds.reduce((s, w) => s + w.artifactCount, 0)}</p>
+            <p className="text-[10px] text-gray-500">Total Artifacts</p>
+          </div>
+        </motion.div>
 
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
@@ -165,13 +235,17 @@ export default function Explorer() {
             <p className="text-sm text-gray-600 mt-1">Try adjusting your search or filters</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredWorlds.map((w, i) => (
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            {filteredWorlds.map((w) => (
               <motion.div
                 key={w.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05 }}
+                variants={itemVariants}
+                whileHover={{ scale: 1.02 }}
                 onClick={() => setLocation(`/explore/${w.id}`)}
                 className="group rounded-2xl overflow-hidden border border-white/5 hover:border-cyan-500/20 transition-all cursor-pointer"
               >
@@ -201,9 +275,9 @@ export default function Explorer() {
                 </div>
               </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
-      </div>
+      </motion.div>
     </AppShell>
   );
 }

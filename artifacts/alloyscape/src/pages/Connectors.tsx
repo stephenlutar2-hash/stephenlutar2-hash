@@ -1,10 +1,14 @@
+import { useState } from "react";
+import { motion } from "framer-motion";
 import DashboardLayout from "@/components/DashboardLayout";
+import { useSimulatedLoading, PageLoadingSkeleton } from "@/components/LoadingSkeleton";
 import {
   Plug, ArrowRight, CheckCircle2, XCircle, AlertCircle, Zap,
+  Search, ArrowUpDown,
 } from "lucide-react";
 import { connectors } from "@/data/demo";
 
-const statusConfig = {
+const statusConfig: Record<string, { label: string; color: string; dot: string }> = {
   active: { label: "Active", color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20", dot: "bg-emerald-400" },
   inactive: { label: "Inactive", color: "text-gray-400 bg-gray-500/10 border-gray-500/20", dot: "bg-gray-400" },
   error: { label: "Error", color: "text-red-400 bg-red-500/10 border-red-500/20", dot: "bg-red-400 animate-pulse" },
@@ -21,28 +25,73 @@ const typeColors: Record<string, string> = {
   "Metrics Stream": "from-gray-500 to-slate-500",
 };
 
+type SortKey = "name" | "events" | "status";
+
 export default function Connectors() {
+  const loading = useSimulatedLoading();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<SortKey>("events");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <PageLoadingSkeleton title="Connector Management" />
+      </DashboardLayout>
+    );
+  }
+
+  function toggleSort(key: SortKey) {
+    if (sortBy === key) {
+      setSortDir(d => d === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(key);
+      setSortDir(key === "name" ? "asc" : "desc");
+    }
+  }
+
+  const filtered = connectors
+    .filter(c => {
+      const matchesSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase()) || c.type.toLowerCase().includes(searchQuery.toLowerCase()) || c.source.toLowerCase().includes(searchQuery.toLowerCase()) || c.target.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStatus = statusFilter === "all" || c.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    })
+    .sort((a, b) => {
+      const dir = sortDir === "asc" ? 1 : -1;
+      if (sortBy === "name") return a.name.localeCompare(b.name) * dir;
+      if (sortBy === "events") return (a.eventsProcessed - b.eventsProcessed) * dir;
+      return a.status.localeCompare(b.status) * dir;
+    });
+
   const active = connectors.filter(c => c.status === "active").length;
   const errored = connectors.filter(c => c.status === "error").length;
+  const inactive = connectors.filter(c => c.status === "inactive").length;
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <div>
+      <motion.div className="space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+        <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
           <h2 className="text-2xl font-bold text-white">Connector Management</h2>
           <p className="text-sm text-gray-500 mt-1">View and configure integrations between services</p>
-        </div>
+        </motion.div>
 
         <div className="flex flex-wrap gap-4">
-          <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+          <motion.button whileHover={{ scale: 1.03 }} onClick={() => setStatusFilter(statusFilter === "active" ? "all" : "active")} className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border transition-colors ${statusFilter === "active" ? "bg-emerald-500/20 border-emerald-500/30" : "bg-emerald-500/10 border-emerald-500/20"}`}>
             <CheckCircle2 className="w-4 h-4 text-emerald-400" />
             <span className="text-sm font-medium text-emerald-400">{active} Active</span>
-          </div>
+          </motion.button>
           {errored > 0 && (
-            <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-red-500/10 border border-red-500/20">
+            <motion.button whileHover={{ scale: 1.03 }} onClick={() => setStatusFilter(statusFilter === "error" ? "all" : "error")} className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border transition-colors ${statusFilter === "error" ? "bg-red-500/20 border-red-500/30" : "bg-red-500/10 border-red-500/20"}`}>
               <XCircle className="w-4 h-4 text-red-400" />
               <span className="text-sm font-medium text-red-400">{errored} Error</span>
-            </div>
+            </motion.button>
+          )}
+          {inactive > 0 && (
+            <motion.button whileHover={{ scale: 1.03 }} onClick={() => setStatusFilter(statusFilter === "inactive" ? "all" : "inactive")} className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border transition-colors ${statusFilter === "inactive" ? "bg-gray-500/20 border-gray-500/30" : "bg-gray-500/10 border-gray-500/20"}`}>
+              <AlertCircle className="w-4 h-4 text-gray-400" />
+              <span className="text-sm font-medium text-gray-400">{inactive} Inactive</span>
+            </motion.button>
           )}
           <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white/5 border border-white/10">
             <Zap className="w-4 h-4 text-gray-400" />
@@ -50,13 +99,53 @@ export default function Connectors() {
               {connectors.reduce((sum, c) => sum + c.eventsProcessed, 0).toLocaleString()} events total
             </span>
           </div>
+          {statusFilter !== "all" && (
+            <button onClick={() => setStatusFilter("all")} className="px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-xs text-gray-400 hover:bg-white/10 transition">
+              Clear
+            </button>
+          )}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {connectors.map(conn => {
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search connectors..."
+              className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/30 transition"
+            />
+          </div>
+          <div className="flex gap-2">
+            {(["name", "events", "status"] as SortKey[]).map(key => (
+              <button
+                key={key}
+                onClick={() => toggleSort(key)}
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium uppercase tracking-wider border transition-colors ${sortBy === key ? "bg-cyan-500/10 border-cyan-500/20 text-cyan-400" : "bg-white/5 border-white/10 text-gray-500 hover:bg-white/10"}`}
+              >
+                <ArrowUpDown className="w-3 h-3" />
+                {key} {sortBy === key ? (sortDir === "asc" ? "↑" : "↓") : ""}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <motion.div
+          className="grid grid-cols-1 lg:grid-cols-2 gap-4"
+          initial="hidden"
+          animate="visible"
+          variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.05 } } }}
+        >
+          {filtered.map(conn => {
             const cfg = statusConfig[conn.status];
             return (
-              <div key={conn.id} className={`rounded-xl bg-white/[0.03] border ${conn.status === "error" ? "border-red-500/20" : "border-white/5"} hover:border-white/10 transition-colors p-5`}>
+              <motion.div
+                key={conn.id}
+                variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }}
+                whileHover={{ scale: 1.01 }}
+                className={`rounded-xl bg-white/[0.03] border ${conn.status === "error" ? "border-red-500/20" : "border-white/5"} hover:border-white/10 transition-colors p-5`}
+              >
                 <div className="flex items-start justify-between mb-3">
                   <div>
                     <div className="flex items-center gap-2 mb-1">
@@ -75,24 +164,36 @@ export default function Connectors() {
                 </div>
 
                 <div className="flex items-center gap-3 my-4 px-2">
-                  <div className="px-3 py-1.5 rounded-lg bg-white/5 text-xs font-medium text-gray-300 truncate">
+                  <div className="px-3 py-1.5 rounded-lg bg-white/5 text-xs font-medium text-gray-300 truncate flex-1 text-center">
                     {conn.source}
                   </div>
-                  <ArrowRight className="w-4 h-4 text-gray-600 shrink-0" />
-                  <div className="px-3 py-1.5 rounded-lg bg-white/5 text-xs font-medium text-gray-300 truncate">
+                  <div className="flex items-center gap-1 shrink-0">
+                    <div className={`w-6 h-px ${conn.status === "active" ? "bg-cyan-500/40" : conn.status === "error" ? "bg-red-500/40" : "bg-white/10"}`} />
+                    <ArrowRight className={`w-4 h-4 ${conn.status === "active" ? "text-cyan-500/60" : conn.status === "error" ? "text-red-500/60" : "text-gray-600"}`} />
+                    <div className={`w-6 h-px ${conn.status === "active" ? "bg-cyan-500/40" : conn.status === "error" ? "bg-red-500/40" : "bg-white/10"}`} />
+                  </div>
+                  <div className="px-3 py-1.5 rounded-lg bg-white/5 text-xs font-medium text-gray-300 truncate flex-1 text-center">
                     {conn.target}
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between text-xs text-gray-500 pt-3 border-t border-white/5">
                   <span>Last sync: {conn.lastSync}</span>
-                  <span>{conn.eventsProcessed.toLocaleString()} events</span>
+                  <span className="font-mono">{conn.eventsProcessed.toLocaleString()} events</span>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
-        </div>
-      </div>
+        </motion.div>
+
+        {filtered.length === 0 && (
+          <div className="text-center py-16">
+            <Plug className="w-12 h-12 text-gray-700 mx-auto mb-4" />
+            <h3 className="text-lg font-bold text-gray-500">No Connectors Found</h3>
+            <p className="text-sm text-gray-600 mt-1">Try adjusting your search or filter</p>
+          </div>
+        )}
+      </motion.div>
     </DashboardLayout>
   );
 }
