@@ -13,6 +13,14 @@ import {
   getReleaseIntelligence,
   getCostEfficiency,
 } from "./observability.js";
+import {
+  getMcpClient,
+  MCP_SERVER_CONFIGS,
+  MCP_APP_MAPPINGS,
+  getAppsForServer,
+  isServerConfigured,
+} from "../../lib/mcp/index.js";
+import { requireRole } from "../../lib/rbac.js";
 
 const analyzeSchema = z.object({
   context: z.string().max(5000).optional(),
@@ -332,6 +340,71 @@ router.get("/lyte/export/signals", requireAuth, async (req: Request, res: Respon
     }
   } catch (err) {
     errorResponse(res, err, "EXPORT_ERROR");
+  }
+});
+
+router.get("/lyte/mcp/dashboard", requireAuth, requireRole("operator"), (_req: Request, res: Response) => {
+  try {
+    const client = getMcpClient();
+
+    const servers = MCP_SERVER_CONFIGS.map((config) => {
+      const instance = client.getServerInstance(config.id);
+      const configured = isServerConfigured(config);
+      const apps = getAppsForServer(config.id);
+
+      return {
+        id: config.id,
+        name: config.name,
+        description: config.description,
+        transport: config.transport,
+        enabled: config.enabled,
+        configured,
+        missingEnvVars: configured
+          ? []
+          : (config.requiredEnvVars || []).filter((v) => !process.env[v]),
+        status: instance?.status || (configured ? "disconnected" : "unconfigured"),
+        toolCount: instance?.tools.length || 0,
+        tools: (instance?.tools || []).map((t) => ({
+          name: t.name,
+          description: t.description,
+        })),
+        connectedAt: instance?.connectedAt || null,
+        lastHealthCheck: instance?.lastHealthCheck || null,
+        error: instance?.error || null,
+        apps,
+      };
+    });
+
+    const summary = {
+      totalServers: servers.length,
+      connected: servers.filter((s) => s.status === "connected").length,
+      configured: servers.filter((s) => s.configured).length,
+      unconfigured: servers.filter((s) => !s.configured).length,
+      errors: servers.filter((s) => s.status === "error").length,
+      totalTools: servers.reduce((sum, s) => sum + s.toolCount, 0),
+    };
+
+    const appMappings = MCP_APP_MAPPINGS.map((m) => {
+      const serverConfig = MCP_SERVER_CONFIGS.find((s) => s.id === m.serverId);
+      const instance = client.getServerInstance(m.serverId);
+      return {
+        serverId: m.serverId,
+        serverName: serverConfig?.name || m.serverId,
+        apps: m.apps,
+        status: instance?.status || "disconnected",
+        toolCount: instance?.tools.length || 0,
+      };
+    });
+
+    res.json({
+      servers,
+      summary,
+      appMappings,
+      timestamp: new Date().toISOString(),
+      mode: process.env.LYTE_MODE === "live" ? "live" : "demo",
+    });
+  } catch (err) {
+    errorResponse(res, err, "MCP_DASHBOARD_ERROR")
   }
 });
 

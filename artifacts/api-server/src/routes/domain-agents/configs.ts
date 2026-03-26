@@ -15,6 +15,14 @@ import { lutarTools, lutarExecuteTool } from "./tools-lutar";
 import { alloyscapeTools, alloyscapeExecuteTool } from "./tools-alloyscape";
 import { dreamscapeTools, dreamscapeExecuteTool } from "./tools-dreamscape";
 import { staticInfoTools, createStaticExecuteTool } from "./tools-static";
+import {
+  getMcpClient,
+  getServersForApp,
+  mcpToolsToOpenAI,
+  isMcpTool,
+  executeMcpTool,
+  type AppDomain,
+} from "../../lib/mcp/index.js";
 
 export type AgentType =
   | "inca" | "vessels" | "szl-holdings" | "carlota-jo"
@@ -29,6 +37,50 @@ export interface AgentConfig {
   tools: ChatCompletionTool[];
   executeTool: (name: string, args: Record<string, any>) => Promise<string>;
   requiresToolCall: boolean;
+  mcpDomain?: AppDomain;
+}
+
+export function getMcpToolsForDomain(domain: AppDomain): ChatCompletionTool[] {
+  const client = getMcpClient();
+  const servers = getServersForApp(domain);
+  const mcpTools: ChatCompletionTool[] = [];
+
+  for (const config of servers) {
+    const instance = client.getServerInstance(config.id);
+    if (instance && instance.status === "connected") {
+      mcpTools.push(...mcpToolsToOpenAI(config.id, instance.tools));
+    }
+  }
+
+  return mcpTools;
+}
+
+export function createMcpAwareExecutor(
+  nativeExecutor: (name: string, args: Record<string, any>) => Promise<string>,
+): (name: string, args: Record<string, any>) => Promise<string> {
+  return async (name: string, args: Record<string, any>) => {
+    if (isMcpTool(name)) {
+      const result = await executeMcpTool(name, args);
+      return result || JSON.stringify({ error: "MCP tool execution failed" });
+    }
+    return nativeExecutor(name, args);
+  };
+}
+
+export function getAgentConfigWithMcp(agentType: AgentType): AgentConfig {
+  const baseConfig = AGENT_CONFIGS[agentType];
+  const domain = baseConfig.mcpDomain;
+
+  if (!domain) return baseConfig;
+
+  const mcpTools = getMcpToolsForDomain(domain);
+  if (mcpTools.length === 0) return baseConfig;
+
+  return {
+    ...baseConfig,
+    tools: [...baseConfig.tools, ...mcpTools],
+    executeTool: createMcpAwareExecutor(baseConfig.executeTool),
+  };
 }
 
 const INCA_SYSTEM_PROMPT = `You are the INCA Research Intelligence Agent, the AI-powered research assistant for the INCA Intelligence Platform at SZL Holdings.
@@ -393,6 +445,7 @@ export const AGENT_CONFIGS: Record<AgentType, AgentConfig> = {
     tools: incaTools,
     executeTool: incaExecuteTool,
     requiresToolCall: true,
+    mcpDomain: "inca",
   },
   vessels: {
     name: "Vessels Maritime Operations Agent",
@@ -400,6 +453,7 @@ export const AGENT_CONFIGS: Record<AgentType, AgentConfig> = {
     tools: vesselsTools,
     executeTool: vesselsExecuteTool,
     requiresToolCall: true,
+    mcpDomain: "vessels",
   },
   "szl-holdings": {
     name: "SZL Holdings Portfolio Concierge",
@@ -407,6 +461,7 @@ export const AGENT_CONFIGS: Record<AgentType, AgentConfig> = {
     tools: szlHoldingsTools,
     executeTool: szlHoldingsExecuteTool,
     requiresToolCall: false,
+    mcpDomain: "szl-holdings",
   },
   "carlota-jo": {
     name: "Carlota Jo Strategic Engagement Agent",
@@ -414,6 +469,7 @@ export const AGENT_CONFIGS: Record<AgentType, AgentConfig> = {
     tools: carlotaJoTools,
     executeTool: carlotaJoExecuteTool,
     requiresToolCall: false,
+    mcpDomain: "carlota-jo",
   },
   rosie: {
     name: "ROSIE Security Intelligence Agent",

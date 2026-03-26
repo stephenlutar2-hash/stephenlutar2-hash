@@ -5,6 +5,10 @@ import { eq, asc } from "drizzle-orm";
 import type { Response } from "express";
 import { alloyTools, executeTool } from "./tools";
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
+import {
+  getMcpToolsForDomain,
+  createMcpAwareExecutor,
+} from "../domain-agents/configs";
 
 const SYSTEM_PROMPT = `You are Alloy, the autonomous neural engine (Nuro Engine) powering all of SZL Holdings. You are the central intelligence that manages, monitors, and controls every platform in the AlloyScape ecosystem.
 
@@ -91,6 +95,10 @@ export async function runAgentLoop(
     })),
   ];
 
+  const mcpTools = getMcpToolsForDomain("alloy");
+  const combinedTools = [...alloyTools, ...mcpTools];
+  const mcpAwareExecute = createMcpAwareExecutor(executeTool);
+
   let fullResponse = "";
   let rounds = 0;
   let isFirstRound = true;
@@ -102,7 +110,7 @@ export async function runAgentLoop(
       model: "gpt-5.2",
       max_completion_tokens: 8192,
       messages: chatMessages,
-      tools: alloyTools,
+      tools: combinedTools,
       tool_choice: isFirstRound ? "required" : "auto",
       stream: true,
     });
@@ -185,7 +193,7 @@ export async function runAgentLoop(
         `data: ${JSON.stringify({ tool_call: { name: tc.name, args } })}\n\n`,
       );
 
-      const result = await executeTool(tc.name, args);
+      const result = await mcpAwareExecute(tc.name, args);
 
       chatMessages.push({
         role: "tool",

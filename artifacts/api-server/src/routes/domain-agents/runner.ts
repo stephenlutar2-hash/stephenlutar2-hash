@@ -4,7 +4,7 @@ import { messages, conversations } from "@szl-holdings/db/schema";
 import { eq, asc } from "drizzle-orm";
 import type { Response } from "express";
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
-import { AGENT_CONFIGS, type AgentType } from "./configs";
+import { AGENT_CONFIGS, getAgentConfigWithMcp, type AgentType } from "./configs";
 
 const MAX_TOOL_ROUNDS = 10;
 
@@ -14,7 +14,7 @@ export async function runDomainAgentLoop(
   userMessage: string,
   res: Response,
 ): Promise<void> {
-  const config = AGENT_CONFIGS[agentType];
+  const config = getAgentConfigWithMcp(agentType);
 
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");

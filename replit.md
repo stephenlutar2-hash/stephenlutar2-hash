@@ -94,6 +94,18 @@ The system incorporates robust security and governance features:
 
 A shared import infrastructure in `lib/ui/src/components/import/` provides reusable components: FileDropZone (drag-and-drop), DataPreviewTable (data preview), ColumnMapper (column mapping), ImportProgress (progress feedback), and ImportCenter (5-step wizard shell). File parsing supports CSV, JSON, XML, YAML, ICS, and IPYNB formats via `parse-utils.ts`. API routes at `POST /api/import/:domain/:type` handle domain-specific imports with handlers for inca, vessels, rosie, beacon, nimbus, dreamera, and zeus (with DB persistence), plus a generic fallback for remaining domains. All 16 apps have ImportCenter pages at `/import` routes with domain-specific import types, and navigation links have been added to all app sidebars/headers.
 
+**MCP Registry Integration:**
+
+A centralized Model Context Protocol (MCP) client layer connects to community MCP servers, bridging their tools into the existing OpenAI function-calling format used by domain agents. Key components:
+
+*   **MCP Client Library** (`artifacts/api-server/src/lib/mcp/`): Shared client that connects to MCP servers via stdio (subprocess) or SSE transport, with connection management, health checks, and tool discovery.
+*   **MCP-to-OpenAI Bridge** (`lib/mcp/bridge.ts`): Converts MCP tool definitions to OpenAI `ChatCompletionTool` format and routes function call results through MCP tool execution. Tool names are prefixed with `mcp_{serverId}_` for namespacing.
+*   **MCP Registry Config** (`lib/mcp/registry.ts`): Maps 14 MCP servers (Firecrawl, Tavily, Brightdata, Markitdown, Chroma, Apify, Elasticsearch, Sentry, Playwright, DBHub, Netdata, Notion, GitHub, Stripe) to their connection details and per-app access mappings.
+*   **Domain Agent Integration**: Each agent dynamically loads MCP tools alongside native tools based on registry mappings. Alloy gets access to all MCP servers.
+*   **Registry API Endpoints** (`/api/mcp/registry`, `/api/mcp/servers/:id/tools`, `/api/mcp/servers/:id/execute`, etc.): Full CRUD for server connections and tool execution.
+*   **Lyte MCP Dashboard** (`/api/lyte/mcp/dashboard`): Exposes MCP server status, tool counts, and per-app mappings for the Lyte Command Center.
+*   Adding a new MCP server requires only adding an entry to `MCP_SERVER_CONFIGS` and `MCP_APP_MAPPINGS` in the registry config.
+
 ## External Dependencies
 
 *   **PostgreSQL**: Primary database for data persistence.
