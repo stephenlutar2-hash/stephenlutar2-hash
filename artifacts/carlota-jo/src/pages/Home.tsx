@@ -360,9 +360,10 @@ export default function Home() {
 
           <nav className="hidden md:flex items-center gap-8">
             {[
-              { label: "Services", href: "#services" },
-              { label: "About", href: "#about" },
-              { label: "Case Studies", href: "#case-studies" },
+              { label: "Your Needs", href: "#services" },
+              { label: "Your Industry", href: "#industries" },
+              { label: "Results", href: "#case-studies" },
+              { label: "Insights", href: "#insights" },
               { label: "Contact", href: "#contact" },
             ].map((link) => (
               <a
@@ -483,7 +484,24 @@ export default function Home() {
         </motion.div>
       </section>
 
-      <div className="section-divider" />
+      <AnimatedSection className="py-6 border-y border-border/20 bg-card/30">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-3">
+            <span className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground/50 mr-2">Trusted by</span>
+            {partners.map((p, i) => (
+              <motion.span
+                key={p}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 + i * 0.1 }}
+                className="text-xs text-muted-foreground/40 tracking-wide font-medium"
+              >
+                {p}
+              </motion.span>
+            ))}
+          </div>
+        </div>
+      </AnimatedSection>
 
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-6">
@@ -494,6 +512,37 @@ export default function Home() {
                   <CountUp value={metric.numericValue} prefix={metric.prefix} suffix={metric.suffix} />
                 </div>
                 <div className="text-sm text-muted-foreground tracking-wider uppercase">{metric.label}</div>
+              </AnimatedSection>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <div className="section-divider" />
+
+      <section className="py-20">
+        <div className="max-w-7xl mx-auto px-6">
+          <AnimatedSection className="text-center mb-12">
+            <span className="text-xs tracking-[0.3em] uppercase text-primary font-medium">Proven Results</span>
+            <h2 className="text-3xl md:text-4xl font-serif font-bold mt-3 mb-4">Results at a Glance</h2>
+          </AnimatedSection>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {caseStudies.map((cs, i) => (
+              <AnimatedSection key={cs.title} delay={i * 0.1}>
+                <a href="#case-studies" className="group block p-8 rounded-xl luxury-border luxury-border-hover bg-card h-full transition-all duration-500">
+                  <span className="text-[10px] tracking-wider uppercase text-primary/70 font-semibold">{cs.industry}</span>
+                  <h3 className="font-serif text-lg font-semibold mt-2 mb-4 group-hover:text-primary/90 transition-colors leading-snug">{cs.title}</h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    {cs.metrics.slice(0, 4).map((m) => (
+                      <div key={m} className="px-3 py-2 rounded-lg bg-primary/[0.04] border border-primary/10">
+                        <span className="text-xs text-primary font-semibold">{m}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-4 flex items-center gap-1 text-xs text-primary font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                    Read Full Case Study <ArrowRight className="w-3 h-3" />
+                  </div>
+                </a>
               </AnimatedSection>
             ))}
           </div>
@@ -672,6 +721,38 @@ export default function Home() {
               ))}
             </div>
           </AnimatedSection>
+        </div>
+      </section>
+
+      <section id="industries" className="py-24 md:py-32">
+        <div className="max-w-7xl mx-auto px-6">
+          <AnimatedSection className="text-center mb-16">
+            <span className="text-xs tracking-[0.3em] uppercase text-primary font-medium">Sector Expertise</span>
+            <h2 className="text-3xl md:text-4xl font-serif font-bold mt-3 mb-4">Your Industry, Our Expertise</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto text-lg font-light">
+              Deep domain knowledge across high-stakes industries where precision and trust are non-negotiable.
+            </p>
+          </AnimatedSection>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { name: "Financial Services", desc: "Family offices, private equity, and institutional investors navigating complex portfolios and regulatory landscapes.", stat: "$2.4B+", statLabel: "Assets Advised" },
+              { name: "Technology", desc: "Enterprise SaaS, AI/ML platforms, and infrastructure companies scaling from seed to IPO and beyond.", stat: "15+", statLabel: "Platforms Built" },
+              { name: "Healthcare & Life Sciences", desc: "Digital health, biotech, and pharmaceutical firms requiring HIPAA-compliant strategy and operational excellence.", stat: "100%", statLabel: "Compliance Rate" },
+              { name: "Defense & Government", desc: "Secure systems, intelligence platforms, and mission-critical infrastructure with zero-trust architecture.", stat: "FedRAMP", statLabel: "Ready" },
+            ].map((industry, i) => (
+              <AnimatedSection key={industry.name} delay={i * 0.08}>
+                <div className="h-full p-6 rounded-xl luxury-border luxury-border-hover card-shine bg-card/60 flex flex-col">
+                  <h3 className="font-serif text-lg font-bold text-foreground mb-2">{industry.name}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-4 flex-1">{industry.desc}</p>
+                  <div className="pt-3 border-t border-border/30">
+                    <span className="text-xl font-serif font-bold gold-gradient">{industry.stat}</span>
+                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider ml-2">{industry.statLabel}</span>
+                  </div>
+                </div>
+              </AnimatedSection>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -888,6 +969,72 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <section id="insights" className="py-24 md:py-36 bg-card/50 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-0 right-1/4 w-[400px] h-[400px] rounded-full blur-[120px] bg-primary/5" />
+        </div>
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <AnimatedSection className="text-center mb-16">
+            <span className="text-xs tracking-[0.3em] uppercase text-primary font-medium">Thought Leadership</span>
+            <h2 className="text-3xl md:text-5xl font-serif font-bold mt-4 mb-6">Insights & Perspectives</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto text-lg font-light">
+              Expert analysis on digital transformation, AI strategy, and the evolving landscape of enterprise technology.
+            </p>
+          </AnimatedSection>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                category: "AI Strategy",
+                title: "The Executive's Guide to Enterprise AI Adoption in 2026",
+                excerpt: "Why 70% of AI initiatives stall — and the three-phase framework we use to ensure measurable ROI within 90 days.",
+                readTime: "8 min read",
+                date: "Mar 2026",
+              },
+              {
+                category: "Digital Transformation",
+                title: "Beyond the Buzzword: What Real Digital Transformation Looks Like",
+                excerpt: "Case studies from three Fortune 500 engagements that moved beyond slide decks to deliver $40M+ in measurable value.",
+                readTime: "12 min read",
+                date: "Feb 2026",
+              },
+              {
+                category: "Cybersecurity",
+                title: "Zero-Trust Architecture: From Framework to Implementation",
+                excerpt: "A practical roadmap for enterprises transitioning from perimeter security to zero-trust, with lessons from our advisory practice.",
+                readTime: "10 min read",
+                date: "Jan 2026",
+              },
+            ].map((article, i) => (
+              <AnimatedSection key={article.title} delay={i * 0.12}>
+                <div className="group h-full p-8 rounded-xl luxury-border luxury-border-hover bg-card transition-all duration-500 flex flex-col cursor-pointer">
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="px-3 py-1 text-[10px] tracking-wider uppercase bg-primary/10 text-primary rounded-full font-semibold">
+                      {article.category}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">{article.date}</span>
+                  </div>
+                  <h3 className="font-serif text-xl font-semibold mb-3 group-hover:text-primary/90 transition-colors leading-snug flex-grow-0">
+                    {article.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-6 flex-1">
+                    {article.excerpt}
+                  </p>
+                  <div className="flex items-center justify-between mt-auto pt-4 border-t border-border/30">
+                    <span className="text-xs text-muted-foreground/60">{article.readTime}</span>
+                    <span className="flex items-center gap-1 text-xs text-primary font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                      Read Article <ArrowRight className="w-3 h-3" />
+                    </span>
+                  </div>
+                </div>
+              </AnimatedSection>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <div className="section-divider" />
 
       <footer className="border-t border-border/30 bg-card/30 py-16">
         <div className="max-w-7xl mx-auto px-6">

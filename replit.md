@@ -2,15 +2,15 @@
 
 ## Overview
 
-SZL Holdings is a pnpm monorepo that unifies security, AI, and media platforms into a single architecture. The project aims to provide a comprehensive ecosystem for security monitoring, AI analytics, enterprise management, and digital storytelling. Its core intelligence, the Alloy Nuro Engine, uses advanced AI for data-driven insights and autonomous monitoring across all platforms. The business vision is to deliver cutting-edge, integrated solutions across various digital domains, enhancing security, operational efficiency, and creative potential for its users.
+SZL Holdings is a pnpm monorepo that unifies a suite of security, AI, and media platforms. The project aims to provide a comprehensive ecosystem for security monitoring, AI analytics, enterprise management, and digital storytelling. Its core, the Alloy Nuro Engine, leverages advanced AI for data-driven insights and autonomous monitoring across all platforms. The business vision is to deliver cutting-edge, integrated solutions that enhance security, operational efficiency, and creative potential for users across various digital domains.
 
 ## User Preferences
 
-- **Username**: slutar
-- **Password**: Topshelf14@
-- **Design style**: Dark luxury aesthetic — glassmorphism, deep blacks
-- **Brand colors**: ROSIE (electric blue/violet), AEGIS (gold/amber), LUTAR (emerald green), BEACON (cyan/electric blue), NIMBUS (cyan/purple), FIRESTORM (orange/red), VESSELS (ocean-blue/emerald)
-- **Domain**: szlholdings.com
+-   **Username**: slutar
+-   **Password**: Topshelf14@
+-   **Design style**: Dark luxury aesthetic — glassmorphism, deep blacks
+-   **Brand colors**: ROSIE (electric blue/violet), AEGIS (gold/amber), LUTAR (emerald green), BEACON (cyan/electric blue), NIMBUS (cyan/purple), FIRESTORM (orange/red), VESSELS (ocean-blue/emerald)
+-   **Domain**: szlholdings.com
 
 ## System Architecture
 
@@ -24,13 +24,25 @@ The project is a pnpm workspace monorepo, built with Node.js 24, pnpm, and TypeS
 
 **Platform Portfolio:**
 
-The monorepo includes several applications: ROSIE, AEGIS, LUTAR, BEACON, NIMBUS, FIRESTORM, DREAMERA, ALLOYSCAPE, DREAMSCAPE, ZEUS, VESSELS, INCA, CARLOTA JO, LYTE, SZL Holdings, Apps Showcase, Readiness Report, and Career.
+The monorepo includes several distinct applications covering various domains:
+
+*   **Security & AI:** ROSIE (AI security monitoring), AEGIS (enterprise security), BEACON (decision analytics), NIMBUS (predictive AI), FIRESTORM (security simulation), ALLOYSCAPE (AI infrastructure), DREAMERA (AI storytelling), DREAMSCAPE (creative systems), LYTE (observability), ZEUS (core architecture), INCA (intelligence/analytics).
+*   **Logistics & Management:** VESSELS (maritime/logistics intelligence), LUTAR (personal command center), CARLOTA JO (consulting/family-office).
+*   **Corporate & Showcase:** SZL Holdings (founder experience), Apps Showcase, Readiness Report, Career (public information).
+
+**Premium Design Upgrades (T001–T006):**
+
+Five brand properties have been upgraded to premium tier:
+*   **SZL Holdings**: ThoughtLeadership section, Team section, upgraded Footer, live metrics ticker with CSS scroll animation
+*   **Carlota Jo**: Client-centric nav (Your Needs/Results/Insights/Contact), trust signals bar, results-at-a-glance case study cards, insights/blog section
+*   **Career**: Liquid glass hero (`.liquid-glass` CSS), dark/light mode toggle (`light-mode` class on `documentElement`), glassmorphism `.glass-card` on all cards
+*   **Apps Showcase**: Filterable catalog (7 category tabs), instant search, Featured Spotlight section (ROSIE/Nimbus/DreamEra), live status indicators, `AnimatePresence` grid
+*   **Lutar Dashboard**: Executive KPI ribbon, Financial Projections LineChart with scenario toggles, Division Performance bar charts, scroll-triggered `whileInView` animations
+*   **Shared**: Consistent `.glass-card` utility across all 5 CSS files, `prefers-reduced-motion` support, mobile blur reduction `@media (max-width: 640px)`, smooth scrolling
 
 **Authentication:**
 
-A unified login system supports Demo Login and Microsoft Entra External ID (MSAL) for Enterprise Single Sign-On (SSO) with JWKS validation.
-
-**Alloy Nuro Engine & Model Registry:**
+A unified login system supports Demo Login and Microsoft Entra External ID (MSAL) for Enterprise Single Sign-O (SSO) with JWKS validation.
 
 All AI agents use a centralized model registry (`artifacts/api-server/src/lib/model-registry.ts`) that defines which OpenAI model, temperature, max tokens, and top_p each agent uses. Models are resolved at request time (not import time), enabling hot-swap via environment variables (e.g. `AGENT_MODEL_DEFAULT=gpt-4o`, `AGENT_MODEL_ALLOY=gpt-4o`). A bi-weekly freshness monitor logs warnings when models haven't been reviewed in 14+ days. Admin endpoint: `GET /api/agents/status` (requires auth+admin). Public endpoint: `GET /api/agents/freshness`. The registry status is also included in `/readyz` health checks.
 
@@ -74,11 +86,11 @@ The system includes:
 *   Zod-based Environment Validation
 *   Centralized Error Handling with consistent response shapes
 *   Request ID Propagation
-*   Mock/Live Provider Pattern for external services
+*   Mock/Live Provider Pattern for external services (Redis, Blob storage, Stripe, Plaid)
 *   Typed Service Layer for business logic
 *   Pagination Middleware for list endpoints
 *   Dedicated Analytics Endpoints for INCA, Vessels, and Nimbus
-*   SSE Streaming for real-time dashboard updates
+*   SSE Streaming for real-time updates
 *   Search Endpoints (`/api/{platform}/search`)
 *   Bulk Operations with authorization
 *   Pino logger Redaction for sensitive information
@@ -87,7 +99,7 @@ The system includes:
 
 **Import & Data Integration (Import Center):**
 
-A shared import infrastructure provides reusable components for file uploads, data preview, column mapping, and progress feedback. It supports CSV, JSON, XML, YAML, ICS, and IPYNB formats. API routes at `POST /api/import/:domain/:type` handle domain-specific imports with handlers for inca, vessels, rosie, beacon, nimbus, dreamera, and zeus, and a generic fallback.
+A shared import infrastructure provides reusable components for file uploads, data preview, column mapping, and progress feedback through a 5-step wizard. It supports CSV, JSON, XML, YAML, ICS, and IPYNB formats. API routes at `POST /api/import/:domain/:type` handle domain-specific imports with handlers for inca, vessels, rosie, beacon, nimbus, dreamera, and zeus, and a generic fallback.
 
 **MCP Registry Integration:**
 

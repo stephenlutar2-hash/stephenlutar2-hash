@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
-import { Boxes, Globe, BarChart3, Cpu } from "lucide-react";
+import { Boxes, Globe, BarChart3, Cpu, TrendingUp, Shield, Zap, Activity } from "lucide-react";
 
 interface Metric {
   icon: typeof Boxes;
@@ -69,6 +69,31 @@ function AnimatedCounter({ value, suffix, inView }: { value: number; suffix: str
   );
 }
 
+const tickerItems = [
+  { icon: Activity, label: "Ecosystem Uptime", value: "99.97%", color: "text-emerald-400" },
+  { icon: Shield, label: "Threats Blocked Today", value: "14,892", color: "text-cyan-400" },
+  { icon: TrendingUp, label: "Platform Growth", value: "+23% MoM", color: "text-gold-light" },
+  { icon: Zap, label: "Active Connections", value: "2,847", color: "text-amber-400" },
+  { icon: Globe, label: "Markets Served", value: "12 Countries", color: "text-blue-400" },
+  { icon: BarChart3, label: "Daily Events", value: "50M+", color: "text-violet-400" },
+];
+
+function LiveTicker() {
+  return (
+    <div className="relative overflow-hidden py-4 mb-16 border-y border-white/[0.04]">
+      <div className="flex animate-[scroll_30s_linear_infinite] gap-12 w-max">
+        {[...tickerItems, ...tickerItems].map((item, i) => (
+          <div key={i} className="flex items-center gap-3 shrink-0">
+            <item.icon className={`w-4 h-4 ${item.color}`} />
+            <span className="text-xs text-muted uppercase tracking-wider">{item.label}</span>
+            <span className={`text-sm font-semibold ${item.color}`}>{item.value}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function Metrics() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-100px" });
@@ -78,6 +103,8 @@ export default function Metrics() {
       <div className="absolute inset-0 bg-gradient-to-b from-background via-surface/20 to-background" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8" ref={ref}>
+        <LiveTicker />
+
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}

@@ -12,6 +12,8 @@ const Metrics = lazy(() => import("./sections/Metrics"));
 const Portfolio = lazy(() => import("./sections/Portfolio"));
 const Timeline = lazy(() => import("./sections/Timeline"));
 const About = lazy(() => import("./sections/About"));
+const Team = lazy(() => import("./sections/Team"));
+const ThoughtLeadership = lazy(() => import("./sections/ThoughtLeadership"));
 const Innovation = lazy(() => import("./sections/Innovation"));
 const InvestorBrief = lazy(() => import("./sections/InvestorBrief"));
 const Contact = lazy(() => import("./sections/Contact"));
@@ -43,6 +45,12 @@ function LandingPage() {
         </Suspense>
         <Suspense fallback={<SectionFallback />}>
           <About />
+        </Suspense>
+        <Suspense fallback={<SectionFallback />}>
+          <Team />
+        </Suspense>
+        <Suspense fallback={<SectionFallback />}>
+          <ThoughtLeadership />
         </Suspense>
         <Suspense fallback={<SectionFallback />}>
           <Innovation />

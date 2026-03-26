@@ -1,11 +1,25 @@
-import { motion } from "framer-motion";
+import { useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Shield, Flame, Satellite, Leaf, Cloud, Zap, Sparkles, Eye,
   ArrowRight, Check, Crown, Star, Rocket, Globe, Layers, BarChart3,
-  Briefcase, Ship, Coffee, Monitor, Cpu, Activity,
+  Briefcase, Ship, Coffee, Monitor, Cpu, Activity, Search, X,
 } from "lucide-react";
 
-const platforms = [
+type Platform = {
+  name: string;
+  tagline: string;
+  description: string;
+  icon: typeof Shield;
+  color: string;
+  accent: string;
+  features: string[];
+  path: string;
+  category: string;
+  status: "live" | "beta" | "building";
+};
+
+const platforms: Platform[] = [
   {
     name: "ROSIE",
     tagline: "AI Security Monitoring",
@@ -15,6 +29,8 @@ const platforms = [
     accent: "cyan",
     features: ["Threat Intelligence", "Incident Response", "AI Chat (Alloy)", "Real-time Scanning"],
     path: "/",
+    category: "Security",
+    status: "live",
   },
   {
     name: "Aegis",
@@ -25,6 +41,8 @@ const platforms = [
     accent: "amber",
     features: ["Threat Assessment", "Vulnerability Scanning", "Compliance Monitoring", "Security Auditing"],
     path: "/aegis/",
+    category: "Security",
+    status: "live",
   },
   {
     name: "Beacon",
@@ -35,6 +53,8 @@ const platforms = [
     accent: "cyan",
     features: ["KPI Tracking", "Project Management", "Zeus Integration", "DreamEra Insights"],
     path: "/beacon/",
+    category: "Analytics",
+    status: "live",
   },
   {
     name: "Lutar",
@@ -45,6 +65,8 @@ const platforms = [
     accent: "emerald",
     features: ["Financial KPIs", "Strategic Planning", "Portfolio Oversight", "Division Analytics"],
     path: "/lutar/",
+    category: "Operations",
+    status: "live",
   },
   {
     name: "Nimbus",
@@ -55,6 +77,8 @@ const platforms = [
     accent: "violet",
     features: ["AI Predictions", "System Alerts", "Anomaly Detection", "Confidence Scoring"],
     path: "/nimbus/",
+    category: "AI & Intelligence",
+    status: "live",
   },
   {
     name: "Firestorm",
@@ -65,6 +89,8 @@ const platforms = [
     accent: "orange",
     features: ["Defense Simulation", "Incident Response", "Security Training", "Playbook Validation"],
     path: "/firestorm/",
+    category: "Security",
+    status: "live",
   },
   {
     name: "DreamEra",
@@ -75,6 +101,8 @@ const platforms = [
     accent: "violet",
     features: ["Narrative Engine", "Artifact Mapping", "Creative Synthesis", "Neural Rendering"],
     path: "/dreamera/",
+    category: "Creative",
+    status: "live",
   },
   {
     name: "Zeus",
@@ -85,6 +113,8 @@ const platforms = [
     accent: "yellow",
     features: ["Core Engine", "Module Management", "Auto-Scaling", "Health Monitoring"],
     path: "/zeus/",
+    category: "Infrastructure",
+    status: "live",
   },
   {
     name: "Lyte",
@@ -95,6 +125,8 @@ const platforms = [
     accent: "emerald",
     features: ["Signal Intelligence", "AI Recommendations", "Portfolio Health", "Impact Analysis"],
     path: "/lyte/",
+    category: "Analytics",
+    status: "live",
   },
   {
     name: "AlloyScape",
@@ -105,6 +137,8 @@ const platforms = [
     accent: "gray",
     features: ["Cloud Operations", "Service Health", "Workflow Orchestration", "Execution Logs"],
     path: "/alloyscape/",
+    category: "Infrastructure",
+    status: "live",
   },
   {
     name: "Dreamscape",
@@ -115,6 +149,8 @@ const platforms = [
     accent: "indigo",
     features: ["Ideation Workflows", "Content Pipelines", "Design Management", "Creative AI"],
     path: "/dreamscape/",
+    category: "Creative",
+    status: "live",
   },
   {
     name: "Vessels",
@@ -125,6 +161,8 @@ const platforms = [
     accent: "blue",
     features: ["Fleet Tracking", "Voyage Analytics", "Emissions Monitoring", "Compliance"],
     path: "/vessels/",
+    category: "Operations",
+    status: "live",
   },
   {
     name: "INCA",
@@ -135,6 +173,8 @@ const platforms = [
     accent: "violet",
     features: ["Project Management", "Experiment Tracking", "Model Training", "Accuracy Analysis"],
     path: "/inca/",
+    category: "AI & Intelligence",
+    status: "live",
   },
   {
     name: "Carlota Jo",
@@ -145,6 +185,8 @@ const platforms = [
     accent: "pink",
     features: ["Digital Transformation", "AI Strategy", "Cybersecurity Advisory", "Executive Coaching"],
     path: "/carlota-jo/",
+    category: "Operations",
+    status: "live",
   },
   {
     name: "Readiness Report",
@@ -155,6 +197,8 @@ const platforms = [
     accent: "teal",
     features: ["Risk Assessment", "Readiness Scoring", "Launch Checklists", "Decision Support"],
     path: "/readiness-report/",
+    category: "Analytics",
+    status: "live",
   },
   {
     name: "Career",
@@ -165,6 +209,8 @@ const platforms = [
     accent: "blue",
     features: ["Leadership Profile", "Achievements", "Technology Vision", "Career Timeline"],
     path: "/career/",
+    category: "Operations",
+    status: "live",
   },
   {
     name: "SZL Holdings",
@@ -175,8 +221,12 @@ const platforms = [
     accent: "cyan",
     features: ["Portfolio Overview", "Ecosystem Health", "Strategic Dashboard", "Division Analytics"],
     path: "/szl-holdings/",
+    category: "Operations",
+    status: "live",
   },
 ];
+
+const categories = ["All", "Security", "AI & Intelligence", "Analytics", "Infrastructure", "Creative", "Operations"];
 
 const tiers = [
   {
@@ -209,6 +259,25 @@ const tiers = [
 ];
 
 export default function Home() {
+  const [activeCategory, setActiveCategory] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [featuredIndex, setFeaturedIndex] = useState(0);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+
+  const filteredPlatforms = useMemo(() => {
+    return platforms.filter(p => {
+      const matchesCategory = activeCategory === "All" || p.category === activeCategory;
+      const matchesSearch = searchQuery === "" ||
+        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.tagline.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.features.some(f => f.toLowerCase().includes(searchQuery.toLowerCase()));
+      return matchesCategory && matchesSearch;
+    });
+  }, [activeCategory, searchQuery]);
+
+  const featured = [platforms[0], platforms[4], platforms[6]];
+
   return (
     <div className="min-h-screen">
       <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:rounded-lg focus:bg-cyan-600 focus:text-white focus:outline-none">
@@ -227,6 +296,7 @@ export default function Home() {
           </div>
           <div className="hidden sm:flex items-center gap-4">
             <a href="#platforms" className="text-sm text-gray-400 hover:text-white transition">Platforms</a>
+            <a href="#spotlight" className="text-sm text-gray-400 hover:text-white transition">Spotlight</a>
             <a href="#pricing" className="text-sm text-gray-400 hover:text-white transition">Pricing</a>
             <a href="/" className="px-5 py-2 rounded-xl bg-white/5 border border-white/10 text-sm font-semibold hover:bg-white/10 transition">
               Go to ROSIE
@@ -266,60 +336,200 @@ export default function Home() {
         </div>
       </section>
 
+      <section id="spotlight" className="py-16 px-6 border-y border-white/5 bg-white/[0.01]">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-xl font-display font-bold text-white">Featured Spotlight</h2>
+              <p className="text-sm text-gray-500 mt-1">Flagship platforms powering the SZL ecosystem</p>
+            </div>
+            <div className="flex gap-2">
+              {featured.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setFeaturedIndex(i)}
+                  className={`w-2 h-2 rounded-full transition-all ${i === featuredIndex ? "bg-cyan-400 w-6" : "bg-white/20 hover:bg-white/40"}`}
+                />
+              ))}
+            </div>
+          </div>
+          <AnimatePresence mode="wait">
+            <motion.a
+              key={featuredIndex}
+              href={featured[featuredIndex].path}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+              className="block rounded-2xl overflow-hidden border border-white/10 hover:border-white/20 transition-all group"
+            >
+              <div className={`relative p-8 sm:p-12 bg-gradient-to-br ${featured[featuredIndex].color} overflow-hidden`}>
+                <div className="absolute inset-0 bg-black/30" />
+                <div className="relative z-10 flex flex-col sm:flex-row items-start gap-8">
+                  <div className="w-20 h-20 rounded-2xl bg-white/10 backdrop-blur flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                    {(() => { const Icon = featured[featuredIndex].icon; return <Icon className="w-10 h-10 text-white" />; })()}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className="text-2xl sm:text-3xl font-display font-bold text-white">{featured[featuredIndex].name}</h3>
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-[10px] font-bold text-emerald-300 uppercase tracking-wider">Live</span>
+                    </div>
+                    <p className="text-white/60 text-sm mb-1">{featured[featuredIndex].tagline}</p>
+                    <p className="text-white/80 leading-relaxed mb-6 max-w-2xl">{featured[featuredIndex].description}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {featured[featuredIndex].features.map(f => (
+                        <span key={f} className="px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-white/90 border border-white/10">
+                          {f}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="shrink-0 hidden sm:flex items-center gap-2 text-white/60 group-hover:text-white transition-colors">
+                    <span className="text-sm font-semibold">Launch</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+              </div>
+            </motion.a>
+          </AnimatePresence>
+        </div>
+      </section>
+
       <section id="platforms" className="py-24 px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-display font-bold text-white mb-4">The Platform Suite</h2>
             <p className="text-gray-400 max-w-xl mx-auto">Eighteen specialized platforms working in concert to power your digital operations.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {platforms.map((p, i) => (
-              <motion.a
-                key={p.name}
-                href={p.path}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08 }}
-                className="group block rounded-2xl bg-white/[0.03] border border-white/5 hover:border-white/15 transition-all duration-300 overflow-hidden"
-              >
-                <div className={`relative h-32 bg-gradient-to-br ${p.color} overflow-hidden`}>
-                  <div className="absolute inset-0 opacity-20">
-                    <div className="absolute top-3 left-4 right-4 h-2.5 rounded bg-white/30" />
-                    <div className="absolute top-8 left-4 w-2/5 h-2 rounded bg-white/20" />
-                    <div className="absolute top-14 left-4 right-4 grid grid-cols-3 gap-2">
-                      <div className="h-10 rounded bg-white/15" />
-                      <div className="h-10 rounded bg-white/15" />
-                      <div className="h-10 rounded bg-white/15" />
-                    </div>
-                    <div className="absolute bottom-3 left-4 w-1/3 h-2 rounded bg-white/20" />
-                  </div>
-                  <div className="absolute bottom-3 right-3 w-10 h-10 rounded-lg bg-white/10 backdrop-blur flex items-center justify-center">
-                    <p.icon className="w-5 h-5 text-white" />
-                  </div>
-                </div>
-                <div className="p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${p.color} flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                    <p.icon className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-display font-bold text-white">{p.name}</h3>
-                    <p className="text-xs text-gray-500">{p.tagline}</p>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-400 leading-relaxed mb-4">{p.description}</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {p.features.map(f => (
-                    <span key={f} className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/5 text-gray-400 border border-white/5">
-                      {f}
+
+          <div className="flex flex-col sm:flex-row items-center gap-4 mb-10">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => { setSearchQuery(e.target.value); setHighlightedIndex(-1); }}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") { setSearchQuery(""); setHighlightedIndex(-1); }
+                  if (e.key === "ArrowDown") {
+                    e.preventDefault();
+                    setHighlightedIndex(prev => Math.min(prev + 1, filteredPlatforms.length - 1));
+                  }
+                  if (e.key === "ArrowUp") {
+                    e.preventDefault();
+                    setHighlightedIndex(prev => Math.max(prev - 1, -1));
+                  }
+                  if (e.key === "Enter") {
+                    const idx = highlightedIndex >= 0 ? highlightedIndex : (filteredPlatforms.length === 1 ? 0 : -1);
+                    if (idx >= 0 && filteredPlatforms[idx]) {
+                      window.location.href = filteredPlatforms[idx].path;
+                    }
+                  }
+                }}
+                placeholder="Search platforms..."
+                className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-cyan-500/40 transition"
+                aria-label="Search platforms"
+              />
+              {searchQuery && (
+                <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition">
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {categories.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
+                    activeCategory === cat
+                      ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30"
+                      : "bg-white/5 text-gray-400 border border-white/5 hover:border-white/15 hover:text-white"
+                  }`}
+                >
+                  {cat}
+                  {cat !== "All" && (
+                    <span className="ml-1.5 text-[10px] opacity-60">
+                      {platforms.filter(p => p.category === cat).length}
                     </span>
-                  ))}
-                </div>
-                </div>
-              </motion.a>
-            ))}
+                  )}
+                </button>
+              ))}
+            </div>
           </div>
+
+          <div className="mb-4 text-sm text-gray-500">
+            {filteredPlatforms.length} platform{filteredPlatforms.length !== 1 ? "s" : ""} found
+          </div>
+
+          <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <AnimatePresence mode="popLayout">
+              {filteredPlatforms.map((p, idx) => (
+                <motion.a
+                  key={p.name}
+                  href={p.path}
+                  layout
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.25 }}
+                  className={`group block rounded-2xl bg-white/[0.03] border transition-all duration-300 overflow-hidden ${
+                    highlightedIndex === idx ? "border-cyan-500/50 ring-1 ring-cyan-500/20" : "border-white/5 hover:border-white/15"
+                  }`}
+                >
+                  <div className={`relative h-28 bg-gradient-to-br ${p.color} overflow-hidden`}>
+                    <div className="absolute inset-0 opacity-20">
+                      <div className="absolute top-3 left-4 right-4 h-2 rounded bg-white/30" />
+                      <div className="absolute top-7 left-4 w-2/5 h-1.5 rounded bg-white/20" />
+                      <div className="absolute top-12 left-4 right-4 grid grid-cols-3 gap-2">
+                        <div className="h-8 rounded bg-white/15" />
+                        <div className="h-8 rounded bg-white/15" />
+                        <div className="h-8 rounded bg-white/15" />
+                      </div>
+                    </div>
+                    <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-black/30 backdrop-blur">
+                      <span className={`w-1.5 h-1.5 rounded-full ${p.status === "live" ? "bg-emerald-400" : p.status === "beta" ? "bg-amber-400" : "bg-blue-400"}`} />
+                      <span className="text-[10px] font-bold text-white/80 uppercase">{p.status}</span>
+                    </div>
+                    <div className="absolute bottom-3 right-3 w-10 h-10 rounded-lg bg-white/10 backdrop-blur flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <p.icon className="w-5 h-5 text-white" />
+                    </div>
+                  </div>
+                  <div className="p-5">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-display font-bold text-white">{p.name}</h3>
+                      <span className="px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-white/5 text-gray-500">{p.category}</span>
+                    </div>
+                    <p className="text-xs text-gray-500 mb-3">{p.tagline}</p>
+                    <p className="text-sm text-gray-400 leading-relaxed mb-4 line-clamp-2">{p.description}</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {p.features.slice(0, 3).map(f => (
+                        <span key={f} className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/5 text-gray-400 border border-white/5">
+                          {f}
+                        </span>
+                      ))}
+                      {p.features.length > 3 && (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold text-gray-500">
+                          +{p.features.length - 3}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </motion.a>
+              ))}
+            </AnimatePresence>
+          </motion.div>
+
+          {filteredPlatforms.length === 0 && (
+            <div className="text-center py-16">
+              <Search className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+              <p className="text-gray-400 font-semibold mb-1">No platforms found</p>
+              <p className="text-gray-500 text-sm">Try adjusting your search or category filter</p>
+              <button onClick={() => { setSearchQuery(""); setActiveCategory("All"); }} className="mt-4 px-6 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-gray-300 hover:bg-white/10 transition">
+                Clear Filters
+              </button>
+            </div>
+          )}
         </div>
       </section>
 

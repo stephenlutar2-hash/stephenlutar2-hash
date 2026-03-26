@@ -6,8 +6,8 @@ const navLinks = [
   { label: "Vision", href: "#vision" },
   { label: "Ecosystem", href: "#ecosystem" },
   { label: "Portfolio", href: "#portfolio" },
-  { label: "Timeline", href: "#timeline" },
   { label: "About", href: "#about" },
+  { label: "Insights", href: "#insights" },
   { label: "Contact", href: "#contact" },
 ];
 

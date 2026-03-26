@@ -46,7 +46,10 @@ import {
   Bar,
   PieChart,
   Pie,
-  Cell
+  Cell,
+  LineChart,
+  Line,
+  Legend
 } from "recharts";
 import { Badge } from "@szl-holdings/ui";
 import { Progress } from "@szl-holdings/ui";
@@ -73,6 +76,28 @@ const INITIAL_DIVISION_DATA = [
   { name: "Operations", value: 12 },
 ];
 const PIE_COLORS = ["#10b981", "#3b82f6", "#f59e0b", "#8b5cf6"];
+
+const PROJECTION_DATA = [
+  { month: "Jan", base: 2.1, optimistic: 2.3, pessimistic: 1.8 },
+  { month: "Feb", base: 2.8, optimistic: 3.2, pessimistic: 2.3 },
+  { month: "Mar", base: 3.5, optimistic: 4.2, pessimistic: 2.8 },
+  { month: "Apr", base: 4.8, optimistic: 6.0, pessimistic: 3.5 },
+  { month: "May", base: 6.2, optimistic: 8.1, pessimistic: 4.4 },
+  { month: "Jun", base: 8.0, optimistic: 11.0, pessimistic: 5.5 },
+  { month: "Jul", base: 10.2, optimistic: 14.5, pessimistic: 6.8 },
+  { month: "Aug", base: 12.8, optimistic: 18.5, pessimistic: 8.2 },
+  { month: "Sep", base: 16.0, optimistic: 23.0, pessimistic: 9.8 },
+  { month: "Oct", base: 20.0, optimistic: 28.5, pessimistic: 11.5 },
+  { month: "Nov", base: 24.5, optimistic: 35.0, pessimistic: 13.2 },
+  { month: "Dec", base: 30.0, optimistic: 42.0, pessimistic: 15.0 },
+];
+
+const DIVISION_PERFORMANCE = [
+  { name: "Security", revenue: 7.8, target: 8.5, growth: 34, color: "#10b981" },
+  { name: "Technology", revenue: 5.2, target: 6.0, growth: 28, color: "#3b82f6" },
+  { name: "Media & Creative", revenue: 3.3, target: 4.0, growth: 45, color: "#f59e0b" },
+  { name: "Operations", revenue: 2.2, target: 2.5, growth: 22, color: "#8b5cf6" },
+];
 
 interface ProjectItem {
   name: string;
@@ -291,7 +316,7 @@ function FinancialIntegrationsSection() {
 
   if (loading) {
     return (
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.85 }}
+      <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-60px" }} transition={{ duration: 0.6 }}
         className="p-6 rounded-xl border border-border bg-card animate-pulse">
         <div className="h-5 bg-white/5 rounded w-48 mb-4" />
         <div className="space-y-3">
@@ -302,7 +327,7 @@ function FinancialIntegrationsSection() {
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.85 }}
+    <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-60px" }} transition={{ duration: 0.6 }}
       className="p-6 rounded-xl border border-border bg-card">
       <div className="flex items-center justify-between mb-6">
         <h3 className="font-display font-bold text-white tracking-wide uppercase">
@@ -428,6 +453,7 @@ export default function Dashboard() {
   const [editStatus, setEditStatus] = useState("");
   const [editProgress, setEditProgress] = useState(0);
   const [activeTab, setActiveTab] = useState<LutarTab>("command");
+  const [projectionScenario, setProjectionScenario] = useState<"all" | "optimistic" | "base" | "pessimistic">("all");
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -593,6 +619,41 @@ export default function Dashboard() {
         <div className="p-8 space-y-8">
           {activeTab === "command" && (<>
           <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-xl bg-gradient-to-r from-primary/[0.06] via-primary/[0.03] to-primary/[0.06] border border-primary/15 p-4"
+          >
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div className="flex items-center gap-6 flex-wrap">
+                {[
+                  { label: "Portfolio Value", value: "$18.5M", change: "+49%", up: true },
+                  { label: "Monthly Revenue", value: "$1.54M", change: "+23%", up: true },
+                  { label: "Burn Rate", value: "$375K", change: "-12%", up: true },
+                  { label: "Runway", value: "41 mo", change: "+8 mo", up: true },
+                  { label: "ARR", value: "$18.5M", change: "+340%", up: true },
+                ].map((kpi) => (
+                  <div key={kpi.label} className="flex items-center gap-2">
+                    <div>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{kpi.label}</p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg font-display font-bold text-white">{kpi.value}</span>
+                        <span className={`text-[11px] font-mono font-semibold flex items-center gap-0.5 ${kpi.up ? "text-emerald-400" : "text-red-400"}`}>
+                          {kpi.up ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
+                          {kpi.change}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="w-px h-8 bg-primary/10 ml-4 last:hidden" />
+                  </div>
+                ))}
+              </div>
+              <div className="text-[10px] text-muted-foreground font-mono">
+                Updated: {currentTime || "—"}
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col md:flex-row md:items-end justify-between gap-4"
@@ -681,8 +742,9 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.6 }}
               className="lg:col-span-2 p-6 rounded-xl border border-border bg-card flex flex-col"
             >
               <div className="flex justify-between items-center mb-6">
@@ -792,8 +854,9 @@ export default function Dashboard() {
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.6, delay: 0.1 }}
               className="p-6 rounded-xl border border-border bg-card flex flex-col"
             >
               <h3 className="font-display font-bold text-white tracking-wide uppercase mb-6">
@@ -847,8 +910,9 @@ export default function Dashboard() {
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.6 }}
           >
             <div className="flex justify-between items-center mb-6">
               <h3 className="font-display font-bold text-white tracking-wide uppercase">
@@ -864,8 +928,9 @@ export default function Dashboard() {
                 <motion.div
                   key={project.name}
                   initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.7 + i * 0.08 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-40px" }}
+                  transition={{ duration: 0.5, delay: i * 0.06 }}
                   className={`p-5 rounded-xl border ${project.borderColor} bg-card hover:bg-card/80 transition-colors group`}
                 >
                   <div className="flex justify-between items-start mb-4">
@@ -935,8 +1000,107 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.9 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.6 }}
+              className="p-6 rounded-xl border border-border bg-card flex flex-col"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="font-display font-bold text-white tracking-wide uppercase">
+                  Financial Projections (12m)
+                </h3>
+                <div className="flex gap-1 bg-white/5 rounded-lg p-1">
+                  {(["all", "optimistic", "base", "pessimistic"] as const).map(s => (
+                    <button
+                      key={s}
+                      onClick={() => setProjectionScenario(s)}
+                      className={`px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-colors ${
+                        projectionScenario === s ? "bg-primary/20 text-primary" : "text-muted-foreground hover:text-white"
+                      }`}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="flex-1 min-h-[250px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={PROJECTION_DATA} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(160 15% 15%)" vertical={false} />
+                    <XAxis dataKey="month" stroke="hsl(160 10% 40%)" fontSize={11} tickLine={false} axisLine={false} />
+                    <YAxis stroke="hsl(160 10% 40%)" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(v) => `$${v}M`} />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: "hsl(160 10% 6%)", borderColor: "hsl(160 15% 15%)", borderRadius: "8px" }}
+                      formatter={(value: number) => [`$${value}M`]}
+                    />
+                    {(projectionScenario === "all" || projectionScenario === "optimistic") && (
+                      <Line type="monotone" dataKey="optimistic" stroke="#34d399" strokeWidth={2} strokeDasharray={projectionScenario === "all" ? "5 5" : undefined} dot={false} name="Optimistic" />
+                    )}
+                    {(projectionScenario === "all" || projectionScenario === "base") && (
+                      <Line type="monotone" dataKey="base" stroke="#10b981" strokeWidth={2.5} dot={false} name="Base" />
+                    )}
+                    {(projectionScenario === "all" || projectionScenario === "pessimistic") && (
+                      <Line type="monotone" dataKey="pessimistic" stroke="#f59e0b" strokeWidth={2} strokeDasharray={projectionScenario === "all" ? "5 5" : undefined} dot={false} name="Pessimistic" />
+                    )}
+                    <Legend wrapperStyle={{ fontSize: "11px", color: "#888" }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="p-6 rounded-xl border border-border bg-card"
+            >
+              <h3 className="font-display font-bold text-white tracking-wide uppercase mb-6">
+                Division Performance
+              </h3>
+              <div className="space-y-5">
+                {DIVISION_PERFORMANCE.map((div, i) => (
+                  <div key={div.name}>
+                    <div className="flex justify-between items-center text-sm mb-2">
+                      <span className="text-white font-medium">{div.name}</span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-muted-foreground font-mono text-xs">${div.revenue}M / ${div.target}M</span>
+                        <span className="text-emerald-400 font-mono text-xs flex items-center gap-0.5">
+                          <ArrowUpRight size={12} />+{div.growth}%
+                        </span>
+                      </div>
+                    </div>
+                    <div className="relative w-full h-3 bg-white/5 rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${(div.revenue / div.target) * 100}%` }}
+                        transition={{ delay: 0.9 + i * 0.1, duration: 0.8 }}
+                        className="h-full rounded-full"
+                        style={{ backgroundColor: div.color }}
+                      />
+                      <div
+                        className="absolute top-0 h-full w-0.5 bg-white/30"
+                        style={{ left: "100%" }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-6 pt-4 border-t border-border/50 flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">Total Revenue</span>
+                <span className="text-lg font-display font-bold text-primary">
+                  ${DIVISION_PERFORMANCE.reduce((s, d) => s + d.revenue, 0).toFixed(1)}M
+                </span>
+              </div>
+            </motion.div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.6 }}
               className="p-6 rounded-xl border border-border bg-card"
             >
               <h3 className="font-display font-bold text-white tracking-wide uppercase mb-6">
@@ -972,8 +1136,9 @@ export default function Dashboard() {
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.0 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.6, delay: 0.1 }}
               className="p-6 rounded-xl border border-border bg-card flex flex-col"
             >
               <div className="flex justify-between items-center mb-6">
@@ -1071,8 +1236,9 @@ export default function Dashboard() {
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.1 + i * 0.1 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.5, delay: i * 0.08 }}
                 className="p-5 rounded-xl border border-border bg-card flex items-center gap-4"
               >
                 <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">

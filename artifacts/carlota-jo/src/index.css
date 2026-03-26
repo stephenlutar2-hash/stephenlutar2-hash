@@ -343,9 +343,8 @@ select.form-input {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 
   .hero-orb,
   .hero-orb-reverse {
@@ -360,20 +359,11 @@ select.form-input {
     animation: none;
     display: none;
   }
+}
 
-  .metric-card::after {
-    transition: none;
-  }
-
-  .luxury-border-hover {
-    transition: none;
-  }
-
-  .btn-primary {
-    transition: none;
-  }
-
-  .btn-primary:hover {
-    transform: none;
+@media (max-width: 640px) {
+  .glass-panel {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 }

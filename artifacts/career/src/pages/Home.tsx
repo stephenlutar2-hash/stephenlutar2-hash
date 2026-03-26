@@ -1,11 +1,12 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
 import {
   ArrowRight, Mail, MapPin, Briefcase, Award, Code2, Star,
   ExternalLink, Send, Linkedin, Github, Globe, ChevronDown,
   Shield, Brain, Zap, Server, BarChart3, Layers,
   Lock, Eye, ArrowUp, CheckCircle, Users, TrendingUp,
-  Target, Building2, GraduationCap, Lightbulb, Activity, Radar
+  Target, Building2, GraduationCap, Lightbulb, Activity, Radar,
+  Sun, Moon
 } from "lucide-react";
 
 function AnimatedSection({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
@@ -150,6 +151,12 @@ export default function Home() {
   const [accessRequest, setAccessRequest] = useState<string | null>(null);
   const [accessForm, setAccessForm] = useState({ name: "", email: "", company: "", reason: "" });
   const [accessSubmitted, setAccessSubmitted] = useState(false);
+  const [isDark, setIsDark] = useState(true);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("light-mode", !isDark);
+    return () => document.documentElement.classList.remove("light-mode");
+  }, [isDark]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -183,17 +190,25 @@ export default function Home() {
               <a key={item} href={`#${item.toLowerCase().replace(" ", "-")}`} className="text-sm text-muted-foreground hover:text-gold transition">{item}</a>
             ))}
           </div>
-          <div className="flex sm:hidden items-center gap-3">
-            <a href="https://linkedin.com/in/stephenlutar" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-gold transition"><Linkedin className="w-4 h-4" /></a>
-            <a href="mailto:stephen@szlholdings.com" className="text-muted-foreground hover:text-gold transition"><Mail className="w-4 h-4" /></a>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsDark(!isDark)}
+              className="w-9 h-9 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-gold transition-colors"
+              aria-label="Toggle theme"
+            >
+              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+            <a href="https://linkedin.com/in/stephenlutar" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-gold transition sm:hidden"><Linkedin className="w-4 h-4" /></a>
+            <a href="mailto:stephen@szlholdings.com" className="text-muted-foreground hover:text-gold transition sm:hidden"><Mail className="w-4 h-4" /></a>
           </div>
         </div>
       </nav>
 
       <section className="relative min-h-screen flex items-center justify-center px-6 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-gold/3 rounded-full blur-[150px]" />
-          <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-gold/2 rounded-full blur-[120px]" />
+          <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-gold/3 rounded-full blur-[150px] animate-pulse" style={{ animationDuration: "8s" }} />
+          <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-gold/2 rounded-full blur-[120px] animate-pulse" style={{ animationDuration: "12s" }} />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-conic from-gold/5 via-transparent to-gold/3 rounded-full blur-[100px] opacity-50" />
           <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, hsl(40 80% 55%) 1px, transparent 0)", backgroundSize: "40px 40px" }} />
         </div>
 
@@ -207,16 +222,27 @@ export default function Home() {
                 className="shrink-0"
               >
                 <div className="relative">
-                  <div className="w-44 h-44 sm:w-52 sm:h-52 rounded-full bg-gradient-to-br from-gold/20 to-gold/5 border-2 border-gold/25 flex items-center justify-center shadow-2xl shadow-gold/10">
+                  <div className="w-44 h-44 sm:w-52 sm:h-52 rounded-full liquid-glass flex items-center justify-center shadow-2xl shadow-gold/10">
                     <span className="font-display text-6xl sm:text-7xl font-bold text-gold">SL</span>
                   </div>
                   <div className="absolute -bottom-2 -right-2 w-12 h-12 rounded-full bg-emerald-500 border-4 border-background flex items-center justify-center">
                     <CheckCircle className="w-6 h-6 text-white" />
                   </div>
+                  <div className="absolute -inset-4 rounded-full bg-gradient-to-br from-gold/10 to-transparent blur-xl -z-10" />
                 </div>
               </motion.div>
 
               <div className="text-center lg:text-left flex-1">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full liquid-glass text-gold text-xs font-semibold uppercase tracking-[0.2em] mb-6"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  Available for Consulting
+                </motion.div>
+
                 <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="text-xs uppercase tracking-[0.35em] text-gold/70 mb-4 font-medium">
                   Technology Leader &middot; Enterprise Architect &middot; Founder
                 </motion.p>
@@ -237,10 +263,10 @@ export default function Home() {
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-6">
-                  <a href="#case-studies" className="px-8 py-4 rounded-full bg-gold text-background font-semibold text-sm tracking-wide hover:bg-gold/90 transition flex items-center justify-center gap-2">
+                  <a href="#case-studies" className="px-8 py-4 rounded-full bg-gold text-background font-semibold text-sm tracking-wide hover:bg-gold/90 transition flex items-center justify-center gap-2 shadow-lg shadow-gold/20">
                     View Case Studies <ArrowRight className="w-4 h-4" />
                   </a>
-                  <a href="#contact" className="px-8 py-4 rounded-full border border-border text-foreground font-semibold text-sm tracking-wide hover:bg-muted/50 transition text-center">
+                  <a href="#contact" className="px-8 py-4 rounded-full liquid-glass text-foreground font-semibold text-sm tracking-wide hover:bg-white/10 transition text-center">
                     Get in Touch
                   </a>
                 </div>
@@ -479,7 +505,7 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {caseStudies.map((study, i) => (
               <AnimatedSection key={study.title} delay={i * 0.1}>
-                <div className="rounded-2xl bg-card border border-border hover:border-gold/20 transition-all duration-300 overflow-hidden h-full">
+                <div className="rounded-2xl glass-card hover:border-gold/20 transition-all duration-500 overflow-hidden h-full">
                   <div className={`h-3 bg-gradient-to-r ${study.color}`} />
                   <div className="p-6">
                     <div className="flex items-start gap-4 mb-4">
@@ -529,7 +555,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
             {selectedWork.map((project, i) => (
               <AnimatedSection key={project.name} delay={i * 0.08}>
-                <div className="group rounded-2xl bg-card border border-border hover:border-gold/20 transition-all duration-300 overflow-hidden h-full">
+                <div className="group rounded-2xl glass-card hover:border-gold/20 transition-all duration-500 overflow-hidden h-full">
                   <div className={`h-32 bg-gradient-to-br ${project.color} relative overflow-hidden`}>
                     <div className="absolute inset-0 opacity-15">
                       <div className="absolute top-3 left-4 right-4 h-2 rounded bg-white/30" />
@@ -650,7 +676,7 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {skills.map((group, i) => (
               <AnimatedSection key={group.category} delay={i * 0.06}>
-                <div className="rounded-xl bg-card border border-border p-5 h-full">
+                <div className="rounded-xl glass-card p-5 h-full transition-all duration-300">
                   <h3 className="text-sm font-semibold text-gold mb-4 uppercase tracking-wider">{group.category}</h3>
                   <div className="flex flex-wrap gap-2">
                     {group.items.map(item => (
