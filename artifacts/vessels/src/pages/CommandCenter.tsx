@@ -29,14 +29,15 @@ const PILLAR_ICONS: Record<string, any> = {
   intelligence: Brain,
 };
 
-const PILLAR_COLORS: Record<string, string> = {
-  apm: "emerald",
-  infrastructure: "orange",
-  logs: "blue",
-  experience: "purple",
-  synthetics: "amber",
-  intelligence: "rose",
+const PILLAR_STYLE: Record<string, { bg: string; text: string; scoreTxt: string }> = {
+  apm: { bg: "bg-emerald-500/10", text: "text-emerald-400", scoreTxt: "text-emerald-400" },
+  infrastructure: { bg: "bg-orange-500/10", text: "text-orange-400", scoreTxt: "text-orange-400" },
+  logs: { bg: "bg-blue-500/10", text: "text-blue-400", scoreTxt: "text-blue-400" },
+  experience: { bg: "bg-purple-500/10", text: "text-purple-400", scoreTxt: "text-purple-400" },
+  synthetics: { bg: "bg-amber-500/10", text: "text-amber-400", scoreTxt: "text-amber-400" },
+  intelligence: { bg: "bg-rose-500/10", text: "text-rose-400", scoreTxt: "text-rose-400" },
 };
+const DEFAULT_STYLE = { bg: "bg-cyan-500/10", text: "text-cyan-400", scoreTxt: "text-cyan-400" };
 
 function statusBadge(status: string) {
   if (status === "healthy") return "bg-emerald-500/15 text-emerald-400 border-emerald-500/30";
@@ -97,13 +98,13 @@ export default function CommandCenter() {
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {data.pillars.map((pillar: any) => {
           const Icon = PILLAR_ICONS[pillar.id] || Activity;
-          const color = PILLAR_COLORS[pillar.id] || "cyan";
+          const ps = PILLAR_STYLE[pillar.id] || DEFAULT_STYLE;
           return (
             <div key={pillar.id} className="bg-white/[0.02] border border-white/5 rounded-xl p-5 hover:border-white/10 transition-all group">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className={`w-9 h-9 rounded-lg bg-${color}-500/10 flex items-center justify-center`}>
-                    <Icon className={`w-5 h-5 text-${color}-400`} />
+                  <div className={`w-9 h-9 rounded-lg ${ps.bg} flex items-center justify-center`}>
+                    <Icon className={`w-5 h-5 ${ps.text}`} />
                   </div>
                   <div>
                     <h3 className="font-display font-semibold text-white text-sm">{pillar.name}</h3>
@@ -117,7 +118,7 @@ export default function CommandCenter() {
 
               <div className="flex items-end justify-between">
                 <div>
-                  <p className={`text-3xl font-display font-bold text-${color}-400`}>{pillar.score}</p>
+                  <p className={`text-3xl font-display font-bold ${ps.scoreTxt}`}>{pillar.score}</p>
                   <p className="text-[10px] text-gray-600 uppercase tracking-wider mt-0.5">Health Score</p>
                 </div>
                 <div className="w-24 h-10">

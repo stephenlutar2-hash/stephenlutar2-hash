@@ -2,6 +2,16 @@ import { Router } from "express";
 
 const router = Router();
 
+function seededRng(seed: number) {
+  let s = seed;
+  return () => {
+    s = (s * 1664525 + 1013904223) & 0x7fffffff;
+    return s / 0x7fffffff;
+  };
+}
+
+const rng = seededRng(42);
+
 const VESSELS = [
   { id: "VLGC-001", name: "Corvette", imo: "9823401", flag: "Marshall Islands", type: "VLGC", dwt: 84000, cbm: 82000, built: 2019, class: "DNV GL", status: "laden", speed: 16.2, lat: 26.12, lng: 56.34, route: "AG-Japan", charterer: "Itochu", tce: 62500, utilization: 94, cii: "B", eexi: "compliant" },
   { id: "VLGC-002", name: "Concorde", imo: "9823402", flag: "Marshall Islands", type: "VLGC", dwt: 84000, cbm: 82000, built: 2020, class: "Lloyd's", status: "laden", speed: 15.8, lat: 12.45, lng: 72.18, route: "AG-India", charterer: "BPCL", tce: 58200, utilization: 91, cii: "A", eexi: "compliant" },
@@ -32,11 +42,17 @@ class MockVesselAdapter implements VesselDataAdapter {
 
 const adapter: VesselDataAdapter = new MockVesselAdapter();
 
+const responseCache = new Map<string, any>();
+function cached<T>(key: string, fn: () => T): T {
+  if (!responseCache.has(key)) responseCache.set(key, fn());
+  return responseCache.get(key);
+}
+
 function generateTceHistory(baseTce: number) {
   const months = ["Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar"];
   return months.map((m, i) => ({
     month: m,
-    tce: Math.round(baseTce + (Math.random() - 0.4) * 15000 + i * 800),
+    tce: Math.round(baseTce + (rng() - 0.4) * 15000 + i * 800),
   }));
 }
 
@@ -104,74 +120,71 @@ router.get("/vessels/command-center", (_req, res) => {
 });
 
 router.get("/vessels/apm", (_req, res) => {
-  const vessels = VESSELS.map(v => ({
-    ...v,
-    tceHistory: generateTceHistory(v.tce || 50000),
-    speedConsumption: generateSpeedConsumption(),
-    voyagePnl: generateVoyagePnl(v.tce || 50000),
-    ladenDays: Math.round(180 + Math.random() * 80),
-    ballastDays: Math.round(60 + Math.random() * 40),
-    portDays: Math.round(15 + Math.random() * 20),
-    voyageCount: Math.round(6 + Math.random() * 6),
-    revenueYtd: Math.round((v.tce || 50000) * (180 + Math.random() * 80)),
-  }));
-
-  const fleetAvgTce = Math.round(vessels.filter(v => v.tce > 0).reduce((s, v) => s + v.tce, 0) / vessels.filter(v => v.tce > 0).length);
-  const totalRevenue = vessels.reduce((s, v) => s + v.revenueYtd, 0);
-  const fleetUtil = Math.round(vessels.reduce((s, v) => s + v.utilization, 0) / vessels.length);
-
-  const fleetTceHistory = ["Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar"].map((m, i) => ({
-    month: m,
-    fleetAvg: Math.round(fleetAvgTce + (Math.random() - 0.3) * 8000 + i * 1200),
-    marketAvg: Math.round(45000 + (Math.random() - 0.5) * 10000 + i * 600),
-  }));
-
-  const utilizationHistory = ["Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar"].map((m, i) => ({
-    month: m,
-    utilization: Math.round(fleetUtil + (Math.random() - 0.4) * 8 + i * 0.3),
-    target: 92,
-  }));
-
-  const utilizationHeatmap = VESSELS.filter(v => v.status !== "drydock").map(v => ({
-    vessel: v.name,
-    months: ["Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar"].map(m => ({
+  res.json(cached("apm", () => {
+    const vessels = VESSELS.map(v => ({
+      ...v,
+      tceHistory: generateTceHistory(v.tce || 50000),
+      speedConsumption: generateSpeedConsumption(),
+      voyagePnl: generateVoyagePnl(v.tce || 50000),
+      ladenDays: Math.round(180 + rng() * 80),
+      ballastDays: Math.round(60 + rng() * 40),
+      portDays: Math.round(15 + rng() * 20),
+      voyageCount: Math.round(6 + rng() * 6),
+      revenueYtd: Math.round((v.tce || 50000) * (180 + rng() * 80)),
+    }));
+    const fleetAvgTce = Math.round(vessels.filter(v => v.tce > 0).reduce((s, v) => s + v.tce, 0) / vessels.filter(v => v.tce > 0).length);
+    const totalRevenue = vessels.reduce((s, v) => s + v.revenueYtd, 0);
+    const fleetUtil = Math.round(vessels.reduce((s, v) => s + v.utilization, 0) / vessels.length);
+    const fleetTceHistory = ["Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar"].map((m, i) => ({
       month: m,
-      utilization: Math.round(v.utilization + (Math.random() - 0.5) * 20),
-    })),
+      fleetAvg: Math.round(fleetAvgTce + (rng() - 0.3) * 8000 + i * 1200),
+      marketAvg: Math.round(45000 + (rng() - 0.5) * 10000 + i * 600),
+    }));
+    const utilizationHistory = ["Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar"].map((m, i) => ({
+      month: m,
+      utilization: Math.round(fleetUtil + (rng() - 0.4) * 8 + i * 0.3),
+      target: 92,
+    }));
+    const utilizationHeatmap = VESSELS.filter(v => v.status !== "drydock").map(v => ({
+      vessel: v.name,
+      months: ["Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar"].map(m => ({
+        month: m,
+        utilization: Math.round(v.utilization + (rng() - 0.5) * 20),
+      })),
+    }));
+    return { vessels, fleetMetrics: { avgTce: fleetAvgTce, totalRevenue, fleetUtilization: fleetUtil, totalVoyages: vessels.reduce((s, v) => s + v.voyageCount, 0) }, fleetTceHistory, utilizationHistory, utilizationHeatmap };
   }));
-
-  res.json({ vessels, fleetMetrics: { avgTce: fleetAvgTce, totalRevenue, fleetUtilization: fleetUtil, totalVoyages: vessels.reduce((s, v) => s + v.voyageCount, 0) }, fleetTceHistory, utilizationHistory, utilizationHeatmap });
 });
 
 router.get("/vessels/infrastructure", (_req, res) => {
-  const vesselHealth = VESSELS.map(v => ({
-    id: v.id,
-    name: v.name,
-    status: v.status,
-    overallHealth: v.status === "drydock" ? 45 : Math.round(70 + Math.random() * 25),
-    engineHours: v.status === "drydock" ? 48200 : Math.round(8000 + Math.random() * 40000),
-    engineHoursRemaining: v.status === "drydock" ? 0 : Math.round(5000 + Math.random() * 20000),
-    fuelSystem: v.status === "drydock" ? "offline" : (Math.random() > 0.85 ? "warning" : "operational"),
-    hullCondition: v.status === "drydock" ? 52 : Math.round(65 + Math.random() * 30),
-    nextDrydock: v.status === "drydock" ? "In Progress" : `${Math.round(90 + Math.random() * 900)} days`,
-    nextDrydockDate: v.status === "drydock" ? null : new Date(Date.now() + (90 + Math.random() * 900) * 86400000).toISOString().split("T")[0],
-    maintenanceBacklog: Math.round(Math.random() * 12),
-    maintenancePriority: Math.random() > 0.7 ? "high" : (Math.random() > 0.4 ? "medium" : "low"),
-    lastSurvey: new Date(Date.now() - Math.random() * 180 * 86400000).toISOString().split("T")[0],
-    built: v.built,
-    systems: [
-      { name: "Main Engine", status: v.status === "drydock" ? "offline" : "operational", health: v.status === "drydock" ? 40 : Math.round(75 + Math.random() * 20) },
-      { name: "Aux Engine 1", status: "operational", health: Math.round(70 + Math.random() * 25) },
-      { name: "Aux Engine 2", status: Math.random() > 0.9 ? "degraded" : "operational", health: Math.round(65 + Math.random() * 30) },
-      { name: "Cargo System", status: v.status === "drydock" ? "maintenance" : "operational", health: Math.round(70 + Math.random() * 25) },
-      { name: "Navigation", status: "operational", health: Math.round(85 + Math.random() * 12) },
-      { name: "Safety Systems", status: "operational", health: Math.round(80 + Math.random() * 18) },
-    ],
+  res.json(cached("infrastructure", () => {
+    const vesselHealth = VESSELS.map(v => ({
+      id: v.id,
+      name: v.name,
+      status: v.status,
+      overallHealth: v.status === "drydock" ? 45 : Math.round(70 + rng() * 25),
+      engineHours: v.status === "drydock" ? 48200 : Math.round(8000 + rng() * 40000),
+      engineHoursRemaining: v.status === "drydock" ? 0 : Math.round(5000 + rng() * 20000),
+      fuelSystem: v.status === "drydock" ? "offline" : (rng() > 0.85 ? "warning" : "operational"),
+      hullCondition: v.status === "drydock" ? 52 : Math.round(65 + rng() * 30),
+      nextDrydock: v.status === "drydock" ? "In Progress" : `${Math.round(90 + rng() * 900)} days`,
+      nextDrydockDate: v.status === "drydock" ? null : new Date(Date.now() + (90 + rng() * 900) * 86400000).toISOString().split("T")[0],
+      maintenanceBacklog: Math.round(rng() * 12),
+      maintenancePriority: rng() > 0.7 ? "high" : (rng() > 0.4 ? "medium" : "low"),
+      lastSurvey: new Date(Date.now() - rng() * 180 * 86400000).toISOString().split("T")[0],
+      built: v.built,
+      systems: [
+        { name: "Main Engine", status: v.status === "drydock" ? "offline" : "operational", health: v.status === "drydock" ? 40 : Math.round(75 + rng() * 20) },
+        { name: "Aux Engine 1", status: "operational", health: Math.round(70 + rng() * 25) },
+        { name: "Aux Engine 2", status: rng() > 0.9 ? "degraded" : "operational", health: Math.round(65 + rng() * 30) },
+        { name: "Cargo System", status: v.status === "drydock" ? "maintenance" : "operational", health: Math.round(70 + rng() * 25) },
+        { name: "Navigation", status: "operational", health: Math.round(85 + rng() * 12) },
+        { name: "Safety Systems", status: "operational", health: Math.round(80 + rng() * 18) },
+      ],
+    }));
+    const fleetHealthScore = Math.round(vesselHealth.reduce((s, v) => s + v.overallHealth, 0) / vesselHealth.length);
+    return { vesselHealth, fleetHealthScore, totalMaintenanceBacklog: vesselHealth.reduce((s, v) => s + v.maintenanceBacklog, 0), criticalSystems: vesselHealth.filter(v => v.overallHealth < 60).length };
   }));
-
-  const fleetHealthScore = Math.round(vesselHealth.reduce((s, v) => s + v.overallHealth, 0) / vesselHealth.length);
-
-  res.json({ vesselHealth, fleetHealthScore, totalMaintenanceBacklog: vesselHealth.reduce((s, v) => s + v.maintenanceBacklog, 0), criticalSystems: vesselHealth.filter(v => v.overallHealth < 60).length });
 });
 
 router.get("/vessels/logs", (_req, res) => {
@@ -237,21 +250,22 @@ router.get("/vessels/experience", (_req, res) => {
 });
 
 router.get("/vessels/synthetics", (_req, res) => {
+  res.json(cached("synthetics", () => {
   const complianceCards = VESSELS.map(v => ({
     id: v.id,
     name: v.name,
     ciiRating: v.cii,
-    ciiScore: v.cii === "A" ? Math.round(85 + Math.random() * 10) : v.cii === "B" ? Math.round(70 + Math.random() * 12) : v.cii === "C" ? Math.round(55 + Math.random() * 12) : Math.round(30 + Math.random() * 15),
-    ciiTrend: v.cii === "D" ? "declining" : (Math.random() > 0.3 ? "stable" : "improving"),
+    ciiScore: v.cii === "A" ? Math.round(85 + rng() * 10) : v.cii === "B" ? Math.round(70 + rng() * 12) : v.cii === "C" ? Math.round(55 + rng() * 12) : Math.round(30 + rng() * 15),
+    ciiTrend: v.cii === "D" ? "declining" : (rng() > 0.3 ? "stable" : "improving"),
     eexiStatus: v.eexi,
-    pscReadiness: v.status === "drydock" ? 45 : Math.round(70 + Math.random() * 25),
+    pscReadiness: v.status === "drydock" ? 45 : Math.round(70 + rng() * 25),
     sanctionsScreening: "clear",
     certificates: [
-      { name: "Safety Management Certificate", expiry: new Date(Date.now() + (60 + Math.random() * 400) * 86400000).toISOString().split("T")[0], status: Math.random() > 0.85 ? "expiring-soon" : "valid" },
-      { name: "International Ship Security Certificate", expiry: new Date(Date.now() + (30 + Math.random() * 500) * 86400000).toISOString().split("T")[0], status: Math.random() > 0.9 ? "expiring-soon" : "valid" },
-      { name: "Document of Compliance", expiry: new Date(Date.now() + (90 + Math.random() * 600) * 86400000).toISOString().split("T")[0], status: "valid" },
-      { name: "P&I Insurance", expiry: new Date(Date.now() + (20 + Math.random() * 340) * 86400000).toISOString().split("T")[0], status: Math.random() > 0.8 ? "expiring-soon" : "valid" },
-      { name: "Class Certificate", expiry: new Date(Date.now() + (100 + Math.random() * 700) * 86400000).toISOString().split("T")[0], status: "valid" },
+      { name: "Safety Management Certificate", expiry: new Date(Date.now() + (60 + rng() * 400) * 86400000).toISOString().split("T")[0], status: rng() > 0.85 ? "expiring-soon" : "valid" },
+      { name: "International Ship Security Certificate", expiry: new Date(Date.now() + (30 + rng() * 500) * 86400000).toISOString().split("T")[0], status: rng() > 0.9 ? "expiring-soon" : "valid" },
+      { name: "Document of Compliance", expiry: new Date(Date.now() + (90 + rng() * 600) * 86400000).toISOString().split("T")[0], status: "valid" },
+      { name: "P&I Insurance", expiry: new Date(Date.now() + (20 + rng() * 340) * 86400000).toISOString().split("T")[0], status: rng() > 0.8 ? "expiring-soon" : "valid" },
+      { name: "Class Certificate", expiry: new Date(Date.now() + (100 + rng() * 700) * 86400000).toISOString().split("T")[0], status: "valid" },
     ],
   }));
 
@@ -269,7 +283,8 @@ router.get("/vessels/synthetics", (_req, res) => {
   const fleetCompliance = Math.round(complianceCards.reduce((s, c) => s + c.ciiScore, 0) / complianceCards.length);
   const expiringCerts = complianceCards.reduce((s, c) => s + c.certificates.filter(cert => cert.status === "expiring-soon").length, 0);
 
-  res.json({ complianceCards, upcomingDeadlines, metrics: { fleetComplianceScore: fleetCompliance, expiringCertificates: expiringCerts, pscDeficiencies: 2, sanctionsAlerts: 0, ciiABRatio: Math.round(complianceCards.filter(c => c.ciiRating === "A" || c.ciiRating === "B").length / complianceCards.length * 100) } });
+  return { complianceCards, upcomingDeadlines, metrics: { fleetComplianceScore: fleetCompliance, expiringCertificates: expiringCerts, pscDeficiencies: 2, sanctionsAlerts: 0, ciiABRatio: Math.round(complianceCards.filter(c => c.ciiRating === "A" || c.ciiRating === "B").length / complianceCards.length * 100) } };
+  }));
 });
 
 router.get("/vessels/intelligence", (_req, res) => {
