@@ -11,6 +11,7 @@ import { validateAndSanitizeBody } from "../middleware/validate";
 import { asyncHandler } from "../middleware/errorHandler";
 import { sanitizeString } from "../lib/sanitize";
 import { AppError } from "../lib/errors";
+import { logger } from "../lib/logger";
 import {
   parsePagination,
   buildPaginatedResponse,
@@ -26,6 +27,41 @@ import { getCachedOrFetch, invalidateCacheByKeys, CACHE_KEYS, CACHE_TTLS } from 
 import type { PgColumn } from "drizzle-orm/pg-core";
 
 const router = Router();
+
+let seeded = false;
+let seedingPromise: Promise<void> | null = null;
+
+async function ensureSeeded() {
+  if (seeded || !isDatabaseAvailable()) return;
+  if (seedingPromise) return seedingPromise;
+  seedingPromise = doSeed().finally(() => { seedingPromise = null; });
+  return seedingPromise;
+}
+
+async function doSeed() {
+  if (seeded) return;
+  const [inquiriesCount, engagementsCount] = await Promise.all([
+    db.select({ cnt: count() }).from(carlotaJoInquiriesTable),
+    db.select({ cnt: count() }).from(carlotaJoEngagementsTable),
+  ]);
+  if (inquiriesCount[0].cnt > 0 && engagementsCount[0].cnt > 0) { seeded = true; return; }
+
+  if (inquiriesCount[0].cnt === 0) await db.insert(carlotaJoInquiriesTable).values([
+    { inquiryCode: "inq_seed_001", name: "Alexandra Chen", email: "achen@meridian.com", service: "Consultation: Strategic Growth", company: "Meridian Ventures", budget: "$15,000 - $25,000", timeline: "Q2 2026", message: "Interested in strategic consulting for our Series B growth phase", type: "consultation_booking", status: "contacted" },
+    { inquiryCode: "inq_seed_002", name: "Marcus Rivera", email: "mrivera@axiom.io", service: "Brand Strategy", company: "Axiom Technologies", budget: "$8,000 - $15,000", timeline: "Immediate", message: "Need comprehensive brand repositioning for enterprise market entry", type: "general_inquiry", status: "in-review" },
+    { inquiryCode: "inq_seed_003", name: "Sarah Kim", email: "skim@lunahealth.co", service: "Consultation: Deep Dive", company: "Luna Health", budget: "$25,000+", timeline: "Q3 2026", message: "Looking for ongoing advisory engagement for healthcare tech pivot", type: "consultation_booking", status: "new" },
+    { inquiryCode: "inq_seed_004", name: "David Okonkwo", email: "dokonkwo@prismcap.com", service: "Executive Coaching", company: "Prism Capital", budget: "$5,000 - $8,000", timeline: "Flexible", message: "Seeking executive coaching for leadership team development", type: "general_inquiry", status: "converted" },
+  ]).onConflictDoNothing();
+
+  if (engagementsCount[0].cnt === 0) await db.insert(carlotaJoEngagementsTable).values([
+    { engagementCode: "eng_seed_001", clientName: "David Okonkwo", clientEmail: "dokonkwo@prismcap.com", company: "Prism Capital", service: "Executive Coaching", status: "active", startDate: "2026-01-15", budget: "$8,000", notes: "Bi-weekly coaching sessions for C-suite team" },
+    { engagementCode: "eng_seed_002", clientName: "Elena Vasquez", clientEmail: "evasquez@novagroup.com", company: "Nova Group", service: "Strategic Growth Advisory", status: "active", startDate: "2025-11-01", budget: "$22,000", notes: "Ongoing strategic advisory for international expansion" },
+    { engagementCode: "eng_seed_003", clientName: "James Park", clientEmail: "jpark@zenith.dev", company: "Zenith Dev", service: "Brand Strategy", status: "completed", startDate: "2025-08-01", endDate: "2025-12-15", budget: "$15,000", notes: "Successfully repositioned brand for developer tools market" },
+  ]).onConflictDoNothing();
+
+  seeded = true;
+  logger.info("Carlota Jo seed data loaded successfully");
+}
 
 const inquirySchema = z.object({
   name: z.string().min(1).max(200),
@@ -117,6 +153,7 @@ router.get("/carlota-jo/inquiries", requireAuth, asyncHandler(async (req, res) =
   if (!isDatabaseAvailable()) {
     throw AppError.serviceUnavailable("Database unavailable");
   }
+  await ensureSeeded();
 
   const pagination = parsePagination(req);
   const dateRange = parseDateRange(req);
@@ -272,6 +309,7 @@ router.get("/carlota-jo/engagements", requireAuth, asyncHandler(async (req, res)
   if (!isDatabaseAvailable()) {
     throw AppError.serviceUnavailable("Database unavailable");
   }
+  await ensureSeeded();
 
   const pagination = parsePagination(req);
   const statusFilter = (req.query.status as string) || undefined;
@@ -368,6 +406,7 @@ router.get("/carlota-jo/stats", requireAuth, asyncHandler(async (req, res) => {
   if (!isDatabaseAvailable()) {
     throw AppError.serviceUnavailable("Database unavailable");
   }
+  await ensureSeeded();
 
   const stats = await getCachedOrFetch(
     CACHE_KEYS.CARLOTA_JO_STATS,

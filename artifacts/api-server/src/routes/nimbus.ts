@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { z } from "zod";
-import { db } from "@szl-holdings/db";
+import { db, isDatabaseAvailable } from "@szl-holdings/db";
 import { nimbusPredictionsTable, nimbusAlertsTable, insertNimbusPredictionSchema, insertNimbusAlertSchema } from "@szl-holdings/db/schema";
-import { inArray } from "drizzle-orm";
+import { inArray, count } from "drizzle-orm";
 import { requireAuth } from "./auth";
 import { requireOperator } from "../middleware/rbac";
 import { validateAndSanitizeBody } from "../middleware/validate";
@@ -10,6 +10,7 @@ import { writeRateLimit } from "../middleware/rateLimit";
 import { asyncHandler } from "../middleware/errorHandler";
 import { nimbusService } from "../services/nimbus";
 import { AppError } from "../lib/errors";
+import { logger } from "../lib/logger";
 import {
   parsePagination,
   paginateArray,
@@ -19,6 +20,49 @@ import {
 } from "../middleware/pagination";
 
 const router = Router();
+
+let seeded = false;
+let seedingPromise: Promise<void> | null = null;
+
+async function ensureSeeded() {
+  if (seeded || !isDatabaseAvailable()) return;
+  if (seedingPromise) return seedingPromise;
+  seedingPromise = doSeed().finally(() => { seedingPromise = null; });
+  return seedingPromise;
+}
+
+async function doSeed() {
+  if (seeded) return;
+  const [predictionsCount, alertsCount] = await Promise.all([
+    db.select({ cnt: count() }).from(nimbusPredictionsTable),
+    db.select({ cnt: count() }).from(nimbusAlertsTable),
+  ]);
+  if (predictionsCount[0].cnt > 0 && alertsCount[0].cnt > 0) { seeded = true; return; }
+
+  if (predictionsCount[0].cnt === 0) await db.insert(nimbusPredictionsTable).values([
+    { title: "Revenue will exceed $10M by Q4 2026", description: "Based on current growth trajectory and pipeline analysis, revenue is projected to surpass $10M", confidence: "87.3", category: "Financial", outcome: "Revenue > $10M", timeframe: "Q4 2026", status: "pending" },
+    { title: "AI market dominance in security sector", description: "ROSIE and AEGIS combined will capture 12% market share in the enterprise security AI segment", confidence: "73.5", category: "Market", outcome: "12% market share", timeframe: "2027", status: "pending" },
+    { title: "Platform scalability threshold reached", description: "Current infrastructure will require a major scaling event within 8 months as user base triples", confidence: "91.2", category: "Technical", outcome: "Infrastructure upgrade required", timeframe: "8 months", status: "confirmed" },
+    { title: "Strategic partnership acquisition", description: "High probability of landing Fortune 500 security partnership through AEGIS positioning", confidence: "64.8", category: "Business", outcome: "F500 partnership", timeframe: "6 months", status: "pending" },
+    { title: "Team expansion to 50+ members", description: "Growth velocity indicates team will double within 18 months to support platform expansion", confidence: "78.9", category: "HR", outcome: "50+ team members", timeframe: "18 months", status: "pending" },
+    { title: "Cybersecurity market consolidation wave", description: "Industry analysis indicates 3-5 major acquisitions in the AI security space within 12 months", confidence: "82.1", category: "Market", outcome: "Market consolidation", timeframe: "12 months", status: "pending" },
+    { title: "Enterprise client base expansion", description: "Prediction that enterprise client count will triple from current base driven by AEGIS zero-trust offering", confidence: "76.4", category: "Business", outcome: "3x enterprise clients", timeframe: "Q2 2027", status: "pending" },
+    { title: "INCA AI research breakthrough", description: "ThreatMind-7 neural network expected to achieve 97%+ zero-day detection accuracy", confidence: "68.9", category: "Technical", outcome: "97%+ detection accuracy", timeframe: "6 months", status: "pending" },
+  ]).onConflictDoNothing();
+
+  if (alertsCount[0].cnt === 0) await db.insert(nimbusAlertsTable).values([
+    { title: "Anomaly Detected: Revenue spike", message: "Unusual revenue spike detected in ROSIE subscriptions. 340% above baseline. Investigate source.", severity: "high", category: "Financial", isRead: false },
+    { title: "Model Drift Alert", message: "NIMBUS prediction model showing 4.2% drift from baseline. Retraining recommended.", severity: "medium", category: "Technical", isRead: false },
+    { title: "Critical: Infrastructure load at 87%", message: "ZEUS core infrastructure approaching capacity threshold. Scale-up event recommended within 72 hours.", severity: "critical", category: "Infrastructure", isRead: false },
+    { title: "Opportunity: New market entrant", message: "Competing security AI startup entered market. Analyze positioning and update AEGIS roadmap.", severity: "low", category: "Market", isRead: true },
+    { title: "Prediction Confirmed: Security spending up", message: "Q2 enterprise security budget increases confirmed across 94% of monitored enterprises.", severity: "low", category: "Market", isRead: true },
+    { title: "Data Pipeline Latency Warning", message: "Feature store ingestion latency exceeded 200ms threshold for 15 minutes. Performance degradation possible.", severity: "medium", category: "Technical", isRead: false },
+    { title: "Confidence Calibration Needed", message: "Prediction confidence scores showing systematic over-estimation of 3.8% across financial category.", severity: "medium", category: "Technical", isRead: false },
+  ]).onConflictDoNothing();
+
+  seeded = true;
+  logger.info("Nimbus seed data loaded successfully");
+}
 
 const sseClients: Set<import("express").Response> = new Set();
 
@@ -34,11 +78,13 @@ router.get("/nimbus/health", (_req, res) => {
 });
 
 router.get("/nimbus/predictions", requireAuth, asyncHandler(async (_req, res) => {
+  await ensureSeeded();
   const predictions = await nimbusService.listPredictions();
   res.json(predictions);
 }));
 
 router.get("/nimbus/list/predictions", requireAuth, asyncHandler(async (req, res) => {
+  await ensureSeeded();
   const pagination = parsePagination(req);
   let predictions = await nimbusService.listPredictions();
   predictions = filterByFields(predictions, req.query as Record<string, string | string[] | undefined>, ["status", "category", "outcome"]);
@@ -60,11 +106,13 @@ router.delete("/nimbus/predictions/:id", requireAuth, requireOperator(), asyncHa
 }));
 
 router.get("/nimbus/alerts", requireAuth, asyncHandler(async (_req, res) => {
+  await ensureSeeded();
   const alerts = await nimbusService.listAlerts();
   res.json(alerts);
 }));
 
 router.get("/nimbus/list/alerts", requireAuth, asyncHandler(async (req, res) => {
+  await ensureSeeded();
   const pagination = parsePagination(req);
   let alerts = await nimbusService.listAlerts();
   alerts = filterByFields(alerts, req.query as Record<string, string | string[] | undefined>, ["severity", "category"]);
@@ -86,6 +134,7 @@ router.delete("/nimbus/alerts/:id", requireAuth, requireOperator(), asyncHandler
 }));
 
 router.get("/nimbus/analytics/prediction-accuracy", requireAuth, asyncHandler(async (_req, res) => {
+  await ensureSeeded();
   const predictions = await db.select().from(nimbusPredictionsTable);
 
   const byMonth: Record<string, { total: number; correct: number; totalConfidence: number }> = {};
@@ -117,6 +166,7 @@ router.get("/nimbus/analytics/prediction-accuracy", requireAuth, asyncHandler(as
 }));
 
 router.get("/nimbus/analytics/alert-frequency", requireAuth, asyncHandler(async (_req, res) => {
+  await ensureSeeded();
   const alerts = await db.select().from(nimbusAlertsTable);
 
   const bySeverity: Record<string, number> = {};
@@ -150,6 +200,7 @@ router.get("/nimbus/analytics/alert-frequency", requireAuth, asyncHandler(async 
 }));
 
 router.get("/nimbus/analytics/confidence-distribution", requireAuth, asyncHandler(async (_req, res) => {
+  await ensureSeeded();
   const predictions = await db.select().from(nimbusPredictionsTable);
 
   const buckets: Record<string, number> = {
@@ -197,6 +248,7 @@ router.get("/nimbus/analytics/confidence-distribution", requireAuth, asyncHandle
 }));
 
 router.get("/nimbus/search", requireAuth, asyncHandler(async (req, res) => {
+  await ensureSeeded();
   const q = req.query.q as string;
   if (!q || q.trim() === "") {
     res.json({ predictions: [], alerts: [] });

@@ -1,5 +1,7 @@
 import { Router } from "express";
-import { insertBeaconMetricSchema, insertBeaconProjectSchema } from "@szl-holdings/db/schema";
+import { insertBeaconMetricSchema, insertBeaconProjectSchema, beaconMetricsTable, beaconProjectsTable } from "@szl-holdings/db/schema";
+import { db, isDatabaseAvailable } from "@szl-holdings/db";
+import { count } from "drizzle-orm";
 import { requireAuth } from "./auth";
 import { requireOperator } from "../middleware/rbac";
 import { validateAndSanitizeBody } from "../middleware/validate";
@@ -7,14 +9,57 @@ import { writeRateLimit } from "../middleware/rateLimit";
 import { asyncHandler } from "../middleware/errorHandler";
 import { beaconService } from "../services/beacon";
 import { AppError } from "../lib/errors";
+import { logger } from "../lib/logger";
 
 const router = Router();
+
+let seeded = false;
+let seedingPromise: Promise<void> | null = null;
+
+async function ensureSeeded() {
+  if (seeded || !isDatabaseAvailable()) return;
+  if (seedingPromise) return seedingPromise;
+  seedingPromise = doSeed().finally(() => { seedingPromise = null; });
+  return seedingPromise;
+}
+
+async function doSeed() {
+  if (seeded) return;
+  const [metricsCount, projectsCount] = await Promise.all([
+    db.select({ cnt: count() }).from(beaconMetricsTable),
+    db.select({ cnt: count() }).from(beaconProjectsTable),
+  ]);
+  if (metricsCount[0].cnt > 0 && projectsCount[0].cnt > 0) { seeded = true; return; }
+
+  if (metricsCount[0].cnt === 0) await db.insert(beaconMetricsTable).values([
+    { name: "Total Revenue", value: "4820000", unit: "$", change: "23.4", category: "Financial" },
+    { name: "Active Projects", value: "7", unit: "projects", change: "16.7", category: "Operations" },
+    { name: "Empire Growth", value: "340", unit: "%", change: "12.1", category: "Growth" },
+    { name: "Team Size", value: "24", unit: "people", change: "33.3", category: "HR" },
+    { name: "Monthly Recurring Revenue", value: "182000", unit: "$", change: "8.5", category: "Financial" },
+    { name: "Client Satisfaction", value: "97.4", unit: "%", change: "2.1", category: "Quality" },
+  ]).onConflictDoNothing();
+
+  if (projectsCount[0].cnt === 0) await db.insert(beaconProjectsTable).values([
+    { name: "ROSIE", description: "AI-powered security monitoring platform for real-time threat detection", status: "active", progress: 95, platform: "Security" },
+    { name: "AEGIS", description: "Enterprise-grade security fortress with zero-trust architecture", status: "active", progress: 88, platform: "Security" },
+    { name: "NIMBUS", description: "Predictive AI analytics and forecasting engine", status: "building", progress: 72, platform: "AI" },
+    { name: "ZEUS", description: "Modular infrastructure core powering all SZL platforms", status: "building", progress: 65, platform: "Infrastructure" },
+    { name: "INCA AI", description: "Advanced AI research and innovation laboratory", status: "planning", progress: 40, platform: "AI" },
+    { name: "DREAM ERA", description: "Premium media and content production platform", status: "planning", progress: 30, platform: "Media" },
+    { name: "LUTAR", description: "Personal empire management and command center", status: "active", progress: 82, platform: "Management" },
+  ]).onConflictDoNothing();
+
+  seeded = true;
+  logger.info("Beacon seed data loaded successfully");
+}
 
 router.get("/beacon/health", (_req, res) => {
   res.json({ ok: true, group: "beacon", timestamp: new Date().toISOString() });
 });
 
 router.get("/beacon/metrics", requireAuth, asyncHandler(async (req, res) => {
+  await ensureSeeded();
   const { page, limit, sortBy, sortOrder, search, category } = req.query;
   if (page || limit || sortBy || sortOrder || search || category) {
     const result = await beaconService.listMetricsPaginated({
@@ -51,6 +96,7 @@ router.delete("/beacon/metrics/:id", requireAuth, requireOperator(), asyncHandle
 }));
 
 router.get("/beacon/projects", requireAuth, asyncHandler(async (req, res) => {
+  await ensureSeeded();
   const { page, limit, sortBy, sortOrder, search, status } = req.query;
   if (page || limit || sortBy || sortOrder || search || status) {
     const result = await beaconService.listProjectsPaginated({
@@ -87,6 +133,7 @@ router.delete("/beacon/projects/:id", requireAuth, requireOperator(), asyncHandl
 }));
 
 router.get("/beacon/analytics/metric-trends", requireAuth, asyncHandler(async (req, res) => {
+  await ensureSeeded();
   const window = req.query.window as "hourly" | "daily" | "weekly" | undefined;
   const metricName = req.query.metricName ? String(req.query.metricName) : undefined;
   const trends = await beaconService.getMetricTrends(window || "daily", metricName);
@@ -94,11 +141,13 @@ router.get("/beacon/analytics/metric-trends", requireAuth, asyncHandler(async (r
 }));
 
 router.get("/beacon/analytics/project-progress", requireAuth, asyncHandler(async (_req, res) => {
+  await ensureSeeded();
   const summary = await beaconService.getProjectProgressSummary();
   res.json(summary);
 }));
 
 router.get("/beacon/analytics/kpi-summary", requireAuth, asyncHandler(async (_req, res) => {
+  await ensureSeeded();
   const kpis = await beaconService.getKpiSummary();
   res.json(kpis);
 }));
