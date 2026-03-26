@@ -1,9 +1,10 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Shield, AlertTriangle, CheckCircle2, Clock, TrendingUp, Brain, Activity, Zap } from "lucide-react";
 import { RadarChart, Radar as RechartsRadar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from "recharts";
 import { Link } from "wouter";
 
-const readinessScores = [
+const defaultReadinessScores = [
   { subject: "Security", A: 92, fullMark: 100 },
   { subject: "Infrastructure", A: 87, fullMark: 100 },
   { subject: "Compliance", A: 78, fullMark: 100 },
@@ -14,16 +15,44 @@ const readinessScores = [
   { subject: "Recovery", A: 76, fullMark: 100 },
 ];
 
-const predictions = [
+const defaultPredictions = [
   { id: 1, area: "Compliance Gap — SOC 2 Type II Audit", risk: "high", probability: "78%", timeframe: "45 days", prediction: "Based on current documentation velocity and open remediation items, SOC 2 Type II audit preparation will not be complete by the June 15 deadline. 3 control gaps remain unaddressed: change management documentation, access review cadence, and incident response testing evidence.", recommended: ["Accelerate change management documentation — assign dedicated owner", "Complete quarterly access review by April 15", "Schedule incident response tabletop exercise for April 20"] },
   { id: 2, area: "Infrastructure Capacity — Database Tier", risk: "medium", probability: "64%", timeframe: "30 days", prediction: "Database connection pool projected to reach 85% utilization within 25 days based on current growth trajectory. Vessels Q1 reporting season driving query volume increase. Historical pattern shows performance degradation begins at 82% capacity.", recommended: ["Pre-scale database read replicas before Q1 peak", "Optimize top-10 slow queries in Vessels dashboard", "Enable connection pooling with PgBouncer"] },
   { id: 3, area: "Security Posture — Dependency Vulnerabilities", risk: "medium", probability: "72%", timeframe: "14 days", prediction: "3 high-severity CVEs projected for Node.js dependencies based on upstream security advisory patterns. Current average patch time is 8 days — within SLA but trending slower. Automated dependency scanning coverage at 94% — 2 services not yet integrated.", recommended: ["Integrate remaining 2 services into automated scanning", "Reduce patch deployment pipeline from 8 days to 5 days", "Enable automated PR creation for critical CVE patches"] },
   { id: 4, area: "Team Readiness — On-Call Coverage", risk: "low", probability: "45%", timeframe: "60 days", prediction: "On-call rotation showing fatigue indicators: average response time increased 34% over 3 months, and 2 engineers have flagged burnout concerns. Current 4-person rotation may be insufficient for growing platform count. Risk of missed SLA if not addressed.", recommended: ["Expand on-call rotation to 6 engineers", "Implement tiered alerting to reduce noise by 40%", "Schedule on-call review with team by April 1"] },
 ];
 
-const overallScore = Math.round(readinessScores.reduce((sum, s) => sum + s.A, 0) / readinessScores.length);
-
 export default function PredictiveReadiness() {
+  const API_BASE = import.meta.env.VITE_API_URL || "/api";
+  const [readinessScores, setReadinessScores] = useState(defaultReadinessScores);
+  const [predictions, setPredictions] = useState(defaultPredictions);
+  const [overallScore, setOverallScore] = useState(Math.round(defaultReadinessScores.reduce((sum, s) => sum + s.A, 0) / defaultReadinessScores.length));
+
+  useEffect(() => {
+    fetch(`${API_BASE}/readiness/predictive`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (!data) return;
+        if (data.overall) setOverallScore(data.overall);
+        if (data.dimensionAverages) {
+          setReadinessScores(data.dimensionAverages.map((d: any) => ({
+            subject: d.dimension, A: d.average, fullMark: 100,
+          })));
+        }
+        if (data.predictions) {
+          setPredictions(data.predictions.map((p: any, i: number) => ({
+            id: i + 1,
+            area: p.area,
+            risk: p.risk,
+            probability: p.probability,
+            timeframe: p.timeframe,
+            prediction: p.prediction,
+            recommended: p.recommended || [],
+          })));
+        }
+      })
+      .catch((err) => console.error("[Readiness] Failed to fetch predictive data:", err));
+  }, [API_BASE]);
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">

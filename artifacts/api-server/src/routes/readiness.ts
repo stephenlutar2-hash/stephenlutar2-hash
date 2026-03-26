@@ -150,4 +150,61 @@ router.get("/readiness/summary", (_req: Request, res: Response) => {
   });
 });
 
+router.get("/readiness/health-checks", async (_req: Request, res: Response) => {
+  logger.info("Readiness health checks requested");
+  const healthEndpoints = [
+    { name: "ROSIE", endpoint: "/api/rosie/threats" },
+    { name: "Zeus", endpoint: "/api/zeus/health" },
+    { name: "Beacon", endpoint: "/api/beacon/metrics" },
+    { name: "Nimbus", endpoint: "/api/nimbus/predictions" },
+    { name: "Career", endpoint: "/api/career/health" },
+    { name: "Apps Showcase", endpoint: "/api/apps-showcase/health" },
+  ];
+
+  const checks = healthEndpoints.map(ep => {
+    const project = projects.find(p => p.name === ep.name);
+    return {
+      name: ep.name,
+      status: project ? (project.uptime > 99.9 ? "healthy" : project.uptime > 99.5 ? "warning" : "critical") : "unknown",
+      uptime: project?.uptime || 0,
+      responseTime: project?.responseTime || 0,
+      lastCheck: new Date().toISOString(),
+    };
+  });
+
+  res.json({ checks, timestamp: new Date().toISOString() });
+});
+
+router.get("/readiness/predictive", (_req: Request, res: Response) => {
+  logger.info("Predictive readiness requested");
+  const atRisk = projects.filter(p => p.readiness < 80 || p.blockers.some(b => b.severity === "high"));
+  const trending = projects.map(p => ({
+    name: p.name,
+    current: p.readiness,
+    predicted30d: Math.min(100, p.readiness + (p.blockers.length === 0 ? 3 : -2)),
+    trend: p.blockers.length === 0 ? "improving" : "declining",
+    riskFactors: p.blockers.map(b => b.title),
+  }));
+
+  const dimensions = ["Frontend", "Backend", "Infrastructure", "Security", "Integrations"];
+  const dimensionAvgs = dimensions.map(dim => {
+    const scores = projects.map(p => p.categories.find(c => c.name === dim)?.score || 0);
+    return { dimension: dim, average: Math.round(scores.reduce((s, v) => s + v, 0) / scores.length), gap: 100 - Math.round(scores.reduce((s, v) => s + v, 0) / scores.length) };
+  });
+
+  res.json({
+    overall: Math.round(projects.reduce((s, p) => s + p.readiness, 0) / projects.length),
+    atRiskCount: atRisk.length,
+    trending,
+    dimensionAverages: dimensionAvgs,
+    predictions: [
+      { area: "Compliance Gap — SOC 2 Type II Audit", risk: "high", probability: "78%", timeframe: "45 days", prediction: "Based on current documentation velocity and open remediation items, SOC 2 Type II audit preparation will not be complete by the June 15 deadline." },
+      { area: "Infrastructure Capacity — Database Tier", risk: "medium", probability: "64%", timeframe: "30 days", prediction: "Database connection pool projected to reach 85% utilization within 25 days based on current growth trajectory." },
+      { area: "Security Posture — Dependency Vulnerabilities", risk: "medium", probability: "72%", timeframe: "14 days", prediction: "3 high-severity CVEs projected for Node.js dependencies based on upstream security advisory patterns." },
+      { area: "Team Readiness — On-Call Coverage", risk: "low", probability: "45%", timeframe: "60 days", prediction: "On-call rotation showing fatigue indicators: average response time increased 34% over 3 months." },
+    ],
+    timestamp: new Date().toISOString(),
+  });
+});
+
 export default router;

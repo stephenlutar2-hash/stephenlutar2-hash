@@ -9,6 +9,10 @@ import {
   Sun, Moon, Menu, X
 } from "lucide-react";
 
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  Shield, Brain, Zap, Server, BarChart3, Globe,
+};
+
 function AnimatedSection({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-80px" });
@@ -19,7 +23,7 @@ function AnimatedSection({ children, className = "", delay = 0 }: { children: Re
   );
 }
 
-const timeline = [
+const defaultTimeline = [
   {
     year: "2023",
     role: "Founder & CEO",
@@ -136,7 +140,7 @@ const privateProjects = [
   { name: "Project Atlas", description: "Enterprise knowledge graph platform mapping organizational relationships, dependencies, and strategic opportunities.", tags: ["Graph DB", "NLP", "Enterprise"] },
 ];
 
-const skills = [
+const defaultSkills = [
   { category: "Languages", items: ["TypeScript", "JavaScript", "Python", "Go", "SQL", "HTML/CSS"] },
   { category: "Frontend", items: ["React", "Next.js", "Tailwind CSS", "Framer Motion", "Vite", "Redux"] },
   { category: "Backend", items: ["Node.js", "Express", "PostgreSQL", "Redis", "GraphQL", "REST"] },
@@ -147,6 +151,23 @@ const skills = [
 
 export default function Home() {
   const API_BASE = import.meta.env.VITE_API_URL || "/api";
+  const [timeline, setTimeline] = useState(defaultTimeline);
+  const [skills, setSkills] = useState(defaultSkills);
+  const [apiCaseStudies, setApiCaseStudies] = useState<typeof caseStudies | null>(null);
+  const [apiSelectedWork, setApiSelectedWork] = useState<typeof selectedWork | null>(null);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/career/all`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (!data) return;
+        if (data.timeline) setTimeline(data.timeline);
+        if (data.skills?.categories) setSkills(data.skills.categories);
+        if (data.caseStudies) setApiCaseStudies(data.caseStudies);
+        if (data.selectedWork) setApiSelectedWork(data.selectedWork);
+      })
+      .catch(() => {});
+  }, [API_BASE]);
   const [formData, setFormData] = useState({ name: "", email: "", purpose: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
@@ -571,14 +592,16 @@ export default function Home() {
           </AnimatedSection>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {caseStudies.map((study, i) => (
+            {(apiCaseStudies || caseStudies).map((study: any, i: number) => {
+              const StudyIcon = typeof study.icon === "string" ? (iconMap[study.icon] || Shield) : study.icon;
+              return (
               <AnimatedSection key={study.title} delay={i * 0.1}>
                 <div className="rounded-2xl glass-card hover:border-gold/20 transition-all duration-500 overflow-hidden h-full">
                   <div className={`h-3 bg-gradient-to-r ${study.color}`} />
                   <div className="p-6">
                     <div className="flex items-start gap-4 mb-4">
                       <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${study.color} flex items-center justify-center shrink-0`}>
-                        <study.icon className="w-6 h-6 text-white" />
+                        <StudyIcon className="w-6 h-6 text-white" />
                       </div>
                       <div>
                         <h3 className="font-display text-lg font-bold text-foreground leading-tight">{study.title}</h3>
@@ -605,7 +628,8 @@ export default function Home() {
                   </div>
                 </div>
               </AnimatedSection>
-            ))}
+            );
+            })}
           </div>
         </div>
       </section>
@@ -621,7 +645,9 @@ export default function Home() {
           </AnimatedSection>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
-            {selectedWork.map((project, i) => (
+            {(apiSelectedWork || selectedWork).map((project: any, i: number) => {
+              const ProjectIcon = typeof project.icon === "string" ? (iconMap[project.icon] || Zap) : project.icon;
+              return (
               <AnimatedSection key={project.name} delay={i * 0.08}>
                 <div className="group rounded-2xl glass-card hover:border-gold/20 transition-all duration-500 overflow-hidden h-full">
                   <div className={`h-32 bg-gradient-to-br ${project.color} relative overflow-hidden`}>
@@ -635,7 +661,7 @@ export default function Home() {
                       </div>
                     </div>
                     <div className="absolute bottom-3 right-3 w-10 h-10 rounded-lg bg-white/10 backdrop-blur flex items-center justify-center">
-                      <project.icon className="w-5 h-5 text-white" />
+                      <ProjectIcon className="w-5 h-5 text-white" />
                     </div>
                   </div>
                   <div className="p-5">
@@ -652,7 +678,8 @@ export default function Home() {
                   </div>
                 </div>
               </AnimatedSection>
-            ))}
+            );
+            })}
           </div>
 
           <AnimatedSection delay={0.3}>

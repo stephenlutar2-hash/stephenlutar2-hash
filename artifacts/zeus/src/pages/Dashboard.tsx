@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -20,6 +20,10 @@ interface Module {
   enabled: boolean;
 }
 
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  Cpu, Database, Shield, Network, Settings, GitBranch, Activity, HardDrive, Server,
+};
+
 const initialModules: Module[] = [
   { id: 1, name: "Core Engine", description: "Primary processing and orchestration layer", icon: Cpu, status: "online", uptime: "99.99%", load: 42, version: "4.2.1", enabled: true },
   { id: 2, name: "Data Nexus", description: "Distributed data synchronization service", icon: Database, status: "online", uptime: "99.97%", load: 58, version: "3.8.0", enabled: true },
@@ -38,11 +42,41 @@ const statusConfig = {
 };
 
 export default function Dashboard() {
+  const API_BASE = import.meta.env.VITE_API_URL || "/api";
   const loading = useSimulatedLoading();
   const [, setLocation] = useLocation();
   const [modules, setModules] = useState(initialModules);
   const [mobileMenu, setMobileMenu] = useState(false);
   const [selectedTab, setSelectedTab] = useState<"modules" | "config">("modules");
+
+  useEffect(() => {
+    fetch(`${API_BASE}/zeus/topology`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (!data?.services) return;
+        const statusMap: Record<string, Module["status"]> = {
+          healthy: "online", degraded: "degraded", maintenance: "maintenance", warning: "degraded",
+        };
+        const typeIconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+          Infrastructure: Cpu, Observability: Activity, Security: Shield,
+          Compliance: Shield, Intelligence: Network, Platform: Server,
+          Operations: HardDrive, "AI/ML": Network, Analytics: Activity,
+        };
+        const mapped: Module[] = data.services.map((s: any, i: number) => ({
+          id: i + 1,
+          name: s.name,
+          description: `${s.type} service — ${s.instances || 1} instance(s)`,
+          icon: typeIconMap[s.type] || Cpu,
+          status: statusMap[s.status] || "online",
+          uptime: s.uptime || "—",
+          load: typeof s.load === "number" ? s.load : 0,
+          version: `${s.instances || 1} inst`,
+          enabled: s.status !== "maintenance",
+        }));
+        if (mapped.length > 0) setModules(mapped);
+      })
+      .catch((err) => console.error("[Zeus Dashboard] Failed to fetch topology:", err));
+  }, [API_BASE]);
 
   function logout() {
     const token = localStorage.getItem("szl_token");

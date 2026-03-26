@@ -1,9 +1,10 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Brain, TrendingUp, Award, Target, Sparkles, BookOpen, Code, Briefcase } from "lucide-react";
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import { Link } from "wouter";
 
-const skillsData = [
+const defaultSkillsData = [
   { subject: "Frontend", current: 92, target: 95 },
   { subject: "Backend", current: 88, target: 90 },
   { subject: "DevOps", current: 75, target: 85 },
@@ -14,23 +15,40 @@ const skillsData = [
   { subject: "Communication", current: 90, target: 92 },
 ];
 
-const growthAreas = [
+const defaultGrowthAreas = [
   { skill: "Kubernetes & Container Orchestration", gap: 15, priority: "High", recommendation: "Complete CKA certification track — estimated 40 hours", resources: ["KodeKloud CKA Course", "Kubernetes the Hard Way", "Practice Labs"] },
   { skill: "Zero-Trust Security Architecture", gap: 12, priority: "High", recommendation: "Deep dive into NIST Zero Trust framework and implement proof-of-concept with Aegis", resources: ["NIST SP 800-207", "Zero Trust Architecture (O'Reilly)", "Aegis codebase study"] },
   { skill: "MLOps & Model Deployment", gap: 10, priority: "Medium", recommendation: "Build end-to-end ML pipeline with INCA experiment platform", resources: ["MLOps Zoomcamp", "Weights & Biases tutorials", "INCA ML pipeline docs"] },
   { skill: "System Design at Scale", gap: 8, priority: "Medium", recommendation: "Study Zeus architecture patterns and contribute to capacity planning", resources: ["Designing Data-Intensive Apps", "Zeus architecture docs", "System Design Interview prep"] },
 ];
 
-const certifications = [
-  { name: "AWS Solutions Architect Professional", status: "completed", date: "2025-11-15" },
-  { name: "Certified Kubernetes Administrator", status: "in-progress", progress: 65 },
-  { name: "CISSP (Security)", status: "planned", date: "2026-Q3" },
-  { name: "Google Cloud ML Engineer", status: "planned", date: "2026-Q4" },
+const defaultCertifications = [
+  { name: "AWS Solutions Architect Professional", status: "completed", date: "2025-11-15", progress: 100 },
+  { name: "Certified Kubernetes Administrator", status: "in-progress", date: null, progress: 65 },
+  { name: "CISSP (Security)", status: "planned", date: "2026-Q3", progress: 0 },
+  { name: "Google Cloud ML Engineer", status: "planned", date: "2026-Q4", progress: 0 },
 ];
 
-const overallScore = Math.round(skillsData.reduce((s, d) => s + d.current, 0) / skillsData.length);
-
 export default function SkillsRadar() {
+  const API_BASE = import.meta.env.VITE_API_URL || "/api";
+  const [skillsData, setSkillsData] = useState(defaultSkillsData);
+  const [growthAreas, setGrowthAreas] = useState(defaultGrowthAreas);
+  const [certifications, setCertifications] = useState(defaultCertifications);
+  const [overallScore, setOverallScore] = useState(Math.round(defaultSkillsData.reduce((s, d) => s + d.current, 0) / defaultSkillsData.length));
+
+  useEffect(() => {
+    Promise.all([
+      fetch(`${API_BASE}/career/skills`).then(r => r.ok ? r.json() : null),
+      fetch(`${API_BASE}/career/certifications`).then(r => r.ok ? r.json() : null),
+    ]).then(([skillsRes, certsRes]) => {
+      if (skillsRes) {
+        if (skillsRes.radar) setSkillsData(skillsRes.radar);
+        if (skillsRes.growthAreas) setGrowthAreas(skillsRes.growthAreas);
+        if (skillsRes.overallScore) setOverallScore(skillsRes.overallScore);
+      }
+      if (certsRes?.certifications) setCertifications(certsRes.certifications);
+    }).catch(() => {});
+  }, [API_BASE]);
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">

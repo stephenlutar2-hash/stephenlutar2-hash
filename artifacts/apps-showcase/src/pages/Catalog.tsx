@@ -1,9 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import {
   Shield, Flame, Satellite, Leaf, Cloud, Zap, Sparkles, Eye,
   Crown, ExternalLink, type LucideIcon, Search, BarChart3,
   Briefcase, Ship, Coffee, Activity, Layers, Globe, Monitor, Cpu, Network,
+  Brain, User, LayoutGrid, Command,
 } from "lucide-react";
 import { getAppUrl } from "@szl-holdings/domain-utils";
 
@@ -23,225 +24,35 @@ interface Project {
   category: Category;
   domain: string;
   path: string;
+  health?: { status: string; uptime: number; responseTime: number };
+  tags?: string[];
 }
 
-const projects: Project[] = [
-  {
-    name: "ROSIE",
-    description: "AI-powered security monitoring and incident response command center with the Alloy conversational agent.",
-    icon: Shield,
-    color: "from-cyan-500 to-violet-600",
-    status: "Active",
-    maturity: "Production",
-    environment: "Production",
-    category: "Security",
-    domain: "szlholdings.com",
-    path: "/",
-  },
-  {
-    name: "Aegis",
-    description: "Enterprise defensive security suite with threat assessment, vulnerability scanning, and compliance monitoring.",
-    icon: Eye,
-    color: "from-amber-500 to-yellow-600",
-    status: "Active",
-    maturity: "Production",
-    environment: "Production",
-    category: "Security",
-    domain: "szlholdings.com",
-    path: "/aegis/",
-  },
-  {
-    name: "Beacon",
-    description: "Centralized telemetry dashboard for tracking KPIs, project initiatives, and organizational metrics.",
-    icon: Satellite,
-    color: "from-cyan-400 to-blue-600",
-    status: "Active",
-    maturity: "Production",
-    environment: "Production",
-    category: "Analytics",
-    domain: "szlholdings.com",
-    path: "/beacon/",
-  },
-  {
-    name: "Lutar",
-    description: "Personal command center for SZL Holdings. Track projects, assets, financial KPIs, and strategic initiatives across every division.",
-    icon: Leaf,
-    color: "from-emerald-500 to-green-600",
-    status: "Active",
-    maturity: "Production",
-    environment: "Production",
-    category: "Operations",
-    domain: "szlholdings.com",
-    path: "/lutar/",
-  },
-  {
-    name: "Nimbus",
-    description: "AI-powered predictive analytics with confidence-scored forecasting and neural network anomaly detection.",
-    icon: Cloud,
-    color: "from-cyan-500 to-violet-600",
-    status: "Active",
-    maturity: "Production",
-    environment: "Production",
-    category: "AI/ML",
-    domain: "szlholdings.com",
-    path: "/nimbus/",
-  },
-  {
-    name: "Firestorm",
-    description: "Controlled security simulation environment for testing defensive strategies and training security teams.",
-    icon: Flame,
-    color: "from-orange-500 to-red-600",
-    status: "Active",
-    maturity: "Beta",
-    environment: "Staging",
-    category: "Security",
-    domain: "szlholdings.com",
-    path: "/firestorm/",
-  },
-  {
-    name: "DreamEra",
-    description: "Neural storytelling engine with artifact mapping and creative synthesis capabilities.",
-    icon: Sparkles,
-    color: "from-violet-500 to-blue-600",
-    status: "Active",
-    maturity: "Beta",
-    environment: "Production",
-    category: "AI/ML",
-    domain: "szlholdings.com",
-    path: "/dreamera/",
-  },
-  {
-    name: "Zeus",
-    description: "The backbone engine powering every SZL platform with modular design and horizontal scalability.",
-    icon: Zap,
-    color: "from-yellow-500 to-amber-600",
-    status: "Active",
-    maturity: "Production",
-    environment: "Production",
-    category: "Platform",
-    domain: "szlholdings.com",
-    path: "/zeus/",
-  },
-  {
-    name: "AlloyScape",
-    description: "Infrastructure operations platform for monitoring, managing, and optimizing cloud and on-premise environments.",
-    icon: Layers,
-    color: "from-slate-400 to-zinc-600",
-    status: "Active",
-    maturity: "Production",
-    environment: "Production",
-    category: "Operations",
-    domain: "szlholdings.com",
-    path: "/alloyscape/",
-  },
-  {
-    name: "Dreamscape",
-    description: "Creative systems platform for ideation workflows, content pipelines, and design-driven project management.",
-    icon: Globe,
-    color: "from-indigo-500 to-purple-600",
-    status: "Active",
-    maturity: "Beta",
-    environment: "Production",
-    category: "AI/ML",
-    domain: "szlholdings.com",
-    path: "/dreamscape/",
-  },
-  {
-    name: "Readiness Report",
-    description: "Comprehensive project readiness assessments with scoring, risk matrices, and go/no-go decision support.",
-    icon: BarChart3,
-    color: "from-teal-500 to-cyan-600",
-    status: "Active",
-    maturity: "Production",
-    environment: "Production",
-    category: "Analytics",
-    domain: "szlholdings.com",
-    path: "/readiness-report/",
-  },
-  {
-    name: "Career",
-    description: "Professional portfolio and career showcase for SZL Holdings leadership, achievements, and technology vision.",
-    icon: Briefcase,
-    color: "from-blue-500 to-indigo-600",
-    status: "Active",
-    maturity: "Production",
-    environment: "Production",
-    category: "Business",
-    domain: "szlholdings.com",
-    path: "/career/",
-  },
-  {
-    name: "Vessels",
-    description: "Maritime intelligence platform for fleet tracking, voyage analytics, and operational monitoring of LPG carriers.",
-    icon: Ship,
-    color: "from-blue-600 to-cyan-500",
-    status: "Active",
-    maturity: "Beta",
-    environment: "Production",
-    category: "Operations",
-    domain: "szlholdings.com",
-    path: "/vessels/",
-  },
-  {
-    name: "Carlota Jo",
-    description: "Strategic advisory and portfolio management consulting platform with client engagement and project tracking.",
-    icon: Coffee,
-    color: "from-rose-500 to-pink-600",
-    status: "Active",
-    maturity: "Production",
-    environment: "Production",
-    category: "Business",
-    domain: "szlholdings.com",
-    path: "/carlota-jo/",
-  },
-  {
-    name: "Lyte",
-    description: "Executive observability command center — unified signals, AI-driven recommendations, and portfolio health across all SZL platforms.",
-    icon: Activity,
-    color: "from-emerald-400 to-teal-600",
-    status: "Active",
-    maturity: "Beta",
-    environment: "Production",
-    category: "Analytics",
-    domain: "szlholdings.com",
-    path: "/lyte/",
-  },
-  {
-    name: "INCA",
-    description: "AI research and experimentation platform for managing projects, experiments, model training, and accuracy tracking.",
-    icon: Cpu,
-    color: "from-violet-500 to-purple-600",
-    status: "Active",
-    maturity: "Production",
-    environment: "Production",
-    category: "AI/ML",
-    domain: "szlholdings.com",
-    path: "/inca/",
-  },
-  {
-    name: "SZL Holdings",
-    description: "Corporate portfolio hub showcasing all SZL Holdings ventures, ecosystem health, and strategic overview.",
-    icon: Crown,
-    color: "from-cyan-500 to-blue-600",
-    status: "Active",
-    maturity: "Production",
-    environment: "Production",
-    category: "Platform",
-    domain: "szlholdings.com",
-    path: "/szl-holdings/",
-  },
-  {
-    name: "Apps Showcase",
-    description: "Centralized catalog of all SZL Holdings platforms with status tracking, maturity labels, and quick navigation.",
-    icon: Monitor,
-    color: "from-gray-400 to-slate-600",
-    status: "Active",
-    maturity: "Production",
-    environment: "Production",
-    category: "Platform",
-    domain: "szlholdings.com",
-    path: "/apps-showcase/",
-  },
+const iconLookup: Record<string, LucideIcon> = {
+  Shield, Flame, Satellite, Leaf, Cloud, Zap, Sparkles, Eye,
+  Crown, BarChart3, Briefcase, Ship, Coffee, Activity, Layers, Globe, Monitor, Cpu, Network,
+  Brain, User, LayoutGrid, Command, ClipboardCheck: BarChart3, Building2: Crown,
+};
+
+const staticProjects: Project[] = [
+  { name: "ROSIE", description: "AI-powered security monitoring and incident response command center with the Alloy conversational agent.", icon: Shield, color: "from-cyan-500 to-violet-600", status: "Active", maturity: "Production", environment: "Production", category: "Security", domain: "szlholdings.com", path: "/" },
+  { name: "Aegis", description: "Enterprise defensive security suite with threat assessment, vulnerability scanning, and compliance monitoring.", icon: Eye, color: "from-amber-500 to-yellow-600", status: "Active", maturity: "Production", environment: "Production", category: "Security", domain: "szlholdings.com", path: "/aegis/" },
+  { name: "Beacon", description: "Centralized telemetry dashboard for tracking KPIs, project initiatives, and organizational metrics.", icon: Satellite, color: "from-cyan-400 to-blue-600", status: "Active", maturity: "Production", environment: "Production", category: "Analytics", domain: "szlholdings.com", path: "/beacon/" },
+  { name: "Lutar", description: "Personal command center for SZL Holdings. Track projects, assets, financial KPIs, and strategic initiatives across every division.", icon: Leaf, color: "from-emerald-500 to-green-600", status: "Active", maturity: "Production", environment: "Production", category: "Operations", domain: "szlholdings.com", path: "/lutar/" },
+  { name: "Nimbus", description: "AI-powered predictive analytics with confidence-scored forecasting and neural network anomaly detection.", icon: Cloud, color: "from-cyan-500 to-violet-600", status: "Active", maturity: "Production", environment: "Production", category: "AI/ML", domain: "szlholdings.com", path: "/nimbus/" },
+  { name: "Firestorm", description: "Controlled security simulation environment for testing defensive strategies and training security teams.", icon: Flame, color: "from-orange-500 to-red-600", status: "Active", maturity: "Beta", environment: "Staging", category: "Security", domain: "szlholdings.com", path: "/firestorm/" },
+  { name: "DreamEra", description: "Neural storytelling engine with artifact mapping and creative synthesis capabilities.", icon: Sparkles, color: "from-violet-500 to-blue-600", status: "Active", maturity: "Beta", environment: "Production", category: "AI/ML", domain: "szlholdings.com", path: "/dreamera/" },
+  { name: "Zeus", description: "The backbone engine powering every SZL platform with modular design and horizontal scalability.", icon: Zap, color: "from-yellow-500 to-amber-600", status: "Active", maturity: "Production", environment: "Production", category: "Platform", domain: "szlholdings.com", path: "/zeus/" },
+  { name: "AlloyScape", description: "Infrastructure operations platform for monitoring, managing, and optimizing cloud and on-premise environments.", icon: Layers, color: "from-slate-400 to-zinc-600", status: "Active", maturity: "Production", environment: "Production", category: "Operations", domain: "szlholdings.com", path: "/alloyscape/" },
+  { name: "Dreamscape", description: "Creative systems platform for ideation workflows, content pipelines, and design-driven project management.", icon: Globe, color: "from-indigo-500 to-purple-600", status: "Active", maturity: "Beta", environment: "Production", category: "AI/ML", domain: "szlholdings.com", path: "/dreamscape/" },
+  { name: "Readiness Report", description: "Comprehensive project readiness assessments with scoring, risk matrices, and go/no-go decision support.", icon: BarChart3, color: "from-teal-500 to-cyan-600", status: "Active", maturity: "Production", environment: "Production", category: "Analytics", domain: "szlholdings.com", path: "/readiness-report/" },
+  { name: "Career", description: "Professional portfolio and career showcase for SZL Holdings leadership, achievements, and technology vision.", icon: Briefcase, color: "from-blue-500 to-indigo-600", status: "Active", maturity: "Production", environment: "Production", category: "Business", domain: "szlholdings.com", path: "/career/" },
+  { name: "Vessels", description: "Maritime intelligence platform for fleet tracking, voyage analytics, and operational monitoring of LPG carriers.", icon: Ship, color: "from-blue-600 to-cyan-500", status: "Active", maturity: "Beta", environment: "Production", category: "Operations", domain: "szlholdings.com", path: "/vessels/" },
+  { name: "Carlota Jo", description: "Strategic advisory and portfolio management consulting platform with client engagement and project tracking.", icon: Coffee, color: "from-rose-500 to-pink-600", status: "Active", maturity: "Production", environment: "Production", category: "Business", domain: "szlholdings.com", path: "/carlota-jo/" },
+  { name: "Lyte", description: "Executive observability command center — unified signals, AI-driven recommendations, and portfolio health across all SZL platforms.", icon: Activity, color: "from-emerald-400 to-teal-600", status: "Active", maturity: "Beta", environment: "Production", category: "Analytics", domain: "szlholdings.com", path: "/lyte/" },
+  { name: "INCA", description: "AI research and experimentation platform for managing projects, experiments, model training, and accuracy tracking.", icon: Cpu, color: "from-violet-500 to-purple-600", status: "Active", maturity: "Production", environment: "Production", category: "AI/ML", domain: "szlholdings.com", path: "/inca/" },
+  { name: "SZL Holdings", description: "Corporate portfolio hub showcasing all SZL Holdings ventures, ecosystem health, and strategic overview.", icon: Crown, color: "from-cyan-500 to-blue-600", status: "Active", maturity: "Production", environment: "Production", category: "Platform", domain: "szlholdings.com", path: "/szl-holdings/" },
+  { name: "Apps Showcase", description: "Centralized catalog of all SZL Holdings platforms with status tracking, maturity labels, and quick navigation.", icon: Monitor, color: "from-gray-400 to-slate-600", status: "Active", maturity: "Production", environment: "Production", category: "Platform", domain: "szlholdings.com", path: "/apps-showcase/" },
 ];
 
 const statusColors: Record<Status, string> = {
@@ -274,6 +85,13 @@ const categoryColors: Record<Category, string> = {
 
 const allCategories: Category[] = ["Security", "Analytics", "Operations", "AI/ML", "Platform", "Business"];
 
+const healthDot = (status?: string) => {
+  if (!status) return "bg-gray-500";
+  if (status === "healthy") return "bg-emerald-400";
+  if (status === "warning" || status === "degraded") return "bg-amber-400";
+  return "bg-red-400";
+};
+
 function Badge({ label, className }: { label: string; className: string }) {
   return (
     <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${className}`}>
@@ -283,27 +101,56 @@ function Badge({ label, className }: { label: string; className: string }) {
 }
 
 function ProjectCard({ project }: { project: Project }) {
+  const [hovered, setHovered] = useState(false);
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="rounded-2xl bg-white/[0.03] border border-white/5 hover:border-white/15 transition-all duration-300 overflow-hidden"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="rounded-2xl bg-white/[0.03] border border-white/5 hover:border-white/15 transition-all duration-300 overflow-hidden group"
     >
-      <div className={`h-2 bg-gradient-to-r ${project.color}`} />
+      <div className={`h-2 bg-gradient-to-r ${project.color} transition-all duration-300 ${hovered ? "h-3" : ""}`} />
       <div className="p-6">
         <div className="flex items-start gap-4 mb-4">
-          <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${project.color} flex items-center justify-center shrink-0`}>
+          <motion.div
+            animate={hovered ? { scale: 1.05, rotate: 3 } : { scale: 1, rotate: 0 }}
+            transition={{ type: "spring", stiffness: 300 }}
+            className={`w-12 h-12 rounded-xl bg-gradient-to-br ${project.color} flex items-center justify-center shrink-0`}
+          >
             <project.icon className="w-6 h-6 text-white" />
-          </div>
+          </motion.div>
           <div className="min-w-0 flex-1">
-            <h3 className="font-display font-bold text-white text-lg">{project.name}</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="font-display font-bold text-white text-lg">{project.name}</h3>
+              {project.health && (
+                <motion.div
+                  animate={{ scale: [1, 1.3, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className={`w-2 h-2 rounded-full ${healthDot(project.health.status)}`}
+                />
+              )}
+            </div>
             <p className="text-xs text-gray-500">{project.domain}</p>
           </div>
           <span className={`text-[10px] font-bold uppercase ${categoryColors[project.category]}`}>{project.category}</span>
         </div>
 
         <p className="text-sm text-gray-400 leading-relaxed mb-4">{project.description}</p>
+
+        {project.health && (
+          <div className="grid grid-cols-2 gap-2 mb-4">
+            <div className="px-2.5 py-1.5 rounded-lg bg-white/[0.02] border border-white/5 text-center">
+              <p className="text-xs font-mono text-emerald-400">{project.health.uptime}%</p>
+              <p className="text-[8px] text-gray-600 uppercase">Uptime</p>
+            </div>
+            <div className="px-2.5 py-1.5 rounded-lg bg-white/[0.02] border border-white/5 text-center">
+              <p className="text-xs font-mono text-cyan-400">{project.health.responseTime}ms</p>
+              <p className="text-[8px] text-gray-600 uppercase">Response</p>
+            </div>
+          </div>
+        )}
 
         <div className="flex flex-wrap gap-1.5 mb-5">
           <Badge label={project.status} className={statusColors[project.status]} />
@@ -313,7 +160,7 @@ function ProjectCard({ project }: { project: Project }) {
 
         <a
           href={getAppUrl(project.path.replace(/\/$/, "") || "/", "/")}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-sm font-semibold text-white hover:bg-white/10 transition"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-sm font-semibold text-white hover:bg-white/10 transition group-hover:border-white/20"
         >
           Open <ExternalLink className="w-3.5 h-3.5" />
         </a>
@@ -323,9 +170,37 @@ function ProjectCard({ project }: { project: Project }) {
 }
 
 export default function Catalog() {
+  const API_BASE = import.meta.env.VITE_API_URL || "/api";
+  const [projects, setProjects] = useState<Project[]>(staticProjects);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<Category | "All">("All");
   const [maturityFilter, setMaturityFilter] = useState<Maturity | "All">("All");
+
+  useEffect(() => {
+    fetch(`${API_BASE}/apps-showcase/catalog`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (!data?.catalog) return;
+        const merged = staticProjects.map(sp => {
+          const apiApp = data.catalog.find((a: any) => a.name === sp.name);
+          if (apiApp) {
+            return {
+              ...sp,
+              description: apiApp.description || sp.description,
+              icon: (apiApp.icon && iconLookup[apiApp.icon]) || sp.icon,
+              health: apiApp.health,
+              tags: apiApp.tags,
+              status: (apiApp.status || sp.status) as Status,
+              maturity: (apiApp.maturity || sp.maturity) as Maturity,
+              environment: (apiApp.environment || sp.environment) as Environment,
+            };
+          }
+          return sp;
+        });
+        setProjects(merged);
+      })
+      .catch((err) => console.error("[Apps Showcase] Failed to fetch catalog:", err));
+  }, [API_BASE]);
 
   const filtered = useMemo(() => {
     return projects.filter((p) => {
@@ -334,7 +209,7 @@ export default function Catalog() {
       if (maturityFilter !== "All" && p.maturity !== maturityFilter) return false;
       return true;
     });
-  }, [search, categoryFilter, maturityFilter]);
+  }, [projects, search, categoryFilter, maturityFilter]);
 
   const grouped: Record<Status, Project[]> = { Active: [], "In Progress": [], Planned: [] };
   for (const p of filtered) {

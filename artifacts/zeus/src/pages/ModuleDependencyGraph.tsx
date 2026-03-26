@@ -1,20 +1,35 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "wouter";
 import { Zap, GitBranch, ArrowLeft, X, Activity, Cpu, Database, Shield, Network, Settings, HardDrive } from "lucide-react";
 
-const MODULES = [
-  { id: "core", name: "Core Engine", icon: Cpu, status: "online", load: 42, x: 50, y: 12, color: "#eab308" },
-  { id: "data", name: "Data Nexus", icon: Database, status: "online", load: 58, x: 25, y: 32, color: "#3b82f6" },
-  { id: "shield", name: "Shield Protocol", icon: Shield, status: "online", load: 23, x: 75, y: 32, color: "#10b981" },
-  { id: "mesh", name: "Neural Mesh", icon: Network, status: "degraded", load: 87, x: 15, y: 55, color: "#f59e0b" },
-  { id: "config", name: "Config Matrix", icon: Settings, status: "online", load: 12, x: 50, y: 52, color: "#8b5cf6" },
-  { id: "events", name: "Event Bus", icon: Activity, status: "online", load: 35, x: 85, y: 55, color: "#06b6d4" },
-  { id: "storage", name: "Storage Engine", icon: HardDrive, status: "online", load: 51, x: 35, y: 78, color: "#ec4899" },
-  { id: "version", name: "Versioning", icon: GitBranch, status: "maintenance", load: 0, x: 65, y: 78, color: "#6b7280" },
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  Cpu, Database, Shield, Network, Settings, Activity, HardDrive, GitBranch,
+};
+
+const defaultPositions: Record<string, { x: number; y: number }> = {
+  core: { x: 50, y: 12 }, data: { x: 25, y: 32 }, shield: { x: 75, y: 32 },
+  mesh: { x: 15, y: 55 }, config: { x: 50, y: 52 }, events: { x: 85, y: 55 },
+  storage: { x: 35, y: 78 }, version: { x: 65, y: 78 },
+};
+
+const defaultIconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  core: Cpu, data: Database, shield: Shield, mesh: Network, config: Settings,
+  events: Activity, storage: HardDrive, version: GitBranch,
+};
+
+const DEFAULT_MODULES = [
+  { id: "core", name: "Core Engine", status: "online", load: 42, color: "#eab308" },
+  { id: "data", name: "Data Nexus", status: "online", load: 58, color: "#3b82f6" },
+  { id: "shield", name: "Shield Protocol", status: "online", load: 23, color: "#10b981" },
+  { id: "mesh", name: "Neural Mesh", status: "degraded", load: 87, color: "#f59e0b" },
+  { id: "config", name: "Config Matrix", status: "online", load: 12, color: "#8b5cf6" },
+  { id: "events", name: "Event Bus", status: "online", load: 35, color: "#06b6d4" },
+  { id: "storage", name: "Storage Engine", status: "online", load: 51, color: "#ec4899" },
+  { id: "version", name: "Versioning", status: "maintenance", load: 0, color: "#6b7280" },
 ];
 
-const DEPS = [
+const DEFAULT_DEPS = [
   { from: "core", to: "data", strength: 0.9, label: "data sync" },
   { from: "core", to: "shield", strength: 0.8, label: "auth" },
   { from: "core", to: "config", strength: 0.95, label: "config" },
@@ -36,8 +51,28 @@ const statusColors: Record<string, string> = {
 };
 
 export default function ModuleDependencyGraph() {
-  const [selected, setSelected] = useState<typeof MODULES[0] | null>(null);
+  const API_BASE = import.meta.env.VITE_API_URL || "/api";
+  const [MODULES, setModules] = useState(DEFAULT_MODULES);
+  const [DEPS, setDeps] = useState(DEFAULT_DEPS);
+  const [selected, setSelected] = useState<typeof DEFAULT_MODULES[0] | null>(null);
   const [hoveredEdge, setHoveredEdge] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/zeus/dependencies`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.modules) setModules(data.modules);
+        if (data?.dependencies) setDeps(data.dependencies);
+      })
+      .catch((err) => console.error("[Zeus Dependencies] Failed to fetch:", err));
+  }, [API_BASE]);
+
+  const modulesWithPos = MODULES.map(m => ({
+    ...m,
+    x: defaultPositions[m.id]?.x ?? 50,
+    y: defaultPositions[m.id]?.y ?? 50,
+    icon: defaultIconMap[m.id] || Cpu,
+  }));
 
   const connectedEdges = selected ? DEPS.filter(d => d.from === selected.id || d.to === selected.id) : [];
   const connectedIds = selected ? new Set([selected.id, ...connectedEdges.map(e => e.from), ...connectedEdges.map(e => e.to)]) : null;
@@ -95,7 +130,7 @@ export default function ModuleDependencyGraph() {
               <marker id="dep-arrow" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
                 <polygon points="0 0, 6 2, 0 4" fill="rgba(234,179,8,0.3)" />
               </marker>
-              {MODULES.map(m => (
+              {modulesWithPos.map(m => (
                 <radialGradient key={m.id} id={`glow-${m.id}`} cx="50%" cy="50%" r="50%">
                   <stop offset="0%" stopColor={m.color} stopOpacity={0.2} />
                   <stop offset="100%" stopColor={m.color} stopOpacity={0} />
@@ -104,8 +139,8 @@ export default function ModuleDependencyGraph() {
             </defs>
 
             {DEPS.map((dep, i) => {
-              const from = MODULES.find(m => m.id === dep.from)!;
-              const to = MODULES.find(m => m.id === dep.to)!;
+              const from = modulesWithPos.find(m => m.id === dep.from)!;
+              const to = modulesWithPos.find(m => m.id === dep.to)!;
               const isHighlighted = hoveredEdge === i || (connectedIds && connectedEdges.includes(dep));
               const dimmed = connectedIds && !connectedEdges.includes(dep);
               const midX = (from.x + to.x) / 2;
@@ -132,7 +167,7 @@ export default function ModuleDependencyGraph() {
               );
             })}
 
-            {MODULES.map((mod, i) => {
+            {modulesWithPos.map((mod, i) => {
               const dimmed = connectedIds && !connectedIds.has(mod.id);
               const isSelected = selected?.id === mod.id;
               return (
@@ -204,7 +239,7 @@ export default function ModuleDependencyGraph() {
                 <div className="border-t border-white/5 pt-2">
                   <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">Dependencies ({connectedEdges.length})</p>
                   {connectedEdges.map((edge, i) => {
-                    const other = MODULES.find(m => m.id === (edge.from === selected.id ? edge.to : edge.from))!;
+                    const other = modulesWithPos.find(m => m.id === (edge.from === selected.id ? edge.to : edge.from))!;
                     const direction = edge.from === selected.id ? "→" : "←";
                     return (
                       <div key={i} className="flex items-center gap-2 py-1 text-xs">

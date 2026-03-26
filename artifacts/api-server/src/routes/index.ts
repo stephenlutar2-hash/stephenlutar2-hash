@@ -29,6 +29,8 @@ import mcpRouter from "./mcp";
 import agentStatusRouter from "./agent-status";
 import extensionsRouter from "./extensions";
 import readinessRouter from "./readiness";
+import careerRouter from "./career";
+import appsShowcaseRouter from "./apps-showcase";
 import googleRouter from "./google";
 import integrationsRouter from "./integrations";
 import { auditMiddleware } from "../lib/audit";
@@ -90,6 +92,8 @@ router.use(mcpRouter);
 router.use(agentStatusRouter);
 router.use(extensionsRouter);
 router.use(readinessRouter);
+router.use(careerRouter);
+router.use(appsShowcaseRouter);
 router.use(googleRouter);
 router.use(integrationsRouter);
 

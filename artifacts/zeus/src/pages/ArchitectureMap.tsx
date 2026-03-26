@@ -1,7 +1,8 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Network, Server, Database, Shield, Activity, Zap, Globe, Brain, CheckCircle2, AlertTriangle } from "lucide-react";
 
-const services = [
+const defaultServices = [
   { name: "Zeus Core", type: "Infrastructure", status: "healthy", uptime: "99.97%", connections: ["Beacon", "Rosie", "INCA", "AlloyScape"], load: 34, instances: 4 },
   { name: "Beacon", type: "Observability", status: "healthy", uptime: "99.99%", connections: ["Zeus Core", "All Services"], load: 42, instances: 3 },
   { name: "Rosie", type: "Security", status: "healthy", uptime: "99.98%", connections: ["Zeus Core", "Aegis", "Firestorm"], load: 28, instances: 2 },
@@ -16,7 +17,7 @@ const services = [
   { name: "Redis Cluster", type: "Cache", status: "healthy", uptime: "99.99%", connections: ["All Services"], load: 41, instances: 6 },
 ];
 
-const selfHealingEvents = [
+const defaultSelfHealingEvents = [
   { id: 1, time: "2026-03-25T14:32:00Z", service: "Vessels Fleet API", event: "Auto-scaled from 3 to 4 instances", trigger: "CPU > 75% for 5 minutes", result: "Load reduced to 52%", type: "scaling" },
   { id: 2, time: "2026-03-25T08:15:00Z", service: "INCA Experiment Runner", event: "Restarted unhealthy pod (inca-runner-7b8c9)", trigger: "Health check failed 3 consecutive times", result: "Service restored in 12 seconds", type: "restart" },
   { id: 3, time: "2026-03-24T22:45:00Z", service: "Redis Cluster", event: "Failover to replica node (redis-replica-02)", trigger: "Primary node memory > 95%", result: "Zero-downtime failover completed", type: "failover" },
@@ -32,6 +33,20 @@ const loadColor = (l: number) => l >= 70 ? "text-red-400" : l >= 50 ? "text-ambe
 const statusDot = (s: string) => s === "healthy" ? "bg-emerald-400" : s === "warning" ? "bg-amber-400" : "bg-red-400";
 
 export default function ArchitectureMap() {
+  const API_BASE = import.meta.env.VITE_API_URL || "/api";
+  const [services, setServices] = useState(defaultServices);
+  const [selfHealingEvents, setSelfHealingEvents] = useState(defaultSelfHealingEvents);
+
+  useEffect(() => {
+    Promise.all([
+      fetch(`${API_BASE}/zeus/topology`).then(r => r.ok ? r.json() : null),
+      fetch(`${API_BASE}/zeus/self-healing-events`).then(r => r.ok ? r.json() : null),
+    ]).then(([topoRes, healRes]) => {
+      if (topoRes?.services) setServices(topoRes.services);
+      if (healRes?.events) setSelfHealingEvents(healRes.events);
+    }).catch(() => {});
+  }, [API_BASE]);
+
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white p-6 md:p-10">
       <div className="max-w-6xl mx-auto space-y-6">
