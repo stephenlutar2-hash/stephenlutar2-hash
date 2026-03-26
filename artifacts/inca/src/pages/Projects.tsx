@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useIncaProjects, useMutateIncaProjects, useExperiments } from "@/hooks/use-inca";
 import ProjectModal from "@/components/ProjectModal";
 import { Link } from "wouter";
-import { Plus, Edit2, Trash2, ChevronRight, Brain, Search, LayoutGrid, List } from "lucide-react";
+import { Plus, Edit2, Trash2, ChevronRight, Brain, Search, LayoutGrid, List, AlertTriangle, RefreshCw } from "lucide-react";
 import type { IncaProject, CreateIncaProjectStatus } from "@szl-holdings/api-client-react";
 import { SkeletonCard } from "@/components/SkeletonLoader";
 import AnimatedCounter from "@/components/AnimatedCounter";
@@ -60,7 +60,7 @@ const pageTransition = {
 };
 
 export default function Projects() {
-  const { data: projects, isLoading } = useIncaProjects();
+  const { data: projects, isLoading, error } = useIncaProjects();
   const { data: experiments } = useExperiments();
   const { create, update, remove } = useMutateIncaProjects();
   const [modal, setModal] = useState<{ isOpen: boolean; project?: IncaProject }>({ isOpen: false });
@@ -77,12 +77,38 @@ export default function Projects() {
 
   const handleSubmit = (data: { name: string; description: string; status: CreateIncaProjectStatus; aiModel: string; accuracy: number }) => {
     if (modal.project) {
-      update.mutate({ id: modal.project.id, data });
+      update.mutate({ id: modal.project.id, data }, {
+        onSuccess: () => setModal({ isOpen: false }),
+      });
     } else {
-      create.mutate({ data });
+      create.mutate({ data }, {
+        onSuccess: () => setModal({ isOpen: false }),
+      });
     }
-    setModal({ isOpen: false });
   };
+
+  if (error) {
+    return (
+      <motion.div {...pageTransition} className="space-y-6 max-w-7xl">
+        <div>
+          <h2 className="text-3xl font-display font-bold text-white">Projects</h2>
+          <p className="text-muted-foreground mt-1 text-sm">Manage your AI research projects</p>
+        </div>
+        <div className="glass-panel rounded-xl p-8 border border-destructive/30 bg-destructive/5 text-center">
+          <AlertTriangle className="w-10 h-10 text-destructive mx-auto mb-3" />
+          <h3 className="text-lg font-display font-bold text-white mb-1">Failed to load projects</h3>
+          <p className="text-sm text-muted-foreground mb-4">Something went wrong while fetching data.</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-mono text-cyan bg-cyan/10 border border-cyan/20 rounded-lg hover:bg-cyan/20 transition-colors"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            Retry
+          </button>
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div {...pageTransition} className="space-y-6 max-w-7xl">
@@ -363,6 +389,7 @@ export default function Projects() {
         onSubmit={handleSubmit}
         project={modal.project}
         isPending={create.isPending || update.isPending}
+        error={create.isError || update.isError}
       />
     </motion.div>
   );

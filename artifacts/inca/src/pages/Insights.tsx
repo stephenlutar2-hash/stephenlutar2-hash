@@ -320,7 +320,7 @@ export default function Insights() {
                     <Brain className="w-4 h-4 text-violet" />
                     Model Accuracy Radar
                   </h3>
-                  <div className="h-48">
+                  <div className="w-full h-48">
                     <ResponsiveContainer width="100%" height="100%">
                       <RadarChart data={radarData}>
                         <PolarGrid stroke="hsl(225, 25%, 16%)" />
@@ -363,7 +363,7 @@ export default function Insights() {
                     <Brain className="w-4 h-4 text-violet" />
                     Model Performance
                   </h3>
-                  <div className="h-48">
+                  <div className="w-full h-48">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={modelPerformance} margin={{ left: 5, right: 20 }}>
                         <XAxis dataKey="model" tick={{ fontSize: 10, fill: "hsl(215, 20%, 55%)" }} axisLine={false} tickLine={false} />

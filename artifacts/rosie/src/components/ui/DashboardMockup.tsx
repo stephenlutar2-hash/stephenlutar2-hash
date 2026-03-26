@@ -127,7 +127,7 @@ export function DashboardMockup() {
                 <Server className="w-4 h-4 text-secondary" />
                 SYSTEM LOAD
               </h3>
-              <div className="h-32">
+              <div className="w-full h-32">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={serverLoad} layout="vertical" margin={{ left: -20, right: 0, top: 0, bottom: 0 }}>
                     <XAxis type="number" hide />

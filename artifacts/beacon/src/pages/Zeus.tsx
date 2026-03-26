@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useModules, useMutateModules, useLogs, useMutateLogs } from "@/hooks/use-zeus";
 import { Layout } from "@/components/Layout";
 import { Modal } from "@/components/Modal";
-import { Plus, Edit2, Trash2, Cpu, ActivitySquare, Server, Gauge } from "lucide-react";
+import { Plus, Edit2, Trash2, Cpu, ActivitySquare, Server, Gauge, AlertTriangle, RefreshCw } from "lucide-react";
 import { cn } from "@szl-holdings/ui";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell } from "recharts";
 import type { ZeusModule } from "@szl-holdings/api-client-react";
@@ -18,8 +18,8 @@ const chartTooltipStyle = {
 };
 
 export default function Zeus() {
-  const { data: modules, isLoading: loadingModules } = useModules();
-  const { data: logs, isLoading: loadingLogs } = useLogs();
+  const { data: modules, isLoading: loadingModules, error: modulesError } = useModules();
+  const { data: logs, isLoading: loadingLogs, error: logsError } = useLogs();
   const { create: createModule, update: updateModule, remove: removeModule } = useMutateModules();
   const { create: createLog } = useMutateLogs();
 
@@ -93,6 +93,8 @@ export default function Zeus() {
     setLogModal({ isOpen: false });
   };
 
+  const hasError = modulesError || logsError;
+
   return (
     <Layout>
       <div className="space-y-8">
@@ -118,6 +120,25 @@ export default function Zeus() {
             <span>Deploy Module</span>
           </button>
         </motion.div>
+
+        {hasError && (
+          <div className="glass-panel rounded-xl p-6 border border-cyan-500/30 bg-cyan-500/5">
+            <div className="flex items-center gap-3">
+              <AlertTriangle className="w-5 h-5 text-cyan-400 shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-white">Failed to load data</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Please check your connection and try again.</p>
+              </div>
+              <button
+                onClick={() => window.location.reload()}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 rounded-lg hover:bg-cyan-500/20 transition-colors shrink-0"
+              >
+                <RefreshCw className="w-3 h-3" />
+                Retry
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
@@ -153,7 +174,7 @@ export default function Zeus() {
               <Gauge className="w-4 h-4 text-cyan-400" />
               <h3 className="text-sm font-display uppercase tracking-widest text-cyan-400">Module Uptime Overview</h3>
             </div>
-            <div className="h-48">
+            <div className="w-full h-48">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={uptimeChartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />

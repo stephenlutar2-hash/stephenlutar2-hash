@@ -89,6 +89,10 @@ export function PredictionForm({ onSuccess }: { onSuccess: () => void }) {
         <Input {...register("outcome")} placeholder="Target acquisition" className="border-primary/20" />
       </div>
 
+      {createMutation.isError && (
+        <p className="text-destructive text-xs bg-destructive/10 border border-destructive/20 rounded-lg px-3 py-2">Failed to create prediction. Please try again.</p>
+      )}
+
       <div className="pt-4 flex justify-end gap-2">
         <Button 
           type="submit" 

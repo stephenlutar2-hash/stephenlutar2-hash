@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ScrollText, Search, Filter, Ship, Clock } from "lucide-react";
+import { ScrollText, Search, Filter, Ship, Clock, AlertTriangle } from "lucide-react";
 
 function severityBadge(severity: string) {
   if (severity === "critical") return "bg-red-500/15 text-red-400 border-red-500/30";
@@ -22,13 +22,26 @@ function eventTypeBadge(type: string) {
 }
 
 export default function Logs() {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ["vessels-logs"],
-    queryFn: () => fetch("/api/vessels/logs").then(r => r.json()),
+    queryFn: async () => { const r = await fetch("/api/vessels/logs"); if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); },
   });
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [severityFilter, setSeverityFilter] = useState<string>("all");
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <AlertTriangle className="w-8 h-8 text-red-400 mx-auto mb-2" />
+          <p className="text-red-400 text-sm">Failed to load log data</p>
+          <p className="text-gray-500 text-xs mt-1 mb-3">Please check your connection and try again.</p>
+          <button onClick={() => window.location.reload()} className="inline-flex items-center gap-2 px-4 py-2 text-xs font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg hover:bg-emerald-500/20 transition-colors">Retry</button>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading || !data) {
     return <div className="space-y-3">{[...Array(8)].map((_, i) => <div key={i} className="h-16 rounded-lg bg-white/[0.02] border border-white/5 animate-pulse" />)}</div>;

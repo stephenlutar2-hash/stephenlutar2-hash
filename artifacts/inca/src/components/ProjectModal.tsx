@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { X } from "lucide-react";
+import { X, AlertTriangle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { IncaProject, CreateIncaProjectStatus } from "@szl-holdings/api-client-react";
 
@@ -15,9 +15,10 @@ interface ProjectModalProps {
   }) => void;
   project?: IncaProject;
   isPending?: boolean;
+  error?: boolean;
 }
 
-export default function ProjectModal({ isOpen, onClose, onSubmit, project, isPending }: ProjectModalProps) {
+export default function ProjectModal({ isOpen, onClose, onSubmit, project, isPending, error }: ProjectModalProps) {
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
@@ -128,6 +129,13 @@ export default function ProjectModal({ isOpen, onClose, onSubmit, project, isPen
                   />
                 </div>
               </div>
+
+              {error && (
+                <div className="flex items-center gap-2 text-destructive text-xs bg-destructive/10 border border-destructive/20 rounded-lg px-3 py-2">
+                  <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                  <span>Failed to save project. Please try again.</span>
+                </div>
+              )}
 
               <div className="pt-4 flex justify-end gap-3">
                 <button

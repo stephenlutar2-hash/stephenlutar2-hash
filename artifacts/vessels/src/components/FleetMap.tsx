@@ -70,9 +70,22 @@ export default function FleetMap() {
         attributionControl: false,
       });
 
-      leaflet.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+      const tileLayer = leaflet.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
         maxZoom: 19,
+        errorTileUrl: "",
       }).addTo(map);
+
+      tileLayer.on("tileerror", () => {
+        const container = mapRef.current;
+        if (container && !container.querySelector(".tile-fallback-banner")) {
+          const banner = document.createElement("div");
+          banner.className = "tile-fallback-banner";
+          banner.style.cssText = "position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:1000;background:rgba(17,24,39,0.9);border:1px solid rgba(245,158,11,0.3);color:#f59e0b;font-size:11px;padding:6px 14px;border-radius:8px;pointer-events:none;white-space:nowrap;";
+          banner.textContent = "Map tiles unavailable — vessel data still shown";
+          container.style.position = "relative";
+          container.appendChild(banner);
+        }
+      });
 
       if (data.ports) {
         for (const port of data.ports) {
@@ -155,6 +168,8 @@ export default function FleetMap() {
         <div className="text-center">
           <AlertTriangle className="w-8 h-8 text-red-400 mx-auto mb-2" />
           <p className="text-red-400 text-sm">Failed to load fleet map data</p>
+          <p className="text-gray-500 text-xs mt-1 mb-3">Please check your connection and try again.</p>
+          <button onClick={() => window.location.reload()} className="inline-flex items-center gap-2 px-4 py-2 text-xs font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg hover:bg-emerald-500/20 transition-colors">Retry</button>
         </div>
       </div>
     );

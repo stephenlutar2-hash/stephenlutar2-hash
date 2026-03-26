@@ -16,10 +16,23 @@ function deadlineSeverity(severity: string) {
 }
 
 export default function Synthetics() {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ["vessels-synthetics"],
-    queryFn: () => fetch("/api/vessels/synthetics").then(r => r.json()),
+    queryFn: async () => { const r = await fetch("/api/vessels/synthetics"); if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); },
   });
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <AlertTriangle className="w-8 h-8 text-red-400 mx-auto mb-2" />
+          <p className="text-red-400 text-sm">Failed to load compliance data</p>
+          <p className="text-gray-500 text-xs mt-1 mb-3">Please check your connection and try again.</p>
+          <button onClick={() => window.location.reload()} className="inline-flex items-center gap-2 px-4 py-2 text-xs font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg hover:bg-emerald-500/20 transition-colors">Retry</button>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading || !data) {
     return <div className="space-y-4">{[...Array(4)].map((_, i) => <div key={i} className="h-40 rounded-xl bg-white/[0.02] border border-white/5 animate-pulse" />)}</div>;

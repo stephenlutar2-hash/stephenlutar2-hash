@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Activity, TrendingUp, DollarSign, Gauge, Ship, ArrowLeft } from "lucide-react";
+import { Activity, TrendingUp, DollarSign, Gauge, Ship, ArrowLeft, AlertTriangle } from "lucide-react";
 import {
   LineChart, Line, AreaChart, Area, BarChart, Bar, ScatterChart, Scatter,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Cell, ReferenceLine,
@@ -35,11 +35,24 @@ function buildWaterfall(pnl: any) {
 }
 
 export default function FleetAPM() {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ["vessels-apm"],
-    queryFn: () => fetch("/api/vessels/apm").then(r => r.json()),
+    queryFn: async () => { const r = await fetch("/api/vessels/apm"); if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); },
   });
   const [selectedVessel, setSelectedVessel] = useState<string | null>(null);
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <AlertTriangle className="w-8 h-8 text-red-400 mx-auto mb-2" />
+          <p className="text-red-400 text-sm">Failed to load fleet APM data</p>
+          <p className="text-gray-500 text-xs mt-1 mb-3">Please check your connection and try again.</p>
+          <button onClick={() => window.location.reload()} className="inline-flex items-center gap-2 px-4 py-2 text-xs font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg hover:bg-emerald-500/20 transition-colors">Retry</button>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading || !data) {
     return <div className="space-y-4">{[...Array(4)].map((_, i) => <div key={i} className="h-32 rounded-xl bg-white/[0.02] border border-white/5 animate-pulse" />)}</div>;
@@ -82,7 +95,7 @@ export default function FleetAPM() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
             <h3 className="font-display font-semibold text-sm text-white mb-4">TCE Trend (9 Months)</h3>
-            <div className="h-56">
+            <div className="w-full h-56">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={vessel.tceHistory}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
@@ -97,7 +110,7 @@ export default function FleetAPM() {
 
           <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
             <h3 className="font-display font-semibold text-sm text-white mb-4">Speed vs Consumption</h3>
-            <div className="h-56">
+            <div className="w-full h-56">
               <ResponsiveContainer width="100%" height="100%">
                 <ScatterChart>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
@@ -112,7 +125,7 @@ export default function FleetAPM() {
 
           <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5 lg:col-span-2">
             <h3 className="font-display font-semibold text-sm text-white mb-4">Voyage P&L Waterfall</h3>
-            <div className="h-56">
+            <div className="w-full h-56">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={waterfallData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
@@ -178,7 +191,7 @@ export default function FleetAPM() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
           <h3 className="font-display font-semibold text-sm text-white mb-4">Fleet TCE vs Market Average</h3>
-          <div className="h-56">
+          <div className="w-full h-56">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={data.fleetTceHistory}>
                 <defs>
@@ -201,7 +214,7 @@ export default function FleetAPM() {
 
         <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
           <h3 className="font-display font-semibold text-sm text-white mb-4">Fleet Utilization Over Time</h3>
-          <div className="h-56">
+          <div className="w-full h-56">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={data.utilizationHistory}>
                 <defs>

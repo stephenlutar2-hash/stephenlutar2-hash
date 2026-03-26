@@ -1,5 +1,5 @@
 import { useRef, useEffect } from "react";
-import { X } from "lucide-react";
+import { X, AlertTriangle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import type { CreateIncaExperimentStatus } from "@szl-holdings/api-client-react";
@@ -18,9 +18,10 @@ interface ExperimentModalProps {
     accuracy: number;
   }) => void;
   isPending?: boolean;
+  error?: boolean;
 }
 
-export default function ExperimentModal({ isOpen, onClose, projectId, projectName, onSubmit, isPending }: ExperimentModalProps) {
+export default function ExperimentModal({ isOpen, onClose, projectId, projectName, onSubmit, isPending, error }: ExperimentModalProps) {
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
@@ -125,6 +126,13 @@ export default function ExperimentModal({ isOpen, onClose, projectId, projectNam
                   />
                 </div>
               </div>
+
+              {error && (
+                <div className="flex items-center gap-2 text-destructive text-xs bg-destructive/10 border border-destructive/20 rounded-lg px-3 py-2">
+                  <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                  <span>Failed to create experiment. Please try again.</span>
+                </div>
+              )}
 
               <div className="pt-4 flex justify-end gap-3">
                 <button

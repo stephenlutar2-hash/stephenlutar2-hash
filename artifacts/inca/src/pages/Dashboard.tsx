@@ -3,7 +3,7 @@ import { useIncaProjects, useExperiments } from "@/hooks/use-inca";
 import { Link } from "wouter";
 import {
   FolderKanban, FlaskConical, Target, Lightbulb,
-  TrendingUp, TrendingDown, ArrowRight, Brain, Zap, Clock, Activity
+  TrendingUp, TrendingDown, ArrowRight, Brain, Zap, Clock, Activity, AlertTriangle, RefreshCw
 } from "lucide-react";
 import AnimatedCounter from "@/components/AnimatedCounter";
 import Sparkline from "@/components/Sparkline";
@@ -28,8 +28,8 @@ function generateSparklineData(seed: number, length = 10) {
 }
 
 export default function Dashboard() {
-  const { data: projects, isLoading: loadingProjects } = useIncaProjects();
-  const { data: experiments, isLoading: loadingExperiments } = useExperiments();
+  const { data: projects, isLoading: loadingProjects, error: projectsError } = useIncaProjects();
+  const { data: experiments, isLoading: loadingExperiments, error: experimentsError } = useExperiments();
 
   const totalProjects = projects?.length || 0;
   const activeExperiments = experiments?.filter(e => e.status === "running").length || 0;
@@ -112,6 +112,7 @@ export default function Dashboard() {
   ];
 
   const isLoading = loadingProjects || loadingExperiments;
+  const hasError = projectsError || experimentsError;
 
   const recentActivity = useMemo(() => {
     const items: { id: string; type: string; text: string; time: string; color: string }[] = [];
@@ -168,6 +169,29 @@ export default function Dashboard() {
           <span className="text-xs font-mono text-muted-foreground">LIVE</span>
         </motion.div>
       </div>
+
+      {hasError && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="glass-panel rounded-xl p-6 border border-destructive/30 bg-destructive/5"
+        >
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="w-5 h-5 text-destructive shrink-0" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-white">Failed to load dashboard data</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Please check your connection and try again.</p>
+            </div>
+            <button
+              onClick={() => window.location.reload()}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono text-cyan bg-cyan/10 border border-cyan/20 rounded-lg hover:bg-cyan/20 transition-colors shrink-0"
+            >
+              <RefreshCw className="w-3 h-3" />
+              Retry
+            </button>
+          </div>
+        </motion.div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         {isLoading ? (

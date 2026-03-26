@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useIncaProjects, useExperiments, useMutateExperiments } from "@/hooks/use-inca";
 import ExperimentModal from "@/components/ExperimentModal";
 import { Link } from "wouter";
-import { FlaskConical, Plus, Search, Filter, ArrowUpDown, CheckCircle2, AlertCircle, Clock, ChevronDown, ChevronUp } from "lucide-react";
+import { FlaskConical, Plus, Search, Filter, ArrowUpDown, CheckCircle2, AlertCircle, Clock, ChevronDown, ChevronUp, AlertTriangle, RefreshCw } from "lucide-react";
 import type { CreateIncaExperimentStatus } from "@szl-holdings/api-client-react";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell
@@ -37,7 +37,7 @@ const pageTransition = {
 
 export default function Experiments() {
   const { data: projects } = useIncaProjects();
-  const { data: experiments, isLoading } = useExperiments();
+  const { data: experiments, isLoading, error } = useExperiments();
   const { create } = useMutateExperiments();
 
   const [search, setSearch] = useState("");
@@ -70,11 +70,35 @@ export default function Experiments() {
   const failedCount = experiments?.filter(e => e.status === "failed").length || 0;
 
   const handleExpSubmit = (data: { projectId: number; name: string; hypothesis: string; result: string; status: CreateIncaExperimentStatus; accuracy: number }) => {
-    create.mutate({ data });
-    setExpModal({ isOpen: false, projectId: 0 });
+    create.mutate({ data }, {
+      onSuccess: () => setExpModal({ isOpen: false, projectId: 0 }),
+    });
   };
 
   const defaultProjectId = projects?.[0]?.id || 0;
+
+  if (error) {
+    return (
+      <motion.div {...pageTransition} className="space-y-6 max-w-7xl">
+        <div>
+          <h2 className="text-3xl font-display font-bold text-white">Experiments</h2>
+          <p className="text-muted-foreground mt-1 text-sm">Track and compare experiment outcomes</p>
+        </div>
+        <div className="glass-panel rounded-xl p-8 border border-destructive/30 bg-destructive/5 text-center">
+          <AlertTriangle className="w-10 h-10 text-destructive mx-auto mb-3" />
+          <h3 className="text-lg font-display font-bold text-white mb-1">Failed to load experiments</h3>
+          <p className="text-sm text-muted-foreground mb-4">Something went wrong while fetching data.</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-mono text-cyan bg-cyan/10 border border-cyan/20 rounded-lg hover:bg-cyan/20 transition-colors"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            Retry
+          </button>
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div {...pageTransition} className="space-y-6 max-w-7xl">
@@ -137,7 +161,7 @@ export default function Experiments() {
           className="glass-panel rounded-xl p-6"
         >
           <h3 className="font-display font-bold text-white mb-4">Accuracy Comparison</h3>
-          <div className="h-52">
+          <div className="w-full h-52">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={comparisonData} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
                 <XAxis dataKey="name" tick={{ fontSize: 10, fill: "hsl(215, 20%, 55%)" }} axisLine={false} tickLine={false} />
@@ -349,6 +373,7 @@ export default function Experiments() {
         projectName={projects?.find(p => p.id === expModal.projectId)?.name}
         onSubmit={handleExpSubmit}
         isPending={create.isPending}
+        error={create.isError}
       />
     </motion.div>
   );

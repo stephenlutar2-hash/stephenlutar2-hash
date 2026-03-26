@@ -202,7 +202,7 @@ function formatMetricValue(value: number, unit: string) {
 
 function MiniSparkline({ data, color }: { data: { v: number }[]; color: string }) {
   return (
-    <div className="h-10 mt-2 -mx-1">
+    <div className="w-full h-10 mt-2 -mx-1">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} margin={{ top: 2, right: 0, left: 0, bottom: 0 }}>
           <defs>

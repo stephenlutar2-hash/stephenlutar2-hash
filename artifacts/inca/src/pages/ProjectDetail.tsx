@@ -92,8 +92,9 @@ export default function ProjectDetail() {
     .map(e => Number(e.accuracy));
 
   const handleEdit = (data: { name: string; description: string; status: CreateIncaProjectStatus; aiModel: string; accuracy: number }) => {
-    update.mutate({ id: project.id, data });
-    setEditModal(false);
+    update.mutate({ id: project.id, data }, {
+      onSuccess: () => setEditModal(false),
+    });
   };
 
   const handleDelete = () => {
@@ -104,8 +105,9 @@ export default function ProjectDetail() {
   };
 
   const handleExpSubmit = (data: { projectId: number; name: string; hypothesis: string; result: string; status: CreateIncaExperimentStatus; accuracy: number }) => {
-    createExp.mutate({ data });
-    setExpModal(false);
+    createExp.mutate({ data }, {
+      onSuccess: () => setExpModal(false),
+    });
   };
 
   return (
@@ -365,6 +367,7 @@ export default function ProjectDetail() {
         onSubmit={handleEdit}
         project={project}
         isPending={update.isPending}
+        error={update.isError}
       />
 
       <ExperimentModal
@@ -374,6 +377,7 @@ export default function ProjectDetail() {
         projectName={project.name}
         onSubmit={handleExpSubmit}
         isPending={createExp.isPending}
+        error={createExp.isError}
       />
     </motion.div>
   );

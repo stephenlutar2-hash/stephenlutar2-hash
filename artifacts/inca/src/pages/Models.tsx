@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useIncaProjects, useExperiments } from "@/hooks/use-inca";
 import { Link } from "wouter";
-import { Activity, Brain, ArrowRight, Target, TrendingUp, Award, Layers } from "lucide-react";
+import { Activity, Brain, ArrowRight, Target, TrendingUp, Award, Layers, AlertTriangle, RefreshCw } from "lucide-react";
 import {
   XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, BarChart, Bar, AreaChart, Area,
@@ -35,11 +35,12 @@ const pageTransition = {
 };
 
 export default function Models() {
-  const { data: projects, isLoading: loadingProjects } = useIncaProjects();
-  const { data: experiments, isLoading: loadingExps } = useExperiments();
+  const { data: projects, isLoading: loadingProjects, error: projectsError } = useIncaProjects();
+  const { data: experiments, isLoading: loadingExps, error: experimentsError } = useExperiments();
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
 
   const isLoading = loadingProjects || loadingExps;
+  const hasError = projectsError || experimentsError;
 
   const projectAccuracyData = (projects || []).map(p => ({
     name: p.name.length > 12 ? p.name.slice(0, 12) + "…" : p.name,
@@ -103,6 +104,29 @@ export default function Models() {
   const overallAvg = projects && projects.length > 0
     ? projects.reduce((s, p) => s + Number(p.accuracy), 0) / projects.length
     : 0;
+
+  if (hasError) {
+    return (
+      <motion.div {...pageTransition} className="space-y-6 max-w-7xl">
+        <div>
+          <h2 className="text-3xl font-display font-bold text-white">Model Performance</h2>
+          <p className="text-muted-foreground mt-1 text-sm">Monitor accuracy trends and model comparisons</p>
+        </div>
+        <div className="glass-panel rounded-xl p-8 border border-destructive/30 bg-destructive/5 text-center">
+          <AlertTriangle className="w-10 h-10 text-destructive mx-auto mb-3" />
+          <h3 className="text-lg font-display font-bold text-white mb-1">Failed to load model data</h3>
+          <p className="text-sm text-muted-foreground mb-4">Something went wrong while fetching data.</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-mono text-cyan bg-cyan/10 border border-cyan/20 rounded-lg hover:bg-cyan/20 transition-colors"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            Retry
+          </button>
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div {...pageTransition} className="space-y-6 max-w-7xl">
@@ -222,7 +246,7 @@ export default function Models() {
                 <Target className="w-4 h-4 text-cyan" />
                 Accuracy by Project
               </h3>
-              <div className="h-56">
+              <div className="w-full h-56">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={projectAccuracyData} layout="vertical" margin={{ left: 10, right: 20 }}>
                     <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 10, fill: "hsl(215, 20%, 55%)" }} axisLine={false} tickLine={false} />
@@ -248,7 +272,7 @@ export default function Models() {
                 <Activity className="w-4 h-4 text-violet" />
                 Accuracy Trend
               </h3>
-              <div className="h-56">
+              <div className="w-full h-56">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={accuracyTrendData} margin={{ top: 5, right: 20, bottom: 5, left: 5 }}>
                     <defs>
@@ -413,7 +437,7 @@ export default function Models() {
                 <TrendingUp className="w-4 h-4 text-amber-400" />
                 Multi-Dimensional Comparison
               </h3>
-              <div className="h-64">
+              <div className="w-full h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <RadarChart data={radarData}>
                     <PolarGrid stroke="hsl(225, 25%, 16%)" />

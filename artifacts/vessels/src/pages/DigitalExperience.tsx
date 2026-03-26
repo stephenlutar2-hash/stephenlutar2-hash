@@ -85,7 +85,7 @@ export default function DigitalExperience() {
 
       <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
         <h3 className="font-display font-semibold text-sm text-white mb-4">Charter Party SLA Performance</h3>
-        <div className="h-52">
+        <div className="w-full h-52">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data.charterPerformance}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />

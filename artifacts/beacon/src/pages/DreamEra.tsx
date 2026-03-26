@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useContent, useMutateContent, useCampaigns, useMutateCampaigns } from "@/hooks/use-dreamera";
 import { Layout } from "@/components/Layout";
 import { Modal } from "@/components/Modal";
-import { Plus, Edit2, Trash2, MonitorPlay, FileVideo, Eye, Heart, BarChart3, TrendingUp } from "lucide-react";
+import { Plus, Edit2, Trash2, MonitorPlay, FileVideo, Eye, Heart, BarChart3, TrendingUp, AlertTriangle, RefreshCw } from "lucide-react";
 import { cn } from "@szl-holdings/ui";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, AreaChart, Area, LineChart, Line } from "recharts";
 import type { DreameraContent } from "@szl-holdings/api-client-react";
@@ -18,8 +18,8 @@ const chartTooltipStyle = {
 };
 
 export default function DreamEra() {
-  const { data: content, isLoading: loadingContent } = useContent();
-  const { data: campaigns, isLoading: loadingCampaigns } = useCampaigns();
+  const { data: content, isLoading: loadingContent, error: contentError } = useContent();
+  const { data: campaigns, isLoading: loadingCampaigns, error: campaignsError } = useCampaigns();
   const { create: createContent, update: updateContent, remove: removeContent } = useMutateContent();
   const { create: createCampaign, remove: removeCampaign } = useMutateCampaigns();
 
@@ -92,6 +92,8 @@ export default function DreamEra() {
     setCampaignModal({ isOpen: false });
   };
 
+  const hasError = contentError || campaignsError;
+
   return (
     <Layout>
       <div className="space-y-8">
@@ -110,6 +112,25 @@ export default function DreamEra() {
             </div>
           </div>
         </motion.div>
+
+        {hasError && (
+          <div className="glass-panel rounded-xl p-6 border border-pink-500/30 bg-pink-500/5">
+            <div className="flex items-center gap-3">
+              <AlertTriangle className="w-5 h-5 text-pink-400 shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-white">Failed to load data</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Please check your connection and try again.</p>
+              </div>
+              <button
+                onClick={() => window.location.reload()}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono text-pink-400 bg-pink-500/10 border border-pink-500/20 rounded-lg hover:bg-pink-500/20 transition-colors shrink-0"
+              >
+                <RefreshCw className="w-3 h-3" />
+                Retry
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
@@ -142,7 +163,7 @@ export default function DreamEra() {
                 <BarChart3 className="w-4 h-4 text-pink-400" />
                 <h3 className="text-sm font-display uppercase tracking-widest text-pink-400">Views by Content Type</h3>
               </div>
-              <div className="h-48">
+              <div className="w-full h-48">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={contentChartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
@@ -165,7 +186,7 @@ export default function DreamEra() {
                 <TrendingUp className="w-4 h-4 text-violet-400" />
                 <h3 className="text-sm font-display uppercase tracking-widest text-violet-400">Engagement Trend</h3>
               </div>
-              <div className="h-48">
+              <div className="w-full h-48">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={engagementTrend} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                     <defs>

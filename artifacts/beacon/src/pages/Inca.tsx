@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { useIncaProjects, useMutateIncaProjects, useExperiments, useMutateExperiments } from "@/hooks/use-inca";
 import { Layout } from "@/components/Layout";
 import { Modal } from "@/components/Modal";
-import { Plus, Edit2, Trash2, Brain, FlaskConical, ChevronRight, Target } from "lucide-react";
+import { Plus, Edit2, Trash2, Brain, FlaskConical, ChevronRight, Target, AlertTriangle, RefreshCw } from "lucide-react";
 import { cn } from "@szl-holdings/ui";
 import { BarChart, Bar, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, RadialBarChart, RadialBar, Legend } from "recharts";
 import type { IncaProject } from "@szl-holdings/api-client-react";
@@ -17,8 +17,8 @@ const chartTooltipStyle = {
 };
 
 export default function Inca() {
-  const { data: projects, isLoading: loadingProjects } = useIncaProjects();
-  const { data: experiments, isLoading: loadingExperiments } = useExperiments();
+  const { data: projects, isLoading: loadingProjects, error: projectsError } = useIncaProjects();
+  const { data: experiments, isLoading: loadingExperiments, error: experimentsError } = useExperiments();
   const { create: createProj, update: updateProj, remove: removeProj } = useMutateIncaProjects();
   const { create: createExp } = useMutateExperiments();
 
@@ -87,6 +87,8 @@ export default function Inca() {
     setExpModal({ isOpen: false, projectId: 0 });
   };
 
+  const hasError = projectsError || experimentsError;
+
   return (
     <Layout>
       <div className="space-y-8">
@@ -112,6 +114,25 @@ export default function Inca() {
             <span>Initialize Model</span>
           </button>
         </motion.div>
+
+        {hasError && (
+          <div className="glass-panel rounded-xl p-6 border border-violet-500/30 bg-violet-500/5">
+            <div className="flex items-center gap-3">
+              <AlertTriangle className="w-5 h-5 text-violet-400 shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-white">Failed to load data</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Please check your connection and try again.</p>
+              </div>
+              <button
+                onClick={() => window.location.reload()}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono text-violet-400 bg-violet-500/10 border border-violet-500/20 rounded-lg hover:bg-violet-500/20 transition-colors shrink-0"
+              >
+                <RefreshCw className="w-3 h-3" />
+                Retry
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
@@ -143,7 +164,7 @@ export default function Inca() {
               <Target className="w-4 h-4 text-violet-400" />
               <h3 className="text-sm font-display uppercase tracking-widest text-violet-400">Model Accuracy Comparison</h3>
             </div>
-            <div className="h-48">
+            <div className="w-full h-48">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={accuracyChartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />

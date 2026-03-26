@@ -6,10 +6,23 @@ import {
 } from "recharts";
 
 export default function AppliedIntelligence() {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ["vessels-intelligence"],
-    queryFn: () => fetch("/api/vessels/intelligence").then(r => r.json()),
+    queryFn: async () => { const r = await fetch("/api/vessels/intelligence"); if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); },
   });
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <AlertTriangle className="w-8 h-8 text-red-400 mx-auto mb-2" />
+          <p className="text-red-400 text-sm">Failed to load intelligence data</p>
+          <p className="text-gray-500 text-xs mt-1 mb-3">Please check your connection and try again.</p>
+          <button onClick={() => window.location.reload()} className="inline-flex items-center gap-2 px-4 py-2 text-xs font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg hover:bg-emerald-500/20 transition-colors">Retry</button>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading || !data) {
     return <div className="space-y-4">{[...Array(4)].map((_, i) => <div key={i} className="h-48 rounded-xl bg-white/[0.02] border border-white/5 animate-pulse" />)}</div>;
@@ -68,7 +81,7 @@ export default function AppliedIntelligence() {
           <h3 className="font-display font-semibold text-sm text-white mb-4 flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-emerald-400" /> Freight Rate Forecast
           </h3>
-          <div className="h-56">
+          <div className="w-full h-56">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={data.freightForecast}>
                 <defs>
@@ -94,7 +107,7 @@ export default function AppliedIntelligence() {
           <h3 className="font-display font-semibold text-sm text-white mb-4 flex items-center gap-2">
             <Zap className="w-4 h-4 text-amber-400" /> Emissions Trajectory vs CII Threshold
           </h3>
-          <div className="h-56">
+          <div className="w-full h-56">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={data.emissionsTrajectory}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />

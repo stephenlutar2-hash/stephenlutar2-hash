@@ -106,7 +106,7 @@ export default function EmissionsDashboard() {
           <h3 className="font-display font-semibold text-sm text-white mb-4 flex items-center gap-2">
             <Flame className="w-4 h-4 text-orange-400" /> Fleet CO₂ Emissions Trend
           </h3>
-          <div className="h-56">
+          <div className="w-full h-56">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data.fleetTrend}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
@@ -183,7 +183,7 @@ export default function EmissionsDashboard() {
               </div>
 
               {v.trend && v.trend.length > 0 && (
-                <div className="h-20">
+                <div className="w-full h-20">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={v.trend}>
                       <Line type="monotone" dataKey="co2Tons" stroke="#f97316" strokeWidth={1.5} dot={false} />
