@@ -6,8 +6,9 @@ import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 import { createPwaPlugin } from "../../lib/platform/src/pwa-config";
 import { compression } from "vite-plugin-compression2";
 
-  const rawPort = process.env.PORT || "3000";
-  const port = Number(rawPort);
+const rawPort = process.env.PORT || "3000";
+const port = Number(rawPort);
+const basePath = "/vessels/";
 
 export default defineConfig({
   base: basePath,
