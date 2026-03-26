@@ -118,6 +118,7 @@ export async function firestormExecuteTool(name: string, args: Record<string, an
             total: incidents.length,
             resolved: resolvedCount,
             open: incidents.length - resolvedCount,
+            resolutionRate: incidents.length > 0 ? Math.round((resolvedCount / incidents.length) * 100) : 0,
           },
         });
       }
