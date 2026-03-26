@@ -26,7 +26,7 @@
     "vite": "catalog:",
     "wouter": "^3.3.5",
     "@szl-holdings/ui": "workspace:*",
-    "@szl-holdings/branding": "workspace:*",
+    "@workspace/branding": "workspace:*",
     "@szl-holdings/platform": "workspace:*"
   }
 }

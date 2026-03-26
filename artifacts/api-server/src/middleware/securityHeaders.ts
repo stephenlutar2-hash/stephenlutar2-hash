@@ -3,7 +3,7 @@ import type { Request, Response, NextFunction } from "express";
 export function securityHeaders() {
   return (_req: Request, res: Response, next: NextFunction): void => {
     res.setHeader("X-Content-Type-Options", "nosniff");
-    res.setHeader("X-Frame-Options", "DENY");
+    res.removeHeader("X-Frame-Options");
     res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
     res.setHeader(
       "Strict-Transport-Security",
@@ -14,11 +14,11 @@ export function securityHeaders() {
       [
         "default-src 'self'",
         "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-        "style-src 'self' 'unsafe-inline'",
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
         "img-src 'self' data: https:",
-        "font-src 'self' data:",
+        "font-src 'self' data: https://fonts.gstatic.com",
         "connect-src 'self' https:",
-        "frame-ancestors 'none'",
+        "frame-ancestors 'self' https://*.replit.dev https://*.repl.co",
       ].join("; "),
     );
     res.setHeader("X-XSS-Protection", "0");

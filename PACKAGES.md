@@ -16,7 +16,7 @@ This repository publishes packages to all five GitHub Packages registries. Each 
 | `@szl-holdings/api-spec` | `lib/api-spec` |
 | `@szl-holdings/api-zod` | `lib/api-zod` |
 | `@szl-holdings/api-client-react` | `lib/api-client-react` |
-| `@szl-holdings/branding` | `lib/branding` |
+| `@workspace/branding` | `lib/branding` |
 | `@szl-holdings/lyte-types` | `lib/lyte-types` |
 | `@szl-holdings/integrations-openai-ai-server` | `lib/integrations-openai-ai-server` |
 

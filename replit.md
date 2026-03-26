@@ -16,7 +16,7 @@ SZL Holdings is a pnpm monorepo encompassing a suite of security, AI, and media 
 
 The monorepo uses three shared workspace packages under `lib/`:
 - **`@szl-holdings/ui`** (`lib/ui`): All shared shadcn/ui components (55+), the `cn()` utility, and hooks (`useIsMobile`, `useToast`, `toast`). Apps import from `@szl-holdings/ui` instead of maintaining local copies.
-- **`@szl-holdings/branding`** (`lib/branding`): Shared CSS variable contract (theme-contract.css), base layer styles (base.css), utility classes (utilities.css — glass-panel, text-gradient, glow-shadow, etc.), and TypeScript theme types. See `lib/branding/THEME_REFERENCE.md` for creating new app themes.
+- **`@workspace/branding`** (`lib/branding`): Shared CSS variable contract (theme-contract.css), base layer styles (base.css), utility classes (utilities.css — glass-panel, text-gradient, glow-shadow, etc.), and TypeScript theme types. See `lib/branding/THEME_REFERENCE.md` for creating new app themes. Note: package was renamed from `@szl-holdings/branding` to `@workspace/branding` to match CSS import paths used by all apps.
 - **`@szl-holdings/platform`** (`lib/platform`): Shared `ErrorBoundary`, `AuthGuard`/`AuthProvider`/`useAuth` (with `redirectComponent` prop for router-agnostic redirects), `LayoutShell` (sidebar/topbar variants with breadcrumbs, page transitions via framer-motion), `PageTransition`, loading/empty/error state components, and environment validation helpers.
 
 ## System Architecture
