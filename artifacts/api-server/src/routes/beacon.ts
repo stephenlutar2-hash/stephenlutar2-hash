@@ -1,11 +1,12 @@
 import { Router } from "express";
-import { db } from "@szl-holdings/db";
-import { beaconMetricsTable, beaconProjectsTable, insertBeaconMetricSchema, insertBeaconProjectSchema } from "@szl-holdings/db/schema";
-import { eq } from "drizzle-orm";
+import { insertBeaconMetricSchema, insertBeaconProjectSchema } from "@szl-holdings/db/schema";
 import { requireAuth } from "./auth";
 import { requireOperator } from "../middleware/rbac";
 import { validateAndSanitizeBody } from "../middleware/validate";
 import { writeRateLimit } from "../middleware/rateLimit";
+import { asyncHandler } from "../middleware/errorHandler";
+import { beaconService } from "../services/beacon";
+import { AppError } from "../lib/errors";
 
 const router = Router();
 
@@ -13,82 +14,50 @@ router.get("/beacon/health", (_req, res) => {
   res.json({ ok: true, group: "beacon", timestamp: new Date().toISOString() });
 });
 
-router.get("/beacon/metrics", requireAuth, async (_req, res) => {
-  try {
-    const metrics = await db.select().from(beaconMetricsTable).orderBy(beaconMetricsTable.createdAt);
-    return res.json(metrics.map(m => ({ ...m, value: Number(m.value), change: Number(m.change) })));
-  } catch (e) {
-    return res.status(500).json({ error: "Failed to fetch metrics" });
-  }
-});
+router.get("/beacon/metrics", requireAuth, asyncHandler(async (_req, res) => {
+  const metrics = await beaconService.listMetrics();
+  res.json(metrics);
+}));
 
-router.post("/beacon/metrics", requireAuth, writeRateLimit, requireOperator(), validateAndSanitizeBody(insertBeaconMetricSchema), async (req, res) => {
-  try {
-    const [created] = await db.insert(beaconMetricsTable).values(req.body).returning();
-    return res.status(201).json({ ...created, value: Number(created.value), change: Number(created.change) });
-  } catch (e) {
-    return res.status(500).json({ error: "Failed to create metric" });
-  }
-});
+router.post("/beacon/metrics", requireAuth, writeRateLimit, requireOperator(), validateAndSanitizeBody(insertBeaconMetricSchema), asyncHandler(async (req, res) => {
+  const created = await beaconService.createMetric(req.body);
+  res.status(201).json(created);
+}));
 
-router.put("/beacon/metrics/:id", requireAuth, writeRateLimit, requireOperator(), validateAndSanitizeBody(insertBeaconMetricSchema), async (req, res) => {
-  try {
-    const id = parseInt(req.params.id);
-    const [updated] = await db.update(beaconMetricsTable).set(req.body).where(eq(beaconMetricsTable.id, id)).returning();
-    if (!updated) return res.status(404).json({ error: "Not found" });
-    return res.json({ ...updated, value: Number(updated.value), change: Number(updated.change) });
-  } catch (e) {
-    return res.status(500).json({ error: "Failed to update metric" });
-  }
-});
+router.put("/beacon/metrics/:id", requireAuth, writeRateLimit, requireOperator(), validateAndSanitizeBody(insertBeaconMetricSchema), asyncHandler(async (req, res) => {
+  const id = parseInt(req.params.id);
+  const updated = await beaconService.updateMetric(id, req.body);
+  if (!updated) throw AppError.notFound("Metric not found");
+  res.json(updated);
+}));
 
-router.delete("/beacon/metrics/:id", requireAuth, requireOperator(), async (req, res) => {
-  try {
-    const id = parseInt(req.params.id);
-    await db.delete(beaconMetricsTable).where(eq(beaconMetricsTable.id, id));
-    return res.status(204).send();
-  } catch (e) {
-    return res.status(500).json({ error: "Failed to delete metric" });
-  }
-});
+router.delete("/beacon/metrics/:id", requireAuth, requireOperator(), asyncHandler(async (req, res) => {
+  const id = parseInt(req.params.id);
+  await beaconService.deleteMetric(id);
+  res.status(204).send();
+}));
 
-router.get("/beacon/projects", requireAuth, async (_req, res) => {
-  try {
-    const projects = await db.select().from(beaconProjectsTable).orderBy(beaconProjectsTable.createdAt);
-    return res.json(projects);
-  } catch (e) {
-    return res.status(500).json({ error: "Failed to fetch projects" });
-  }
-});
+router.get("/beacon/projects", requireAuth, asyncHandler(async (_req, res) => {
+  const projects = await beaconService.listProjects();
+  res.json(projects);
+}));
 
-router.post("/beacon/projects", requireAuth, writeRateLimit, requireOperator(), validateAndSanitizeBody(insertBeaconProjectSchema), async (req, res) => {
-  try {
-    const [created] = await db.insert(beaconProjectsTable).values(req.body).returning();
-    return res.status(201).json(created);
-  } catch (e) {
-    return res.status(500).json({ error: "Failed to create project" });
-  }
-});
+router.post("/beacon/projects", requireAuth, writeRateLimit, requireOperator(), validateAndSanitizeBody(insertBeaconProjectSchema), asyncHandler(async (req, res) => {
+  const created = await beaconService.createProject(req.body);
+  res.status(201).json(created);
+}));
 
-router.put("/beacon/projects/:id", requireAuth, writeRateLimit, requireOperator(), validateAndSanitizeBody(insertBeaconProjectSchema), async (req, res) => {
-  try {
-    const id = parseInt(req.params.id);
-    const [updated] = await db.update(beaconProjectsTable).set(req.body).where(eq(beaconProjectsTable.id, id)).returning();
-    if (!updated) return res.status(404).json({ error: "Not found" });
-    return res.json(updated);
-  } catch (e) {
-    return res.status(500).json({ error: "Failed to update project" });
-  }
-});
+router.put("/beacon/projects/:id", requireAuth, writeRateLimit, requireOperator(), validateAndSanitizeBody(insertBeaconProjectSchema), asyncHandler(async (req, res) => {
+  const id = parseInt(req.params.id);
+  const updated = await beaconService.updateProject(id, req.body);
+  if (!updated) throw AppError.notFound("Project not found");
+  res.json(updated);
+}));
 
-router.delete("/beacon/projects/:id", requireAuth, requireOperator(), async (req, res) => {
-  try {
-    const id = parseInt(req.params.id);
-    await db.delete(beaconProjectsTable).where(eq(beaconProjectsTable.id, id));
-    return res.status(204).send();
-  } catch (e) {
-    return res.status(500).json({ error: "Failed to delete project" });
-  }
-});
+router.delete("/beacon/projects/:id", requireAuth, requireOperator(), asyncHandler(async (req, res) => {
+  const id = parseInt(req.params.id);
+  await beaconService.deleteProject(id);
+  res.status(204).send();
+}));
 
 export default router;

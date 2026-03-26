@@ -1,11 +1,12 @@
 import { Router } from "express";
-import { db } from "@szl-holdings/db";
-import { dreameraContentTable, dreameraCampaignsTable, insertDreameraContentSchema, insertDreameraCampaignSchema } from "@szl-holdings/db/schema";
-import { eq } from "drizzle-orm";
+import { insertDreameraContentSchema, insertDreameraCampaignSchema } from "@szl-holdings/db/schema";
 import { requireAuth } from "./auth";
 import { requireOperator } from "../middleware/rbac";
 import { validateAndSanitizeBody } from "../middleware/validate";
 import { writeRateLimit } from "../middleware/rateLimit";
+import { asyncHandler } from "../middleware/errorHandler";
+import { dreameraService } from "../services/dreamera";
+import { AppError } from "../lib/errors";
 
 const router = Router();
 
@@ -13,71 +14,43 @@ router.get("/dreamera/health", (_req, res) => {
   res.json({ ok: true, group: "dreamera", timestamp: new Date().toISOString() });
 });
 
-router.get("/dreamera/content", requireAuth, async (_req, res) => {
-  try {
-    const content = await db.select().from(dreameraContentTable).orderBy(dreameraContentTable.createdAt);
-    return res.json(content.map(c => ({ ...c, engagement: Number(c.engagement) })));
-  } catch (e) {
-    return res.status(500).json({ error: "Failed to fetch content" });
-  }
-});
+router.get("/dreamera/content", requireAuth, asyncHandler(async (_req, res) => {
+  const content = await dreameraService.listContent();
+  res.json(content);
+}));
 
-router.post("/dreamera/content", requireAuth, writeRateLimit, requireOperator(), validateAndSanitizeBody(insertDreameraContentSchema), async (req, res) => {
-  try {
-    const [created] = await db.insert(dreameraContentTable).values(req.body).returning();
-    return res.status(201).json({ ...created, engagement: Number(created.engagement) });
-  } catch (e) {
-    return res.status(500).json({ error: "Failed to create content" });
-  }
-});
+router.post("/dreamera/content", requireAuth, writeRateLimit, requireOperator(), validateAndSanitizeBody(insertDreameraContentSchema), asyncHandler(async (req, res) => {
+  const created = await dreameraService.createContent(req.body);
+  res.status(201).json(created);
+}));
 
-router.put("/dreamera/content/:id", requireAuth, writeRateLimit, requireOperator(), validateAndSanitizeBody(insertDreameraContentSchema), async (req, res) => {
-  try {
-    const id = parseInt(req.params.id);
-    const [updated] = await db.update(dreameraContentTable).set(req.body).where(eq(dreameraContentTable.id, id)).returning();
-    if (!updated) return res.status(404).json({ error: "Not found" });
-    return res.json({ ...updated, engagement: Number(updated.engagement) });
-  } catch (e) {
-    return res.status(500).json({ error: "Failed to update content" });
-  }
-});
+router.put("/dreamera/content/:id", requireAuth, writeRateLimit, requireOperator(), validateAndSanitizeBody(insertDreameraContentSchema), asyncHandler(async (req, res) => {
+  const id = parseInt(req.params.id);
+  const updated = await dreameraService.updateContent(id, req.body);
+  if (!updated) throw AppError.notFound("Content not found");
+  res.json(updated);
+}));
 
-router.delete("/dreamera/content/:id", requireAuth, requireOperator(), async (req, res) => {
-  try {
-    const id = parseInt(req.params.id);
-    await db.delete(dreameraContentTable).where(eq(dreameraContentTable.id, id));
-    return res.status(204).send();
-  } catch (e) {
-    return res.status(500).json({ error: "Failed to delete content" });
-  }
-});
+router.delete("/dreamera/content/:id", requireAuth, requireOperator(), asyncHandler(async (req, res) => {
+  const id = parseInt(req.params.id);
+  await dreameraService.deleteContent(id);
+  res.status(204).send();
+}));
 
-router.get("/dreamera/campaigns", requireAuth, async (_req, res) => {
-  try {
-    const campaigns = await db.select().from(dreameraCampaignsTable).orderBy(dreameraCampaignsTable.createdAt);
-    return res.json(campaigns.map(c => ({ ...c, budget: Number(c.budget) })));
-  } catch (e) {
-    return res.status(500).json({ error: "Failed to fetch campaigns" });
-  }
-});
+router.get("/dreamera/campaigns", requireAuth, asyncHandler(async (_req, res) => {
+  const campaigns = await dreameraService.listCampaigns();
+  res.json(campaigns);
+}));
 
-router.post("/dreamera/campaigns", requireAuth, writeRateLimit, requireOperator(), validateAndSanitizeBody(insertDreameraCampaignSchema), async (req, res) => {
-  try {
-    const [created] = await db.insert(dreameraCampaignsTable).values(req.body).returning();
-    return res.status(201).json({ ...created, budget: Number(created.budget) });
-  } catch (e) {
-    return res.status(500).json({ error: "Failed to create campaign" });
-  }
-});
+router.post("/dreamera/campaigns", requireAuth, writeRateLimit, requireOperator(), validateAndSanitizeBody(insertDreameraCampaignSchema), asyncHandler(async (req, res) => {
+  const created = await dreameraService.createCampaign(req.body);
+  res.status(201).json(created);
+}));
 
-router.delete("/dreamera/campaigns/:id", requireAuth, requireOperator(), async (req, res) => {
-  try {
-    const id = parseInt(req.params.id);
-    await db.delete(dreameraCampaignsTable).where(eq(dreameraCampaignsTable.id, id));
-    return res.status(204).send();
-  } catch (e) {
-    return res.status(500).json({ error: "Failed to delete campaign" });
-  }
-});
+router.delete("/dreamera/campaigns/:id", requireAuth, requireOperator(), asyncHandler(async (req, res) => {
+  const id = parseInt(req.params.id);
+  await dreameraService.deleteCampaign(id);
+  res.status(204).send();
+}));
 
 export default router;

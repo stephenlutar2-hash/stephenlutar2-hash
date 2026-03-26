@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { db } from "@szl-holdings/db";
-import { nimbusPredictionsTable, nimbusAlertsTable, insertNimbusPredictionSchema, insertNimbusAlertSchema } from "@szl-holdings/db/schema";
-import { eq } from "drizzle-orm";
+import { insertNimbusPredictionSchema, insertNimbusAlertSchema } from "@szl-holdings/db/schema";
 import { requireAuth } from "./auth";
 import { requireOperator } from "../middleware/rbac";
 import { validateAndSanitizeBody } from "../middleware/validate";
 import { writeRateLimit } from "../middleware/rateLimit";
+import { asyncHandler } from "../middleware/errorHandler";
+import { nimbusService } from "../services/nimbus";
 
 const router = Router();
 
@@ -13,60 +13,36 @@ router.get("/nimbus/health", (_req, res) => {
   res.json({ ok: true, group: "nimbus", timestamp: new Date().toISOString() });
 });
 
-router.get("/nimbus/predictions", requireAuth, async (_req, res) => {
-  try {
-    const predictions = await db.select().from(nimbusPredictionsTable).orderBy(nimbusPredictionsTable.createdAt);
-    return res.json(predictions.map(p => ({ ...p, confidence: Number(p.confidence) })));
-  } catch (e) {
-    return res.status(500).json({ error: "Failed to fetch predictions" });
-  }
-});
+router.get("/nimbus/predictions", requireAuth, asyncHandler(async (_req, res) => {
+  const predictions = await nimbusService.listPredictions();
+  res.json(predictions);
+}));
 
-router.post("/nimbus/predictions", requireAuth, writeRateLimit, requireOperator(), validateAndSanitizeBody(insertNimbusPredictionSchema), async (req, res) => {
-  try {
-    const [created] = await db.insert(nimbusPredictionsTable).values(req.body).returning();
-    return res.status(201).json({ ...created, confidence: Number(created.confidence) });
-  } catch (e) {
-    return res.status(500).json({ error: "Failed to create prediction" });
-  }
-});
+router.post("/nimbus/predictions", requireAuth, writeRateLimit, requireOperator(), validateAndSanitizeBody(insertNimbusPredictionSchema), asyncHandler(async (req, res) => {
+  const created = await nimbusService.createPrediction(req.body);
+  res.status(201).json(created);
+}));
 
-router.delete("/nimbus/predictions/:id", requireAuth, requireOperator(), async (req, res) => {
-  try {
-    const id = parseInt(req.params.id);
-    await db.delete(nimbusPredictionsTable).where(eq(nimbusPredictionsTable.id, id));
-    return res.status(204).send();
-  } catch (e) {
-    return res.status(500).json({ error: "Failed to delete prediction" });
-  }
-});
+router.delete("/nimbus/predictions/:id", requireAuth, requireOperator(), asyncHandler(async (req, res) => {
+  const id = parseInt(req.params.id);
+  await nimbusService.deletePrediction(id);
+  res.status(204).send();
+}));
 
-router.get("/nimbus/alerts", requireAuth, async (_req, res) => {
-  try {
-    const alerts = await db.select().from(nimbusAlertsTable).orderBy(nimbusAlertsTable.createdAt);
-    return res.json(alerts);
-  } catch (e) {
-    return res.status(500).json({ error: "Failed to fetch alerts" });
-  }
-});
+router.get("/nimbus/alerts", requireAuth, asyncHandler(async (_req, res) => {
+  const alerts = await nimbusService.listAlerts();
+  res.json(alerts);
+}));
 
-router.post("/nimbus/alerts", requireAuth, writeRateLimit, requireOperator(), validateAndSanitizeBody(insertNimbusAlertSchema), async (req, res) => {
-  try {
-    const [created] = await db.insert(nimbusAlertsTable).values(req.body).returning();
-    return res.status(201).json(created);
-  } catch (e) {
-    return res.status(500).json({ error: "Failed to create alert" });
-  }
-});
+router.post("/nimbus/alerts", requireAuth, writeRateLimit, requireOperator(), validateAndSanitizeBody(insertNimbusAlertSchema), asyncHandler(async (req, res) => {
+  const created = await nimbusService.createAlert(req.body);
+  res.status(201).json(created);
+}));
 
-router.delete("/nimbus/alerts/:id", requireAuth, requireOperator(), async (req, res) => {
-  try {
-    const id = parseInt(req.params.id);
-    await db.delete(nimbusAlertsTable).where(eq(nimbusAlertsTable.id, id));
-    return res.status(204).send();
-  } catch (e) {
-    return res.status(500).json({ error: "Failed to delete alert" });
-  }
-});
+router.delete("/nimbus/alerts/:id", requireAuth, requireOperator(), asyncHandler(async (req, res) => {
+  const id = parseInt(req.params.id);
+  await nimbusService.deleteAlert(id);
+  res.status(204).send();
+}));
 
 export default router;

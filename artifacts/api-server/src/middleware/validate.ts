@@ -1,6 +1,11 @@
 import type { Request, Response, NextFunction } from "express";
 import type { ZodSchema, ZodError } from "zod";
 import { sanitizeString } from "../lib/sanitize";
+import { formatErrorResponse } from "../lib/errors";
+
+function getRequestId(req: Request): string | undefined {
+  return (req as any).id as string | undefined;
+}
 
 function formatZodError(error: ZodError): string {
   return error.issues
@@ -32,10 +37,10 @@ export function validateBody(schema: ZodSchema) {
   return (req: Request, res: Response, next: NextFunction): void => {
     const result = schema.safeParse(req.body);
     if (!result.success) {
-      res.status(400).json({
-        error: "Validation failed",
-        details: formatZodError(result.error),
-      });
+      const details = formatZodError(result.error);
+      res.status(400).json(
+        formatErrorResponse(400, "VALIDATION_ERROR", "Validation failed", getRequestId(req), details),
+      );
       return;
     }
     req.body = result.data;
@@ -47,10 +52,10 @@ export function validateAndSanitizeBody(schema: ZodSchema) {
   return (req: Request, res: Response, next: NextFunction): void => {
     const result = schema.safeParse(req.body);
     if (!result.success) {
-      res.status(400).json({
-        error: "Validation failed",
-        details: formatZodError(result.error),
-      });
+      const details = formatZodError(result.error);
+      res.status(400).json(
+        formatErrorResponse(400, "VALIDATION_ERROR", "Validation failed", getRequestId(req), details),
+      );
       return;
     }
     req.body = sanitizeDeep(result.data);
@@ -62,10 +67,10 @@ export function validateQuery(schema: ZodSchema) {
   return (req: Request, res: Response, next: NextFunction): void => {
     const result = schema.safeParse(req.query);
     if (!result.success) {
-      res.status(400).json({
-        error: "Query validation failed",
-        details: formatZodError(result.error),
-      });
+      const details = formatZodError(result.error);
+      res.status(400).json(
+        formatErrorResponse(400, "VALIDATION_ERROR", "Query validation failed", getRequestId(req), details),
+      );
       return;
     }
     (req as Request & { validatedQuery: unknown }).validatedQuery = result.data;

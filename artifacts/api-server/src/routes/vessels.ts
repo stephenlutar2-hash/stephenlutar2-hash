@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { z } from "zod";
 import { db, isDatabaseAvailable } from "@szl-holdings/db";
 import {
   vesselsTable,
@@ -14,6 +15,36 @@ import {
   vesselLogsTable,
 } from "@szl-holdings/db/schema";
 import { eq, desc, and, count, sql, asc } from "drizzle-orm";
+import { asyncHandler } from "../middleware/errorHandler";
+import { validateBody } from "../middleware/validate";
+import { AppError } from "../lib/errors";
+import { logger } from "../lib/logger";
+
+const vesselStatusSchema = z.object({
+  status: z.enum(["laden", "ballast", "at-port", "drydock", "anchored"]).optional(),
+  speed: z.number().min(0).max(25).optional(),
+  lat: z.number().min(-90).max(90).optional(),
+  lng: z.number().min(-180).max(180).optional(),
+});
+
+const maintenanceSchema = z.object({
+  vesselCode: z.string().min(1),
+  system: z.string().min(1),
+  type: z.string().default("scheduled"),
+  description: z.string().min(1),
+  severity: z.string().default("medium"),
+  scheduledDate: z.string().optional(),
+  estimatedCost: z.number().optional(),
+});
+
+const emissionsSchema = z.object({
+  vesselCode: z.string().min(1),
+  date: z.string().min(1),
+  co2Tons: z.number(),
+  fuelConsumedTons: z.number(),
+  fuelType: z.string().default("VLSFO"),
+  distanceNm: z.number().optional(),
+});
 
 const router = Router();
 
@@ -280,7 +311,7 @@ async function doSeed() {
   ]);
 
   seeded = true;
-  console.log("[vessels] Seed data loaded successfully");
+  logger.info("Vessels seed data loaded successfully");
 }
 
 router.get("/vessels/health", (_req, res) => {
@@ -323,8 +354,7 @@ function generateVoyagePnl(tce: number) {
   return { revenue, bunkerCost: bunker, portCharges: port, canalFees: canal, insurance, opex, netProfit };
 }
 
-router.get("/vessels/command-center", async (_req, res) => {
-  try {
+router.get("/vessels/command-center", asyncHandler(async (_req, res) => {
     await ensureSeeded();
     const allVessels = await db.select().from(vesselsTable);
     const active = allVessels.filter(v => v.status !== "drydock");
@@ -387,14 +417,9 @@ router.get("/vessels/command-center", async (_req, res) => {
         drydock: allVessels.filter(v => v.status === "drydock").length,
       },
     });
-  } catch (err) {
-    console.error("[vessels] command-center error:", err);
-    res.status(500).json({ error: "Failed to load command center data" });
-  }
-});
+}));
 
-router.get("/vessels/apm", async (_req, res) => {
-  try {
+router.get("/vessels/apm", asyncHandler(async (_req, res) => {
     await ensureSeeded();
     const rng = seededRng(99);
     const allVessels = await db.select().from(vesselsTable);
@@ -457,14 +482,9 @@ router.get("/vessels/apm", async (_req, res) => {
       utilizationHistory,
       utilizationHeatmap,
     });
-  } catch (err) {
-    console.error("[vessels] apm error:", err);
-    res.status(500).json({ error: "Failed to load APM data" });
-  }
-});
+}));
 
-router.get("/vessels/infrastructure", async (_req, res) => {
-  try {
+router.get("/vessels/infrastructure", asyncHandler(async (_req, res) => {
     await ensureSeeded();
     const rng = seededRng(77);
     const allVessels = await db.select().from(vesselsTable);
@@ -505,14 +525,9 @@ router.get("/vessels/infrastructure", async (_req, res) => {
       totalMaintenanceBacklog: vesselHealth.reduce((s, v) => s + v.maintenanceBacklog, 0),
       criticalSystems: vesselHealth.filter(v => v.overallHealth < 60).length,
     });
-  } catch (err) {
-    console.error("[vessels] infrastructure error:", err);
-    res.status(500).json({ error: "Failed to load infrastructure data" });
-  }
-});
+}));
 
-router.get("/vessels/logs", async (_req, res) => {
-  try {
+router.get("/vessels/logs", asyncHandler(async (_req, res) => {
     await ensureSeeded();
     const logs = await db.select().from(vesselLogsTable).orderBy(desc(vesselLogsTable.createdAt));
 
@@ -530,14 +545,9 @@ router.get("/vessels/logs", async (_req, res) => {
     const eventTypes = ["voyage", "port", "bunker", "cargo", "compliance", "maintenance", "crew"];
     const severities = ["info", "warning", "critical"];
     res.json({ logs: logEntries, totalCount: logEntries.length, eventTypes, severities });
-  } catch (err) {
-    console.error("[vessels] logs error:", err);
-    res.status(500).json({ error: "Failed to load logs" });
-  }
-});
+}));
 
-router.get("/vessels/experience", async (_req, res) => {
-  try {
+router.get("/vessels/experience", asyncHandler(async (_req, res) => {
     await ensureSeeded();
     const shipments = await db.select().from(vesselShipmentsTable);
     const allVessels = await db.select().from(vesselsTable);
@@ -587,14 +597,9 @@ router.get("/vessels/experience", async (_req, res) => {
         customerSatisfaction: 4.2,
       },
     });
-  } catch (err) {
-    console.error("[vessels] experience error:", err);
-    res.status(500).json({ error: "Failed to load experience data" });
-  }
-});
+}));
 
-router.get("/vessels/synthetics", async (_req, res) => {
-  try {
+router.get("/vessels/synthetics", asyncHandler(async (_req, res) => {
     await ensureSeeded();
     const allVessels = await db.select().from(vesselsTable);
     const certs = await db.select().from(vesselCertificatesTable);
@@ -644,14 +649,9 @@ router.get("/vessels/synthetics", async (_req, res) => {
         ciiABRatio: Math.round(complianceCards.filter(c => c.ciiRating === "A" || c.ciiRating === "B").length / complianceCards.length * 100),
       },
     });
-  } catch (err) {
-    console.error("[vessels] synthetics error:", err);
-    res.status(500).json({ error: "Failed to load synthetics data" });
-  }
-});
+}));
 
-router.get("/vessels/intelligence", async (_req, res) => {
-  try {
+router.get("/vessels/intelligence", asyncHandler(async (_req, res) => {
     await ensureSeeded();
 
     const anomalies = [
@@ -710,14 +710,9 @@ router.get("/vessels/intelligence", async (_req, res) => {
     };
 
     res.json({ anomalies, maintenancePredictions: predictions, freightForecast, emissionsTrajectory, executiveBriefing });
-  } catch (err) {
-    console.error("[vessels] intelligence error:", err);
-    res.status(500).json({ error: "Failed to load intelligence data" });
-  }
-});
+}));
 
-router.get("/vessels/fleet", async (_req, res) => {
-  try {
+router.get("/vessels/fleet", asyncHandler(async (_req, res) => {
     await ensureSeeded();
     const allVessels = await db.select().from(vesselsTable);
     const active = allVessels.filter(v => v.status !== "drydock");
@@ -779,14 +774,9 @@ router.get("/vessels/fleet", async (_req, res) => {
       routes,
       ports,
     });
-  } catch (err) {
-    console.error("[vessels] fleet error:", err);
-    res.status(500).json({ error: "Failed to load fleet data" });
-  }
-});
+}));
 
-router.get("/vessels/emissions", async (_req, res) => {
-  try {
+router.get("/vessels/emissions", asyncHandler(async (_req, res) => {
     await ensureSeeded();
     const allVessels = await db.select().from(vesselsTable);
     const emissions = await db.select().from(vesselEmissionsTable).orderBy(asc(vesselEmissionsTable.date));
@@ -867,14 +857,9 @@ router.get("/vessels/emissions", async (_req, res) => {
       },
       fleetTrend,
     });
-  } catch (err) {
-    console.error("[vessels] emissions error:", err);
-    res.status(500).json({ error: "Failed to load emissions data" });
-  }
-});
+}));
 
-router.get("/vessels/disruption", async (_req, res) => {
-  try {
+router.get("/vessels/disruption", asyncHandler(async (_req, res) => {
     await ensureSeeded();
     const voyages = await db.select().from(vesselVoyagesTable);
     const allVessels = await db.select().from(vesselsTable);
@@ -905,14 +890,9 @@ router.get("/vessels/disruption", async (_req, res) => {
         totalVoyages: voyages.length,
       },
     });
-  } catch (err) {
-    console.error("[vessels] disruption error:", err);
-    res.status(500).json({ error: "Failed to load disruption data" });
-  }
-});
+}));
 
-router.post("/vessels/alerts/:alertCode/acknowledge", async (req, res) => {
-  try {
+router.post("/vessels/alerts/:alertCode/acknowledge", asyncHandler(async (req, res) => {
     const { alertCode } = req.params;
     const { acknowledgedBy } = req.body || {};
 
@@ -925,20 +905,13 @@ router.post("/vessels/alerts/:alertCode/acknowledge", async (req, res) => {
       .where(eq(vesselAlertsTable.alertCode, alertCode))
       .returning();
 
-    if (!updated) {
-      return res.status(404).json({ error: "Alert not found" });
-    }
+    if (!updated) throw AppError.notFound("Alert not found");
     res.json({ success: true, alert: updated });
-  } catch (err) {
-    console.error("[vessels] alert ack error:", err);
-    res.status(500).json({ error: "Failed to acknowledge alert" });
-  }
-});
+}));
 
-router.patch("/vessels/vessel/:vesselCode/status", async (req, res) => {
-  try {
+router.patch("/vessels/vessel/:vesselCode/status", validateBody(vesselStatusSchema), asyncHandler(async (req, res) => {
     const { vesselCode } = req.params;
-    const { status, speed, lat, lng } = req.body || {};
+    const { status, speed, lat, lng } = req.body;
 
     const updates: any = { updatedAt: new Date() };
     if (status) updates.status = status;
@@ -951,68 +924,46 @@ router.patch("/vessels/vessel/:vesselCode/status", async (req, res) => {
       .where(eq(vesselsTable.vesselCode, vesselCode))
       .returning();
 
-    if (!updated) {
-      return res.status(404).json({ error: "Vessel not found" });
-    }
+    if (!updated) throw AppError.notFound("Vessel not found");
     res.json({ success: true, vessel: updated });
-  } catch (err) {
-    console.error("[vessels] vessel status update error:", err);
-    res.status(500).json({ error: "Failed to update vessel status" });
-  }
-});
+}));
 
-router.post("/vessels/maintenance", async (req, res) => {
-  try {
+router.post("/vessels/maintenance", validateBody(maintenanceSchema), asyncHandler(async (req, res) => {
     const { vesselCode, system, type, description, severity, scheduledDate, estimatedCost } = req.body;
-    if (!vesselCode || !system || !description) {
-      return res.status(400).json({ error: "vesselCode, system, and description are required" });
-    }
 
     const vessel = await db.select().from(vesselsTable).where(eq(vesselsTable.vesselCode, vesselCode));
-    if (vessel.length === 0) return res.status(404).json({ error: "Vessel not found" });
+    if (vessel.length === 0) throw AppError.notFound("Vessel not found");
 
     const [event] = await db.insert(vesselMaintenanceEventsTable).values({
       vesselId: vessel[0].id,
       system,
-      type: type || "scheduled",
+      type,
       description,
-      severity: severity || "medium",
+      severity,
       status: "pending",
       scheduledDate,
       estimatedCost,
     }).returning();
 
     res.json({ success: true, event });
-  } catch (err) {
-    console.error("[vessels] maintenance log error:", err);
-    res.status(500).json({ error: "Failed to log maintenance event" });
-  }
-});
+}));
 
-router.post("/vessels/emissions", async (req, res) => {
-  try {
+router.post("/vessels/emissions", validateBody(emissionsSchema), asyncHandler(async (req, res) => {
     const { vesselCode, date, co2Tons, fuelConsumedTons, fuelType, distanceNm } = req.body;
-    if (!vesselCode || !date || co2Tons === undefined || fuelConsumedTons === undefined) {
-      return res.status(400).json({ error: "vesselCode, date, co2Tons, and fuelConsumedTons are required" });
-    }
 
     const vessel = await db.select().from(vesselsTable).where(eq(vesselsTable.vesselCode, vesselCode));
-    if (vessel.length === 0) return res.status(404).json({ error: "Vessel not found" });
+    if (vessel.length === 0) throw AppError.notFound("Vessel not found");
 
     const [reading] = await db.insert(vesselEmissionsTable).values({
       vesselId: vessel[0].id,
       date,
       co2Tons,
       fuelConsumedTons,
-      fuelType: fuelType || "VLSFO",
+      fuelType,
       distanceNm,
     }).returning();
 
     res.json({ success: true, reading });
-  } catch (err) {
-    console.error("[vessels] emissions submit error:", err);
-    res.status(500).json({ error: "Failed to record emissions" });
-  }
-});
+}));
 
 export default router;

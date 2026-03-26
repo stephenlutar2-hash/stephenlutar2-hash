@@ -76,7 +76,11 @@ The system incorporates robust security and governance features:
 *   **Input Sanitization:** HTML escaping for XSS prevention.
 *   **Audit Logging:** Structured audit logs for all mutating operations to both logs and a database table.
 *   **Feature Flags:** Database-backed feature flags with API management.
-*   **Environment Validation:** Strict validation of environment variables on boot.
+*   **Environment Validation:** Zod-based config schema (`lib/envValidation.ts`) with typed `AppConfig` and `getConfig()` accessor. Fails fast on missing required vars.
+*   **Centralized Error Handling:** `lib/errors.ts` (AppError class with static factories), `middleware/errorHandler.ts` (asyncHandler wrapper, global error middleware). Consistent error response shape: `{ status, code, message, requestId?, timestamp, details? }`.
+*   **Request ID Propagation:** `lib/requestContext.ts` — AsyncLocalStorage-based request context middleware with `getRequestId()` helper. Request IDs included in all error responses.
+*   **Mock/Live Provider Pattern:** `providers/` directory with interfaces and mock/live implementations for Redis cache, Blob storage, Stripe, and Plaid. Controlled via `MOCK_PROVIDERS` env var (comma-separated). Factory at `providers/factory.ts`.
+*   **Typed Service Layer:** `services/` directory with service classes for each platform (RosieService, BeaconService, NimbusService, ZeusService, IncaService, DreameraService, AlloyService, StripeService). Routes delegate to services for business logic.
 *   **Logger Redaction:** Pino logger redacts sensitive information.
 *   **DB Graceful Fallback:** Handles missing `DATABASE_URL` gracefully.
 *   **SEO & Accessibility:** Open Graph tags, descriptions, and skip-to-content links.

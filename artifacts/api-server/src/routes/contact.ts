@@ -1,6 +1,7 @@
 import { Router, type Request, type Response } from "express";
 import { z } from "zod";
 import { validateAndSanitizeBody } from "../middleware/validate";
+import { logger } from "../lib/logger";
 
 const contactSchema = z.object({
   name: z.string().min(1),
@@ -18,13 +19,12 @@ router.get("/contact/health", (_req: Request, res: Response) => {
 router.post("/contact", validateAndSanitizeBody(contactSchema), async (req: Request, res: Response) => {
   const { name, email, inquiryType, message } = req.body;
 
-  console.log("[Contact Inquiry]", {
-    timestamp: new Date().toISOString(),
+  logger.info({
     name,
     email,
     inquiryType,
     messageLength: message.length,
-  });
+  }, "Contact inquiry received");
 
   res.status(200).json({
     success: true,

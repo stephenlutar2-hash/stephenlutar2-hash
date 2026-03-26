@@ -66,7 +66,14 @@ export function rateLimit(options: RateLimitOptions) {
     if (entry.count > maxRequests) {
       const retryAfter = Math.ceil((entry.resetAt - now) / 1000);
       res.setHeader("Retry-After", retryAfter.toString());
-      res.status(429).json({ error: message });
+      const requestId = (req as any).id as string | undefined;
+      res.status(429).json({
+        status: 429,
+        code: "RATE_LIMITED",
+        message,
+        ...(requestId && { requestId }),
+        timestamp: new Date().toISOString(),
+      });
       return;
     }
 

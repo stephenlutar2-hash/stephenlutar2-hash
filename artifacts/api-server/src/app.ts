@@ -11,6 +11,9 @@ import { isRedisConfigured, isRedisReady } from "./lib/redis";
 import { isBlobStorageConfigured } from "./lib/blobStorage";
 import { securityHeaders } from "./middleware/securityHeaders";
 import { domainRoutingMiddleware } from "./middleware/domainRouting";
+import { requestContextMiddleware } from "./lib/requestContext";
+import { errorHandler } from "./middleware/errorHandler";
+import { formatErrorResponse } from "./lib/errors";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -39,6 +42,9 @@ app.use(
     },
   }),
 );
+
+app.use(requestContextMiddleware());
+
 app.use(cors());
 app.use((req: Request, res: Response, next: Function) => {
   if (req.originalUrl === "/api/stripe/webhook" || req.url === "/api/stripe/webhook") {
@@ -98,6 +104,15 @@ app.get("/readyz", async (_req: Request, res: Response) => {
 });
 
 app.use("/api", router);
+
+app.use("/api", (req: Request, res: Response) => {
+  const requestId = (req as any).id as string | undefined;
+  res.status(404).json(
+    formatErrorResponse(404, "NOT_FOUND", `Route not found: ${req.method} ${req.originalUrl}`, requestId),
+  );
+});
+
+app.use(errorHandler());
 
 const artifactsRoot = path.resolve(__dirname, "..", "..");
 
