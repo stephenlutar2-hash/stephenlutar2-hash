@@ -9,6 +9,7 @@ import Home from "@/pages/Home";
 import Login from "@/pages/Login";
 import Dashboard from "@/pages/Dashboard";
 import AlloyChat from "@/pages/AlloyChat";
+import ImportCenter from "@/pages/ImportCenter";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,7 @@ function Router() {
         <Route path="/login">{() => <AnimatedRoute component={Login} />}</Route>
         <Route path="/dashboard">{() => <AnimatedRoute component={Dashboard} />}</Route>
         <Route path="/alloy">{() => <AnimatedRoute component={AlloyChat} />}</Route>
+        <Route path="/import">{() => <AnimatedRoute component={ImportCenter} />}</Route>
         <Route component={NotFound} />
       </Switch>
     </AnimatePresence>

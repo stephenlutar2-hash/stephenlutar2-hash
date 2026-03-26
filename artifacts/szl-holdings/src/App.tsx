@@ -1,7 +1,9 @@
 import { lazy, Suspense } from "react";
+import { Switch, Route, Router as WouterRouter } from "wouter";
 import Navigation from "./components/Navigation";
 import Hero from "./sections/Hero";
 import Footer from "./components/Footer";
+import ImportCenter from "./pages/ImportCenter";
 import { DomainChatWidget } from "@szl-holdings/ui";
 
 const Vision = lazy(() => import("./sections/Vision"));
@@ -17,7 +19,7 @@ function SectionFallback() {
   return <div className="min-h-[200px]" />;
 }
 
-function App() {
+function LandingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Navigation />
@@ -49,6 +51,17 @@ function App() {
         </Suspense>
       </main>
       <Footer />
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+      <Switch>
+        <Route path="/import" component={ImportCenter} />
+        <Route component={LandingPage} />
+      </Switch>
       <DomainChatWidget
         agentType="szl-holdings"
         agentName="SZL Portfolio Concierge"
@@ -62,7 +75,7 @@ function App() {
         messageBgAssistant="#1a1820"
         placeholderText="Ask about SZL Holdings ventures, platforms, or how we can help..."
       />
-    </div>
+    </WouterRouter>
   );
 }
 

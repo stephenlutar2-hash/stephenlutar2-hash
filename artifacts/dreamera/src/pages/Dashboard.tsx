@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from "react";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles, Plus, BookOpen, Map, Star, Clock, Trash2, Edit2, LogOut,
   ChevronRight, Eye, Layers, TrendingUp, Menu, X, Share2, Send,
   MessageSquare, AlertCircle, CheckCircle2, Globe, Twitter, Linkedin,
-  Link as LinkIcon, Loader
+  Link as LinkIcon, Loader, Upload
 } from "lucide-react";
 
 interface Story {
@@ -127,6 +127,9 @@ export default function Dashboard() {
             <button onClick={() => setShowForm(true)} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-400 text-sm font-bold hover:bg-violet-500/20 transition">
               <Plus className="w-4 h-4" /> New Story
             </button>
+            <Link href="/import" className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-400 text-sm hover:bg-white/10 transition">
+              <Upload className="w-4 h-4" /> Import
+            </Link>
             <button onClick={logout} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-400 text-sm hover:bg-white/10 transition">
               <LogOut className="w-4 h-4" /> Disconnect
             </button>
@@ -142,6 +145,9 @@ export default function Dashboard() {
                 <button onClick={() => { setShowForm(true); setMobileMenu(false); }} className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-400 text-sm font-bold">
                   <Plus className="w-4 h-4" /> New Story
                 </button>
+                <Link href="/import" className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-gray-400 text-sm">
+                  <Upload className="w-4 h-4" /> Import Center
+                </Link>
                 <button onClick={logout} className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-gray-400 text-sm">
                   <LogOut className="w-4 h-4" /> Disconnect
                 </button>

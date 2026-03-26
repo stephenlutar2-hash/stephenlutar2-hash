@@ -9,6 +9,7 @@ import Gallery from "@/pages/Gallery";
 import HierarchyMap from "@/pages/HierarchyMap";
 import PromptStudio from "@/pages/PromptStudio";
 import History from "@/pages/History";
+import ImportCenter from "@/pages/ImportCenter";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ function Router() {
       <Route path="/map">{() => <AuthGuard component={HierarchyMap} />}</Route>
       <Route path="/studio">{() => <AuthGuard component={PromptStudio} />}</Route>
       <Route path="/history">{() => <AuthGuard component={History} />}</Route>
+      <Route path="/import">{() => <AuthGuard component={ImportCenter} />}</Route>
       <Route path="/" component={Home} />
       <Route component={NotFound} />
     </Switch>

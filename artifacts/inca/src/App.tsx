@@ -8,6 +8,7 @@ import ProjectDetail from "@/pages/ProjectDetail";
 import Experiments from "@/pages/Experiments";
 import Insights from "@/pages/Insights";
 import Models from "@/pages/Models";
+import ImportCenter from "@/pages/ImportCenter";
 import { DomainChatWidget } from "@szl-holdings/ui";
 
 const queryClient = new QueryClient();
@@ -25,6 +26,7 @@ function Router() {
             <Route path="/experiments" component={Experiments} />
             <Route path="/insights" component={Insights} />
             <Route path="/models" component={Models} />
+            <Route path="/import" component={ImportCenter} />
             <Route>
               <Dashboard />
             </Route>

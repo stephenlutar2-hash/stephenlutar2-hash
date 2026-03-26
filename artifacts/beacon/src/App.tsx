@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import Zeus from "./pages/Zeus";
 import Inca from "./pages/Inca";
 import DreamEra from "./pages/DreamEra";
+import ImportCenter from "./pages/ImportCenter";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +44,7 @@ function Router() {
         <Route path="/zeus">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><AnimatedRoute><Zeus /></AnimatedRoute></AuthGuard>}</Route>
         <Route path="/inca">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><AnimatedRoute><Inca /></AnimatedRoute></AuthGuard>}</Route>
         <Route path="/dreamera">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><AnimatedRoute><DreamEra /></AnimatedRoute></AuthGuard>}</Route>
+        <Route path="/import">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><AnimatedRoute><ImportCenter /></AnimatedRoute></AuthGuard>}</Route>
         <Route component={NotFound} />
       </Switch>
     </AnimatePresence>

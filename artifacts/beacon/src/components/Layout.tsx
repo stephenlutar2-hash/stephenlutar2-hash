@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
-import { Activity, Server, Brain, MonitorPlay, Shield, Search, Bell } from "lucide-react";
+import { Activity, Server, Brain, MonitorPlay, Shield, Search, Bell, Upload } from "lucide-react";
 import { LayoutShell, type NavItem } from "@szl-holdings/platform";
 
 const NAV_ITEMS: NavItem[] = [
@@ -8,6 +8,7 @@ const NAV_ITEMS: NavItem[] = [
   { path: "/zeus", label: "Zeus Core", icon: Server },
   { path: "/inca", label: "INCA Engine", icon: Brain },
   { path: "/dreamera", label: "Dream Era", icon: MonitorPlay },
+  { path: "/import", label: "Import Center", icon: Upload },
 ];
 
 function WouterLink({ href, className, onClick, children }: { href: string; className?: string; onClick?: () => void; children: ReactNode }) {

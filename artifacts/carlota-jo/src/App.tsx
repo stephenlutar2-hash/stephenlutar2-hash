@@ -1,6 +1,7 @@
 import { Switch, Route, Router as WouterRouter } from "wouter";
 import Home from "@/pages/Home";
 import Consultation from "@/pages/Consultation";
+import ImportCenter from "@/pages/ImportCenter";
 import NotFound from "@/pages/not-found";
 import { DomainChatWidget } from "@szl-holdings/ui";
 
@@ -9,6 +10,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/consultation" component={Consultation} />
+      <Route path="/import" component={ImportCenter} />
       <Route component={NotFound} />
     </Switch>
   );

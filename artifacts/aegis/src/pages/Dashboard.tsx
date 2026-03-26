@@ -20,7 +20,8 @@ import {
   ChevronRight,
   Cpu,
   Server,
-  Wifi
+  Wifi,
+  Upload
 } from "lucide-react";
 import {
   AreaChart,
@@ -145,6 +146,14 @@ export default function Dashboard() {
               <span className="text-sm font-medium">{item.label}</span>
             </button>
           ))}
+
+          <Link
+            href="/import"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-gray-500 hover:bg-white/5 hover:text-white"
+          >
+            <Upload size={18} />
+            <span className="text-sm font-medium">Import Center</span>
+          </Link>
         </div>
 
         <div className="p-4 border-t border-amber-500/10">

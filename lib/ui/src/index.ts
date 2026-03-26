@@ -66,3 +66,6 @@ export * from "./components/tooltip";
 // Domain Chat
 export { DomainChatWidget } from "./components/domain-chat-widget";
 export type { DomainChatWidgetProps } from "./components/domain-chat-widget";
+
+// Import & Data Integration
+export * from "./components/import";

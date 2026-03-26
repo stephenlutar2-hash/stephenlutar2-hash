@@ -17,6 +17,7 @@ import {
   Menu,
   X,
   Flame,
+  Upload,
 } from "lucide-react";
 import CommandCenter from "./CommandCenter";
 import FleetAPM from "./FleetAPM";
@@ -26,8 +27,9 @@ import DigitalExperience from "./DigitalExperience";
 import Synthetics from "./Synthetics";
 import AppliedIntelligence from "./AppliedIntelligence";
 import EmissionsDashboard from "./EmissionsDashboard";
+import ImportCenter from "./ImportCenter";
 
-type Section = "command-center" | "apm" | "infrastructure" | "logs" | "experience" | "synthetics" | "intelligence" | "emissions";
+type Section = "command-center" | "apm" | "infrastructure" | "logs" | "experience" | "synthetics" | "intelligence" | "emissions" | "import";
 
 const SECTIONS: { id: Section; label: string; icon: any; color: string }[] = [
   { id: "command-center", label: "Command Center", icon: LayoutDashboard, color: "text-cyan-400" },
@@ -38,6 +40,7 @@ const SECTIONS: { id: Section; label: string; icon: any; color: string }[] = [
   { id: "synthetics", label: "Synthetics", icon: ShieldCheck, color: "text-amber-400" },
   { id: "emissions", label: "CO₂ & Emissions", icon: Flame, color: "text-orange-400" },
   { id: "intelligence", label: "Applied Intelligence", icon: Brain, color: "text-rose-400" },
+  { id: "import", label: "Import Center", icon: Upload, color: "text-sky-400" },
 ];
 
 const SECTION_MAP: Record<Section, React.ComponentType> = {
@@ -49,6 +52,7 @@ const SECTION_MAP: Record<Section, React.ComponentType> = {
   synthetics: Synthetics,
   emissions: EmissionsDashboard,
   intelligence: AppliedIntelligence,
+  import: ImportCenter,
 };
 
 function statusDotColor(status: string) {

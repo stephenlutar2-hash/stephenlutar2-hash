@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Zap, Cpu, Database, Shield, Network, Settings, GitBranch, LogOut,
   Activity, CheckCircle2, AlertTriangle, Clock, Server, HardDrive,
-  Menu, X, RefreshCw, ToggleLeft, ToggleRight
+  Menu, X, RefreshCw, ToggleLeft, ToggleRight, Upload
 } from "lucide-react";
 import { useSimulatedLoading, PageLoadingSkeleton } from "@/components/LoadingSkeleton";
 
@@ -95,6 +95,9 @@ export default function Dashboard() {
             <button onClick={() => setSelectedTab("config")} className={`px-4 py-2 rounded-xl text-sm font-bold transition ${selectedTab === "config" ? "bg-yellow-500/10 border border-yellow-500/20 text-yellow-400" : "text-gray-400 hover:bg-white/5"}`}>
               Configuration
             </button>
+            <Link href="/import" className="px-4 py-2 rounded-xl text-sm font-bold transition text-gray-400 hover:bg-white/5 flex items-center gap-2">
+              <Upload className="w-4 h-4" /> Import
+            </Link>
             <div className="w-px h-8 bg-white/10 mx-2" />
             <button onClick={logout} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-400 text-sm hover:bg-white/10 transition">
               <LogOut className="w-4 h-4" /> Disconnect
@@ -110,6 +113,7 @@ export default function Dashboard() {
               <div className="px-4 py-3 space-y-2">
                 <button onClick={() => { setSelectedTab("modules"); setMobileMenu(false); }} className="w-full text-left px-4 py-2.5 rounded-xl text-sm text-gray-300 hover:bg-white/5">Modules</button>
                 <button onClick={() => { setSelectedTab("config"); setMobileMenu(false); }} className="w-full text-left px-4 py-2.5 rounded-xl text-sm text-gray-300 hover:bg-white/5">Configuration</button>
+                <Link href="/import" className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm text-gray-300 hover:bg-white/5"><Upload className="w-4 h-4" /> Import Center</Link>
                 <button onClick={logout} className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-gray-400 text-sm">
                   <LogOut className="w-4 h-4" /> Disconnect
                 </button>

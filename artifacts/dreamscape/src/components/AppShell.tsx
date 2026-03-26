@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Compass, Grid3x3, GitBranch, Wand2, Clock, LayoutDashboard,
-  LogOut, Menu, X, Sparkles
+  LogOut, Menu, X, Sparkles, Upload
 } from "lucide-react";
 
 const navItems = [
@@ -13,6 +13,7 @@ const navItems = [
   { path: "/map", label: "Map", icon: GitBranch },
   { path: "/studio", label: "Studio", icon: Wand2 },
   { path: "/history", label: "History", icon: Clock },
+  { path: "/import", label: "Import Center", icon: Upload },
 ];
 
 export default function AppShell({ children }: { children: React.ReactNode }) {

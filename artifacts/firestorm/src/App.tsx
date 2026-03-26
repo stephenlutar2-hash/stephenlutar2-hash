@@ -12,6 +12,7 @@ import Scenarios from "@/pages/Scenarios";
 import Detections from "@/pages/Detections";
 import ResponseTrainer from "@/pages/ResponseTrainer";
 import Reports from "@/pages/Reports";
+import ImportCenter from "@/pages/ImportCenter";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ function Router() {
       <Route path="/detections">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Detections /></AuthGuard>}</Route>
       <Route path="/response-trainer">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><ResponseTrainer /></AuthGuard>}</Route>
       <Route path="/reports">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Reports /></AuthGuard>}</Route>
+      <Route path="/import">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><ImportCenter /></AuthGuard>}</Route>
       <Route path="/" component={Home} />
       <Route component={NotFound} />
     </Switch>

@@ -31,7 +31,8 @@ import {
   Wallet,
   Building2,
   RefreshCw,
-  LinkIcon
+  LinkIcon,
+  Upload
 } from "lucide-react";
 import {
   AreaChart,
@@ -501,6 +502,13 @@ export default function Dashboard() {
               <span className="font-sans text-sm font-medium">{item.label}</span>
             </button>
           ))}
+          <Link
+            href="/import"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-white/5 hover:text-white transition-colors"
+          >
+            <Upload size={18} />
+            <span className="font-sans text-sm font-medium">Import Center</span>
+          </Link>
           <a
             href="/aegis/"
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-white/5 hover:text-white transition-colors"

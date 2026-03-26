@@ -90,6 +90,10 @@ The system incorporates robust security and governance features:
 *   **DB Graceful Fallback:** Handles missing `DATABASE_URL` gracefully.
 *   **SEO & Accessibility:** Open Graph tags, descriptions, and skip-to-content links.
 
+**Import & Data Integration (Import Center):**
+
+A shared import infrastructure in `lib/ui/src/components/import/` provides reusable components: FileDropZone (drag-and-drop), DataPreviewTable (data preview), ColumnMapper (column mapping), ImportProgress (progress feedback), and ImportCenter (5-step wizard shell). File parsing supports CSV, JSON, XML, YAML, ICS, and IPYNB formats via `parse-utils.ts`. API routes at `POST /api/import/:domain/:type` handle domain-specific imports with handlers for inca, vessels, rosie, beacon, nimbus, dreamera, and zeus (with DB persistence), plus a generic fallback for remaining domains. All 16 apps have ImportCenter pages at `/import` routes with domain-specific import types, and navigation links have been added to all app sidebars/headers.
+
 ## External Dependencies
 
 *   **PostgreSQL**: Primary database for data persistence.

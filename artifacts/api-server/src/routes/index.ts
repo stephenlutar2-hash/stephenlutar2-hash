@@ -23,6 +23,7 @@ import aegisRouter from "./aegis";
 import securitySummaryRouter from "./security-summary";
 import szlHoldingsRouter from "./szl-holdings";
 import platformRouter from "./platform";
+import importRouter from "./import";
 import { auditMiddleware } from "../lib/audit";
 import { requireDatabase } from "../lib/dbGuard";
 import { authRateLimit, apiRateLimit } from "../middleware/rateLimit";
@@ -75,5 +76,6 @@ router.use(aegisRouter);
 router.use(securitySummaryRouter);
 router.use(szlHoldingsRouter);
 router.use(platformRouter);
+router.use(importRouter);
 
 export default router;

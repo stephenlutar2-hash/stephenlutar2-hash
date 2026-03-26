@@ -1,6 +1,6 @@
 import { useLocation, Link } from "wouter";
 import { motion } from "framer-motion";
-import { Brain, LayoutDashboard, FolderKanban, FlaskConical, Lightbulb, Activity } from "lucide-react";
+import { Brain, LayoutDashboard, FolderKanban, FlaskConical, Lightbulb, Activity, Upload } from "lucide-react";
 
 const navItems = [
   { path: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -8,6 +8,7 @@ const navItems = [
   { path: "/experiments", label: "Experiments", icon: FlaskConical },
   { path: "/insights", label: "Insights", icon: Lightbulb },
   { path: "/models", label: "Models", icon: Activity },
+  { path: "/import", label: "Import Center", icon: Upload },
 ];
 
 export default function Sidebar() {

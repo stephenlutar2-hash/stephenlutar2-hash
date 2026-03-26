@@ -2,6 +2,7 @@ import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Login from "@/pages/Login";
 import Dashboard from "@/pages/Dashboard";
+import ImportCenter from "@/pages/ImportCenter";
 import { DomainChatWidget } from "@szl-holdings/ui";
 
 const queryClient = new QueryClient();
@@ -17,6 +18,7 @@ function Router() {
     <Switch>
       <Route path="/login" component={Login} />
       <Route path="/dashboard/:section?">{() => <AuthGuard component={Dashboard} />}</Route>
+      <Route path="/import">{() => <AuthGuard component={ImportCenter} />}</Route>
       <Route path="/">{() => <Redirect to="/dashboard" />}</Route>
       <Route>{() => <Redirect to="/dashboard" />}</Route>
     </Switch>

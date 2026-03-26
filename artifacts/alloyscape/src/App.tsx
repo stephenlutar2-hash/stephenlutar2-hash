@@ -11,6 +11,7 @@ import ExecutionLogs from "@/pages/ExecutionLogs";
 import ServiceStatus from "@/pages/ServiceStatus";
 import Connectors from "@/pages/Connectors";
 import UserRoles from "@/pages/UserRoles";
+import ImportCenter from "@/pages/ImportCenter";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ function Router() {
       <Route path="/services">{() => <AuthGuard component={ServiceStatus} />}</Route>
       <Route path="/connectors">{() => <AuthGuard component={Connectors} />}</Route>
       <Route path="/users">{() => <AuthGuard component={UserRoles} />}</Route>
+      <Route path="/import">{() => <AuthGuard component={ImportCenter} />}</Route>
       <Route path="/" component={Home} />
       <Route component={NotFound} />
     </Switch>

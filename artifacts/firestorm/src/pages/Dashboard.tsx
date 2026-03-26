@@ -5,7 +5,7 @@ import {
   Flame, Shield, Activity, BarChart3, Play, Square, Eye,
   FileText, Zap, Clock, Server, Network, LogOut, Bell,
   AlertTriangle, ChevronRight, Settings, LayoutDashboard,
-  Target, Users, Cpu,
+  Target, Users, Cpu, Upload,
 } from "lucide-react";
 import { Badge } from "@szl-holdings/ui";
 import { fetchScenarios, startScenario, stopScenario, fetchLiveEvents, fetchDetectionCoverage, downloadExport } from "@/lib/api";
@@ -41,6 +41,7 @@ const navItems = [
   { icon: Eye, label: "Detection Validation", path: "/detections" },
   { icon: Shield, label: "Response Trainer", path: "/response-trainer" },
   { icon: FileText, label: "Reports", path: "/reports" },
+  { icon: Upload, label: "Import Center", path: "/import" },
 ];
 
 export default function Dashboard() {

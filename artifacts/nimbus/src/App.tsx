@@ -8,6 +8,7 @@ import Predictions from "@/pages/Predictions";
 import Alerts from "@/pages/Alerts";
 import Login from "@/pages/Login";
 import NotFound from "@/pages/not-found";
+import ImportCenter from "@/pages/ImportCenter";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,6 +25,7 @@ function Router() {
       <Route path="/login" component={Login} />
       <Route path="/">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Layout><Predictions /></Layout></AuthGuard>}</Route>
       <Route path="/alerts">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Layout><Alerts /></Layout></AuthGuard>}</Route>
+      <Route path="/import">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Layout><ImportCenter /></Layout></AuthGuard>}</Route>
       <Route component={NotFound} />
     </Switch>
   );

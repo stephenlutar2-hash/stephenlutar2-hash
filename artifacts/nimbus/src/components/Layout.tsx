@@ -1,11 +1,12 @@
 import { type ReactNode } from "react";
 import { Link, useLocation } from "wouter";
-import { BrainCircuit, Activity, Cpu } from "lucide-react";
+import { BrainCircuit, Activity, Cpu, Upload } from "lucide-react";
 import { LayoutShell, type NavItem } from "@szl-holdings/platform";
 
 const NAV_ITEMS: NavItem[] = [
   { path: "/", label: "Predictions", icon: BrainCircuit },
   { path: "/alerts", label: "System Alerts", icon: Activity },
+  { path: "/import", label: "Import Center", icon: Upload },
 ];
 
 function WouterLink({ href, className, onClick, children }: { href: string; className?: string; onClick?: () => void; children: ReactNode }) {
