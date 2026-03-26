@@ -1,0 +1,36 @@
+name: Publish RubyGem
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/rubygems-example
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+
+      - name: Build gem
+        run: gem build szl-holdings-example.gemspec
+
+      - name: Configure credentials
+        run: |
+          mkdir -p ~/.gem
+          echo "---" > ~/.gem/credentials
+          echo ":github: Bearer ${{ secrets.GITHUB_TOKEN }}" >> ~/.gem/credentials
+          chmod 0600 ~/.gem/credentials
+
+      - name: Publish to GitHub Packages
+        run: gem push --key github --host https://rubygems.pkg.github.com/szl-holdings *.gem
