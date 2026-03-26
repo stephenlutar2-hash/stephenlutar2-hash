@@ -30,13 +30,14 @@ const navItems = [
 export default function Reports() {
   const [reports, setReports] = useState<Report[]>([]);
   const [summary, setSummary] = useState<Summary | null>(null);
+  const [initialLoaded, setInitialLoaded] = useState(false);
   const [, setLocation] = useLocation();
 
   useEffect(() => {
     fetchReports().then((data) => {
       setReports(data.reports);
       setSummary(data.summary);
-    });
+    }).catch(() => {}).finally(() => setInitialLoaded(true));
   }, []);
 
   function handleLogout() {
@@ -88,8 +89,25 @@ export default function Reports() {
         </header>
 
         <div className="p-6 space-y-6 flex-1">
+          {!initialLoaded ? (
+            <div className="space-y-6 animate-pulse">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="p-5 rounded-xl border border-white/5 bg-white/[0.02]">
+                    <div className="h-3 w-20 bg-white/5 rounded mb-4" />
+                    <div className="h-8 w-16 bg-white/10 rounded" />
+                  </div>
+                ))}
+              </div>
+              <div className="space-y-4">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="p-6 rounded-xl border border-white/5 bg-white/[0.02] h-24" />
+                ))}
+              </div>
+            </div>
+          ) : (<>
           {summary && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {[
                 { label: "Overall Readiness", value: `${summary.overallReadiness}%`, icon: Shield, color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20" },
                 { label: "Avg Detection Rate", value: `${summary.avgDetectionRate}%`, icon: TrendingUp, color: "text-cyan-400", bg: "bg-cyan-500/10", border: "border-cyan-500/20" },
@@ -111,12 +129,22 @@ export default function Reports() {
             <h3 className="font-display font-bold text-white tracking-wide uppercase text-sm mb-4">Simulation Reports</h3>
             <div className="space-y-4">
               {reports.map((report, i) => (
-                <motion.div key={report.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="p-6 rounded-xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.03] transition-all">
+                <motion.div key={report.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="p-6 rounded-xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.03] transition-all group">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         <h4 className="text-lg font-display font-bold text-white">{report.title}</h4>
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">{report.status}</span>
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase border ${
+                          report.detectionRate >= 90 && report.responseReadiness >= 85
+                            ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
+                            : report.detectionRate >= 70
+                            ? "bg-amber-500/20 text-amber-400 border-amber-500/30"
+                            : "bg-red-500/20 text-red-400 border-red-500/30"
+                        }`}>{
+                          report.detectionRate >= 90 && report.responseReadiness >= 85 ? "PASS" :
+                          report.detectionRate >= 70 ? "PARTIAL" : "FAIL"
+                        }</span>
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-white/5 text-gray-400 border border-white/10">{report.status}</span>
                       </div>
                       <div className="flex items-center gap-4 text-xs text-gray-500">
                         <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{new Date(report.date).toLocaleDateString()}</span>
@@ -143,7 +171,7 @@ export default function Reports() {
           </div>
 
           {summary && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="p-6 rounded-xl border border-cyan-500/20 bg-cyan-500/5">
                 <h3 className="font-display font-bold text-cyan-400 tracking-wide uppercase text-sm mb-4 flex items-center gap-2">
                   <BarChart3 className="w-4 h-4" /> Executive Summary
@@ -215,6 +243,7 @@ export default function Reports() {
               </div>
             </div>
           )}
+          </>)}
         </div>
       </main>
     </div>

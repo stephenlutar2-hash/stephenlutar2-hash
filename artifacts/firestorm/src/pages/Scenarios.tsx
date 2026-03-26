@@ -132,10 +132,30 @@ export default function Scenarios() {
               {filtered.map((s) => (
                 <motion.div key={s.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} onClick={() => { setSelected(s); setReplayIndex(0); setReplayRunning(false); }} className={`p-4 rounded-xl border cursor-pointer transition-all ${selected?.id === s.id ? "border-orange-500/50 bg-orange-500/5" : "border-white/5 bg-white/[0.02] hover:bg-white/[0.04]"}`}>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] tracking-widest uppercase text-gray-500">{s.category}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] tracking-widest uppercase text-gray-500">{s.category}</span>
+                      <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold tracking-wider uppercase border ${
+                        s.severity === "critical" ? "bg-red-500/10 text-red-400 border-red-500/20" :
+                        s.severity === "high" ? "bg-orange-500/10 text-orange-400 border-orange-500/20" :
+                        s.severity === "medium" ? "bg-yellow-500/10 text-yellow-400 border-yellow-500/20" :
+                        "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                      }`}>{
+                        s.severity === "critical" ? "EXPERT" :
+                        s.severity === "high" ? "HARD" :
+                        s.severity === "medium" ? "MEDIUM" : "EASY"
+                      }</span>
+                    </div>
                     <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase border ${severityColor[s.severity]}`}>{s.severity}</span>
                   </div>
-                  <h3 className="font-display font-bold text-white mb-1">{s.name}</h3>
+                  <h3 className="font-display font-bold text-white mb-1.5">{s.name}</h3>
+                  <div className="flex flex-wrap gap-1 mb-2">
+                    {s.expectedDetections.slice(0, 2).map((d, j) => (
+                      <span key={j} className="px-1.5 py-0.5 rounded text-[8px] bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">{d}</span>
+                    ))}
+                    {s.expectedDetections.length > 2 && (
+                      <span className="px-1.5 py-0.5 rounded text-[8px] bg-white/5 border border-white/10 text-gray-500">+{s.expectedDetections.length - 2}</span>
+                    )}
+                  </div>
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] text-gray-500 flex items-center gap-1"><Clock className="w-3 h-3" />{s.estimatedDuration}</span>
                     <div className="flex items-center gap-2">

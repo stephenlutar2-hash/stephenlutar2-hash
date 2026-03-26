@@ -113,15 +113,63 @@ export default function Home() {
           <img src={HERO_BG} alt="Aegis Background" className="w-full h-full object-cover opacity-30" />
           <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/80 to-background" />
         </div>
+
+        <div className="absolute inset-0 z-[1] overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(212,175,55,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(212,175,55,0.3) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] md:w-[800px] md:h-[800px]">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              className="absolute inset-0 rounded-full border border-primary/10"
+            />
+            <motion.div
+              animate={{ rotate: -360 }}
+              transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+              className="absolute inset-8 rounded-full border border-primary/[0.07] border-dashed"
+            />
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+              className="absolute inset-16 rounded-full border border-primary/[0.05]"
+            />
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+              className="absolute inset-0"
+            >
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1 h-full bg-gradient-to-b from-primary/20 via-transparent to-transparent origin-bottom" />
+            </motion.div>
+          </div>
+          {[
+            { x: "15%", y: "25%", delay: 0 },
+            { x: "80%", y: "30%", delay: 1.5 },
+            { x: "25%", y: "70%", delay: 3 },
+            { x: "70%", y: "75%", delay: 2 },
+            { x: "50%", y: "15%", delay: 4 },
+          ].map((dot, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-1 h-1 bg-primary/40 rounded-full"
+              style={{ left: dot.x, top: dot.y }}
+              animate={{ opacity: [0.2, 0.8, 0.2], scale: [1, 1.5, 1] }}
+              transition={{ duration: 3, delay: dot.delay, repeat: Infinity }}
+            />
+          ))}
+        </div>
         
         <div className="relative z-10 max-w-7xl mx-auto px-6 flex flex-col items-center text-center">
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 1, ease: "easeOut" as const }}
-            className="mb-8"
+            className="mb-8 relative"
           >
-            <Shield className="w-24 h-24 text-primary drop-shadow-[0_0_30px_rgba(212,175,55,0.5)]" strokeWidth={1} />
+            <motion.div
+              animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.6, 0.3] }}
+              transition={{ duration: 3, repeat: Infinity }}
+              className="absolute inset-0 bg-primary/20 rounded-full blur-xl"
+            />
+            <Shield className="w-24 h-24 text-primary drop-shadow-[0_0_30px_rgba(212,175,55,0.5)] relative z-10" strokeWidth={1} />
           </motion.div>
           
           <motion.h1 

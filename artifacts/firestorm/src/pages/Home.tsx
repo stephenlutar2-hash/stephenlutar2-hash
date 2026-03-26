@@ -85,9 +85,34 @@ export default function Home() {
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(6,182,212,0.08)_0%,transparent_50%)]" />
           <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/70 to-background" />
         </div>
+
+        <div className="absolute inset-0 z-[1] overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'linear-gradient(rgba(234,88,12,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(234,88,12,0.4) 1px, transparent 1px)', backgroundSize: '50px 50px' }} />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] md:w-[700px] md:h-[700px]">
+            <motion.div animate={{ rotate: 360 }} transition={{ duration: 25, repeat: Infinity, ease: "linear" }} className="absolute inset-0 rounded-full border border-orange-500/10" />
+            <motion.div animate={{ rotate: -360 }} transition={{ duration: 35, repeat: Infinity, ease: "linear" }} className="absolute inset-10 rounded-full border border-red-500/[0.06] border-dashed" />
+            <motion.div animate={{ rotate: 360 }} transition={{ duration: 45, repeat: Infinity, ease: "linear" }} className="absolute inset-20 rounded-full border border-orange-500/[0.04]" />
+          </div>
+          {[
+            { x: "20%", y: "30%", delay: 0 },
+            { x: "75%", y: "25%", delay: 2 },
+            { x: "30%", y: "65%", delay: 1 },
+            { x: "65%", y: "70%", delay: 3 },
+          ].map((dot, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-1 h-1 bg-orange-500/30 rounded-full"
+              style={{ left: dot.x, top: dot.y }}
+              animate={{ opacity: [0.2, 0.7, 0.2], scale: [1, 1.5, 1] }}
+              transition={{ duration: 3, delay: dot.delay, repeat: Infinity }}
+            />
+          ))}
+        </div>
+
         <div className="relative z-10 max-w-7xl mx-auto px-6 flex flex-col items-center text-center">
-          <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 1 }} className="mb-8">
-            <Flame className="w-24 h-24 text-primary drop-shadow-[0_0_30px_rgba(234,88,12,0.5)]" strokeWidth={1} />
+          <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 1 }} className="mb-8 relative">
+            <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.5, 0.2] }} transition={{ duration: 3, repeat: Infinity }} className="absolute inset-0 bg-orange-500/20 rounded-full blur-xl" />
+            <Flame className="w-24 h-24 text-primary drop-shadow-[0_0_30px_rgba(234,88,12,0.5)] relative z-10" strokeWidth={1} />
           </motion.div>
           <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2, duration: 0.8 }} className="mb-4 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold tracking-[0.2em] uppercase inline-flex items-center gap-2">
             <Shield className="w-3.5 h-3.5" /> Authorized Simulation Environment

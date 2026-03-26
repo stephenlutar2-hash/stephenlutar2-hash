@@ -243,17 +243,21 @@ export default function ResponseTrainer() {
                     <Clock className="w-4 h-4 text-cyan-400" />
                     <h3 className="text-xs tracking-widest uppercase text-gray-500">Incident Timeline Builder</h3>
                   </div>
-                  <div className="space-y-2 max-h-40 overflow-y-auto mb-3">
+                  <div className="space-y-0 max-h-48 overflow-y-auto mb-3 relative pl-4">
                     {timelineEntries.length === 0 ? (
-                      <p className="text-xs text-gray-600">No entries yet. Add timeline events as you progress through the drill.</p>
-                    ) : (
-                      timelineEntries.map((entry, i) => (
-                        <div key={i} className="flex items-start gap-2 px-3 py-2 rounded-lg bg-white/[0.03] border border-white/5">
-                          <span className="text-[10px] font-mono text-cyan-400 shrink-0 mt-0.5">{entry.time}</span>
-                          <span className="text-xs text-gray-300">{entry.action}</span>
-                        </div>
-                      ))
-                    )}
+                      <p className="text-xs text-gray-600 pl-0">No entries yet. Add timeline events as you progress through the drill.</p>
+                    ) : (<>
+                      <div className="absolute left-1.5 top-0 bottom-0 w-px bg-gradient-to-b from-cyan-500/40 to-cyan-500/10" />
+                      {timelineEntries.map((entry, i) => (
+                        <motion.div key={i} initial={{ opacity: 0, x: -5 }} animate={{ opacity: 1, x: 0 }} className="relative mb-2 last:mb-0">
+                          <div className="absolute -left-[11px] top-2.5 w-2 h-2 rounded-full bg-cyan-500/60 border border-cyan-400/80" />
+                          <div className="px-3 py-2 rounded-lg bg-white/[0.03] border border-white/5 ml-1">
+                            <span className="text-[10px] font-mono text-cyan-400 block mb-0.5">{entry.time}</span>
+                            <span className="text-xs text-gray-300">{entry.action}</span>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </>)}
                   </div>
                   <div className="flex gap-2">
                     <input value={newTimelineAction} onChange={(e) => setNewTimelineAction(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addTimelineEntry()} placeholder="Add timeline event..." className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder:text-gray-600 focus:outline-none focus:border-cyan-500/30" />

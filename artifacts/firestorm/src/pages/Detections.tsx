@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useLocation } from "wouter";
+import { motion } from "framer-motion";
 import {
   Flame, Eye, Shield, FileText, LayoutDashboard, Target, LogOut,
-  CheckCircle2, XCircle, AlertTriangle, TrendingUp, Activity,
+  CheckCircle2, XCircle, AlertTriangle, TrendingUp, Activity, ChevronDown, ChevronUp,
 } from "lucide-react";
 import { Badge } from "@workspace/ui";
 import { fetchDetectionCoverage, fetchLiveEvents } from "@/lib/api";
@@ -26,15 +27,61 @@ const navItems = [
   { icon: FileText, label: "Reports", path: "/reports" },
 ];
 
+function DetectionPanel({ title, count, events, variant }: { title: string; count: number; events: LiveEvent[]; variant: "success" | "danger" }) {
+  const [expanded, setExpanded] = useState(false);
+  const isSuccess = variant === "success";
+  const borderColor = isSuccess ? "border-emerald-500/20" : "border-red-500/20";
+  const bgColor = isSuccess ? "bg-emerald-500/5" : "bg-red-500/5";
+  const textColor = isSuccess ? "text-emerald-400" : "text-red-400";
+  const Icon = isSuccess ? CheckCircle2 : XCircle;
+
+  return (
+    <div className={`p-6 rounded-xl border ${borderColor} ${bgColor}`}>
+      <button onClick={() => setExpanded(!expanded)} className="w-full flex items-center justify-between mb-3">
+        <h3 className={`font-display font-bold ${textColor} tracking-wide uppercase text-sm flex items-center gap-2`}>
+          <Icon className="w-4 h-4" /> {title} ({count})
+        </h3>
+        {expanded ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
+      </button>
+      <div className={`space-y-2 overflow-y-auto transition-all ${expanded ? "max-h-96" : "max-h-48"}`}>
+        {events.length === 0 ? (
+          <p className="text-xs text-gray-500">{isSuccess ? "No detected events yet" : "No missed events — excellent coverage"}</p>
+        ) : (
+          events.slice(0, expanded ? 20 : 10).map((evt) => (
+            <motion.div key={evt.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="px-3 py-2 rounded-lg bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors">
+              <div className="flex items-center justify-between">
+                <div className="flex-1 min-w-0 mr-2">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="text-[10px] font-mono text-gray-500">{new Date(evt.timestamp).toLocaleTimeString("en-US", { hour12: false })}</span>
+                    <span className="text-[9px] text-gray-600 uppercase">{evt.type}</span>
+                  </div>
+                  <p className="text-xs text-white truncate">{evt.detail}</p>
+                  <p className="text-[10px] text-gray-500">{evt.source} → {evt.destination}</p>
+                </div>
+                <Icon className={`w-4 h-4 ${textColor} shrink-0`} />
+              </div>
+            </motion.div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function Detections() {
   const [data, setData] = useState<DetectionData | null>(null);
   const [events, setEvents] = useState<LiveEvent[]>([]);
+  const [initialLoaded, setInitialLoaded] = useState(false);
   const [, setLocation] = useLocation();
 
   const loadData = useCallback(async () => {
-    const [d, e] = await Promise.all([fetchDetectionCoverage(), fetchLiveEvents()]);
-    setData(d);
-    setEvents(e);
+    try {
+      const [d, e] = await Promise.all([fetchDetectionCoverage(), fetchLiveEvents()]);
+      setData(d);
+      setEvents(e);
+    } catch {} finally {
+      setInitialLoaded(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -87,6 +134,25 @@ export default function Detections() {
         </header>
 
         <div className="p-6 space-y-6 flex-1">
+          {!initialLoaded ? (
+            <div className="space-y-6 animate-pulse">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="p-5 rounded-xl border border-white/5 bg-white/[0.02]">
+                    <div className="h-3 w-20 bg-white/5 rounded mb-4" />
+                    <div className="h-8 w-16 bg-white/10 rounded" />
+                  </div>
+                ))}
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="p-6 rounded-xl border border-white/5 bg-white/[0.02] h-60" />
+                <div className="space-y-6">
+                  <div className="p-6 rounded-xl border border-white/5 bg-white/[0.02] h-40" />
+                  <div className="p-6 rounded-xl border border-white/5 bg-white/[0.02] h-40" />
+                </div>
+              </div>
+            </div>
+          ) : (<>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
               { label: "Detection Rate", value: data ? `${data.detectionRate}%` : "—", icon: TrendingUp, color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20" },
@@ -94,13 +160,13 @@ export default function Detections() {
               { label: "False Negatives", value: String(data?.falseNegatives ?? 0), icon: XCircle, color: "text-red-400", bg: "bg-red-500/10", border: "border-red-500/20" },
               { label: "Confidence Score", value: String(data?.confidenceScore ?? "—"), icon: Eye, color: "text-cyan-400", bg: "bg-cyan-500/10", border: "border-cyan-500/20" },
             ].map((stat, i) => (
-              <div key={i} className={`p-5 rounded-xl border ${stat.border} ${stat.bg}`}>
+              <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className={`p-5 rounded-xl border ${stat.border} ${stat.bg}`}>
                 <div className="flex justify-between items-start mb-3">
                   <p className="text-xs tracking-wider text-gray-500 uppercase">{stat.label}</p>
                   <stat.icon className={`w-5 h-5 ${stat.color}`} />
                 </div>
                 <h3 className={`text-3xl font-display font-bold ${stat.color}`}>{stat.value}</h3>
-              </div>
+              </motion.div>
             ))}
           </div>
 
@@ -130,49 +196,34 @@ export default function Detections() {
             </div>
 
             <div className="space-y-6">
-              <div className="p-6 rounded-xl border border-emerald-500/20 bg-emerald-500/5">
-                <h3 className="font-display font-bold text-emerald-400 tracking-wide uppercase text-sm mb-3 flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4" /> Successfully Detected ({detectedEvents.length})
-                </h3>
-                <div className="space-y-2 max-h-48 overflow-y-auto">
-                  {detectedEvents.length === 0 ? (
-                    <p className="text-xs text-gray-500">No detected events yet</p>
-                  ) : (
-                    detectedEvents.slice(0, 10).map((evt) => (
-                      <div key={evt.id} className="flex items-center justify-between px-3 py-2 rounded-lg bg-white/[0.02] border border-white/5">
-                        <div>
-                          <p className="text-xs text-white truncate max-w-[250px]">{evt.detail}</p>
-                          <p className="text-[10px] text-gray-500">{evt.source} → {evt.destination}</p>
-                        </div>
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-
-              <div className="p-6 rounded-xl border border-red-500/20 bg-red-500/5">
-                <h3 className="font-display font-bold text-red-400 tracking-wide uppercase text-sm mb-3 flex items-center gap-2">
-                  <XCircle className="w-4 h-4" /> Missed Detections ({missedEvents.length})
-                </h3>
-                <div className="space-y-2 max-h-48 overflow-y-auto">
-                  {missedEvents.length === 0 ? (
-                    <p className="text-xs text-gray-500">No missed events — excellent coverage</p>
-                  ) : (
-                    missedEvents.slice(0, 10).map((evt) => (
-                      <div key={evt.id} className="flex items-center justify-between px-3 py-2 rounded-lg bg-white/[0.02] border border-white/5">
-                        <div>
-                          <p className="text-xs text-white truncate max-w-[250px]">{evt.detail}</p>
-                          <p className="text-[10px] text-gray-500">{evt.source} → {evt.destination}</p>
-                        </div>
-                        <XCircle className="w-4 h-4 text-red-400 shrink-0" />
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
+              <DetectionPanel title="Successfully Detected" count={detectedEvents.length} events={detectedEvents} variant="success" />
+              <DetectionPanel title="Missed Detections" count={missedEvents.length} events={missedEvents} variant="danger" />
             </div>
           </div>
+
+          <div className="p-6 rounded-xl border border-white/10 bg-white/[0.02]">
+            <h3 className="font-display font-bold text-white tracking-wide uppercase text-sm mb-4">Event Timeline</h3>
+            <div className="relative pl-6">
+              <div className="absolute left-2 top-0 bottom-0 w-px bg-gradient-to-b from-emerald-500/30 via-amber-500/30 to-red-500/30" />
+              {events.slice(0, 12).map((evt, i) => (
+                <motion.div key={evt.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }} className="relative mb-3 last:mb-0">
+                  <div className={`absolute -left-[18px] top-2 w-2.5 h-2.5 rounded-full border-2 ${evt.detected ? "bg-emerald-500 border-emerald-400" : "bg-red-500 border-red-400"}`} />
+                  <div className="flex items-start justify-between gap-3 px-4 py-2.5 rounded-lg border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-colors">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="text-[10px] font-mono text-gray-500">{new Date(evt.timestamp).toLocaleTimeString("en-US", { hour12: false })}</span>
+                        <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold tracking-wider uppercase border ${evt.detected ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" : "bg-red-500/20 text-red-400 border-red-500/30"}`}>{evt.detected ? "DETECTED" : "MISSED"}</span>
+                        <span className="text-[9px] text-gray-600 uppercase">{evt.type}</span>
+                      </div>
+                      <p className="text-xs text-gray-300 truncate">{evt.detail}</p>
+                      <p className="text-[10px] text-gray-600">{evt.source} → {evt.destination}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+          </>)}
         </div>
       </main>
     </div>

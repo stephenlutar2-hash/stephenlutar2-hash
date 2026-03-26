@@ -48,6 +48,7 @@ export default function Dashboard() {
   const [events, setEvents] = useState<LiveEvent[]>([]);
   const [detections, setDetections] = useState<DetectionData | null>(null);
   const [currentTime, setCurrentTime] = useState("");
+  const [initialLoaded, setInitialLoaded] = useState(false);
   const [, setLocation] = useLocation();
 
   const loadData = useCallback(async () => {
@@ -56,7 +57,9 @@ export default function Dashboard() {
       setScenarios(s);
       setEvents(e);
       setDetections(d);
-    } catch {}
+    } catch {} finally {
+      setInitialLoaded(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -163,6 +166,32 @@ export default function Dashboard() {
         </div>
 
         <div className="p-6 space-y-6 flex-1">
+          {!initialLoaded ? (
+            <div className="space-y-6 animate-pulse">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="p-5 rounded-xl border border-white/5 bg-white/[0.02]">
+                    <div className="h-3 w-20 bg-white/5 rounded mb-4" />
+                    <div className="h-8 w-16 bg-white/10 rounded mb-2" />
+                    <div className="h-2 w-24 bg-white/5 rounded" />
+                  </div>
+                ))}
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div className="lg:col-span-3 space-y-3">
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} className="p-3 rounded-lg border border-white/5 bg-white/[0.02] h-20" />
+                  ))}
+                </div>
+                <div className="lg:col-span-6 rounded-xl border border-white/5 bg-white/[0.02] h-80" />
+                <div className="lg:col-span-3 space-y-3">
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} className="p-4 rounded-lg border border-white/5 bg-white/[0.02] h-16" />
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (<>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
               { label: "Active Scenarios", value: String(runningCount), sub: `${scenarios.length} total available`, icon: Target, color: "text-orange-500", bg: "bg-orange-500/10", border: "border-orange-500/20" },
@@ -195,6 +224,25 @@ export default function Dashboard() {
                       <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase border ${severityColor[s.severity]}`}>{s.severity}</span>
                     </div>
                     <p className="text-sm font-medium text-white mb-2">{s.name}</p>
+                    {s.status === "running" && (
+                      <div className="mb-2">
+                        <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                          <motion.div
+                            className="h-full bg-gradient-to-r from-orange-500 to-red-500 rounded-full"
+                            initial={{ width: "0%" }}
+                            animate={{ width: "100%" }}
+                            transition={{ duration: 30, ease: "linear", repeat: Infinity }}
+                          />
+                        </div>
+                        <div className="flex items-center gap-1 mt-1">
+                          <span className="relative flex h-1.5 w-1.5">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400" />
+                          </span>
+                          <span className="text-[9px] text-emerald-400 font-mono">EXECUTING</span>
+                        </div>
+                      </div>
+                    )}
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] text-gray-500">{s.estimatedDuration}</span>
                       <button onClick={() => toggleScenario(s)} className={`px-2 py-1 rounded text-[10px] font-bold tracking-wider uppercase flex items-center gap-1 transition ${s.status === "running" ? "bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30" : "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30"}`}>
@@ -346,6 +394,7 @@ export default function Dashboard() {
               </button>
             </div>
           </div>
+          </>)}
         </div>
       </main>
     </div>

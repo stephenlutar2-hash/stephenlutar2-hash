@@ -299,6 +299,127 @@ export default function Dashboard() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35 }}
+              className="lg:col-span-2 p-6 rounded-xl border border-white/10 bg-white/[0.02] relative overflow-hidden"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="font-display font-bold text-white tracking-wide uppercase">
+                  Global Threat Map
+                </h3>
+                <div className="flex items-center gap-2">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
+                  </span>
+                  <span className="text-[10px] font-mono text-red-400 tracking-wider">LIVE TELEMETRY</span>
+                </div>
+              </div>
+              <div className="relative w-full h-[280px] rounded-lg bg-[#0a0a0a] border border-white/5 overflow-hidden">
+                <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(245,158,11,0.15) 1px, transparent 0)', backgroundSize: '24px 24px' }} />
+                <svg viewBox="0 0 800 400" className="w-full h-full" preserveAspectRatio="xMidYMid slice">
+                  <defs>
+                    <radialGradient id="attackPulse" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stopColor="#ef4444" stopOpacity="0.8" />
+                      <stop offset="100%" stopColor="#ef4444" stopOpacity="0" />
+                    </radialGradient>
+                    <radialGradient id="shieldGlow" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.6" />
+                      <stop offset="100%" stopColor="#f59e0b" stopOpacity="0" />
+                    </radialGradient>
+                  </defs>
+                  <path d="M120,180 Q200,160 280,170 Q320,140 360,150 Q400,120 440,130 Q480,110 520,140 Q560,130 600,150 Q640,140 680,160 L680,200 Q640,210 600,220 Q560,240 520,230 Q480,250 440,240 Q400,260 360,250 Q320,270 280,250 Q240,240 200,230 Q160,220 120,210 Z" fill="none" stroke="rgba(245,158,11,0.1)" strokeWidth="1" />
+                  <path d="M150,200 Q190,190 230,195 Q270,180 310,185 Q350,170 390,175 Q430,160 470,165 Q510,155 550,170 Q590,165 630,180 L630,220 Q590,230 550,235 Q510,245 470,240 Q430,250 390,245 Q350,255 310,248 Q270,258 230,250 Q190,245 150,235 Z" fill="none" stroke="rgba(245,158,11,0.08)" strokeWidth="1" />
+                  {[
+                    { x: 180, y: 150, label: "US-EAST", attacks: 847 },
+                    { x: 350, y: 120, label: "EU-WEST", attacks: 1247 },
+                    { x: 550, y: 140, label: "APAC", attacks: 634 },
+                    { x: 480, y: 180, label: "ME-SOUTH", attacks: 423 },
+                    { x: 250, y: 200, label: "SA-EAST", attacks: 312 },
+                    { x: 620, y: 200, label: "OCE", attacks: 173 },
+                  ].map((node, i) => (
+                    <g key={i}>
+                      <line x1={node.x} y1={node.y} x2={400} y2={200} stroke="rgba(239,68,68,0.15)" strokeWidth="1" strokeDasharray="4 4">
+                        <animate attributeName="stroke-dashoffset" values="0;-8" dur={`${2 + i * 0.3}s`} repeatCount="indefinite" />
+                      </line>
+                      <circle cx={node.x} cy={node.y} r="16" fill="url(#attackPulse)">
+                        <animate attributeName="r" values="12;20;12" dur={`${2 + i * 0.5}s`} repeatCount="indefinite" />
+                        <animate attributeName="opacity" values="0.8;0.3;0.8" dur={`${2 + i * 0.5}s`} repeatCount="indefinite" />
+                      </circle>
+                      <circle cx={node.x} cy={node.y} r="3" fill="#ef4444" />
+                      <text x={node.x} y={node.y - 20} textAnchor="middle" fill="rgba(255,255,255,0.5)" fontSize="8" fontFamily="monospace">{node.label}</text>
+                      <text x={node.x} y={node.y + 20} textAnchor="middle" fill="rgba(239,68,68,0.7)" fontSize="7" fontFamily="monospace">{node.attacks}</text>
+                    </g>
+                  ))}
+                  <circle cx={400} cy={200} r="24" fill="url(#shieldGlow)">
+                    <animate attributeName="r" values="20;28;20" dur="3s" repeatCount="indefinite" />
+                  </circle>
+                  <circle cx={400} cy={200} r="8" fill="#f59e0b" />
+                  <text x={400} y={240} textAnchor="middle" fill="rgba(245,158,11,0.8)" fontSize="9" fontFamily="monospace" fontWeight="bold">AEGIS CORE</text>
+                </svg>
+                <div className="absolute bottom-3 left-3 flex items-center gap-4 text-[10px] font-mono">
+                  <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-red-500" />Attack Origin</span>
+                  <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-amber-500" />Aegis Shield</span>
+                  <span className="text-gray-600">|</span>
+                  <span className="text-gray-500">3,636 blocked today</span>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="p-6 rounded-xl border border-amber-500/20 bg-amber-500/[0.03] flex flex-col items-center"
+            >
+              <h3 className="font-display font-bold text-white tracking-wide uppercase mb-4 self-start">
+                Security Posture
+              </h3>
+              <div className="flex-1 flex items-center justify-center">
+                <div className="relative w-48 h-48">
+                  <svg viewBox="0 0 200 200" className="w-full h-full -rotate-90">
+                    <circle cx="100" cy="100" r="85" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="12" />
+                    <circle cx="100" cy="100" r="85" fill="none" stroke="url(#gaugeGrad)" strokeWidth="12" strokeLinecap="round" strokeDasharray={`${98 * 5.34} ${534 - 98 * 5.34}`}>
+                      <animate attributeName="stroke-dasharray" from="0 534" to={`${98 * 5.34} ${534 - 98 * 5.34}`} dur="1.5s" fill="freeze" />
+                    </circle>
+                    <defs>
+                      <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#10b981" />
+                        <stop offset="50%" stopColor="#f59e0b" />
+                        <stop offset="100%" stopColor="#10b981" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-4xl font-display font-bold text-white">98</span>
+                    <span className="text-xs text-gray-500 tracking-widest uppercase">/ 100</span>
+                  </div>
+                </div>
+              </div>
+              <div className="w-full space-y-2 mt-4">
+                {[
+                  { label: "Perimeter", score: 100, color: "bg-emerald-500" },
+                  { label: "Endpoint", score: 96, color: "bg-amber-500" },
+                  { label: "Identity", score: 98, color: "bg-emerald-500" },
+                  { label: "Data", score: 97, color: "bg-emerald-500" },
+                ].map((item, i) => (
+                  <div key={i}>
+                    <div className="flex justify-between text-[10px] mb-1">
+                      <span className="text-gray-500 uppercase tracking-wider">{item.label}</span>
+                      <span className="text-gray-400 font-mono">{item.score}%</span>
+                    </div>
+                    <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                      <motion.div initial={{ width: 0 }} animate={{ width: `${item.score}%` }} transition={{ delay: 0.5 + i * 0.1, duration: 0.8 }} className={`h-full rounded-full ${item.color}`} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
               className="lg:col-span-2 p-6 rounded-xl border border-white/10 bg-white/[0.02] flex flex-col"
             >
@@ -622,10 +743,15 @@ export default function Dashboard() {
                     )}
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-white group-hover:text-amber-500 transition-colors">
-                      {event.title}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">{event.detail}</p>
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="text-sm font-medium text-white group-hover:text-amber-500 transition-colors">
+                        {event.title}
+                      </p>
+                      <span className={`text-[9px] font-bold tracking-widest uppercase px-2 py-0.5 rounded-full border ${event.severity === "critical" ? "text-red-400 bg-red-500/10 border-red-500/20" : event.severity === "high" ? "text-amber-400 bg-amber-500/10 border-amber-500/20" : event.severity === "medium" ? "text-blue-400 bg-blue-500/10 border-blue-500/20" : "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"}`}>
+                        {event.severity}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500">{event.detail}</p>
                   </div>
                   <span className="text-xs text-gray-600 font-mono whitespace-nowrap">
                     {event.time}
@@ -684,7 +810,19 @@ export default function Dashboard() {
             ))}
           </div>
 
-          {monitoring && (
+          {!monitoring ? (
+            <div className="p-6 rounded-xl border border-amber-500/10 bg-white/[0.02] animate-pulse">
+              <div className="h-5 w-56 bg-white/5 rounded mb-6" />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="p-4 rounded-lg border border-white/5 bg-white/[0.02]">
+                    <div className="h-3 w-20 bg-white/5 rounded mb-3" />
+                    <div className="h-6 w-24 bg-white/5 rounded" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
