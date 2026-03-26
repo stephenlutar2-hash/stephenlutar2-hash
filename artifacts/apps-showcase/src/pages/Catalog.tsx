@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import {
   Shield, Flame, Satellite, Leaf, Cloud, Zap, Sparkles, Eye,
   Crown, ExternalLink, type LucideIcon, Search, BarChart3,
-  Briefcase, Ship, Coffee, Activity, Layers, Globe, Monitor,
+  Briefcase, Ship, Coffee, Activity, Layers, Globe, Monitor, Cpu,
 } from "lucide-react";
 import { getAppUrl } from "@szl-holdings/domain-utils";
 
@@ -205,6 +205,30 @@ const projects: Project[] = [
     category: "Analytics",
     domain: "szlholdings.com",
     path: "/lyte/",
+  },
+  {
+    name: "INCA",
+    description: "AI research and experimentation platform for managing projects, experiments, model training, and accuracy tracking.",
+    icon: Cpu,
+    color: "from-violet-500 to-purple-600",
+    status: "Active",
+    maturity: "Production",
+    environment: "Production",
+    category: "AI/ML",
+    domain: "szlholdings.com",
+    path: "/inca/",
+  },
+  {
+    name: "SZL Holdings",
+    description: "Corporate portfolio hub showcasing all SZL Holdings ventures, ecosystem health, and strategic overview.",
+    icon: Crown,
+    color: "from-cyan-500 to-blue-600",
+    status: "Active",
+    maturity: "Production",
+    environment: "Production",
+    category: "Platform",
+    domain: "szlholdings.com",
+    path: "/szl-holdings/",
   },
   {
     name: "Apps Showcase",

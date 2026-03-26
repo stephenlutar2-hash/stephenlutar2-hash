@@ -12,8 +12,11 @@ const APP_LINKS: Record<string, { name: string; path: string; description: strin
   dreamera: { name: "DreamEra", path: "/dreamera/", description: "AI storytelling and content creation platform" },
   vessels: { name: "Vessels", path: "/vessels/", description: "Maritime fleet intelligence platform" },
   "carlota-jo": { name: "Carlota Jo Consulting", path: "/carlota-jo/", description: "Strategic consulting firm" },
-  lutar: { name: "Lutar", path: "/lutar/", description: "Sustainability intelligence platform" },
+  lutar: { name: "Lutar", path: "/lutar/", description: "Personal command center for financial KPIs and strategic planning" },
   lyte: { name: "Lyte", path: "/lyte/", description: "Executive observability command center" },
+  dreamscape: { name: "Dreamscape", path: "/dreamscape/", description: "Creative systems platform for ideation and content pipelines" },
+  "readiness-report": { name: "Readiness Report", path: "/readiness-report/", description: "Project readiness assessment and risk scoring" },
+  "szl-holdings": { name: "SZL Holdings", path: "/szl-holdings/", description: "Corporate portfolio hub and ecosystem overview" },
   career: { name: "Career", path: "/career/", description: "Personal portfolio for Stephen Lutar, founder and CEO" },
   "apps-showcase": { name: "Apps Showcase", path: "/apps-showcase/", description: "Interactive portfolio showcasing all SZL Holdings platforms" },
 };
@@ -29,7 +32,7 @@ export const szlHoldingsTools: ChatCompletionTool[] = [
         properties: {
           app_key: {
             type: "string",
-            description: "The platform identifier. One of: rosie, aegis, firestorm, beacon, nimbus, inca, zeus, alloyscape, dreamera, vessels, carlota-jo, lutar, lyte, career, apps-showcase",
+            description: "The platform identifier. One of: rosie, aegis, firestorm, beacon, nimbus, inca, zeus, alloyscape, dreamera, vessels, carlota-jo, lutar, lyte, dreamscape, readiness-report, szl-holdings, career, apps-showcase",
             enum: Object.keys(APP_LINKS),
           },
         },

@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
 import {
   Shield, Flame, Satellite, Leaf, Cloud, Zap, Sparkles, Eye,
-  ArrowRight, Check, Crown, Star, Rocket, Globe
+  ArrowRight, Check, Crown, Star, Rocket, Globe, Layers, BarChart3,
+  Briefcase, Ship, Coffee, Monitor, Cpu, Activity,
 } from "lucide-react";
 
 const platforms = [
@@ -89,11 +90,91 @@ const platforms = [
     name: "Lyte",
     tagline: "Executive Observability",
     description: "Unified command center for portfolio-wide signals, AI-driven recommendations, and ecosystem health monitoring across all SZL platforms.",
-    icon: Globe,
+    icon: Activity,
     color: "from-emerald-400 to-teal-600",
     accent: "emerald",
     features: ["Signal Intelligence", "AI Recommendations", "Portfolio Health", "Impact Analysis"],
     path: "/lyte/",
+  },
+  {
+    name: "AlloyScape",
+    tagline: "Infrastructure Operations",
+    description: "Cloud and on-premise infrastructure management with orchestration, monitoring, service health, and execution log analytics.",
+    icon: Layers,
+    color: "from-slate-400 to-zinc-600",
+    accent: "gray",
+    features: ["Cloud Operations", "Service Health", "Workflow Orchestration", "Execution Logs"],
+    path: "/alloyscape/",
+  },
+  {
+    name: "Dreamscape",
+    tagline: "Creative Systems",
+    description: "Creative systems platform for ideation workflows, content pipelines, and design-driven project management.",
+    icon: Globe,
+    color: "from-indigo-500 to-purple-600",
+    accent: "indigo",
+    features: ["Ideation Workflows", "Content Pipelines", "Design Management", "Creative AI"],
+    path: "/dreamscape/",
+  },
+  {
+    name: "Vessels",
+    tagline: "Maritime Intelligence",
+    description: "Fleet intelligence platform for VLGC carriers — voyage tracking, emissions monitoring, compliance analytics, and commercial operations.",
+    icon: Ship,
+    color: "from-blue-600 to-cyan-500",
+    accent: "blue",
+    features: ["Fleet Tracking", "Voyage Analytics", "Emissions Monitoring", "Compliance"],
+    path: "/vessels/",
+  },
+  {
+    name: "INCA",
+    tagline: "AI Research Platform",
+    description: "AI research and experimentation platform for managing projects, model training, experiment pipelines, and accuracy tracking.",
+    icon: Cpu,
+    color: "from-violet-500 to-purple-600",
+    accent: "violet",
+    features: ["Project Management", "Experiment Tracking", "Model Training", "Accuracy Analysis"],
+    path: "/inca/",
+  },
+  {
+    name: "Carlota Jo",
+    tagline: "Strategic Consulting",
+    description: "Strategic advisory firm with six practice areas — digital transformation, AI strategy, cybersecurity, data intelligence, executive coaching, and custom solutions.",
+    icon: Coffee,
+    color: "from-rose-500 to-pink-600",
+    accent: "pink",
+    features: ["Digital Transformation", "AI Strategy", "Cybersecurity Advisory", "Executive Coaching"],
+    path: "/carlota-jo/",
+  },
+  {
+    name: "Readiness Report",
+    tagline: "Project Assessment",
+    description: "Comprehensive project readiness assessments with scoring, risk matrices, and go/no-go decision support for enterprise launches.",
+    icon: BarChart3,
+    color: "from-teal-500 to-cyan-600",
+    accent: "teal",
+    features: ["Risk Assessment", "Readiness Scoring", "Launch Checklists", "Decision Support"],
+    path: "/readiness-report/",
+  },
+  {
+    name: "Career",
+    tagline: "Professional Portfolio",
+    description: "Professional portfolio and career showcase for SZL Holdings leadership, achievements, and technology vision.",
+    icon: Briefcase,
+    color: "from-blue-500 to-indigo-600",
+    accent: "blue",
+    features: ["Leadership Profile", "Achievements", "Technology Vision", "Career Timeline"],
+    path: "/career/",
+  },
+  {
+    name: "SZL Holdings",
+    tagline: "Corporate Portfolio",
+    description: "Corporate portfolio hub showcasing all SZL Holdings ventures, ecosystem health, and strategic overview of the entire enterprise.",
+    icon: Crown,
+    color: "from-cyan-500 to-blue-600",
+    accent: "cyan",
+    features: ["Portfolio Overview", "Ecosystem Health", "Strategic Dashboard", "Division Analytics"],
+    path: "/szl-holdings/",
   },
 ];
 
@@ -103,7 +184,7 @@ const tiers = [
     price: "$49",
     period: "/mo",
     description: "Essential tools for small teams getting started with security and analytics.",
-    features: ["ROSIE Basic Monitoring", "Beacon KPI Dashboard", "Lutar Command Center", "Email Support", "5 Team Members"],
+    features: ["ROSIE Basic Monitoring", "Beacon KPI Dashboard", "Lutar Command Center", "Career Portfolio", "Email Support", "5 Team Members"],
     cta: "Start Free Trial",
     popular: false,
   },
@@ -112,7 +193,7 @@ const tiers = [
     price: "$199",
     period: "/mo",
     description: "Full platform access with advanced AI features and priority support.",
-    features: ["All Starter Features", "Aegis Security Suite", "Nimbus Predictions", "Firestorm Simulation Lab", "Alloy AI Assistant", "Priority Support", "25 Team Members", "API Access"],
+    features: ["All Starter Features", "Aegis Security Suite", "Nimbus Predictions", "Firestorm Simulation Lab", "Vessels Maritime Intel", "INCA Research Platform", "Alloy AI Assistant", "Priority Support", "25 Team Members", "API Access"],
     cta: "Get Professional",
     popular: true,
   },
@@ -121,7 +202,7 @@ const tiers = [
     price: "Custom",
     period: "",
     description: "Unlimited access with dedicated infrastructure, custom integrations, and SLA guarantees.",
-    features: ["All Professional Features", "DreamEra Storytelling", "Zeus Architecture Access", "Lyte Command Center", "Dedicated Support", "Unlimited Team Members", "Custom Integrations", "99.99% SLA", "On-Premise Option"],
+    features: ["All Professional Features", "All 18 Platforms", "DreamEra Storytelling", "Zeus Architecture Access", "Lyte Command Center", "Carlota Jo Consulting", "Dedicated Support", "Unlimited Team Members", "Custom Integrations", "99.99% SLA", "On-Premise Option"],
     cta: "Contact Sales",
     popular: false,
   },
@@ -166,7 +247,7 @@ export default function Home() {
               <Rocket className="w-3.5 h-3.5" /> SZL Holdings Platform Suite
             </div>
             <h1 className="text-5xl sm:text-7xl font-display font-black leading-tight mb-6">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-violet-400">Nine Platforms.</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-violet-400">Eighteen Platforms.</span>
               <br />
               <span className="text-white">One Vision.</span>
             </h1>
@@ -189,7 +270,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-display font-bold text-white mb-4">The Platform Suite</h2>
-            <p className="text-gray-400 max-w-xl mx-auto">Nine specialized platforms working in concert to power your digital operations.</p>
+            <p className="text-gray-400 max-w-xl mx-auto">Eighteen specialized platforms working in concert to power your digital operations.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {platforms.map((p, i) => (
