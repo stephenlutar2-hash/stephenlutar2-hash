@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles, Plus, BookOpen, Map, Star, Clock, Trash2, Edit2, LogOut,
   ChevronRight, Eye, Layers, TrendingUp, Menu, X, Share2, Send,
   MessageSquare, AlertCircle, CheckCircle2, Globe, Twitter, Linkedin,
-  Link as LinkIcon
+  Link as LinkIcon, Loader
 } from "lucide-react";
 
 interface Story {
@@ -46,22 +46,56 @@ export default function Dashboard() {
     setLocation("/login");
   }
 
+  const [formSubmitting, setFormSubmitting] = useState(false);
+  const [formSuccess, setFormSuccess] = useState(false);
+  const [formError, setFormError] = useState("");
+  const submitTimer = useRef<ReturnType<typeof setTimeout>>();
+  const closeTimer = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => () => {
+    clearTimeout(submitTimer.current);
+    clearTimeout(closeTimer.current);
+  }, []);
+
   function addStory(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     const title = fd.get("title") as string;
     const description = fd.get("description") as string;
-    if (!title.trim()) return;
-    setStories(prev => [...prev, {
-      id: Date.now(),
-      title,
-      description: description || "A new narrative awaits...",
-      status: "draft",
-      artifacts: 0,
-      energy: 0,
-      lastEdited: "12 min ago",
-    }]);
-    setShowForm(false);
+    if (!title.trim()) {
+      setFormError("Story title is required");
+      return;
+    }
+    setFormError("");
+    setFormSubmitting(true);
+
+    submitTimer.current = setTimeout(() => {
+      if (title.length > 200) {
+        setFormSubmitting(false);
+        setFormError("Story title exceeds maximum length (200 characters)");
+        return;
+      }
+      if (description && description.length > 2000) {
+        setFormSubmitting(false);
+        setFormError("Description exceeds maximum length (2000 characters)");
+        return;
+      }
+      setStories(prev => [...prev, {
+        id: Date.now(),
+        title,
+        description: description || "A new narrative awaits...",
+        status: "draft",
+        artifacts: 0,
+        energy: 0,
+        lastEdited: "Just now",
+      }]);
+      setFormSubmitting(false);
+      setFormSuccess(true);
+      closeTimer.current = setTimeout(() => {
+        setFormSuccess(false);
+        setShowForm(false);
+      }, 1500);
+    }, 800);
   }
 
   function removeStory(id: number) {
@@ -140,11 +174,23 @@ export default function Dashboard() {
             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
               <form onSubmit={addStory} className="p-6 rounded-2xl bg-violet-500/5 border border-violet-500/20 space-y-4">
                 <h3 className="text-lg font-display font-bold text-white">Initialize New Story</h3>
-                <input name="title" placeholder="Story Title" required className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder:text-gray-600 focus:outline-none focus:border-violet-500/50 transition text-sm" />
-                <textarea name="description" placeholder="Story Description..." rows={3} className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder:text-gray-600 focus:outline-none focus:border-violet-500/50 transition text-sm resize-none" />
+                {formError && (
+                  <div className="flex items-center gap-2 text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3 text-sm">
+                    <AlertCircle className="w-4 h-4" />{formError}
+                  </div>
+                )}
+                {formSuccess && (
+                  <div className="flex items-center gap-2 text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-4 py-3 text-sm">
+                    <CheckCircle2 className="w-4 h-4" />Story created successfully!
+                  </div>
+                )}
+                <input name="title" placeholder="Story Title" required disabled={formSubmitting || formSuccess} className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder:text-gray-600 focus:outline-none focus:border-violet-500/50 transition text-sm disabled:opacity-50" />
+                <textarea name="description" placeholder="Story Description..." rows={3} disabled={formSubmitting || formSuccess} className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder:text-gray-600 focus:outline-none focus:border-violet-500/50 transition text-sm resize-none disabled:opacity-50" />
                 <div className="flex gap-3">
-                  <button type="submit" className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-violet-500 to-blue-600 text-white font-bold text-sm hover:opacity-90 transition">Create Story</button>
-                  <button type="button" onClick={() => setShowForm(false)} className="px-6 py-2.5 rounded-xl bg-white/5 border border-white/10 text-gray-400 text-sm hover:bg-white/10 transition">Cancel</button>
+                  <button type="submit" disabled={formSubmitting || formSuccess} className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-violet-500 to-blue-600 text-white font-bold text-sm hover:opacity-90 transition disabled:opacity-50 flex items-center gap-2">
+                    {formSubmitting ? <><Loader className="w-4 h-4 animate-spin" />Creating...</> : formSuccess ? <><CheckCircle2 className="w-4 h-4" />Created!</> : "Create Story"}
+                  </button>
+                  <button type="button" onClick={() => { clearTimeout(submitTimer.current); clearTimeout(closeTimer.current); setShowForm(false); setFormError(""); setFormSuccess(false); setFormSubmitting(false); }} disabled={formSubmitting} className="px-6 py-2.5 rounded-xl bg-white/5 border border-white/10 text-gray-400 text-sm hover:bg-white/10 transition disabled:opacity-50">Cancel</button>
                 </div>
               </form>
             </motion.div>

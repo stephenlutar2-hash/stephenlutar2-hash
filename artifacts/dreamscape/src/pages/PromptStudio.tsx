@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Wand2, Sparkles, Image, FileText, Box, Music, Video,
@@ -51,6 +51,9 @@ export default function PromptStudio() {
   const [generating, setGenerating] = useState(false);
   const [results, setResults] = useState<GenerationResult[]>([]);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const genTimer = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => () => { clearTimeout(genTimer.current); }, []);
 
   if (loading) return <AppShell><PageLoadingSkeleton /></AppShell>;
 
@@ -62,7 +65,7 @@ export default function PromptStudio() {
 
     setGenerating(true);
 
-    setTimeout(() => {
+    genTimer.current = setTimeout(() => {
       const shuffled = [...PLACEHOLDER_RESULTS].sort(() => Math.random() - 0.5);
       const result: GenerationResult = {
         id: `gen-${Date.now()}`,

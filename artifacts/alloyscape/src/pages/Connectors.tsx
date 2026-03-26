@@ -33,6 +33,7 @@ export default function Connectors() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<SortKey>("events");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   if (loading) {
     return (
@@ -144,7 +145,8 @@ export default function Connectors() {
                 key={conn.id}
                 variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }}
                 whileHover={{ scale: 1.01 }}
-                className={`rounded-xl bg-white/[0.03] border ${conn.status === "error" ? "border-red-500/20" : "border-white/5"} hover:border-white/10 transition-colors p-5`}
+                onClick={() => setSelectedId(selectedId === conn.id ? null : conn.id)}
+                className={`rounded-xl bg-white/[0.03] border cursor-pointer ${selectedId === conn.id ? "border-cyan-500/40 ring-1 ring-cyan-500/20" : conn.status === "error" ? "border-red-500/20" : "border-white/5"} hover:border-white/10 transition-colors p-5`}
               >
                 <div className="flex items-start justify-between mb-3">
                   <div>

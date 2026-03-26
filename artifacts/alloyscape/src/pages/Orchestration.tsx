@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useSimulatedLoading, PageLoadingSkeleton } from "@/components/LoadingSkeleton";
@@ -39,6 +39,16 @@ export default function Orchestration() {
   const [filter, setFilter] = useState<string>("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"list" | "pipeline">("list");
+  const [actionFeedback, setActionFeedback] = useState<string | null>(null);
+  const feedbackTimer = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => () => { clearTimeout(feedbackTimer.current); }, []);
+
+  const showFeedback = useCallback((message: string) => {
+    clearTimeout(feedbackTimer.current);
+    setActionFeedback(message);
+    feedbackTimer.current = setTimeout(() => setActionFeedback(null), 2500);
+  }, []);
 
   if (loading) {
     return (
@@ -65,6 +75,20 @@ export default function Orchestration() {
           <h2 className="text-2xl font-bold text-white">Orchestration</h2>
           <p className="text-sm text-gray-500 mt-1">Active workflows, job queues, and execution pipelines</p>
         </motion.div>
+
+        <AnimatePresence>
+          {actionFeedback && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-sm text-cyan-400"
+            >
+              <CheckCircle2 className="w-4 h-4" />
+              {actionFeedback}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className="flex flex-wrap items-center gap-2">
           {Object.entries(counts).map(([key, count]) => (
@@ -326,17 +350,17 @@ export default function Orchestration() {
                           </div>
                           <div className="flex gap-2 mt-4">
                             {wf.status === "running" && (
-                              <button className="px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium flex items-center gap-1.5 hover:bg-amber-500/20 transition-colors">
+                              <button onClick={() => showFeedback(`Pause requested for "${wf.name}" (demo)`)} className="px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium flex items-center gap-1.5 hover:bg-amber-500/20 transition-colors">
                                 <Pause className="w-3 h-3" /> Pause
                               </button>
                             )}
                             {wf.status === "paused" && (
-                              <button className="px-3 py-1.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-medium flex items-center gap-1.5 hover:bg-cyan-500/20 transition-colors">
+                              <button onClick={() => showFeedback(`Resume requested for "${wf.name}" (demo)`)} className="px-3 py-1.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-medium flex items-center gap-1.5 hover:bg-cyan-500/20 transition-colors">
                                 <Play className="w-3 h-3" /> Resume
                               </button>
                             )}
                             {(wf.status === "failed" || wf.status === "completed") && (
-                              <button className="px-3 py-1.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-medium flex items-center gap-1.5 hover:bg-cyan-500/20 transition-colors">
+                              <button onClick={() => showFeedback(`Retry queued for "${wf.name}" (demo)`)} className="px-3 py-1.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-medium flex items-center gap-1.5 hover:bg-cyan-500/20 transition-colors">
                                 <RotateCcw className="w-3 h-3" /> Retry
                               </button>
                             )}

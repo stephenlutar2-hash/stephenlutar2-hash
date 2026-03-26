@@ -23,6 +23,7 @@ export default function Modules() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<SortKey>("name");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   if (loading) {
     return (
@@ -117,7 +118,8 @@ export default function Modules() {
                 key={mod.id}
                 variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }}
                 whileHover={{ scale: 1.01, borderColor: "rgba(255,255,255,0.12)" }}
-                className="rounded-xl bg-white/[0.03] border border-white/5 transition-colors overflow-hidden"
+                onClick={() => setSelectedId(selectedId === mod.id ? null : mod.id)}
+                className={`rounded-xl bg-white/[0.03] border cursor-pointer ${selectedId === mod.id ? "border-cyan-500/40 ring-1 ring-cyan-500/20" : "border-white/5"} transition-colors overflow-hidden`}
               >
                 <div className="p-5">
                   <div className="flex items-start justify-between mb-3">

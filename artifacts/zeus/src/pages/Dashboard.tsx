@@ -6,6 +6,7 @@ import {
   Activity, CheckCircle2, AlertTriangle, Clock, Server, HardDrive,
   Menu, X, RefreshCw, ToggleLeft, ToggleRight
 } from "lucide-react";
+import { useSimulatedLoading, PageLoadingSkeleton } from "@/components/LoadingSkeleton";
 
 interface Module {
   id: number;
@@ -37,6 +38,7 @@ const statusConfig = {
 };
 
 export default function Dashboard() {
+  const loading = useSimulatedLoading();
   const [, setLocation] = useLocation();
   const [modules, setModules] = useState(initialModules);
   const [mobileMenu, setMobileMenu] = useState(false);
@@ -59,6 +61,8 @@ export default function Dashboard() {
       uptime: !m.enabled ? "99.9%" : "—",
     } : m));
   }
+
+  if (loading) return <PageLoadingSkeleton />;
 
   const onlineCount = modules.filter(m => m.status === "online").length;
   const degradedCount = modules.filter(m => m.status === "degraded").length;

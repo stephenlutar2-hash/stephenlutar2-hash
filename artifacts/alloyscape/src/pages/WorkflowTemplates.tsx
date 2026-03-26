@@ -23,6 +23,7 @@ export default function WorkflowTemplates() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [sortBy, setSortBy] = useState<SortKey>("usageCount");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   if (loading) {
     return (
@@ -117,7 +118,8 @@ export default function WorkflowTemplates() {
               key={tmpl.id}
               variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }}
               whileHover={{ scale: 1.01 }}
-              className="group rounded-xl bg-white/[0.03] border border-white/5 hover:border-white/10 transition-all p-5"
+              onClick={() => setSelectedId(selectedId === tmpl.id ? null : tmpl.id)}
+              className={`group rounded-xl bg-white/[0.03] border cursor-pointer ${selectedId === tmpl.id ? "border-cyan-500/40 ring-1 ring-cyan-500/20" : "border-white/5"} hover:border-white/10 transition-all p-5`}
             >
               <div className="flex items-start gap-4">
                 <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${categoryColors[tmpl.category] || "from-gray-500 to-gray-600"} flex items-center justify-center shrink-0 group-hover:shadow-lg transition-shadow`}>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useSimulatedLoading, PageLoadingSkeleton } from "@/components/LoadingSkeleton";
@@ -29,6 +29,18 @@ export default function UserRoles() {
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<SortKey>("username");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+  const [inviteFeedback, setInviteFeedback] = useState(false);
+  const [rowActionId, setRowActionId] = useState<string | null>(null);
+  const inviteTimer = useRef<ReturnType<typeof setTimeout>>();
+  const rowTimer = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => () => { clearTimeout(inviteTimer.current); clearTimeout(rowTimer.current); }, []);
+
+  function showRowAction(userId: string) {
+    clearTimeout(rowTimer.current);
+    setRowActionId(userId);
+    rowTimer.current = setTimeout(() => setRowActionId(null), 2500);
+  }
 
   if (loading) {
     return (
@@ -76,8 +88,11 @@ export default function UserRoles() {
             <h2 className="text-2xl font-bold text-white">Users & Roles</h2>
             <p className="text-sm text-gray-500 mt-1">Manage access and permissions for the platform</p>
           </div>
-          <button className="px-4 py-2.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-sm font-medium hover:bg-cyan-500/20 transition-colors flex items-center gap-2 self-start">
-            <Users className="w-4 h-4" /> Invite User
+          <button
+            onClick={() => { clearTimeout(inviteTimer.current); setInviteFeedback(true); inviteTimer.current = setTimeout(() => setInviteFeedback(false), 2500); }}
+            className="px-4 py-2.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-sm font-medium hover:bg-cyan-500/20 transition-colors flex items-center gap-2 self-start"
+          >
+            <Users className="w-4 h-4" /> {inviteFeedback ? "Invite sent (demo)" : "Invite User"}
           </button>
         </motion.div>
 
@@ -200,9 +215,17 @@ export default function UserRoles() {
                         </div>
                       </td>
                       <td className="px-5 py-4">
-                        <button className="p-1.5 rounded-lg hover:bg-white/5 text-gray-500 transition-colors">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </button>
+                        {rowActionId === user.id ? (
+                          <span className="text-[10px] text-cyan-400 whitespace-nowrap">Actions (demo)</span>
+                        ) : (
+                          <button
+                            onClick={() => showRowAction(user.id)}
+                            className="p-1.5 rounded-lg hover:bg-white/5 text-gray-500 transition-colors"
+                            title="User actions (demo)"
+                          >
+                            <MoreHorizontal className="w-4 h-4" />
+                          </button>
+                        )}
                       </td>
                     </motion.tr>
                   );

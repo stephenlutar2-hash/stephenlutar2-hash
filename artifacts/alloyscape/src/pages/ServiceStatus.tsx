@@ -30,6 +30,7 @@ export default function ServiceStatus() {
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   if (loading) {
     return (
@@ -138,7 +139,8 @@ export default function ServiceStatus() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.04 }}
                 whileHover={{ scale: 1.005 }}
-                className={`rounded-xl bg-white/[0.03] border ${svc.status === "critical" ? "border-red-500/20" : svc.status === "warning" ? "border-amber-500/20" : "border-white/5"} hover:border-white/10 transition-colors p-5`}
+                onClick={() => setSelectedId(selectedId === svc.id ? null : svc.id)}
+                className={`rounded-xl bg-white/[0.03] border cursor-pointer ${selectedId === svc.id ? "border-cyan-500/40 ring-1 ring-cyan-500/20" : svc.status === "critical" ? "border-red-500/20" : svc.status === "warning" ? "border-amber-500/20" : "border-white/5"} hover:border-white/10 transition-colors p-5`}
               >
                 <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                   <div className="flex items-center gap-3 flex-1 min-w-0">

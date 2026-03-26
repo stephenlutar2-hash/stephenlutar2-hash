@@ -140,7 +140,11 @@ export default function ExecutionLogs() {
                   <span className="text-violet-400/60 shrink-0 w-24 truncate">{log.service}</span>
                   <span className={`flex-1 break-all ${levelTextColor[log.level]}`}>{log.message}</span>
                   {log.traceId && (
-                    <span className="text-gray-600 shrink-0 hidden lg:inline">{log.traceId}</span>
+                    <span
+                      className="text-gray-600 shrink-0 hidden lg:inline cursor-pointer hover:text-cyan-400 transition-colors"
+                      title="Copy trace ID"
+                      onClick={() => navigator.clipboard.writeText(log.traceId!)}
+                    >{log.traceId}</span>
                   )}
                 </motion.div>
               );
