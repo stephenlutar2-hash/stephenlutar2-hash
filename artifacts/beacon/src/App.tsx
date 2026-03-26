@@ -13,6 +13,8 @@ import DreamEra from "./pages/DreamEra";
 import ImportCenter from "./pages/ImportCenter";
 import AnomalyCorrelation from "./pages/AnomalyCorrelation";
 import TrendForecasting from "./pages/TrendForecasting";
+import MetricTileGrid from "./pages/MetricTileGrid";
+import CrossAppHealthMatrix from "./pages/CrossAppHealthMatrix";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +51,8 @@ function Router() {
         <Route path="/import">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><AnimatedRoute><ImportCenter /></AnimatedRoute></AuthGuard>}</Route>
         <Route path="/anomaly-correlation">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><AnimatedRoute><AnomalyCorrelation /></AnimatedRoute></AuthGuard>}</Route>
         <Route path="/trend-forecasting">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><AnimatedRoute><TrendForecasting /></AnimatedRoute></AuthGuard>}</Route>
+        <Route path="/metric-tiles">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><AnimatedRoute><MetricTileGrid /></AnimatedRoute></AuthGuard>}</Route>
+        <Route path="/health-matrix">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><AnimatedRoute><CrossAppHealthMatrix /></AnimatedRoute></AuthGuard>}</Route>
         <Route component={NotFound} />
       </Switch>
     </AnimatePresence>

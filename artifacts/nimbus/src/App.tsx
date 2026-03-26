@@ -7,6 +7,10 @@ import { Layout } from "@/components/Layout";
 import Predictions from "@/pages/Predictions";
 import Alerts from "@/pages/Alerts";
 import EnsembleStudio from "@/pages/EnsembleStudio";
+import PredictionDrift from "@/pages/PredictionDrift";
+import AnomalyTimeline from "@/pages/AnomalyTimeline";
+import AlertCorrelation from "@/pages/AlertCorrelation";
+import ConfidenceHistogram from "@/pages/ConfidenceHistogram";
 import Login from "@/pages/Login";
 import NotFound from "@/pages/not-found";
 import ImportCenter from "@/pages/ImportCenter";
@@ -26,6 +30,10 @@ function Router() {
       <Route path="/login" component={Login} />
       <Route path="/">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Layout><Predictions /></Layout></AuthGuard>}</Route>
       <Route path="/alerts">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Layout><Alerts /></Layout></AuthGuard>}</Route>
+      <Route path="/drift">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Layout><PredictionDrift /></Layout></AuthGuard>}</Route>
+      <Route path="/anomalies">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Layout><AnomalyTimeline /></Layout></AuthGuard>}</Route>
+      <Route path="/correlation">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Layout><AlertCorrelation /></Layout></AuthGuard>}</Route>
+      <Route path="/confidence">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Layout><ConfidenceHistogram /></Layout></AuthGuard>}</Route>
       <Route path="/import">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Layout><ImportCenter /></Layout></AuthGuard>}</Route>
       <Route path="/ensemble">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Layout><EnsembleStudio /></Layout></AuthGuard>}</Route>
       <Route component={NotFound} />

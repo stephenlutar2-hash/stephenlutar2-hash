@@ -22,6 +22,8 @@ import SloPanelPage from "./SloPanel";
 import SyntheticProbesPage from "./SyntheticProbes";
 import ReleaseIntelligencePage from "./ReleaseIntelligence";
 import CostEfficiencyPage from "./CostEfficiency";
+import ServiceDependencyMapPage from "./ServiceDependencyMap";
+import SloBurnRatePage from "./SloBurnRate";
 
 function LyteLogo({ size = 200, className = "" }: { size?: number; className?: string }) {
   return (
@@ -317,7 +319,7 @@ function ErrorMessage({ message, onRetry }: { message: string; onRetry: () => vo
   );
 }
 
-type ActiveTab = "dashboard" | "signals" | "recommendations" | "impact" | "portfolio" | "integrations" | "settings" | "scorecard" | "operator" | "service-map" | "slo" | "probes" | "releases" | "cost";
+type ActiveTab = "dashboard" | "signals" | "recommendations" | "impact" | "portfolio" | "integrations" | "settings" | "scorecard" | "operator" | "service-map" | "slo" | "probes" | "releases" | "cost" | "service-deps" | "slo-burn";
 
 export default function Home() {
   const [viewMode, setViewMode] = useState<LyteViewMode>("executive");
@@ -448,6 +450,7 @@ export default function Home() {
     { id: "slo", label: "SLO / Budget", icon: Target },
     { id: "releases", label: "Releases", icon: GitBranch },
     { id: "cost", label: "Cost", icon: CircleDollarSign },
+    { id: "slo-burn", label: "SLO Burn Rate", icon: Gauge },
     { id: "impact", label: "Impact", icon: DollarSign },
     { id: "portfolio", label: "Portfolio", icon: Layers },
     { id: "settings", label: "Settings", icon: Settings },
@@ -457,6 +460,7 @@ export default function Home() {
     { id: "dashboard", label: "Command", icon: Monitor },
     { id: "operator", label: "Incidents", icon: Wrench },
     { id: "service-map", label: "Service Map", icon: Globe },
+    { id: "service-deps", label: "Dependencies", icon: Boxes },
     { id: "probes", label: "Probes", icon: Wifi },
     { id: "signals", label: "Signals", icon: Radio },
     { id: "recommendations", label: "AI Actions", icon: Sparkles },
@@ -511,6 +515,8 @@ export default function Home() {
         {activeTab === "probes" && <SyntheticProbesPage />}
         {activeTab === "releases" && <ReleaseIntelligencePage />}
         {activeTab === "cost" && <CostEfficiencyPage />}
+        {activeTab === "service-deps" && <ServiceDependencyMapPage />}
+        {activeTab === "slo-burn" && <SloBurnRatePage />}
         {activeTab === "signals" && (loading.signals ? <LoadingSpinner /> : errors.signals ? <ErrorMessage message={errors.signals} onRetry={loadSignals} /> : <SignalsTab signals={filteredSignals} filter={signalFilter} setFilter={setSignalFilter} search={searchQuery} setSearch={setSearchQuery} onSignalClick={setDrawerSignal} sources={uniqueSources} owners={uniqueOwners} />)}
         {activeTab === "recommendations" && (loading.recommendations ? <LoadingSpinner /> : errors.recommendations ? <ErrorMessage message={errors.recommendations} onRetry={loadRecommendations} /> : <RecommendationsTab recommendations={recommendations} actionStates={actionStates} onAction={handleAction} mode={platformMode} />)}
         {activeTab === "impact" && (loading.impact ? <LoadingSpinner /> : errors.impact ? <ErrorMessage message={errors.impact} onRetry={loadImpact} /> : <ImpactTab metrics={impactMetrics} />)}

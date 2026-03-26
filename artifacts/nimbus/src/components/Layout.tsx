@@ -1,11 +1,15 @@
 import { type ReactNode } from "react";
 import { Link, useLocation } from "wouter";
-import { BrainCircuit, Activity, Cpu, Upload } from "lucide-react";
+import { BrainCircuit, Activity, Cpu, Upload, TrendingDown, Zap, Link2, BarChart3 } from "lucide-react";
 import { LayoutShell, type NavItem } from "@szl-holdings/platform";
 
 const NAV_ITEMS: NavItem[] = [
   { path: "/", label: "Predictions", icon: BrainCircuit },
   { path: "/alerts", label: "System Alerts", icon: Activity },
+  { path: "/drift", label: "Prediction Drift", icon: TrendingDown },
+  { path: "/anomalies", label: "Anomaly Timeline", icon: Zap },
+  { path: "/correlation", label: "Alert Correlation", icon: Link2 },
+  { path: "/confidence", label: "Confidence", icon: BarChart3 },
   { path: "/import", label: "Import Center", icon: Upload },
 ];
 

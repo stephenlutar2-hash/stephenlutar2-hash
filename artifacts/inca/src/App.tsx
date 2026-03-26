@@ -6,6 +6,12 @@ import Dashboard from "@/pages/Dashboard";
 import Projects from "@/pages/Projects";
 import ProjectDetail from "@/pages/ProjectDetail";
 import Experiments from "@/pages/Experiments";
+import ExperimentComparison from "@/pages/ExperimentComparison";
+import RealTimeMetrics from "@/pages/RealTimeMetrics";
+import ModelLeaderboard from "@/pages/ModelLeaderboard";
+import HyperparameterChart from "@/pages/HyperparameterChart";
+import ProjectHealth from "@/pages/ProjectHealth";
+import ResourceUtilization from "@/pages/ResourceUtilization";
 import Insights from "@/pages/Insights";
 import Models from "@/pages/Models";
 import ImportCenter from "@/pages/ImportCenter";
@@ -27,6 +33,12 @@ function Router() {
             <Route path="/projects" component={Projects} />
             <Route path="/projects/:id" component={ProjectDetail} />
             <Route path="/experiments" component={Experiments} />
+            <Route path="/compare" component={ExperimentComparison} />
+            <Route path="/realtime" component={RealTimeMetrics} />
+            <Route path="/leaderboard" component={ModelLeaderboard} />
+            <Route path="/hyperparams" component={HyperparameterChart} />
+            <Route path="/health" component={ProjectHealth} />
+            <Route path="/resources" component={ResourceUtilization} />
             <Route path="/insights" component={Insights} />
             <Route path="/models" component={Models} />
             <Route path="/import" component={ImportCenter} />

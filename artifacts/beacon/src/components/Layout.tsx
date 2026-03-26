@@ -1,10 +1,14 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
-import { Activity, Server, Brain, MonitorPlay, Shield, Search, Bell, Upload } from "lucide-react";
+import { Activity, Server, Brain, MonitorPlay, Shield, Search, Bell, Upload, LayoutGrid, Grid3x3, TrendingUp, AlertTriangle } from "lucide-react";
 import { LayoutShell, type NavItem } from "@szl-holdings/platform";
 
 const NAV_ITEMS: NavItem[] = [
   { path: "/", label: "Overview Dashboard", icon: Activity },
+  { path: "/metric-tiles", label: "Metric Tiles", icon: LayoutGrid },
+  { path: "/health-matrix", label: "Health Matrix", icon: Grid3x3 },
+  { path: "/trend-forecasting", label: "Trend Forecast", icon: TrendingUp },
+  { path: "/anomaly-correlation", label: "Anomaly Correlation", icon: AlertTriangle },
   { path: "/zeus", label: "Zeus Core", icon: Server },
   { path: "/inca", label: "INCA Engine", icon: Brain },
   { path: "/dreamera", label: "Dream Era", icon: MonitorPlay },

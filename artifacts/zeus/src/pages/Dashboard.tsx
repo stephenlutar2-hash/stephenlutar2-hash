@@ -95,6 +95,12 @@ export default function Dashboard() {
             <button onClick={() => setSelectedTab("config")} className={`px-4 py-2 rounded-xl text-sm font-bold transition ${selectedTab === "config" ? "bg-yellow-500/10 border border-yellow-500/20 text-yellow-400" : "text-gray-400 hover:bg-white/5"}`}>
               Configuration
             </button>
+            <Link href="/logs" className="px-4 py-2 rounded-xl text-sm font-bold transition text-gray-400 hover:bg-white/5 flex items-center gap-2">
+              Log Explorer
+            </Link>
+            <Link href="/dependencies" className="px-4 py-2 rounded-xl text-sm font-bold transition text-gray-400 hover:bg-white/5 flex items-center gap-2">
+              Dependencies
+            </Link>
             <Link href="/import" className="px-4 py-2 rounded-xl text-sm font-bold transition text-gray-400 hover:bg-white/5 flex items-center gap-2">
               <Upload className="w-4 h-4" /> Import
             </Link>
@@ -113,6 +119,8 @@ export default function Dashboard() {
               <div className="px-4 py-3 space-y-2">
                 <button onClick={() => { setSelectedTab("modules"); setMobileMenu(false); }} className="w-full text-left px-4 py-2.5 rounded-xl text-sm text-gray-300 hover:bg-white/5">Modules</button>
                 <button onClick={() => { setSelectedTab("config"); setMobileMenu(false); }} className="w-full text-left px-4 py-2.5 rounded-xl text-sm text-gray-300 hover:bg-white/5">Configuration</button>
+                <Link href="/logs" className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm text-gray-300 hover:bg-white/5">Log Explorer</Link>
+                <Link href="/dependencies" className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm text-gray-300 hover:bg-white/5">Dependencies</Link>
                 <Link href="/import" className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm text-gray-300 hover:bg-white/5"><Upload className="w-4 h-4" /> Import Center</Link>
                 <button onClick={logout} className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-gray-400 text-sm">
                   <LogOut className="w-4 h-4" /> Disconnect

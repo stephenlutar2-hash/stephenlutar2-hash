@@ -8,6 +8,8 @@ import Dashboard from "@/pages/Dashboard";
 import Login from "@/pages/Login";
 import ImportCenter from "@/pages/ImportCenter";
 import ArchitectureMap from "@/pages/ArchitectureMap";
+import LogExplorer from "@/pages/LogExplorer";
+import ModuleDependencyGraph from "@/pages/ModuleDependencyGraph";
 
 const queryClient = new QueryClient();
 
@@ -18,6 +20,8 @@ function Router() {
       <Route path="/dashboard">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Dashboard /></AuthGuard>}</Route>
       <Route path="/import">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><ImportCenter /></AuthGuard>}</Route>
       <Route path="/architecture">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><ArchitectureMap /></AuthGuard>}</Route>
+      <Route path="/logs">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><LogExplorer /></AuthGuard>}</Route>
+      <Route path="/dependencies">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><ModuleDependencyGraph /></AuthGuard>}</Route>
       <Route path="/" component={Home} />
       <Route component={NotFound} />
     </Switch>

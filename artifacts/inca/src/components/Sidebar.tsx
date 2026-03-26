@@ -1,11 +1,17 @@
 import { useLocation, Link } from "wouter";
 import { motion } from "framer-motion";
-import { Brain, LayoutDashboard, FolderKanban, FlaskConical, Lightbulb, Activity, Upload, Newspaper, FileText, Radar } from "lucide-react";
+import { Brain, LayoutDashboard, FolderKanban, FlaskConical, Lightbulb, Activity, Upload, Newspaper, FileText, Radar, GitCompare, Gauge, Trophy, SlidersHorizontal, HeartPulse, Cpu } from "lucide-react";
 
 const navItems = [
   { path: "/", label: "Dashboard", icon: LayoutDashboard },
   { path: "/projects", label: "Projects", icon: FolderKanban },
   { path: "/experiments", label: "Experiments", icon: FlaskConical },
+  { path: "/compare", label: "Compare", icon: GitCompare },
+  { path: "/realtime", label: "Live Metrics", icon: Activity },
+  { path: "/leaderboard", label: "Leaderboard", icon: Trophy },
+  { path: "/hyperparams", label: "Hyperparameters", icon: SlidersHorizontal },
+  { path: "/health", label: "Project Health", icon: HeartPulse },
+  { path: "/resources", label: "Resources", icon: Cpu },
   { path: "/insights", label: "Insights", icon: Lightbulb },
   { path: "/models", label: "Models", icon: Activity },
   { path: "/import", label: "Import Center", icon: Upload },

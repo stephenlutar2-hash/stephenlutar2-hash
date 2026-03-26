@@ -31,17 +31,27 @@ import ImportCenter from "./ImportCenter";
 import MaritimeIntel from "./MaritimeIntel";
 import DocumentProcessing from "./DocumentProcessing";
 import SignalIntelligence from "./SignalIntelligence";
+import FleetMap from "./FleetMap";
+import VoyagePnL from "./VoyagePnL";
+import MaintenanceGantt from "./MaintenanceGantt";
+import PortAnalytics from "./PortAnalytics";
+import FleetHealthScorecard from "./FleetHealthScorecard";
 
-type Section = "command-center" | "apm" | "infrastructure" | "logs" | "experience" | "synthetics" | "intelligence" | "emissions" | "import" | "maritime-intel" | "doc-processing" | "signal-intel";
+type Section = "command-center" | "apm" | "infrastructure" | "logs" | "experience" | "synthetics" | "intelligence" | "emissions" | "import" | "maritime-intel" | "doc-processing" | "signal-intel" | "fleet-map" | "voyage-pnl" | "maintenance" | "port-analytics" | "fleet-health";
 
 const SECTIONS: { id: Section; label: string; icon: any; color: string }[] = [
   { id: "command-center", label: "Command Center", icon: LayoutDashboard, color: "text-cyan-400" },
+  { id: "fleet-map", label: "Fleet Map", icon: Activity, color: "text-teal-400" },
+  { id: "voyage-pnl", label: "Voyage P&L", icon: Activity, color: "text-green-400" },
   { id: "apm", label: "Fleet APM", icon: Activity, color: "text-emerald-400" },
+  { id: "fleet-health", label: "Fleet Health", icon: ShieldCheck, color: "text-rose-400" },
   { id: "infrastructure", label: "Infrastructure", icon: Server, color: "text-orange-400" },
   { id: "logs", label: "Logs", icon: ScrollText, color: "text-blue-400" },
   { id: "experience", label: "Digital Experience", icon: Users, color: "text-purple-400" },
   { id: "synthetics", label: "Synthetics", icon: ShieldCheck, color: "text-amber-400" },
   { id: "emissions", label: "CO₂ & Emissions", icon: Flame, color: "text-orange-400" },
+  { id: "maintenance", label: "Maintenance", icon: Server, color: "text-yellow-400" },
+  { id: "port-analytics", label: "Port Analytics", icon: Activity, color: "text-violet-400" },
   { id: "intelligence", label: "Applied Intelligence", icon: Brain, color: "text-rose-400" },
   { id: "import", label: "Import Center", icon: Upload, color: "text-sky-400" },
   { id: "maritime-intel", label: "Maritime Intel", icon: Bell, color: "text-cyan-400" },
@@ -51,12 +61,17 @@ const SECTIONS: { id: Section; label: string; icon: any; color: string }[] = [
 
 const SECTION_MAP: Record<Section, React.ComponentType> = {
   "command-center": CommandCenter,
+  "fleet-map": FleetMap,
+  "voyage-pnl": VoyagePnL,
   apm: FleetAPM,
+  "fleet-health": FleetHealthScorecard,
   infrastructure: Infrastructure,
   logs: Logs,
   experience: DigitalExperience,
   synthetics: Synthetics,
   emissions: EmissionsDashboard,
+  maintenance: MaintenanceGantt,
+  "port-analytics": PortAnalytics,
   intelligence: AppliedIntelligence,
   import: ImportCenter,
   "maritime-intel": MaritimeIntel,
