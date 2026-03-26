@@ -16,6 +16,9 @@
     "lint": "prettier --check \"artifacts/*/src/**/*.{ts,tsx}\" && pnpm run typecheck"
   },
   "private": true,
+  "dependencies": {
+    "pdfkit": "^0.15.2"
+  },
   "devDependencies": {
     "prettier": "^3.8.1",
     "typescript": "~5.9.2"

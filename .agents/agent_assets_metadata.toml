@@ -12,3 +12,9 @@ id = "9Lj8dMMHKPvEh3ghY-CvG"
 uri = "file://exports/lyte-logo.svg"
 type = "image"
 title = "Lyte Logo (SVG)"
+
+[[outputs]]
+id = "cU6RGIITcmg7UX078iRXF"
+uri = "file://social-content/pdf-guides/szl-marketing-playbook.pdf"
+type = "pdf"
+title = "SZL Holdings — Ultimate Marketing Playbook"
