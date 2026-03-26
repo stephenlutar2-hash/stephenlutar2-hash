@@ -12,6 +12,7 @@ export const socialPostsTable = pgTable("social_posts", {
   scheduledAt: timestamp("scheduled_at"),
   publishedAt: timestamp("published_at"),
   externalPostId: text("external_post_id"),
+  errorMessage: text("error_message"),
   impressions: integer("impressions").notNull().default(0),
   clicks: integer("clicks").notNull().default(0),
   likes: integer("likes").notNull().default(0),

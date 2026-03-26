@@ -4,6 +4,8 @@ import { requireAuth } from "./auth";
 import { validateBody, validateAndSanitizeBody } from "../middleware/validate";
 import type { AuthenticatedRequest } from "../types";
 import crypto from "crypto";
+import { saveTokensToDb } from "../services/social-publish";
+import { logger } from "../lib/logger";
 
 const publishSchema = z.object({
   platform: z.string().min(1),
@@ -141,14 +143,27 @@ router.get("/social/oauth/meta/callback", async (req, res) => {
     const pagesData = await pagesRes.json();
     const page = pagesData.data?.[0];
 
-    const store = getUserTokenStore(stateData.username);
-    store.set("meta", {
+    const metaTokens: OAuthTokens = {
       accessToken: userToken,
       expiresAt: Date.now() + (longLivedData.expires_in || 5184000) * 1000,
       userId: tokenData.user_id,
       pageId: page?.id,
       pageToken: page?.access_token,
-    });
+    };
+    const store = getUserTokenStore(stateData.username);
+    store.set("meta", metaTokens);
+
+    try {
+      await saveTokensToDb(stateData.username, "meta", {
+        accessToken: metaTokens.accessToken,
+        expiresAt: metaTokens.expiresAt ? new Date(metaTokens.expiresAt) : null,
+        userId: metaTokens.userId || null,
+        pageId: metaTokens.pageId || null,
+        pageToken: metaTokens.pageToken || null,
+      });
+    } catch (dbErr: any) {
+      logger.error({ err: dbErr, platform: "meta", username: stateData.username }, "Failed to persist Meta OAuth tokens to database — scheduler will not be able to publish for this user");
+    }
 
     return res.send('<html><body><script>window.close(); window.opener && window.opener.postMessage("social-oauth-complete","*");</script><p>Connected! You can close this window.</p></body></html>');
   } catch (e: any) {
@@ -207,12 +222,23 @@ router.get("/social/oauth/twitter/callback", async (req, res) => {
       return res.status(400).send("Failed to exchange code: " + JSON.stringify(tokenData));
     }
 
-    const store = getUserTokenStore(stateData.username);
-    store.set("twitter", {
+    const twitterTokens: OAuthTokens = {
       accessToken: tokenData.access_token,
       refreshToken: tokenData.refresh_token,
       expiresAt: Date.now() + (tokenData.expires_in || 7200) * 1000,
-    });
+    };
+    const store = getUserTokenStore(stateData.username);
+    store.set("twitter", twitterTokens);
+
+    try {
+      await saveTokensToDb(stateData.username, "twitter", {
+        accessToken: twitterTokens.accessToken,
+        refreshToken: twitterTokens.refreshToken || null,
+        expiresAt: twitterTokens.expiresAt ? new Date(twitterTokens.expiresAt) : null,
+      });
+    } catch (dbErr: any) {
+      logger.error({ err: dbErr, platform: "twitter", username: stateData.username }, "Failed to persist Twitter OAuth tokens to database — scheduler will not be able to publish for this user");
+    }
 
     return res.send('<html><body><script>window.close(); window.opener && window.opener.postMessage("social-oauth-complete","*");</script><p>Connected! You can close this window.</p></body></html>');
   } catch (e: any) {
@@ -269,13 +295,25 @@ router.get("/social/oauth/linkedin/callback", async (req, res) => {
     });
     const meData = await meRes.json();
 
-    const store = getUserTokenStore(stateData.username);
-    store.set("linkedin", {
+    const linkedInTokens: OAuthTokens = {
       accessToken: tokenData.access_token,
       refreshToken: tokenData.refresh_token,
       expiresAt: Date.now() + (tokenData.expires_in || 5184000) * 1000,
       userId: meData.sub,
-    });
+    };
+    const store = getUserTokenStore(stateData.username);
+    store.set("linkedin", linkedInTokens);
+
+    try {
+      await saveTokensToDb(stateData.username, "linkedin", {
+        accessToken: linkedInTokens.accessToken,
+        refreshToken: linkedInTokens.refreshToken || null,
+        expiresAt: linkedInTokens.expiresAt ? new Date(linkedInTokens.expiresAt) : null,
+        userId: linkedInTokens.userId || null,
+      });
+    } catch (dbErr: any) {
+      logger.error({ err: dbErr, platform: "linkedin", username: stateData.username }, "Failed to persist LinkedIn OAuth tokens to database — scheduler will not be able to publish for this user");
+    }
 
     return res.send('<html><body><script>window.close(); window.opener && window.opener.postMessage("social-oauth-complete","*");</script><p>Connected! You can close this window.</p></body></html>');
   } catch (e: any) {
@@ -523,12 +561,28 @@ router.get("/social/analytics", requireAuth, async (req, res) => {
   }
 });
 
-router.post("/social/disconnect", requireAuth, validateBody(disconnectSchema), (req, res) => {
+router.post("/social/disconnect", requireAuth, validateBody(disconnectSchema), async (req, res) => {
   const { platform } = req.body;
   const username = (req as AuthenticatedRequest).user?.username || "unknown";
   const store = getUserTokenStore(username);
   if (platform) {
     store.delete(platform);
+    try {
+      const { db } = await import("@szl-holdings/db");
+      const { socialTokensTable } = await import("@szl-holdings/db/schema");
+      const { eq, and } = await import("drizzle-orm");
+      await db
+        .update(socialTokensTable)
+        .set({ connected: false, updatedAt: new Date() })
+        .where(
+          and(
+            eq(socialTokensTable.username, username),
+            eq(socialTokensTable.platform, platform),
+          ),
+        );
+    } catch (dbErr: any) {
+      logger.error({ err: dbErr, platform, username }, "Failed to mark token as disconnected in database");
+    }
   }
   return res.json({ success: true });
 });

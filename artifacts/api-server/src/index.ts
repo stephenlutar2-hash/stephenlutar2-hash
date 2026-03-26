@@ -10,6 +10,7 @@ import { isKeyVaultConfigured } from "./lib/keyvault";
 import { isBlobStorageConfigured } from "./lib/blobStorage";
 import { getEnabledFeatures } from "./lib/featureFlags";
 import { startFreshnessMonitor } from "./lib/model-registry";
+import { startScheduler, stopScheduler } from "./services/scheduler";
 import path from "path";
 import type { Server } from "node:http";
 
@@ -36,6 +37,7 @@ async function start() {
     }
 
     startFreshnessMonitor();
+    startScheduler();
 
     const features = getEnabledFeatures();
     const buildPath = path.resolve(__dirname, "..", "..");
@@ -67,6 +69,7 @@ async function start() {
 
 function gracefulShutdown(signal: string) {
   logger.info({ signal }, "Received shutdown signal, closing server gracefully");
+  stopScheduler();
   if (!server) {
     process.exit(0);
     return;

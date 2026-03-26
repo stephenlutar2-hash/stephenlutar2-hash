@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { z } from "zod";
 import { requireAuth } from "./auth";
+import { requireAdmin } from "../middleware/rbac";
 import { validateBody } from "../middleware/validate";
 import type { AuthenticatedRequest } from "../types";
 import { db, isDatabaseAvailable } from "@szl-holdings/db";
@@ -11,6 +12,13 @@ import {
   brandAssetsTable,
 } from "@szl-holdings/db/schema";
 import { eq, and, desc, gte, lte } from "drizzle-orm";
+import { parseContentCalendar } from "../services/calendar-parser";
+import {
+  getSchedulerStatus,
+  pauseScheduler,
+  resumeScheduler,
+  checkAndPublish,
+} from "../services/scheduler";
 
 const router = Router();
 
@@ -379,6 +387,89 @@ router.delete("/social-command/assets/:id", requireAuth, async (req, res) => {
       .where(and(eq(brandAssetsTable.id, id), eq(brandAssetsTable.username, username)));
 
     return res.json({ success: true });
+  } catch (e: any) {
+    return res.status(500).json({ error: e.message });
+  }
+});
+
+router.get("/social-command/scheduler/status", requireAuth, requireAdmin(), async (_req, res) => {
+  try {
+    const status = await getSchedulerStatus();
+    return res.json({ data: status });
+  } catch (e: any) {
+    return res.status(500).json({ error: e.message });
+  }
+});
+
+router.post("/social-command/scheduler/pause", requireAuth, requireAdmin(), (_req, res) => {
+  try {
+    pauseScheduler();
+    return res.json({ success: true, message: "Scheduler paused" });
+  } catch (e: any) {
+    return res.status(500).json({ error: e.message });
+  }
+});
+
+router.post("/social-command/scheduler/resume", requireAuth, requireAdmin(), (_req, res) => {
+  try {
+    resumeScheduler();
+    return res.json({ success: true, message: "Scheduler resumed" });
+  } catch (e: any) {
+    return res.status(500).json({ error: e.message });
+  }
+});
+
+router.post("/social-command/scheduler/trigger", requireAuth, requireAdmin(), async (_req, res) => {
+  try {
+    const result = await checkAndPublish();
+    return res.json({ success: true, data: result });
+  } catch (e: any) {
+    return res.status(500).json({ error: e.message });
+  }
+});
+
+router.post("/social-command/seed-campaign", requireAuth, async (req, res) => {
+  try {
+    const username = (req as AuthenticatedRequest).user?.username;
+    if (!username) return res.status(401).json({ error: "Authentication required" });
+
+    const startDateStr = req.body?.startDate;
+    const startDate = startDateStr
+      ? new Date(startDateStr)
+      : new Date("2026-03-30T00:00:00Z");
+
+    const posts = parseContentCalendar(startDate);
+
+    const inserted = [];
+    for (const post of posts) {
+      const [record] = await db
+        .insert(socialPostsTable)
+        .values({
+          username,
+          platform: post.platform,
+          content: post.content,
+          status: "scheduled",
+          scheduledAt: post.scheduledAt,
+        })
+        .returning();
+      inserted.push(record);
+    }
+
+    return res.json({
+      success: true,
+      message: `Seeded ${inserted.length} posts from 8-week content calendar`,
+      data: {
+        totalPosts: inserted.length,
+        startDate: startDate.toISOString(),
+        posts: inserted.map((p) => ({
+          id: p.id,
+          platform: p.platform,
+          scheduledAt: p.scheduledAt,
+          status: p.status,
+          contentPreview: p.content.slice(0, 100) + (p.content.length > 100 ? "..." : ""),
+        })),
+      },
+    });
   } catch (e: any) {
     return res.status(500).json({ error: e.message });
   }
