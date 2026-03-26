@@ -8,6 +8,7 @@ import {
   Link2,
   BookOpen,
   ArrowLeft,
+  Zap,
 } from "lucide-react";
 
 const navItems = [
@@ -18,6 +19,7 @@ const navItems = [
   { path: "/social-command/analytics", label: "Analytics", icon: BarChart3 },
   { path: "/social-command/connections", label: "Connections", icon: Link2 },
   { path: "/social-command/library", label: "Content Library", icon: BookOpen },
+  { path: "/social-command/engagement", label: "Engagement Feed", icon: Zap },
 ];
 
 export default function SocialSidebar() {
@@ -35,7 +37,7 @@ export default function SocialSidebar() {
               SOCIAL COMMAND
             </h2>
             <p className="text-[10px] text-muted-foreground font-medium tracking-widest uppercase">
-              SZL Holdings
+              7 Platforms
             </p>
           </div>
         </div>

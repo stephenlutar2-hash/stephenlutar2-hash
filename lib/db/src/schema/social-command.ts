@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, timestamp, boolean, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -17,7 +17,11 @@ export const socialPostsTable = pgTable("social_posts", {
   clicks: integer("clicks").notNull().default(0),
   likes: integer("likes").notNull().default(0),
   shares: integer("shares").notNull().default(0),
+  comments: integer("comments").notNull().default(0),
   reach: integer("reach").notNull().default(0),
+  engagementData: jsonb("engagement_data"),
+  lastPolledAt: timestamp("last_polled_at"),
+  parentPostId: integer("parent_post_id"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -37,6 +41,9 @@ export const socialTokensTable = pgTable("social_tokens", {
   pageId: text("page_id"),
   pageToken: text("page_token"),
   connected: boolean("connected").notNull().default(true),
+  tokenHealth: text("token_health").notNull().default("healthy"),
+  lastHealthCheck: timestamp("last_health_check"),
+  metadata: jsonb("metadata"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

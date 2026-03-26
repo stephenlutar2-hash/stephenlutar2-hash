@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import SocialLayout from "@/components/social/SocialLayout";
-import { listScheduledPosts, reschedulePost, deleteScheduledPost } from "@/lib/api";
+import { listScheduledPosts, reschedulePost, deleteScheduledPost, seedCalendar } from "@/lib/api";
 import {
   ChevronLeft,
   ChevronRight,
@@ -12,6 +12,8 @@ import {
   AlertCircle,
   Send,
   Edit3,
+  Loader2,
+  Database,
 } from "lucide-react";
 import { Link } from "wouter";
 
@@ -42,6 +44,16 @@ const PLATFORM_ICONS: Record<string, string> = {
   meta: "📘",
   twitter: "𝕏",
   linkedin: "💼",
+  instagram: "📸",
+  youtube: "▶️",
+  medium: "✍️",
+  substack: "📰",
+};
+
+const ALL_PLATFORMS = ["twitter", "linkedin", "meta", "instagram", "youtube", "medium", "substack"];
+const PLATFORM_NAMES: Record<string, string> = {
+  twitter: "X (Twitter)", linkedin: "LinkedIn", meta: "Meta", instagram: "Instagram",
+  youtube: "YouTube", medium: "Medium", substack: "Substack",
 };
 
 interface Post {
@@ -60,8 +72,8 @@ export default function ContentCalendar() {
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<string>("");
   const [filterPlatform, setFilterPlatform] = useState<string>("");
-  const [view, setView] = useState<"month" | "week">("month");
   const [dragPost, setDragPost] = useState<Post | null>(null);
+  const [seeding, setSeeding] = useState(false);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -84,6 +96,18 @@ export default function ContentCalendar() {
       setLoading(false);
     }
   }
+
+  const handleSeedCalendar = async () => {
+    setSeeding(true);
+    try {
+      await seedCalendar({ startDate: new Date().toISOString() });
+      await loadPosts();
+    } catch (e) {
+      console.error("Seed failed:", e);
+    } finally {
+      setSeeding(false);
+    }
+  };
 
   const calendarDays = useMemo(() => {
     const firstDay = new Date(year, month, 1);
@@ -152,33 +176,37 @@ export default function ContentCalendar() {
               Content Calendar
             </h1>
             <p className="text-muted-foreground mt-1">
-              Schedule and manage posts across all platforms
+              Schedule and manage posts across all 7 platforms
             </p>
           </div>
-          <Link
-            to="/social-command/generator"
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            New Post
-          </Link>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleSeedCalendar}
+              disabled={seeding}
+              className="flex items-center gap-2 px-4 py-2 bg-muted text-foreground rounded-lg text-sm font-medium hover:bg-muted/80 disabled:opacity-50 transition-colors"
+            >
+              {seeding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Database className="w-4 h-4" />}
+              Seed 8-Week Calendar
+            </button>
+            <Link
+              to="/social-command/generator"
+              className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              New Post
+            </Link>
+          </div>
         </div>
 
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3">
-            <button
-              onClick={prevMonth}
-              className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition-colors"
-            >
+            <button onClick={prevMonth} className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition-colors">
               <ChevronLeft className="w-4 h-4" />
             </button>
             <h2 className="text-lg font-semibold text-foreground min-w-[180px] text-center">
               {MONTHS[month]} {year}
             </h2>
-            <button
-              onClick={nextMonth}
-              className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition-colors"
-            >
+            <button onClick={nextMonth} className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition-colors">
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
@@ -188,10 +216,7 @@ export default function ContentCalendar() {
               <Filter className="w-4 h-4 text-muted-foreground" />
               <select
                 value={filterStatus}
-                onChange={(e) => {
-                  setFilterStatus(e.target.value);
-                  setTimeout(loadPosts, 0);
-                }}
+                onChange={(e) => { setFilterStatus(e.target.value); setTimeout(loadPosts, 0); }}
                 className="bg-input border border-border rounded-lg px-2 py-1.5 text-xs text-foreground"
               >
                 <option value="">All Statuses</option>
@@ -202,16 +227,13 @@ export default function ContentCalendar() {
               </select>
               <select
                 value={filterPlatform}
-                onChange={(e) => {
-                  setFilterPlatform(e.target.value);
-                  setTimeout(loadPosts, 0);
-                }}
+                onChange={(e) => { setFilterPlatform(e.target.value); setTimeout(loadPosts, 0); }}
                 className="bg-input border border-border rounded-lg px-2 py-1.5 text-xs text-foreground"
               >
                 <option value="">All Platforms</option>
-                <option value="twitter">X (Twitter)</option>
-                <option value="linkedin">LinkedIn</option>
-                <option value="meta">Meta</option>
+                {ALL_PLATFORMS.map((p) => (
+                  <option key={p} value={p}>{PLATFORM_NAMES[p]}</option>
+                ))}
               </select>
             </div>
           </div>
@@ -220,10 +242,7 @@ export default function ContentCalendar() {
         <div className="bg-card/50 border border-border/50 rounded-xl overflow-hidden backdrop-blur-sm">
           <div className="grid grid-cols-7 border-b border-border/50">
             {DAY_LABELS.map((day) => (
-              <div
-                key={day}
-                className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider"
-              >
+              <div key={day} className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 {day}
               </div>
             ))}
@@ -247,48 +266,35 @@ export default function ContentCalendar() {
                   onDrop={() => handleDrop(date)}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span
-                      className={`text-xs font-medium px-1.5 py-0.5 rounded ${
-                        isToday
-                          ? "bg-primary text-primary-foreground"
-                          : "text-muted-foreground"
-                      }`}
-                    >
+                    <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${
+                      isToday ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                    }`}>
                       {date.getDate()}
                     </span>
                   </div>
-
                   <div className="space-y-0.5">
-                    {dayPosts.slice(0, 3).map((post) => {
-                      const StatusIcon = STATUS_ICONS[post.status] || Clock;
-                      return (
-                        <div
-                          key={post.id}
-                          draggable
-                          onDragStart={() => setDragPost(post)}
-                          onDragEnd={() => setDragPost(null)}
-                          className={`group flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] border cursor-grab active:cursor-grabbing ${
-                            STATUS_COLORS[post.status] || STATUS_COLORS.draft
-                          }`}
+                    {dayPosts.slice(0, 3).map((post) => (
+                      <div
+                        key={post.id}
+                        draggable
+                        onDragStart={() => setDragPost(post)}
+                        onDragEnd={() => setDragPost(null)}
+                        className={`group flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] border cursor-grab active:cursor-grabbing ${
+                          STATUS_COLORS[post.status] || STATUS_COLORS.draft
+                        }`}
+                      >
+                        <span>{PLATFORM_ICONS[post.platform] || "📱"}</span>
+                        <span className="truncate flex-1">{post.content.slice(0, 20)}</span>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleDelete(post.id); }}
+                          className="hidden group-hover:block"
                         >
-                          <span>{PLATFORM_ICONS[post.platform] || "📱"}</span>
-                          <span className="truncate flex-1">{post.content.slice(0, 20)}</span>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDelete(post.id);
-                            }}
-                            className="hidden group-hover:block"
-                          >
-                            <Trash2 className="w-2.5 h-2.5" />
-                          </button>
-                        </div>
-                      );
-                    })}
+                          <Trash2 className="w-2.5 h-2.5" />
+                        </button>
+                      </div>
+                    ))}
                     {dayPosts.length > 3 && (
-                      <span className="text-[10px] text-muted-foreground pl-1">
-                        +{dayPosts.length - 3} more
-                      </span>
+                      <span className="text-[10px] text-muted-foreground pl-1">+{dayPosts.length - 3} more</span>
                     )}
                   </div>
                 </div>
@@ -297,12 +303,14 @@ export default function ContentCalendar() {
           </div>
         </div>
 
-        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+        <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
           <span className="font-medium">Legend:</span>
           {Object.entries(STATUS_COLORS).map(([status, cls]) => (
-            <span key={status} className={`px-2 py-0.5 rounded border ${cls}`}>
-              {status}
-            </span>
+            <span key={status} className={`px-2 py-0.5 rounded border ${cls}`}>{status}</span>
+          ))}
+          <span className="ml-4 font-medium">Platforms:</span>
+          {ALL_PLATFORMS.map((p) => (
+            <span key={p}>{PLATFORM_ICONS[p]} {PLATFORM_NAMES[p]}</span>
           ))}
         </div>
       </div>

@@ -30,8 +30,21 @@ export async function publishPost(data: { platform: string; content: string; med
   return apiRequest<any>("/social/publish", { method: "POST", body: JSON.stringify(data) });
 }
 
+export async function crossPost(data: { content: string; platforms: string[]; mediaUrl?: string; schedule?: boolean }) {
+  return apiRequest<any>("/social/cross-post", { method: "POST", body: JSON.stringify(data) });
+}
+
+export async function adaptContent(data: { content: string; platforms?: string[] }) {
+  return apiRequest<any>("/social/adapt-content", { method: "POST", body: JSON.stringify(data) });
+}
+
+export async function getOptimalTimes(platform?: string) {
+  const q = platform ? `?platform=${platform}` : "";
+  return apiRequest<any>(`/social/optimal-times${q}`);
+}
+
 export async function getOAuthUrl(platform: string) {
-  return apiRequest<{ authUrl: string }>(`/social/oauth/${platform}/authorize`);
+  return apiRequest<{ authUrl: string | null; directConnect?: boolean; connected?: boolean }>(`/social/oauth/${platform}/authorize`);
 }
 
 export async function disconnectPlatform(platform: string) {
@@ -95,4 +108,20 @@ export async function getCalendarData(month: number, year: number) {
 
 export async function reschedulePost(id: number, scheduledAt: string) {
   return apiRequest<any>(`/social-command/posts/${id}/reschedule`, { method: "POST", body: JSON.stringify({ scheduledAt }) });
+}
+
+export async function getTokenHealth() {
+  return apiRequest<any>("/social/token-health");
+}
+
+export async function seedCalendar(data?: { username?: string; startDate?: string }) {
+  return apiRequest<any>("/social/seed-calendar", { method: "POST", body: JSON.stringify(data || {}) });
+}
+
+export async function pollEngagement(postId: number) {
+  return apiRequest<any>(`/social/poll-engagement/${postId}`, { method: "POST" });
+}
+
+export async function getEngagementFeed() {
+  return apiRequest<any>("/social/engagement-feed");
 }

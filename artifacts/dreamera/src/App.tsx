@@ -22,6 +22,7 @@ const SocialContentCalendar = lazy(() => import("@/pages/social-command/ContentC
 const SocialAnalytics = lazy(() => import("@/pages/social-command/SocialAnalytics"));
 const PlatformConnections = lazy(() => import("@/pages/social-command/PlatformConnections"));
 const ContentLibrary = lazy(() => import("@/pages/social-command/ContentLibrary"));
+const EngagementFeed = lazy(() => import("@/pages/social-command/EngagementFeed"));
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,7 @@ function Router() {
       <Route path="/social-command/analytics">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Suspense fallback={<SectionFallback />}><SocialAnalytics /></Suspense></AuthGuard>}</Route>
       <Route path="/social-command/connections">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Suspense fallback={<SectionFallback />}><PlatformConnections /></Suspense></AuthGuard>}</Route>
       <Route path="/social-command/library">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Suspense fallback={<SectionFallback />}><ContentLibrary /></Suspense></AuthGuard>}</Route>
+      <Route path="/social-command/engagement">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Suspense fallback={<SectionFallback />}><EngagementFeed /></Suspense></AuthGuard>}</Route>
       <Route path="/" component={Home} />
       <Route path="/extensions">{() => <AuthGuard redirectComponent={Redirect} loginPath="login"><Extensions /></AuthGuard>}</Route>
         <Route component={NotFound} />

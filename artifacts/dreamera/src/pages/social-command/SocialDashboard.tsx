@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import SocialLayout from "@/components/social/SocialLayout";
-import { getSocialStatus, listScheduledPosts } from "@/lib/api";
+import { getSocialStatus, listScheduledPosts, getTokenHealth } from "@/lib/api";
 import {
   Send,
   Clock,
@@ -10,6 +10,9 @@ import {
   Calendar,
   Sparkles,
   ArrowRight,
+  Zap,
+  AlertTriangle,
+  Heart,
 } from "lucide-react";
 import { Link } from "wouter";
 
@@ -18,6 +21,7 @@ interface PlatformStatus {
   configured: boolean;
   connected: boolean;
   message: string;
+  tokenHealth?: string;
 }
 
 interface PostSummary {
@@ -28,24 +32,42 @@ interface PostSummary {
   failed: number;
 }
 
+const PLATFORM_ICONS: Record<string, string> = {
+  meta: "📘",
+  twitter: "𝕏",
+  linkedin: "💼",
+  instagram: "📸",
+  youtube: "▶️",
+  medium: "✍️",
+  substack: "📰",
+};
+
+const PLATFORM_NAMES: Record<string, string> = {
+  meta: "Meta",
+  twitter: "X (Twitter)",
+  linkedin: "LinkedIn",
+  instagram: "Instagram",
+  youtube: "YouTube",
+  medium: "Medium",
+  substack: "Substack",
+};
+
 export default function SocialDashboard() {
   const [platforms, setPlatforms] = useState<PlatformStatus[]>([]);
   const [postSummary, setPostSummary] = useState<PostSummary>({
-    total: 0,
-    draft: 0,
-    scheduled: 0,
-    published: 0,
-    failed: 0,
+    total: 0, draft: 0, scheduled: 0, published: 0, failed: 0,
   });
   const [recentPosts, setRecentPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [tokenHealth, setTokenHealth] = useState<Record<string, any>>({});
 
   useEffect(() => {
     async function loadDashboard() {
       try {
-        const [statusRes, postsRes] = await Promise.allSettled([
+        const [statusRes, postsRes, healthRes] = await Promise.allSettled([
           getSocialStatus(),
           listScheduledPosts(),
+          getTokenHealth(),
         ]);
 
         if (statusRes.status === "fulfilled") {
@@ -55,14 +77,17 @@ export default function SocialDashboard() {
         if (postsRes.status === "fulfilled") {
           const posts = postsRes.value.data || [];
           setRecentPosts(posts.slice(0, 5));
-          const summary = {
+          setPostSummary({
             total: posts.length,
             draft: posts.filter((p: any) => p.status === "draft").length,
             scheduled: posts.filter((p: any) => p.status === "scheduled").length,
             published: posts.filter((p: any) => p.status === "published").length,
             failed: posts.filter((p: any) => p.status === "failed").length,
-          };
-          setPostSummary(summary);
+          });
+        }
+
+        if (healthRes.status === "fulfilled") {
+          setTokenHealth(healthRes.value.health || {});
         }
       } catch (e) {
         console.error("Dashboard load error:", e);
@@ -81,16 +106,13 @@ export default function SocialDashboard() {
   ];
 
   const quickActions = [
-    { label: "Generate Content", path: "/social-command/generator", icon: Sparkles, desc: "AI-powered post creation" },
+    { label: "Generate Content", path: "/social-command/generator", icon: Sparkles, desc: "AI-powered post creation for all 7 platforms" },
     { label: "View Calendar", path: "/social-command/calendar", icon: Calendar, desc: "See your content schedule" },
-    { label: "Check Analytics", path: "/social-command/analytics", icon: TrendingUp, desc: "Engagement metrics" },
+    { label: "Analytics", path: "/social-command/analytics", icon: TrendingUp, desc: "Cross-platform engagement metrics" },
+    { label: "Engagement Feed", path: "/social-command/engagement", icon: Zap, desc: "Real-time engagement tracking" },
   ];
 
-  const platformIcons: Record<string, string> = {
-    meta: "📘",
-    twitter: "𝕏",
-    linkedin: "💼",
-  };
+  const expiredTokens = Object.entries(tokenHealth).filter(([, h]) => h.status === "expired");
 
   if (loading) {
     return (
@@ -110,23 +132,33 @@ export default function SocialDashboard() {
             Social Command Center
           </h1>
           <p className="text-muted-foreground mt-1">
-            Manage your social media presence across all platforms
+            Manage your social media presence across all 7 platforms
           </p>
         </div>
+
+        {expiredTokens.length > 0 && (
+          <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <AlertTriangle className="w-4 h-4 text-amber-400" />
+              <span className="text-sm font-semibold text-amber-400">Token Health Alert</span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {expiredTokens.map(([p]) => PLATFORM_NAMES[p] || p).join(", ")} {expiredTokens.length === 1 ? "has" : "have"} expired tokens.{" "}
+              <Link to="/social-command/connections" className="text-primary hover:underline">
+                Reconnect now
+              </Link>
+            </p>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {statCards.map((card) => {
             const Icon = card.icon;
             return (
-              <div
-                key={card.label}
-                className="bg-card/50 border border-border/50 rounded-xl p-5 backdrop-blur-sm"
-              >
+              <div key={card.label} className="bg-card/50 border border-border/50 rounded-xl p-5 backdrop-blur-sm">
                 <div className="flex items-center justify-between mb-3">
                   <Icon className={`w-5 h-5 ${card.color}`} />
-                  <span className="text-2xl font-bold text-foreground">
-                    {card.value}
-                  </span>
+                  <span className="text-2xl font-bold text-foreground">{card.value}</span>
                 </div>
                 <p className="text-sm text-muted-foreground">{card.label}</p>
               </div>
@@ -134,7 +166,7 @@ export default function SocialDashboard() {
           })}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4">
           {quickActions.map((action) => {
             const Icon = action.icon;
             return (
@@ -149,12 +181,8 @@ export default function SocialDashboard() {
                       <Icon className="w-5 h-5 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-foreground text-sm">
-                        {action.label}
-                      </h3>
-                      <p className="text-xs text-muted-foreground">
-                        {action.desc}
-                      </p>
+                      <h3 className="font-semibold text-foreground text-sm">{action.label}</h3>
+                      <p className="text-xs text-muted-foreground">{action.desc}</p>
                     </div>
                   </div>
                   <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
@@ -170,30 +198,41 @@ export default function SocialDashboard() {
               Platform Connections
             </h3>
             <div className="space-y-3">
-              {platforms.map((p) => (
-                <div
-                  key={p.platform}
-                  className="flex items-center justify-between py-2 border-b border-border/30 last:border-0"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-lg">{platformIcons[p.platform] || "📱"}</span>
-                    <span className="text-sm font-medium text-foreground capitalize">
-                      {p.platform === "twitter" ? "X (Twitter)" : p.platform}
-                    </span>
-                  </div>
-                  <span
-                    className={`text-xs px-2 py-1 rounded-full ${
-                      p.connected
-                        ? "bg-emerald-500/15 text-emerald-400"
-                        : p.configured
-                        ? "bg-amber-500/15 text-amber-400"
-                        : "bg-muted text-muted-foreground"
-                    }`}
+              {platforms.map((p) => {
+                const health = tokenHealth[p.platform];
+                return (
+                  <div
+                    key={p.platform}
+                    className="flex items-center justify-between py-2 border-b border-border/30 last:border-0"
                   >
-                    {p.connected ? "Connected" : p.configured ? "Ready" : "Not configured"}
-                  </span>
-                </div>
-              ))}
+                    <div className="flex items-center gap-3">
+                      <span className="text-lg">{PLATFORM_ICONS[p.platform] || "📱"}</span>
+                      <span className="text-sm font-medium text-foreground">
+                        {PLATFORM_NAMES[p.platform] || p.platform}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {health?.status === "expired" && (
+                        <AlertTriangle className="w-3 h-3 text-amber-400" />
+                      )}
+                      {health?.status === "healthy" && p.connected && (
+                        <Heart className="w-3 h-3 text-emerald-400" />
+                      )}
+                      <span
+                        className={`text-xs px-2 py-1 rounded-full ${
+                          p.connected
+                            ? "bg-emerald-500/15 text-emerald-400"
+                            : p.configured
+                            ? "bg-amber-500/15 text-amber-400"
+                            : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        {p.connected ? "Connected" : p.configured ? "Ready" : "Not configured"}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
             <Link
               to="/social-command/connections"
@@ -226,12 +265,10 @@ export default function SocialDashboard() {
                     className="flex items-start gap-3 py-2 border-b border-border/30 last:border-0"
                   >
                     <span className="text-sm mt-0.5">
-                      {platformIcons[post.platform] || "📱"}
+                      {PLATFORM_ICONS[post.platform] || "📱"}
                     </span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-foreground truncate">
-                        {post.content}
-                      </p>
+                      <p className="text-sm text-foreground truncate">{post.content}</p>
                       <p className="text-xs text-muted-foreground mt-0.5">
                         {post.status} · {new Date(post.createdAt).toLocaleDateString()}
                       </p>

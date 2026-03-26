@@ -1,6 +1,6 @@
 import { useState } from "react";
 import SocialLayout from "@/components/social/SocialLayout";
-import { generateContent, createScheduledPost } from "@/lib/api";
+import { generateContent, createScheduledPost, crossPost, adaptContent } from "@/lib/api";
 import {
   Sparkles,
   Copy,
@@ -9,13 +9,18 @@ import {
   Clock,
   Hash,
   Loader2,
+  Zap,
 } from "lucide-react";
 
 const TONES = ["Professional", "Casual", "Witty", "Inspirational", "Educational", "Bold"];
 const PLATFORMS = [
-  { id: "twitter", label: "X (Twitter)", maxLen: 280 },
-  { id: "linkedin", label: "LinkedIn", maxLen: 3000 },
-  { id: "meta", label: "Meta (Facebook)", maxLen: 5000 },
+  { id: "twitter", label: "X (Twitter)", maxLen: 280, icon: "𝕏" },
+  { id: "linkedin", label: "LinkedIn", maxLen: 3000, icon: "💼" },
+  { id: "meta", label: "Meta (Facebook)", maxLen: 63206, icon: "📘" },
+  { id: "instagram", label: "Instagram", maxLen: 2200, icon: "📸" },
+  { id: "youtube", label: "YouTube", maxLen: 5000, icon: "▶️" },
+  { id: "medium", label: "Medium", maxLen: 100000, icon: "✍️" },
+  { id: "substack", label: "Substack", maxLen: 100000, icon: "📰" },
 ];
 
 interface GeneratedPost {
@@ -34,6 +39,7 @@ export default function ContentGenerator() {
   const [copied, setCopied] = useState<string | null>(null);
   const [saving, setSaving] = useState<string | null>(null);
   const [editedContent, setEditedContent] = useState<Record<string, string>>({});
+  const [crossPosting, setCrossPosting] = useState(false);
 
   const togglePlatform = (id: string) => {
     setSelectedPlatforms((prev) =>
@@ -57,29 +63,49 @@ export default function ContentGenerator() {
       (result.posts || []).forEach((p: GeneratedPost) => {
         initial[p.platform] = p.content;
       });
+
+      const newPlatforms = selectedPlatforms.filter((p) => !["twitter", "linkedin", "meta"].includes(p));
+      if (newPlatforms.length > 0) {
+        try {
+          const adapted = await adaptContent({ content: topic.trim(), platforms: newPlatforms });
+          for (const [platform, content] of Object.entries(adapted.adapted || {})) {
+            if (!initial[platform]) {
+              initial[platform] = content as string;
+              result.posts.push({ platform, content: content as string, hashtags: [] });
+            }
+          }
+        } catch {}
+      }
+
       setEditedContent(initial);
+      setGenerated(result.posts || []);
     } catch (e: any) {
       const fallbackPosts = selectedPlatforms.map((p) => {
-        const platform = PLATFORMS.find((pl) => pl.id === p);
         const hashtags = includeHashtags
           ? ["#SZLHoldings", "#Innovation", `#${topic.replace(/\s+/g, "")}`]
           : [];
         let content = "";
         if (p === "twitter") {
-          content = `${topic.trim()} — Powered by SZL Holdings. Driving innovation across every vertical. ${hashtags.join(" ")}`;
+          content = `${topic.trim()} — Powered by SZL Holdings. ${hashtags.join(" ")}`;
           if (content.length > 280) content = content.slice(0, 277) + "...";
         } else if (p === "linkedin") {
-          content = `🚀 ${topic.trim()}\n\nAt SZL Holdings, we're building the future across cybersecurity, maritime intelligence, financial platforms, and creative technology.\n\nOur approach combines enterprise-grade infrastructure with cutting-edge AI to deliver solutions that matter.\n\n${hashtags.join(" ")}`;
+          content = `🚀 ${topic.trim()}\n\nAt SZL Holdings, we're building the future across cybersecurity, maritime intelligence, financial platforms, and creative technology.\n\n${hashtags.join(" ")}`;
+        } else if (p === "instagram") {
+          content = `${topic.trim()}\n\nSZL Holdings — Building transformative technology across every vertical. 🚀\n\n${hashtags.join(" ")} #TechFounder #StartupLife`;
+        } else if (p === "medium") {
+          content = `# ${topic.trim()}\n\nSZL Holdings is committed to innovation and excellence.\n\nLearn more about our portfolio of transformative ventures.\n\n${hashtags.join(" ")}`;
+        } else if (p === "youtube") {
+          content = `${topic.trim()}\n\nSZL Holdings — Building the technology ecosystem of tomorrow.`;
+        } else if (p === "substack") {
+          content = `<h1>${topic.trim()}</h1><br/><br/>SZL Holdings is committed to innovation and excellence across cybersecurity, maritime intelligence, and creative technology.`;
         } else {
-          content = `${topic.trim()}\n\nSZL Holdings is committed to innovation and excellence. Learn more about our portfolio of transformative ventures.\n\n${hashtags.join(" ")}`;
+          content = `${topic.trim()}\n\nSZL Holdings — Building transformative ventures.\n\n${hashtags.join(" ")}`;
         }
         return { platform: p, content, hashtags };
       });
       setGenerated(fallbackPosts);
       const initial: Record<string, string> = {};
-      fallbackPosts.forEach((p) => {
-        initial[p.platform] = p.content;
-      });
+      fallbackPosts.forEach((p) => { initial[p.platform] = p.content; });
       setEditedContent(initial);
     } finally {
       setGenerating(false);
@@ -111,6 +137,23 @@ export default function ContentGenerator() {
     }
   };
 
+  const handleCrossPost = async (schedule: boolean) => {
+    if (generated.length === 0) return;
+    setCrossPosting(true);
+    try {
+      const mainContent = editedContent[generated[0].platform] || generated[0].content;
+      await crossPost({
+        content: mainContent,
+        platforms: generated.map((g) => g.platform),
+        schedule,
+      });
+    } catch (e) {
+      console.error("Cross-post error:", e);
+    } finally {
+      setCrossPosting(false);
+    }
+  };
+
   const getCharCount = (platform: string) => {
     const content = editedContent[platform] || "";
     const config = PLATFORMS.find((p) => p.id === platform);
@@ -125,7 +168,7 @@ export default function ContentGenerator() {
             Content Generator
           </h1>
           <p className="text-muted-foreground mt-1">
-            AI-powered post creation from your marketing materials
+            AI-powered post creation with cross-platform content adaptation
           </p>
         </div>
 
@@ -166,19 +209,20 @@ export default function ContentGenerator() {
 
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
-                Platforms
+                Platforms ({selectedPlatforms.length} selected)
               </label>
               <div className="flex flex-wrap gap-2">
                 {PLATFORMS.map((p) => (
                   <button
                     key={p.id}
                     onClick={() => togglePlatform(p.id)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
                       selectedPlatforms.includes(p.id)
                         ? "bg-primary text-primary-foreground"
                         : "bg-muted text-muted-foreground hover:text-foreground"
                     }`}
                   >
+                    <span>{p.icon}</span>
                     {p.label}
                   </button>
                 ))}
@@ -215,9 +259,30 @@ export default function ContentGenerator() {
 
         {generated.length > 0 && (
           <div className="space-y-4">
-            <h2 className="text-xl font-display font-semibold text-foreground">
-              Generated Content
-            </h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-display font-semibold text-foreground">
+                Generated Content ({generated.length} platforms)
+              </h2>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleCrossPost(true)}
+                  disabled={crossPosting}
+                  className="flex items-center gap-1.5 px-4 py-2 bg-muted text-foreground rounded-lg text-xs font-medium hover:bg-muted/80 disabled:opacity-50 transition-colors"
+                >
+                  {crossPosting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Clock className="w-3.5 h-3.5" />}
+                  Schedule All (Smart Timing)
+                </button>
+                <button
+                  onClick={() => handleCrossPost(false)}
+                  disabled={crossPosting}
+                  className="flex items-center gap-1.5 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-xs font-medium hover:bg-primary/90 disabled:opacity-50 transition-colors"
+                >
+                  {crossPosting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5" />}
+                  Publish All Now
+                </button>
+              </div>
+            </div>
+
             {generated.map((post) => {
               const charCount = getCharCount(post.platform);
               const platformConfig = PLATFORMS.find((p) => p.id === post.platform);
@@ -228,14 +293,13 @@ export default function ContentGenerator() {
                 >
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
+                      <span className="text-lg">{platformConfig?.icon}</span>
                       <span className="text-sm font-semibold text-foreground">
                         {platformConfig?.label}
                       </span>
                       <span
                         className={`text-xs ${
-                          charCount.current > charCount.max
-                            ? "text-red-400"
-                            : "text-muted-foreground"
+                          charCount.current > charCount.max ? "text-red-400" : "text-muted-foreground"
                         }`}
                       >
                         {charCount.current}/{charCount.max}
@@ -259,22 +323,16 @@ export default function ContentGenerator() {
                   <textarea
                     value={editedContent[post.platform] || ""}
                     onChange={(e) =>
-                      setEditedContent((prev) => ({
-                        ...prev,
-                        [post.platform]: e.target.value,
-                      }))
+                      setEditedContent((prev) => ({ ...prev, [post.platform]: e.target.value }))
                     }
                     className="w-full bg-input border border-border rounded-lg p-3 text-sm text-foreground resize-none focus:outline-none focus:ring-2 focus:ring-primary/50"
-                    rows={post.platform === "linkedin" ? 8 : 4}
+                    rows={["linkedin", "medium", "substack"].includes(post.platform) ? 8 : 4}
                   />
 
                   {post.hashtags && post.hashtags.length > 0 && (
                     <div className="mt-3 flex flex-wrap gap-1.5">
                       {post.hashtags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary"
-                        >
+                        <span key={tag} className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
                           {tag}
                         </span>
                       ))}

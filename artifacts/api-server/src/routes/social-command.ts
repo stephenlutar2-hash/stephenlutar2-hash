@@ -118,7 +118,7 @@ router.put("/social-command/posts/:id", requireAuth, validateBody(updatePostSche
   try {
     const username = (req as AuthenticatedRequest).user?.username;
     if (!username) return res.status(401).json({ error: "Authentication required" });
-    const id = parseInt(req.params.id, 10);
+    const id = parseInt(req.params.id as string, 10);
     if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
 
     const updates: Record<string, any> = { updatedAt: new Date() };
@@ -146,7 +146,7 @@ router.delete("/social-command/posts/:id", requireAuth, async (req, res) => {
   try {
     const username = (req as AuthenticatedRequest).user?.username;
     if (!username) return res.status(401).json({ error: "Authentication required" });
-    const id = parseInt(req.params.id, 10);
+    const id = parseInt(req.params.id as string, 10);
     if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
 
     await db
@@ -163,7 +163,7 @@ router.post("/social-command/posts/:id/reschedule", requireAuth, validateBody(re
   try {
     const username = (req as AuthenticatedRequest).user?.username;
     if (!username) return res.status(401).json({ error: "Authentication required" });
-    const id = parseInt(req.params.id, 10);
+    const id = parseInt(req.params.id as string, 10);
     if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
 
     const [post] = await db
@@ -218,6 +218,20 @@ router.post("/social-command/generate", requireAuth, validateBody(generateSchema
         if (content.length > 280) content = content.slice(0, 277) + "...";
       } else if (platform === "linkedin") {
         content = `🚀 ${topic}\n\nAt SZL Holdings, we're committed to building enterprise-grade solutions that drive real impact.\n\nOur portfolio spans cybersecurity (ROSIE, Aegis, Firestorm), maritime intelligence (Vessels), financial platforms (Lutar), creative technology (DreamEra), and predictive AI (Nimbus).\n\nEach venture is designed to solve critical challenges with innovative technology and unwavering quality.${hashtagStr}`;
+      } else if (platform === "instagram") {
+        const igHashtags = includeHashtags
+          ? [...hashtags, "#TechFounder", "#StartupLife", "#BuildInPublic", "#Entrepreneur"]
+          : [];
+        const igHashtagStr = igHashtags.length > 0 ? "\n\n" + igHashtags.join(" ") : "";
+        content = `${topic}\n\nSZL Holdings — Building transformative technology across cybersecurity, maritime intelligence, and creative tech. 🚀${igHashtagStr}`;
+        if (content.length > 2200) content = content.slice(0, 2197) + "...";
+      } else if (platform === "youtube") {
+        content = `${topic}\n\nSZL Holdings is a diversified technology holding company building interconnected platforms across AI research, cybersecurity, predictive intelligence, observability, creative tech, and strategic consulting.\n\nLearn more about our ecosystem of enterprise-grade solutions.`;
+        if (content.length > 5000) content = content.slice(0, 4997) + "...";
+      } else if (platform === "medium") {
+        content = `# ${topic}\n\nAt SZL Holdings, we're committed to building enterprise-grade solutions that drive real impact across multiple industries.\n\nOur portfolio spans cybersecurity (ROSIE, Aegis, Firestorm), maritime intelligence (Vessels), financial platforms (Lutar), creative technology (DreamEra), and predictive AI (Nimbus).\n\n## Why This Matters\n\nEvery venture is designed to solve critical challenges with innovative technology and unwavering quality. The connections between our platforms create more value than the platforms themselves.${hashtagStr}`;
+      } else if (platform === "substack") {
+        content = `<h1>${topic}</h1><br/><br/>At SZL Holdings, we're committed to building enterprise-grade solutions that drive real impact across multiple industries.<br/><br/><strong>Our portfolio spans:</strong><br/>• Cybersecurity (ROSIE, Aegis, Firestorm)<br/>• Maritime intelligence (Vessels)<br/>• Financial platforms (Lutar)<br/>• Creative technology (DreamEra)<br/>• Predictive AI (Nimbus)<br/><br/>Each venture solves critical challenges with innovative technology and unwavering quality.`;
       } else {
         content = `${topic}\n\nSZL Holdings is a diversified technology holding company building transformative ventures across multiple industries.\n\nFrom cybersecurity to maritime intelligence, we're creating the infrastructure of tomorrow.${hashtagStr}`;
       }
@@ -302,7 +316,7 @@ router.put("/social-command/templates/:id", requireAuth, async (req, res) => {
   try {
     const username = (req as AuthenticatedRequest).user?.username;
     if (!username) return res.status(401).json({ error: "Authentication required" });
-    const id = parseInt(req.params.id, 10);
+    const id = parseInt(req.params.id as string, 10);
     if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
 
     const updates: Record<string, any> = { updatedAt: new Date() };
@@ -329,7 +343,7 @@ router.delete("/social-command/templates/:id", requireAuth, async (req, res) => 
   try {
     const username = (req as AuthenticatedRequest).user?.username;
     if (!username) return res.status(401).json({ error: "Authentication required" });
-    const id = parseInt(req.params.id, 10);
+    const id = parseInt(req.params.id as string, 10);
     if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
 
     await db
@@ -379,7 +393,7 @@ router.delete("/social-command/assets/:id", requireAuth, async (req, res) => {
   try {
     const username = (req as AuthenticatedRequest).user?.username;
     if (!username) return res.status(401).json({ error: "Authentication required" });
-    const id = parseInt(req.params.id, 10);
+    const id = parseInt(req.params.id as string, 10);
     if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
 
     await db

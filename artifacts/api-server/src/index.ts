@@ -10,7 +10,7 @@ import { isKeyVaultConfigured } from "./lib/keyvault";
 import { isBlobStorageConfigured } from "./lib/blobStorage";
 import { getEnabledFeatures } from "./lib/featureFlags";
 import { startFreshnessMonitor } from "./lib/model-registry";
-import { startScheduler, stopScheduler } from "./services/scheduler";
+import { startScheduler, stopScheduler } from "./services/socialScheduler";
 import path from "path";
 import type { Server } from "node:http";
 
