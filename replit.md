@@ -105,3 +105,11 @@ A centralized Model Context Protocol (MCP) client layer connects to community MC
 *   **Azure Key Vault**: Centralized secrets management.
 *   **Azure Managed Redis**: Session storage and caching.
 *   **Azure Blob Storage**: File uploads and exports.
+
+## GitHub Repository
+
+The codebase is pushed to **https://github.com/stephenlutar2-hash/szl-holdings** (public, `main` branch). The `origin` remote is configured.
+
+**Manual follow-ups required:**
+1. `.github/workflows/` files need to be pushed using a token with `workflow` scope (the Replit GitHub OAuth token only has `repo` scope).
+2. Set the social preview image in GitHub Settings using `.github/hero-banner.png` (no API endpoint exists for this).
