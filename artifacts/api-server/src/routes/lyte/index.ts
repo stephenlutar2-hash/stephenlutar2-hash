@@ -122,41 +122,41 @@ router.post("/lyte/ai/analyze", validateAndSanitizeBody(analyzeSchema), async (r
   }
 });
 
-router.get("/lyte/executive/scorecard", (_req: Request, res: Response) => {
+router.get("/lyte/executive/scorecard", async (_req: Request, res: Response) => {
   try {
-    res.json(getExecutiveScorecard());
+    res.json(await getExecutiveScorecard());
   } catch (err) {
     errorResponse(res, err, "EXECUTIVE_SCORECARD_ERROR");
   }
 });
 
-router.get("/lyte/operator/command-center", (_req: Request, res: Response) => {
+router.get("/lyte/operator/command-center", async (_req: Request, res: Response) => {
   try {
-    res.json(getOperatorCommandCenter());
+    res.json(await getOperatorCommandCenter());
   } catch (err) {
     errorResponse(res, err, "OPERATOR_CC_ERROR");
   }
 });
 
-router.get("/lyte/service-map", (_req: Request, res: Response) => {
+router.get("/lyte/service-map", async (_req: Request, res: Response) => {
   try {
-    res.json(getServiceMap());
+    res.json(await getServiceMap());
   } catch (err) {
     errorResponse(res, err, "SERVICE_MAP_ERROR");
   }
 });
 
-router.get("/lyte/slo", (_req: Request, res: Response) => {
+router.get("/lyte/slo", async (_req: Request, res: Response) => {
   try {
-    res.json(getSloData());
+    res.json(await getSloData());
   } catch (err) {
     errorResponse(res, err, "SLO_ERROR");
   }
 });
 
-router.get("/lyte/probes", (_req: Request, res: Response) => {
+router.get("/lyte/probes", async (_req: Request, res: Response) => {
   try {
-    res.json(getSyntheticProbes());
+    res.json(await getSyntheticProbes());
   } catch (err) {
     errorResponse(res, err, "PROBES_ERROR");
   }
@@ -170,9 +170,9 @@ router.get("/lyte/releases", (_req: Request, res: Response) => {
   }
 });
 
-router.get("/lyte/cost-efficiency", (_req: Request, res: Response) => {
+router.get("/lyte/cost-efficiency", async (_req: Request, res: Response) => {
   try {
-    res.json(getCostEfficiency());
+    res.json(await getCostEfficiency());
   } catch (err) {
     errorResponse(res, err, "COST_EFFICIENCY_ERROR");
   }

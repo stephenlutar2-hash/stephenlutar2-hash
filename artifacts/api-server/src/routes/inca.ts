@@ -33,12 +33,12 @@ router.get("/inca/health", (_req, res) => {
   res.json({ ok: true, group: "inca", timestamp: new Date().toISOString() });
 });
 
-router.get("/inca/projects", requireAuth, asyncHandler(async (_req, res) => {
+router.get("/inca/projects", asyncHandler(async (_req, res) => {
   const projects = await incaService.listProjects();
   res.json(projects);
 }));
 
-router.get("/inca/list/projects", requireAuth, asyncHandler(async (req, res) => {
+router.get("/inca/list/projects", asyncHandler(async (req, res) => {
   const pagination = parsePagination(req);
   let projects = await incaService.listProjects();
   projects = filterByFields(projects, req.query as Record<string, string | string[] | undefined>, ["status", "aiModel"]);
@@ -69,12 +69,12 @@ router.delete("/inca/projects/:id", requireAuth, requireOperator(), asyncHandler
   res.status(204).send();
 }));
 
-router.get("/inca/experiments", requireAuth, asyncHandler(async (_req, res) => {
+router.get("/inca/experiments", asyncHandler(async (_req, res) => {
   const experiments = await incaService.listExperiments();
   res.json(experiments);
 }));
 
-router.get("/inca/list/experiments", requireAuth, asyncHandler(async (req, res) => {
+router.get("/inca/list/experiments", asyncHandler(async (req, res) => {
   const pagination = parsePagination(req);
   let experiments = await incaService.listExperiments();
   experiments = filterByFields(experiments, req.query as Record<string, string | string[] | undefined>, ["status", "result"]);
@@ -109,7 +109,7 @@ router.delete("/inca/experiments/:id", requireAuth, requireOperator(), asyncHand
   res.status(204).send();
 }));
 
-router.get("/inca/analytics/experiment-success-rates", requireAuth, asyncHandler(async (_req, res) => {
+router.get("/inca/analytics/experiment-success-rates", asyncHandler(async (_req, res) => {
   const experiments = await db.select().from(incaExperimentsTable);
   const total = experiments.length;
   const byStatus: Record<string, number> = {};
@@ -142,7 +142,7 @@ router.get("/inca/analytics/experiment-success-rates", requireAuth, asyncHandler
   });
 }));
 
-router.get("/inca/analytics/model-leaderboard", requireAuth, asyncHandler(async (_req, res) => {
+router.get("/inca/analytics/model-leaderboard", asyncHandler(async (_req, res) => {
   const experiments = await db.select().from(incaExperimentsTable);
   const projects = await db.select().from(incaProjectsTable);
 
@@ -176,7 +176,7 @@ router.get("/inca/analytics/model-leaderboard", requireAuth, asyncHandler(async 
   res.json({ leaderboard });
 }));
 
-router.get("/inca/analytics/project-health", requireAuth, asyncHandler(async (_req, res) => {
+router.get("/inca/analytics/project-health", asyncHandler(async (_req, res) => {
   const projects = await db.select().from(incaProjectsTable);
   const experiments = await db.select().from(incaExperimentsTable);
 
@@ -219,7 +219,7 @@ router.get("/inca/analytics/project-health", requireAuth, asyncHandler(async (_r
   res.json({ projects: projectHealth, summary });
 }));
 
-router.get("/inca/search", requireAuth, asyncHandler(async (req, res) => {
+router.get("/inca/search", asyncHandler(async (req, res) => {
   const q = req.query.q as string;
   if (!q || q.trim() === "") {
     res.json({ projects: [], experiments: [] });

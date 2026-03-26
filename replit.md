@@ -26,6 +26,10 @@ The project is built as a pnpm monorepo using Node.js 24, pnpm, and TypeScript 5
 
 The monorepo encompasses a diverse range of applications categorized into Security & AI, Logistics & Management, and Corporate & Showcase. Key applications include ROSIE (AI security monitoring), AEGIS (enterprise security), BEACON (decision analytics), NIMBUS (predictive AI), FIRESTORM (security simulation), ALLOYSCAPE (AI infrastructure), DREAMERA (AI storytelling), VESSELS (maritime/logistics intelligence), and LUTAR (personal command center).
 
+*   **Security & AI:** ROSIE, AEGIS, BEACON, NIMBUS, FIRESTORM, ALLOYSCAPE, DREAMERA (+ Social Media Command Center), DREAMSCAPE, LYTE (observability, DB-backed with 5 tables: `lyte_services`, `lyte_slo_targets`, `lyte_cost_items`, `lyte_probes`, `lyte_alerts`), ZEUS, INCA (intelligence/analytics, GET endpoints are public for campaign demo).
+*   **Logistics & Management:** VESSELS, LUTAR, CARLOTA JO.
+*   **Corporate & Showcase:** SZL Holdings, Apps Showcase, Readiness Report, Career.
+
 **API-Wired Frontends:**
 
 Five frontends dynamically fetch data from the backend API using a state+fallback pattern, ensuring graceful degradation if the API is unavailable:

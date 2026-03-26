@@ -11,6 +11,7 @@ import {
   dreamscapeGenerationHistoryTable, dreamscapePipelineItemsTable,
   lutarResearchItemsTable, lutarSustainabilityMetricsTable,
   lutarFinancialDataTable, lutarDivisionDataTable, lutarInsightsTable,
+  lyteServicesTable, lyteSloTargetsTable, lyteCostItemsTable, lyteProbesTable, lyteAlertsTable
 } from "@szl-holdings/db/schema";
 import { seedAegis } from "./seed-aegis";
 
@@ -304,6 +305,89 @@ async function seed() {
     { name: "Blended Margin", value: "79.8%", unit: "%", change: "+2.4pp", category: "Financial" },
     { name: "Portfolio Valuation", value: "$168M", unit: "$", change: "+28%", category: "Financial" },
     { name: "Burn Multiple", value: "0.8x", unit: "x", change: "-0.3x", category: "Financial" },
+  ]).onConflictDoNothing();
+
+  // LYTE SERVICES
+  await db.insert(lyteServicesTable).values([
+    { serviceId: "api-server", name: "API Server", type: "api", status: "healthy", uptime: "99.97", latency: 42, lastCheck: "30s ago" },
+    { serviceId: "postgres", name: "PostgreSQL", type: "database", status: "healthy", uptime: "99.99", latency: 8, lastCheck: "15s ago" },
+    { serviceId: "object-storage", name: "Object Storage", type: "storage", status: "healthy", uptime: "99.98", latency: 120, lastCheck: "1m ago" },
+    { serviceId: "rosie", name: "ROSIE", type: "app", status: "healthy", uptime: "99.97", latency: 85, lastCheck: "2m ago" },
+    { serviceId: "aegis", name: "Aegis", type: "app", status: "healthy", uptime: "99.95", latency: 92, lastCheck: "2m ago" },
+    { serviceId: "beacon", name: "Beacon", type: "app", status: "healthy", uptime: "99.98", latency: 68, lastCheck: "1m ago" },
+    { serviceId: "lutar", name: "Lutar", type: "app", status: "healthy", uptime: "99.91", latency: 78, lastCheck: "3m ago" },
+    { serviceId: "nimbus", name: "Nimbus", type: "app", status: "healthy", uptime: "99.96", latency: 110, lastCheck: "2m ago" },
+    { serviceId: "firestorm", name: "Firestorm", type: "app", status: "degraded", uptime: "99.82", latency: 245, lastCheck: "1m ago" },
+    { serviceId: "dreamscape", name: "Dreamscape", type: "app", status: "degraded", uptime: "99.80", latency: 6200, lastCheck: "2m ago" },
+    { serviceId: "dreamera", name: "DreamEra", type: "app", status: "healthy", uptime: "99.89", latency: 150, lastCheck: "3m ago" },
+    { serviceId: "zeus", name: "Zeus", type: "app", status: "healthy", uptime: "99.99", latency: 35, lastCheck: "1m ago" },
+    { serviceId: "alloyscape", name: "AlloyScape", type: "app", status: "healthy", uptime: "99.93", latency: 55, lastCheck: "2m ago" },
+    { serviceId: "vessels", name: "Vessels", type: "app", status: "healthy", uptime: "99.90", latency: 95, lastCheck: "3m ago" },
+    { serviceId: "carlota-jo", name: "Carlota Jo", type: "app", status: "healthy", uptime: "99.88", latency: 72, lastCheck: "1m ago" },
+    { serviceId: "inca", name: "INCA", type: "app", status: "healthy", uptime: "99.94", latency: 88, lastCheck: "2m ago" },
+    { serviceId: "lyte", name: "Lyte", type: "app", status: "healthy", uptime: "99.95", latency: 45, lastCheck: "30s ago" },
+    { serviceId: "ais-feed", name: "AIS Data Feed", type: "external", status: "degraded", uptime: "92.00", latency: 1500, lastCheck: "18m ago" },
+    { serviceId: "stripe-api", name: "Stripe API", type: "external", status: "healthy", uptime: "99.99", latency: 180, lastCheck: "8m ago" },
+    { serviceId: "security-scan", name: "Security Scan Job", type: "job", status: "healthy", uptime: "99.90", latency: 0, lastCheck: "45m ago" },
+    { serviceId: "telemetry-agg", name: "Telemetry Aggregation", type: "job", status: "healthy", uptime: "99.95", latency: 0, lastCheck: "15m ago" },
+    { serviceId: "ml-health", name: "ML Health Check", type: "job", status: "healthy", uptime: "99.80", latency: 0, lastCheck: "1h ago" },
+  ]).onConflictDoNothing();
+
+  // LYTE SLO TARGETS
+  await db.insert(lyteSloTargetsTable).values([
+    { sloId: "slo-001", service: "API Server", metric: "availability", target: "99.95", current: "99.97", unit: "%", window: "30d", burnRate: "0.6", budgetRemaining: 85, budgetTotal: 100, status: "healthy", impactIfBreached: "All frontend apps lose backend connectivity" },
+    { sloId: "slo-002", service: "API Server", metric: "latency", target: "100", current: "42", unit: "ms (p95)", window: "30d", burnRate: "0.3", budgetRemaining: 92, budgetTotal: 100, status: "healthy", impactIfBreached: "Degraded UX across all apps" },
+    { sloId: "slo-003", service: "ROSIE", metric: "availability", target: "99.9", current: "99.97", unit: "%", window: "30d", burnRate: "0.3", budgetRemaining: 95, budgetTotal: 100, status: "healthy", impactIfBreached: "Security threat detection offline" },
+    { sloId: "slo-004", service: "Firestorm", metric: "latency", target: "200", current: "245", unit: "ms (p95)", window: "30d", burnRate: "2.8", budgetRemaining: 12, budgetTotal: 100, status: "breached", impactIfBreached: "2,400 daily sessions degraded; user drop-off" },
+    { sloId: "slo-005", service: "Dreamscape", metric: "latency", target: "5000", current: "6200", unit: "ms (gen)", window: "30d", burnRate: "3.2", budgetRemaining: 8, budgetTotal: 100, status: "breached", impactIfBreached: "18% user drop-off on generation flows" },
+    { sloId: "slo-006", service: "Vessels", metric: "freshness", target: "60", current: "45", unit: "s (feed delay)", window: "7d", burnRate: "1.2", budgetRemaining: 42, budgetTotal: 100, status: "warning", impactIfBreached: "Fleet position accuracy degraded; compliance lag" },
+    { sloId: "slo-007", service: "DreamEra", metric: "error-rate", target: "10", current: "15.8", unit: "% (accuracy miss)", window: "30d", burnRate: "1.8", budgetRemaining: 22, budgetTotal: 100, status: "warning", impactIfBreached: "User satisfaction decline; artifact quality drops" },
+    { sloId: "slo-008", service: "PostgreSQL", metric: "availability", target: "99.99", current: "99.99", unit: "%", window: "30d", burnRate: "0.1", budgetRemaining: 98, budgetTotal: 100, status: "healthy", impactIfBreached: "All data-dependent services fail" },
+    { sloId: "slo-009", service: "Aegis", metric: "availability", target: "99.9", current: "99.95", unit: "%", window: "30d", burnRate: "0.5", budgetRemaining: 78, budgetTotal: 100, status: "healthy", impactIfBreached: "Compliance scanning goes offline" },
+    { sloId: "slo-010", service: "Beacon", metric: "latency", target: "150", current: "68", unit: "ms (p95)", window: "30d", burnRate: "0.2", budgetRemaining: 95, budgetTotal: 100, status: "healthy", impactIfBreached: "Analytics dashboard becomes sluggish" },
+    { sloId: "slo-011", service: "Zeus", metric: "availability", target: "99.99", current: "99.99", unit: "%", window: "30d", burnRate: "0.05", budgetRemaining: 99, budgetTotal: 100, status: "healthy", impactIfBreached: "Infrastructure orchestration fails" },
+    { sloId: "slo-012", service: "Carlota Jo", metric: "availability", target: "99.9", current: "99.88", unit: "%", window: "30d", burnRate: "1.2", budgetRemaining: 55, budgetTotal: 100, status: "warning", impactIfBreached: "Consultation bookings disrupted; revenue impact" },
+    { sloId: "slo-013", service: "Nimbus", metric: "latency", target: "200", current: "110", unit: "ms (p95)", window: "30d", burnRate: "0.4", budgetRemaining: 88, budgetTotal: 100, status: "healthy", impactIfBreached: "AI prediction service degraded" },
+    { sloId: "slo-014", service: "INCA", metric: "freshness", target: "30", current: "18", unit: "s (alert delay)", window: "7d", burnRate: "0.3", budgetRemaining: 90, budgetTotal: 100, status: "healthy", impactIfBreached: "Intelligence alerts delayed" },
+    { sloId: "slo-015", service: "Object Storage", metric: "availability", target: "99.99", current: "99.98", unit: "%", window: "30d", burnRate: "0.8", budgetRemaining: 72, budgetTotal: 100, status: "healthy", impactIfBreached: "Asset uploads/downloads fail" },
+    { sloId: "slo-016", service: "Stripe Integration", metric: "error-rate", target: "0.1", current: "0.0", unit: "% (webhook failures)", window: "7d", burnRate: "0.0", budgetRemaining: 100, budgetTotal: 100, status: "healthy", impactIfBreached: "Payment processing fails; revenue loss" },
+  ]).onConflictDoNothing();
+
+  // LYTE COST ITEMS
+  await db.insert(lyteCostItemsTable).values([
+    { costId: "cost-001", category: "compute", name: "Dreamscape GPU Instances", estimatedCost: "$1,200/mo", usage: "4x T4 GPU, 78% utilization", trend: "up", efficiency: "moderate", suggestion: "Enable model quantization to reduce GPU count to 3x" },
+    { costId: "cost-002", category: "compute", name: "Firestorm Simulation Engine", estimatedCost: "$480/mo", usage: "2x vCPU, sustained high load", trend: "up", efficiency: "wasteful", suggestion: "Optimize database queries to reduce compute load by ~40%" },
+    { costId: "cost-003", category: "compute", name: "API Server (Primary)", estimatedCost: "$320/mo", usage: "4x vCPU, 35% avg utilization", trend: "stable", efficiency: "optimal", suggestion: "Current sizing appropriate for traffic patterns" },
+    { costId: "cost-004", category: "storage", name: "Object Storage (Assets)", estimatedCost: "$85/mo", usage: "420 GB, 12K objects", trend: "up", efficiency: "moderate", suggestion: "Implement lifecycle policies for old generated assets" },
+    { costId: "cost-005", category: "storage", name: "PostgreSQL Database", estimatedCost: "$150/mo", usage: "50 GB data, 62% connection pool", trend: "stable", efficiency: "optimal", suggestion: "Monitor connection pool; alert at 85%" },
+    { costId: "cost-006", category: "jobs", name: "Security Scan — Full Portfolio", estimatedCost: "$45/mo", usage: "Daily, 45min avg runtime", trend: "stable", efficiency: "optimal", suggestion: "Consider incremental scanning for lower compute" },
+    { costId: "cost-007", category: "jobs", name: "ML Model Health Check", estimatedCost: "$30/mo", usage: "Every 6h, 8min runtime", trend: "stable", efficiency: "optimal", suggestion: "Frequency appropriate for model drift detection" },
+    { costId: "cost-008", category: "jobs", name: "Telemetry Aggregation", estimatedCost: "$60/mo", usage: "Every 30min, 3min runtime", trend: "up", efficiency: "moderate", suggestion: "Increase interval to 1h during off-peak; save ~50%" },
+    { costId: "cost-009", category: "connectors", name: "AIS Data Feed", estimatedCost: "$200/mo", usage: "~3,400 records/sync, every 30min", trend: "stable", efficiency: "moderate", suggestion: "Negotiate volume discount with AIS provider" },
+    { costId: "cost-010", category: "connectors", name: "Stripe API", estimatedCost: "$0 (2.9%+30¢/txn)", usage: "~67 transactions/week", trend: "stable", efficiency: "optimal", suggestion: "Transaction volume healthy; standard pricing" },
+    { costId: "cost-011", category: "events", name: "Telemetry Events Ingestion", estimatedCost: "$95/mo", usage: "14,200 events/sync", trend: "up", efficiency: "moderate", suggestion: "Filter low-value info-level events to reduce volume 30%" },
+    { costId: "cost-012", category: "events", name: "Security Alert Events", estimatedCost: "$25/mo", usage: "892 events/sync", trend: "stable", efficiency: "optimal", suggestion: "Event volume appropriate for security monitoring" },
+  ]).onConflictDoNothing();
+
+  // LYTE SYNTHETIC PROBES
+  await db.insert(lyteProbesTable).values([
+    { probeId: "probe-001", name: "Homepage Available", type: "http", target: "szlholdings.com", status: "passing", lastCheck: "30s ago", responseTime: 185, successRate: "100" },
+    { probeId: "probe-002", name: "API Health Endpoint", type: "http", target: "/api/lyte/health", status: "passing", lastCheck: "30s ago", responseTime: 42, successRate: "100" },
+    { probeId: "probe-003", name: "Dashboard Loads", type: "flow", target: "/lyte/", status: "passing", lastCheck: "1m ago", responseTime: 620, successRate: "99.8" },
+    { probeId: "probe-004", name: "Firestorm API Latency", type: "latency", target: "/firestorm/api", status: "failing", lastCheck: "1m ago", responseTime: 245, successRate: "82.0" },
+    { probeId: "probe-005", name: "Dreamscape Generation Flow", type: "flow", target: "/dreamscape/generate", status: "degraded", lastCheck: "2m ago", responseTime: 6200, successRate: "91.0" },
+    { probeId: "probe-006", name: "Stripe Webhook Handshake", type: "handshake", target: "Stripe → Carlota Jo", status: "passing", lastCheck: "8m ago", responseTime: 180, successRate: "100" },
+    { probeId: "probe-007", name: "AIS Feed Connectivity", type: "handshake", target: "AIS Provider → Vessels", status: "degraded", lastCheck: "18m ago", responseTime: 1500, successRate: "92.0" },
+    { probeId: "probe-008", name: "PostgreSQL Connection", type: "handshake", target: "API Server → PostgreSQL", status: "passing", lastCheck: "15s ago", responseTime: 8, successRate: "100" },
+    { probeId: "probe-009", name: "Object Storage Upload", type: "http", target: "Object Storage PUT", status: "passing", lastCheck: "5m ago", responseTime: 320, successRate: "99.9" },
+    { probeId: "probe-010", name: "Login Flow (SSO)", type: "flow", target: "/auth/login", status: "passing", lastCheck: "2m ago", responseTime: 890, successRate: "99.5" },
+  ]).onConflictDoNothing();
+
+  // LYTE ALERTS / INCIDENTS
+  await db.insert(lyteAlertsTable).values([
+    { alertId: "inc-001", title: "Firestorm API latency exceeds SLA", severity: "high", status: "investigating", startedAt: "2026-03-25T14:00:00Z", duration: "2h 30m", affectedServices: ["Firestorm", "API Server"], assignee: "Backend Team", updates: ["14:00 — Latency spike detected", "14:15 — Investigating backend query performance", "14:45 — Root cause identified: unoptimized DB queries"] },
+    { alertId: "inc-002", title: "AIS data feed intermittent delays", severity: "medium", status: "active", startedAt: "2026-03-25T11:00:00Z", duration: "5h 30m", affectedServices: ["Vessels", "Logistics Hub"], assignee: "Data Eng", updates: ["11:00 — 8% of AIS requests showing 15-30s delays", "11:30 — Upstream provider acknowledged issue", "13:00 — Implementing local caching buffer"] },
+    { alertId: "inc-003", title: "Dreamscape GPU queue saturation", severity: "high", status: "mitigated", startedAt: "2026-03-25T13:00:00Z", duration: "3h 30m", affectedServices: ["Dreamscape", "DreamEra"], assignee: "ML Team", updates: ["13:00 — Generation pipeline >5s per request", "13:30 — GPU queue saturation confirmed", "14:00 — Batch processing optimization deployed", "15:30 — Latency reduced to 4.8s, monitoring"] },
   ]).onConflictDoNothing();
 
   console.log("✅ Database seeded successfully!");

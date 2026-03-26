@@ -1,3 +1,11 @@
+import { db, isDatabaseAvailable } from "@szl-holdings/db";
+import {
+  lyteServicesTable,
+  lyteSloTargetsTable,
+  lyteCostItemsTable,
+  lyteProbesTable,
+  lyteAlertsTable,
+} from "@szl-holdings/db/schema";
 import type {
   ExecutiveScorecard,
   OperatorCommandCenterData,
@@ -8,7 +16,79 @@ import type {
   CostEfficiencyData,
 } from "./types.js";
 
-export function getExecutiveScorecard(): ExecutiveScorecard {
+async function getServicesFromDb() {
+  if (!isDatabaseAvailable()) return null;
+  try {
+    const rows = await db.select().from(lyteServicesTable);
+    return rows.length > 0 ? rows : null;
+  } catch { return null; }
+}
+
+async function getSlosFromDb() {
+  if (!isDatabaseAvailable()) return null;
+  try {
+    const rows = await db.select().from(lyteSloTargetsTable);
+    return rows.length > 0 ? rows : null;
+  } catch { return null; }
+}
+
+async function getCostItemsFromDb() {
+  if (!isDatabaseAvailable()) return null;
+  try {
+    const rows = await db.select().from(lyteCostItemsTable);
+    return rows.length > 0 ? rows : null;
+  } catch { return null; }
+}
+
+async function getProbesFromDb() {
+  if (!isDatabaseAvailable()) return null;
+  try {
+    const rows = await db.select().from(lyteProbesTable);
+    return rows.length > 0 ? rows : null;
+  } catch { return null; }
+}
+
+async function getAlertsFromDb() {
+  if (!isDatabaseAvailable()) return null;
+  try {
+    const rows = await db.select().from(lyteAlertsTable);
+    return rows.length > 0 ? rows : null;
+  } catch { return null; }
+}
+
+export async function getExecutiveScorecard(): Promise<ExecutiveScorecard> {
+  const [slos, alerts] = await Promise.all([getSlosFromDb(), getAlertsFromDb()]);
+
+  if (slos && slos.length > 0) {
+    const healthyCount = slos.filter(s => s.status === "healthy").length;
+    const totalSlos = slos.length;
+    const breachedSlos = slos.filter(s => s.status === "breached");
+    const warningSlos = slos.filter(s => s.status === "warning");
+    const activeAlerts = alerts ? alerts.filter(a => a.status !== "resolved") : [];
+    const overallConfidence = Math.round(100 - (breachedSlos.length * 8) - (warningSlos.length * 3) - (activeAlerts.length * 2));
+
+    return {
+      overallConfidence: Math.max(0, Math.min(100, overallConfidence)),
+      revenueAtRisk: breachedSlos.length > 0 ? `$${breachedSlos.length * 16}K/quarter` : "$0",
+      pipelineExposure: warningSlos.length > 0 ? `${warningSlos.length} connectors degraded` : "All healthy",
+      deploymentRisk: activeAlerts.length > 0 ? `${activeAlerts.length} active incident(s)` : "No blockers",
+      connectorHealth: `${healthyCount}/${totalSlos} healthy`,
+      customerImpact: breachedSlos.length > 0 ? `${breachedSlos.length * 2100} sessions/day affected` : "Nominal",
+      slaHealth: `${healthyCount}/${totalSlos} within target`,
+      metrics: [
+        { id: "es-001", label: "Revenue at Risk", value: breachedSlos.length > 0 ? `$${breachedSlos.length * 16}K/qtr` : "$0", trend: breachedSlos.length > 0 ? "up" : "stable", severity: breachedSlos.length > 0 ? "warning" : "healthy", detail: breachedSlos.length > 0 ? `${breachedSlos.map(s => s.service).join(" + ")} latency causing user drop-off.` : "No revenue at risk." },
+        { id: "es-002", label: "Pipeline Exposure", value: warningSlos.length > 0 ? `${warningSlos.length} degraded` : "All healthy", trend: "stable", severity: warningSlos.length > 0 ? "warning" : "healthy", detail: warningSlos.length > 0 ? `${warningSlos.map(s => s.service).join(", ")} operating in degraded mode.` : "All pipelines nominal." },
+        { id: "es-003", label: "Deployment Risk", value: activeAlerts.length > 0 ? `${activeAlerts.length} active` : "Low", trend: activeAlerts.length > 0 ? "up" : "down", severity: activeAlerts.length > 0 ? "warning" : "healthy", detail: activeAlerts.length > 0 ? `${activeAlerts.length} active incident(s). ${activeAlerts.map(a => a.title).join("; ")}` : "All services stable in production." },
+        { id: "es-004", label: "Connector Health", value: `${Math.round((healthyCount / totalSlos) * 100)}%`, trend: "stable", severity: healthyCount / totalSlos >= 0.8 ? "healthy" : "warning", detail: `${healthyCount} of ${totalSlos} SLO targets within budget.` },
+        { id: "es-005", label: "Customer Impact", value: breachedSlos.length > 0 ? `${breachedSlos.length * 2.1}K sessions` : "Nominal", trend: breachedSlos.length > 0 ? "up" : "stable", severity: breachedSlos.length > 0 ? "critical" : "healthy", detail: breachedSlos.length > 0 ? `Combined latency issues affecting ${breachedSlos.length * 2100} daily sessions.` : "No customer impact detected." },
+        { id: "es-006", label: "SLA/SLO Health", value: `${Math.round((healthyCount / totalSlos) * 100)}%`, trend: "stable", severity: healthyCount / totalSlos >= 0.85 ? "healthy" : "warning", detail: `${healthyCount} of ${totalSlos} SLO targets within budget.` },
+        { id: "es-007", label: "Operational Savings", value: "$42K/mo", trend: "up", severity: "healthy", detail: "Automation across AlloyScape and Zeus saves 520 engineering hours monthly." },
+        { id: "es-008", label: "Security Posture", value: "94/100", trend: "up", severity: "healthy", detail: "Portfolio-wide security score strong. TLS certificate renewal for Lutar due in 34 days." },
+      ],
+      timestamp: new Date().toISOString(),
+    };
+  }
+
   return {
     overallConfidence: 82,
     revenueAtRisk: "$32K/quarter",
@@ -31,13 +111,29 @@ export function getExecutiveScorecard(): ExecutiveScorecard {
   };
 }
 
-export function getOperatorCommandCenter(): OperatorCommandCenterData {
+export async function getOperatorCommandCenter(): Promise<OperatorCommandCenterData> {
+  const alerts = await getAlertsFromDb();
+
+  const incidents = alerts && alerts.length > 0
+    ? alerts.map(a => ({
+        id: a.alertId,
+        title: a.title,
+        severity: a.severity as "critical" | "high" | "medium" | "low" | "info",
+        status: a.status as "active" | "investigating" | "mitigated" | "resolved",
+        startedAt: a.startedAt,
+        duration: a.duration,
+        affectedServices: a.affectedServices,
+        assignee: a.assignee,
+        updates: a.updates,
+      }))
+    : [
+        { id: "inc-001", title: "Firestorm API latency exceeds SLA", severity: "high" as const, status: "investigating" as const, startedAt: "2026-03-25T14:00:00Z", duration: "2h 30m", affectedServices: ["Firestorm", "API Server"], assignee: "Backend Team", updates: ["14:00 — Latency spike detected", "14:15 — Investigating backend query performance", "14:45 — Root cause identified: unoptimized DB queries"] },
+        { id: "inc-002", title: "AIS data feed intermittent delays", severity: "medium" as const, status: "active" as const, startedAt: "2026-03-25T11:00:00Z", duration: "5h 30m", affectedServices: ["Vessels", "Logistics Hub"], assignee: "Data Eng", updates: ["11:00 — 8% of AIS requests showing 15-30s delays", "11:30 — Upstream provider acknowledged issue", "13:00 — Implementing local caching buffer"] },
+        { id: "inc-003", title: "Dreamscape GPU queue saturation", severity: "high" as const, status: "mitigated" as const, startedAt: "2026-03-25T13:00:00Z", duration: "3h 30m", affectedServices: ["Dreamscape", "DreamEra"], assignee: "ML Team", updates: ["13:00 — Generation pipeline >5s per request", "13:30 — GPU queue saturation confirmed", "14:00 — Batch processing optimization deployed", "15:30 — Latency reduced to 4.8s, monitoring"] },
+      ];
+
   return {
-    incidents: [
-      { id: "inc-001", title: "Firestorm API latency exceeds SLA", severity: "high", status: "investigating", startedAt: "2026-03-25T14:00:00Z", duration: "2h 30m", affectedServices: ["Firestorm", "API Server"], assignee: "Backend Team", updates: ["14:00 — Latency spike detected", "14:15 — Investigating backend query performance", "14:45 — Root cause identified: unoptimized DB queries"] },
-      { id: "inc-002", title: "AIS data feed intermittent delays", severity: "medium", status: "active", startedAt: "2026-03-25T11:00:00Z", duration: "5h 30m", affectedServices: ["Vessels", "Logistics Hub"], assignee: "Data Eng", updates: ["11:00 — 8% of AIS requests showing 15-30s delays", "11:30 — Upstream provider acknowledged issue", "13:00 — Implementing local caching buffer"] },
-      { id: "inc-003", title: "Dreamscape GPU queue saturation", severity: "high", status: "mitigated", startedAt: "2026-03-25T13:00:00Z", duration: "3h 30m", affectedServices: ["Dreamscape", "DreamEra"], assignee: "ML Team", updates: ["13:00 — Generation pipeline >5s per request", "13:30 — GPU queue saturation confirmed", "14:00 — Batch processing optimization deployed", "15:30 — Latency reduced to 4.8s, monitoring"] },
-    ],
+    incidents,
     deployments: [
       { id: "dep-001", app: "ROSIE", version: "2.4.1", commitHash: "a1b2c3d", timestamp: "2026-03-25T12:00:00Z", status: "success", deployer: "Stephen L." },
       { id: "dep-002", app: "Zeus", version: "1.8.0", commitHash: "e4f5g6h", timestamp: "2026-03-25T10:00:00Z", status: "success", deployer: "Stephen L." },
@@ -79,7 +175,63 @@ export function getOperatorCommandCenter(): OperatorCommandCenterData {
   };
 }
 
-export function getServiceMap(): ServiceMapData {
+export async function getServiceMap(): Promise<ServiceMapData> {
+  const services = await getServicesFromDb();
+
+  if (services && services.length > 0) {
+    const nodes = services.map(s => ({
+      id: s.serviceId,
+      name: s.name,
+      type: s.type as "app" | "api" | "database" | "storage" | "job" | "connector" | "external",
+      status: s.status as "healthy" | "degraded" | "down" | "unknown",
+      lastCheck: s.lastCheck,
+      uptime: Number(s.uptime),
+      latency: s.latency,
+    }));
+
+    const edges: ServiceMapData["edges"] = [];
+    const appNodes = services.filter(s => s.type === "app");
+    const apiNode = services.find(s => s.type === "api");
+    const dbNode = services.find(s => s.type === "database");
+    const storageNode = services.find(s => s.type === "storage");
+
+    if (apiNode) {
+      for (const app of appNodes) {
+        edges.push({
+          source: app.serviceId,
+          target: apiNode.serviceId,
+          status: app.status === "degraded" ? "degraded" : "healthy",
+          latency: app.latency,
+        });
+      }
+      if (dbNode) {
+        edges.push({ source: apiNode.serviceId, target: dbNode.serviceId, status: "healthy", latency: dbNode.latency });
+      }
+      if (storageNode) {
+        edges.push({ source: apiNode.serviceId, target: storageNode.serviceId, status: "healthy", latency: storageNode.latency });
+      }
+    }
+
+    const externalNodes = services.filter(s => s.type === "external");
+    for (const ext of externalNodes) {
+      if (ext.serviceId === "ais-feed") {
+        const vessels = services.find(s => s.serviceId === "vessels");
+        if (vessels) edges.push({ source: vessels.serviceId, target: ext.serviceId, status: ext.status === "degraded" ? "degraded" : "healthy", latency: ext.latency });
+      }
+      if (ext.serviceId === "stripe-api") {
+        const carlota = services.find(s => s.serviceId === "carlota-jo");
+        if (carlota) edges.push({ source: carlota.serviceId, target: ext.serviceId, status: "healthy", latency: ext.latency });
+      }
+    }
+
+    const jobNodes = services.filter(s => s.type === "job");
+    for (const job of jobNodes) {
+      if (apiNode) edges.push({ source: job.serviceId, target: apiNode.serviceId, status: "healthy", latency: 15 });
+    }
+
+    return { nodes, edges, timestamp: new Date().toISOString() };
+  }
+
   return {
     nodes: [
       { id: "api-server", name: "API Server", type: "api", status: "healthy", lastCheck: "30s ago", uptime: 99.97, latency: 42 },
@@ -134,7 +286,29 @@ export function getServiceMap(): ServiceMapData {
   };
 }
 
-export function getSloData(): SloData {
+export async function getSloData(): Promise<SloData> {
+  const slos = await getSlosFromDb();
+
+  if (slos && slos.length > 0) {
+    return {
+      targets: slos.map(s => ({
+        id: s.sloId,
+        service: s.service,
+        metric: s.metric as "availability" | "latency" | "freshness" | "error-rate",
+        target: Number(s.target),
+        current: Number(s.current),
+        unit: s.unit,
+        window: s.window,
+        burnRate: Number(s.burnRate),
+        budgetRemaining: s.budgetRemaining,
+        budgetTotal: s.budgetTotal,
+        status: s.status as "healthy" | "warning" | "breached",
+        impactIfBreached: s.impactIfBreached,
+      })),
+      timestamp: new Date().toISOString(),
+    };
+  }
+
   return {
     targets: [
       { id: "slo-001", service: "API Server", metric: "availability", target: 99.95, current: 99.97, unit: "%", window: "30d", burnRate: 0.6, budgetRemaining: 85, budgetTotal: 100, status: "healthy", impactIfBreached: "All frontend apps lose backend connectivity" },
@@ -158,14 +332,35 @@ export function getSloData(): SloData {
   };
 }
 
-export function getSyntheticProbes(): SyntheticProbeData {
+export async function getSyntheticProbes(): Promise<SyntheticProbeData> {
+  const probes = await getProbesFromDb();
   const now = new Date();
+
   function historyFor(baseStatus: "passing" | "failing" | "degraded", baseTime: number) {
     return Array.from({ length: 12 }, (_, i) => ({
       timestamp: new Date(now.getTime() - (11 - i) * 5 * 60 * 1000).toISOString(),
       status: (i >= 10 ? baseStatus : "passing") as "passing" | "failing" | "degraded",
       responseTime: baseTime + Math.floor(Math.random() * 40 - 20),
     }));
+  }
+
+  if (probes && probes.length > 0) {
+    const probeData = probes.map(p => ({
+      id: p.probeId,
+      name: p.name,
+      type: p.type as "http" | "flow" | "handshake" | "latency",
+      target: p.target,
+      status: p.status as "passing" | "failing" | "degraded" | "unknown",
+      lastCheck: p.lastCheck,
+      responseTime: p.responseTime,
+      successRate: Number(p.successRate),
+      history: historyFor(p.status as "passing" | "failing" | "degraded", p.responseTime),
+    }));
+
+    const passingCount = probes.filter(p => p.status === "passing").length;
+    const overallHealth = Math.round((passingCount / probes.length) * 100);
+
+    return { probes: probeData, overallHealth, timestamp: now.toISOString() };
   }
 
   return {
@@ -182,7 +377,7 @@ export function getSyntheticProbes(): SyntheticProbeData {
       { id: "probe-010", name: "Login Flow (SSO)", type: "flow", target: "/auth/login", status: "passing", lastCheck: "2m ago", responseTime: 890, successRate: 99.5, history: historyFor("passing", 890) },
     ],
     overallHealth: 80,
-    timestamp: new Date().toISOString(),
+    timestamp: now.toISOString(),
   };
 }
 
@@ -208,7 +403,40 @@ export function getReleaseIntelligence(): ReleaseIntelligenceData {
   };
 }
 
-export function getCostEfficiency(): CostEfficiencyData {
+export async function getCostEfficiency(): Promise<CostEfficiencyData> {
+  const costItems = await getCostItemsFromDb();
+
+  if (costItems && costItems.length > 0) {
+    const items = costItems.map(c => ({
+      id: c.costId,
+      category: c.category as "compute" | "storage" | "jobs" | "connectors" | "events",
+      name: c.name,
+      estimatedCost: c.estimatedCost,
+      usage: c.usage,
+      trend: c.trend as "up" | "down" | "stable",
+      efficiency: c.efficiency as "optimal" | "moderate" | "wasteful",
+      suggestion: c.suggestion,
+    }));
+
+    const totalMonthly = costItems.reduce((sum, c) => {
+      const match = c.estimatedCost.match(/\$([0-9,]+)/);
+      return sum + (match ? parseInt(match[1].replace(",", "")) : 0);
+    }, 0);
+
+    return {
+      items,
+      totalEstimatedMonthly: `$${totalMonthly.toLocaleString()}`,
+      topNoisySources: [
+        { name: "Telemetry Events (info-level)", eventsPerHour: 4700, cost: "$38/mo" },
+        { name: "Firestorm Perf Metrics", eventsPerHour: 2200, cost: "$22/mo" },
+        { name: "AIS Position Updates", eventsPerHour: 1800, cost: "$18/mo" },
+        { name: "Dreamscape Generation Logs", eventsPerHour: 950, cost: "$12/mo" },
+        { name: "Security Scan Results", eventsPerHour: 380, cost: "$5/mo" },
+      ],
+      timestamp: new Date().toISOString(),
+    };
+  }
+
   return {
     items: [
       { id: "cost-001", category: "compute", name: "Dreamscape GPU Instances", estimatedCost: "$1,200/mo", usage: "4x T4 GPU, 78% utilization", trend: "up", efficiency: "moderate", suggestion: "Enable model quantization to reduce GPU count to 3x" },
