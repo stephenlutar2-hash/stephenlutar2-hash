@@ -14,6 +14,7 @@ import plaidRouter from "./plaid";
 import socialRouter from "./social";
 import firestormRouter from "./firestorm";
 import vesselsRouter from "./vessels";
+import incaRouter from "./inca";
 import carlotaJoRouter from "./carlota-jo";
 import lyteRouter from "./lyte";
 import { auditMiddleware } from "../lib/audit";
@@ -32,6 +33,7 @@ router.use("/dreamera", requireDatabase);
 router.use("/rosie", requireDatabase);
 router.use("/alloy", requireDatabase);
 router.use("/monitoring", requireDatabase);
+router.use("/inca", requireDatabase);
 
 router.use(authRouter);
 router.use(beaconRouter);
@@ -47,6 +49,7 @@ router.use(plaidRouter);
 router.use(socialRouter);
 router.use(firestormRouter);
 router.use(vesselsRouter);
+router.use(incaRouter);
 router.use(carlotaJoRouter);
 router.use(lyteRouter);
 
