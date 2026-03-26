@@ -26,6 +26,7 @@
     "tailwind-merge": "catalog:",
     "tailwindcss": "catalog:",
     "vite": "catalog:",
+    "@szl-holdings/ui": "workspace:*",
     "wouter": "^3.3.5"
   }
 }

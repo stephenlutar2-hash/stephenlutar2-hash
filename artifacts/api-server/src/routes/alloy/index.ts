@@ -34,7 +34,7 @@ router.post("/alloy/conversations", requireAuth, validateBody(conversationSchema
     const username = getUsername(req);
     const [created] = await db
       .insert(conversations)
-      .values({ title, username })
+      .values({ title, username, agentType: "alloy" })
       .returning();
     res.status(201).json(created);
   } catch (e) {
@@ -48,7 +48,7 @@ router.get("/alloy/conversations", requireAuth, async (req, res) => {
     const rows = await db
       .select()
       .from(conversations)
-      .where(eq(conversations.username, username))
+      .where(and(eq(conversations.username, username), eq(conversations.agentType, "alloy")))
       .orderBy(desc(conversations.createdAt));
     res.json(rows);
   } catch (e) {
@@ -63,7 +63,7 @@ router.get("/alloy/conversations/:id", requireAuth, async (req, res) => {
     const [conversation] = await db
       .select()
       .from(conversations)
-      .where(and(eq(conversations.id, id), eq(conversations.username, username)))
+      .where(and(eq(conversations.id, id), eq(conversations.username, username), eq(conversations.agentType, "alloy")))
       .limit(1);
     if (!conversation) {
       return res.status(404).json({ error: "Conversation not found" });
@@ -86,7 +86,7 @@ router.delete("/alloy/conversations/:id", requireAuth, async (req, res) => {
     const [conversation] = await db
       .select()
       .from(conversations)
-      .where(and(eq(conversations.id, id), eq(conversations.username, username)))
+      .where(and(eq(conversations.id, id), eq(conversations.username, username), eq(conversations.agentType, "alloy")))
       .limit(1);
     if (!conversation) {
       return res.status(404).json({ error: "Conversation not found" });
@@ -110,7 +110,7 @@ router.post(
       const [conversation] = await db
         .select()
         .from(conversations)
-        .where(and(eq(conversations.id, id), eq(conversations.username, username)))
+        .where(and(eq(conversations.id, id), eq(conversations.username, username), eq(conversations.agentType, "alloy")))
         .limit(1);
       if (!conversation) {
         return res.status(404).json({ error: "Conversation not found" });

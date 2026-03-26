@@ -16,6 +16,7 @@ import firestormRouter from "./firestorm";
 import vesselsRouter from "./vessels";
 import incaRouter from "./inca";
 import carlotaJoRouter from "./carlota-jo";
+import domainAgentsRouter from "./domain-agents";
 import lyteRouter from "./lyte";
 import contactRouter from "./contact";
 import { auditMiddleware } from "../lib/audit";
@@ -38,6 +39,7 @@ router.use("/alloy", requireDatabase);
 router.use("/monitoring", requireDatabase);
 router.use("/inca", requireDatabase);
 router.use("/vessels", requireDatabase);
+router.use("/domain-agents", requireDatabase);
 
 router.use(authRouter);
 router.use(beaconRouter);
@@ -55,6 +57,7 @@ router.use(firestormRouter);
 router.use(vesselsRouter);
 router.use(incaRouter);
 router.use(carlotaJoRouter);
+router.use(domainAgentsRouter);
 router.use(lyteRouter);
 router.use(contactRouter);
 

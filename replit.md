@@ -2,7 +2,7 @@
 
 ## Overview
 
-SZL Holdings is a pnpm monorepo encompassing a suite of security, AI, and media platforms. The project aims to consolidate various applications into a single, unified architecture, providing a comprehensive ecosystem for security monitoring, AI analytics, enterprise management, and digital storytelling. The core intelligence, the Alloy Nuro Engine, leverages advanced AI to provide data-driven insights and autonomous monitoring across all platforms.
+SZL Holdings is a pnpm monorepo consolidating a suite of security, AI, and media platforms into a unified architecture. The project provides a comprehensive ecosystem for security monitoring, AI analytics, enterprise management, and digital storytelling. Its core intelligence, the Alloy Nuro Engine, uses advanced AI for data-driven insights and autonomous monitoring across all platforms. The business vision is to deliver cutting-edge, integrated solutions across various digital domains, enhancing security, operational efficiency, and creative potential for its users.
 
 ## User Preferences
 
@@ -12,115 +12,84 @@ SZL Holdings is a pnpm monorepo encompassing a suite of security, AI, and media 
 - **Brand colors**: ROSIE (electric blue/violet), AEGIS (gold/amber), LUTAR (emerald green), BEACON (cyan/electric blue), NIMBUS (cyan/purple), FIRESTORM (orange/red), VESSELS (ocean-blue/emerald)
 - **Domain**: szlholdings.com
 
-## Shared Design System
-
-The monorepo uses three shared workspace packages under `lib/`:
-- **`@szl-holdings/ui`** (`lib/ui`): All shared shadcn/ui components (55+), the `cn()` utility, and hooks (`useIsMobile`, `useToast`, `toast`). Apps import from `@szl-holdings/ui` instead of maintaining local copies.
-- **`@workspace/branding`** (`lib/branding`): Shared CSS variable contract (theme-contract.css), base layer styles (base.css), utility classes (utilities.css — glass-panel, text-gradient, glow-shadow, etc.), and TypeScript theme types. See `lib/branding/THEME_REFERENCE.md` for creating new app themes. Note: package was renamed from `@szl-holdings/branding` to `@workspace/branding` to match CSS import paths used by all apps.
-- **`@szl-holdings/platform`** (`lib/platform`): Shared `ErrorBoundary`, `AuthGuard`/`AuthProvider`/`useAuth` (with `redirectComponent` prop for router-agnostic redirects), `LayoutShell` (sidebar/topbar variants with breadcrumbs, page transitions via framer-motion), `PageTransition`, loading/empty/error state components, and environment validation helpers.
-
 ## System Architecture
 
-The project is built as a pnpm workspace monorepo using Node.js 24, pnpm, and TypeScript 5.9. The backend is an Express 5 API server, while frontends use React, Vite, Tailwind CSS, and shadcn/ui. PostgreSQL with Drizzle ORM handles data persistence, and Zod is used for validation. API codegen is managed by Orval from an OpenAPI spec.
+The project is structured as a pnpm workspace monorepo, utilizing Node.js 24, pnpm, and TypeScript 5.9. The backend is an Express 5 API server, while frontends are built with React, Vite, Tailwind CSS, and shadcn/ui. PostgreSQL with Drizzle ORM manages data, and Zod is used for validation. API codegen is handled by Orval from an OpenAPI spec.
 
-**Single-Port Consolidation:** The entire workspace operates through a single API server on port 3000. This server is responsible for:
-- Serving all frontend applications as static files from their `dist/public` directories (e.g., `/` for Rosie, `/aegis/` for Aegis).
-- Handling all API routes under the `/api/` prefix.
+**Core Architectural Principles:**
 
-**Custom Domain Routing:** Domain-based routing middleware (`middleware/domainRouting.ts`) detects the `Host` header and routes to the correct artifact at root path. Configuration is centralized in `config/domainMap.ts`. Standalone domains: `szlholdings.com` → SZL Holdings, `carlotajo.com` → Carlota Jo, `vesselsintel.com` → Vessels. Product subdomains: `{app}.szlholdings.com` → respective app. Infrastructure: `api.szlholdings.com` → API, `apps.szlholdings.com` → Apps Showcase, etc. Existing path-based routing is preserved as fallback. Cross-app links use `@szl-holdings/domain-utils` (`lib/domain-utils`) which detects custom domains at runtime and generates correct URLs.
+*   **Single-Port Consolidation:** A single API server on port 3000 serves all frontend applications as static files and handles all API routes under `/api/`.
+*   **Custom Domain Routing:** Middleware detects the `Host` header for domain-based routing, with configuration in `config/domainMap.ts`. This supports standalone domains (e.g., `szlholdings.com`) and product subdomains (e.g., `{app}.szlholdings.com`).
+*   **Shared Design System:** Three workspace packages (`@szl-holdings/ui`, `@workspace/branding`, `@szl-holdings/platform`) provide reusable UI components, styling, and core platform functionalities like error handling, authentication, and layout shells.
 
-**Platform Portfolio:** The monorepo includes several distinct applications, each serving a specific purpose:
-- **ROSIE**: AI-powered security monitoring.
-- **AEGIS**: Enterprise security fortress.
-- **LUTAR**: Personal empire command center.
-- **BEACON**: Decision analytics dashboard, integrating Zeus, INCA, and DreamEra functionalities.
-- **NIMBUS**: Predictive AI analytics.
-- **FIRESTORM**: Security simulation lab for defensive strategy testing.
-- **DREAMERA**: AI storytelling and artifact mapping.
-- **ALLOYSCAPE**: Infrastructure operations platform — management interface for the Alloy AI engine. Provides orchestration monitoring (with visual pipeline view), system module status, workflow templates, execution logs, service health, connector management, and user/role controls. All pages feature Framer Motion animations, skeleton loading states, search/sort/filter controls, status badges, and animated progress bars.
-- **DREAMSCAPE**: Premium creative systems platform — immersive gallery, world explorer, hierarchy map, prompt studio, and generation history. All pages feature Framer Motion animations, skeleton loading states, search/filter controls, stats overview panels, status badges, and animated progress indicators.
-- **ZEUS**: Modular core architecture system.
-- **VESSELS**: Maritime/logistics fleet intelligence platform (ocean-blue/emerald theme). Database-backed with Drizzle schema (10 tables: fleets, vessels, voyages, ports, routes, emissions, alerts, maintenance_events, certificates, shipments, logs). Features: Command Center with 6 observability pillars, interactive Leaflet fleet map, CO₂ & Emissions dashboard (CII ratings, EEXI compliance, fleet trends), Digital Experience with explainable risk cards per shipment, route disruption scoring, and write operations (alert acknowledge, vessel status update, maintenance logging, emissions submission). Auto-seeds on first request via `ensureSeeded()`.
-- **INCA**: Standalone intelligence/analytics platform — project management, experiment tracking, insight cards, model performance monitoring, and executive dashboard. Dark navy/cyan/violet theme with glassmorphism. Consumes existing INCA API endpoints. Elite-enhanced with: animated KPI counters (AnimatedCounter component with RAF cleanup), SVG sparkline mini-charts (Sparkline component), skeleton loading states (SkeletonLoader variants), Framer Motion page transitions, grid/list toggle on Projects, status pipeline visualization (research→development→testing→deployed), expandable drill-down rows on Experiments, filter tabs on Insights (All/Success/Warning/Trend/Discovery), interactive Recharts (pie, radar, area, bar charts), and animated sidebar active indicator with layoutId.
-- **CARLOTA JO**: Luxury consulting/family-office website — strategic advisory, portfolio optimization, technology transformation, and M&A advisory. Features hero, 6 expandable service areas, founder bio, testimonials, case studies, contact form, and consultation booking flow with session pricing.
-- **LYTE**: Executive observability command center — premium dark glass-card design with blue/cyan palette. Features 7 tabs: Command Dashboard (hero health score, KPI strip, attention queue, strategic highlights, risk/drift, ownership map, environment health), Signals (grouped by domain, search/filter), AI Actions (recommendations with execute/escalate), Impact (economic intelligence), Portfolio (sortable grid with readiness rings), Integrations (adapter status), Settings (system health). In-memory demo data (no DB), 6 API endpoints at `/api/lyte/*`.
-- **SZL Holdings**: Premium founder experience website — cinematic luxury landing with staggered letter-reveal hero (parallax + canvas particle background), interactive ecosystem constellation visualization (desktop SVG network + mobile card fallback), scroll-triggered animated counter metrics, premium milestone timeline with scroll-driven progress bar, upgraded portfolio cards (tech stack badges, status indicators, category labels), vision pillars, innovation areas, contact inquiry form, and sticky navigation. Dark/gold palette with Framer Motion animations, lazy-loaded sections, prefers-reduced-motion support, full SEO metadata (OG, Twitter, structured data, favicon). Registered as artifact at `/szl-holdings/`.
-- **Apps Showcase**, **Readiness Report**, and **Career** for public-facing information.
+**Platform Portfolio:**
 
-**Authentication:** A unified login system supports:
-- **Demo Login:** Credentials `slutar` / `Topshelf14@` with session token management.
-- **Entra External ID (MSAL):** Enterprise SSO when environment variables `ENTRA_TENANT_ID`, `ENTRA_CLIENT_ID` are set. Features JWKS validation and MSAL popup flow for frontend authentication.
+The monorepo encompasses several distinct applications:
 
-**Alloy Nuro Engine (Autonomous AI Neural Core):**
-- Central AI intelligence across SZL Holdings, using OpenAI gpt-5.2.
-- Employs a "tool-first" approach with 40+ tools providing CRUD access to all platform databases, ensuring data grounding and preventing hallucination.
-- API routes for conversation management (`/api/alloy/conversations`) and autonomous health sweeps (`/api/alloy/monitor`).
-- Uses an agent loop with OpenAI function-calling and streaming, buffering content until tool calls are complete to ensure grounded responses.
+*   **ROSIE**: AI-powered security monitoring.
+*   **AEGIS**: Enterprise security management.
+*   **LUTAR**: Personal empire command center.
+*   **BEACON**: Decision analytics dashboard.
+*   **NIMBUS**: Predictive AI analytics.
+*   **FIRESTORM**: Security simulation lab.
+*   **DREAMERA**: AI storytelling and artifact mapping.
+*   **ALLOYSCAPE**: Infrastructure operations for the Alloy AI engine.
+*   **DREAMSCAPE**: Premium creative systems platform.
+*   **ZEUS**: Modular core architecture system.
+*   **VESSELS**: Maritime/logistics fleet intelligence platform with a dedicated PostgreSQL schema.
+*   **INCA**: Standalone intelligence/analytics platform with project management and experiment tracking.
+*   **CARLOTA JO**: Luxury consulting/family-office website.
+*   **LYTE**: Executive observability command center with a dark glass-card design.
+*   **SZL Holdings**: Premium founder experience website.
+*   **Apps Showcase**, **Readiness Report**, and **Career** for public information.
 
-**Database Schema:** PostgreSQL database includes tables for:
-- `sessions` (auth), `rosie_threats`, `rosie_incidents`, `rosie_scans` (ROSIE).
-- `beacon_metrics`, `beacon_projects` (BEACON).
-- `nimbus_predictions`, `nimbus_alerts` (NIMBUS).
-- `zeus_modules`, `zeus_logs` (ZEUS).
-- `inca_projects`, `inca_experiments` (INCA).
-- `dreamera_content`, `dreamera_campaigns` (DREAMERA).
-- `conversations`, `messages` (Alloy Engine).
-- `vessel_fleets`, `vessels`, `vessel_voyages`, `vessel_ports`, `vessel_routes`, `vessel_emissions`, `vessel_alerts`, `vessel_maintenance_events`, `vessel_certificates`, `vessel_shipments`, `vessel_logs` (VESSELS).
+**Authentication:**
 
-**API Routes:** All API routes are prefixed with `/api/` and include endpoints for authentication, platform-specific CRUD operations, Alloy Engine interactions, and monitoring. Write operations on ROSIE are authenticated. Database-backed routes are guarded by `requireDatabase` middleware that returns 503 if `DATABASE_URL` is not configured. Firestorm simulation routes (`/api/firestorm/*`) are protected by `requireAuth` — all scenario, event, detection, and report endpoints require a valid session token. Vessels routes (`/api/vessels/*`) are database-backed with auto-seeding. Endpoints: `/command-center`, `/apm`, `/infrastructure`, `/logs`, `/experience`, `/synthetics`, `/intelligence`, `/fleet` (map data), `/emissions`, `/disruption`. Write endpoints: `POST /alerts/:code/acknowledge`, `PATCH /vessel/:code/status`, `POST /maintenance`, `POST /emissions`.
+A unified login system supports:
 
-**Production Hardening / Security & Governance:**
-- Health endpoints: `/health`, `/healthz` (root level), `/api/health`, `/api/healthz`, `/api/readyz` (deep checks DB/Redis/KeyVault/Blob connectivity), per-group `/api/<group>/health` for all route groups.
-- Security headers middleware: CSP, HSTS, X-Content-Type-Options, X-Frame-Options, Referrer-Policy on all responses (`middleware/securityHeaders.ts`).
-- RBAC: `middleware/rbac.ts` with DB-backed `user_roles` table, `requireRole()` / `requireAdmin()` / `requireOperator()` middleware supporting admin/operator/viewer roles. Roles resolved from DB on all auth paths (login, Entra, requireAuth) with secure default "viewer". Admin role management API: GET/POST `/api/roles` (admin-only).
-- Rate limiting: `middleware/rateLimit.ts` — per-IP rate limiting on auth endpoints (20 req/15min), per-user rate limiting on write-heavy routes (60 req/min) keyed on `req.user.username`.
-- Schema validation: `middleware/validate.ts` with `validateBody()` / `validateAndSanitizeBody()` / `validateQuery()` middleware using Zod schemas with consistent 400 error format. Applied to ALL body-accepting routes.
-- Input sanitization: `lib/sanitize.ts` with `escapeHtml()`, `sanitizeString()`, `sanitizeObject()` for XSS prevention. DB-writing routes use `validateAndSanitizeBody` for HTML escaping; auth/token routes use plain `validateBody`.
-- Audit logging: `lib/audit.ts` structured pino audit middleware on ALL mutating operations (POST/PUT/PATCH/DELETE), writes to both pino logs and `audit_logs` database table.
-- Feature flags: `lib/featureFlags.ts` — database-backed feature flags (`feature_flags` table) with env var fallback, 30s cache TTL, API endpoints at `/api/feature-flags` (GET list, GET by key, POST to set — admin only).
-- Environment validation: `lib/envValidation.ts` validates required env vars on boot (after Key Vault loading), fails fast with clear messages.
-- Logger redaction: Pino logger redacts passwords, tokens, secrets, API keys, access tokens from structured log output.
-- DB graceful fallback: `@szl-holdings/db` warns on missing `DATABASE_URL` instead of crashing; `isDatabaseAvailable()` export + `requireDatabase` middleware.
-- Database schema: `user_roles`, `audit_logs`, and `feature_flags` tables in `lib/db/src/schema/governance.ts`.
-- Apps Showcase: `/catalog` page with grouped project cards including INCA (deployed).
-- SEO: Open Graph meta tags and descriptions on ROSIE, apps-showcase, and career HTML.
-- Accessibility: Skip-to-content links on apps-showcase pages.
+*   **Demo Login:** Predefined credentials (`slutar` / `Topshelf14@`).
+*   **Entra External ID (MSAL):** Enterprise Single Sign-On (SSO) with JWKS validation.
 
-## GitHub Repository
+**Alloy Nuro Engine:**
 
-- **Repository**: [stephenlutar2-hash/inca-intelligence-platform](https://github.com/stephenlutar2-hash/inca-intelligence-platform)
-- **Remote**: `origin` → `https://github.com/stephenlutar2-hash/inca-intelligence-platform.git`
-- **Branch**: `main`
-- **Note**: The `.github/workflows/deploy.yml` file is tracked locally but not pushed to GitHub due to the Replit GitHub OAuth token lacking the `workflow` scope. To push it, use a Personal Access Token with the `workflow` scope.
+This is the central AI intelligence, powered by OpenAI gpt-5.2. It employs a "tool-first" approach with 40+ tools for database CRUD operations, ensuring data grounding and preventing hallucination.
+
+**Domain-Specific AI Agents:**
+
+Four domain-specific AI agents share a common SSE streaming backend engine (`artifacts/api-server/src/routes/domain-agents/`):
+*   **INCA — Research Intelligence Agent**: Curated tools for projects, experiments, insights, and models. Uses `optionalAuth` for public/authenticated access.
+*   **Vessels — Maritime Operations Agent**: Tools for fleet, vessel, voyage, emissions, and alert queries.
+*   **SZL Holdings — Portfolio Concierge**: No tools; pure conversational agent for portfolio/vision inquiries.
+*   **Carlota Jo — Strategic Engagement Advisor**: Submit-inquiry tool for consultation booking.
+
+Each agent has a distinct system prompt and persona. Routes: `/api/domain-agents/:agentType/conversations` (CRUD) and `/api/domain-agents/:agentType/conversations/:id/messages` (SSE streaming). Anonymous sessions use HMAC-derived usernames for security. Each frontend app integrates a themed `DomainChatWidget` component (floating button → collapsible chat panel). The `conversations` table has an `agentType` column (default "alloy") to isolate agent conversations.
+
+**Security & Governance:**
+
+The system incorporates robust security and governance features:
+
+*   **Health Endpoints:** Comprehensive health checks at various levels.
+*   **Security Headers:** Middleware for CSP, HSTS, and other security headers.
+*   **RBAC:** Role-Based Access Control using a DB-backed `user_roles` table with `requireRole()` middleware.
+*   **Rate Limiting:** Per-IP and per-user rate limiting on critical endpoints.
+*   **Schema Validation:** Zod-based validation and sanitization for all incoming data.
+*   **Input Sanitization:** HTML escaping for XSS prevention.
+*   **Audit Logging:** Structured audit logs for all mutating operations to both logs and a database table.
+*   **Feature Flags:** Database-backed feature flags with API management.
+*   **Environment Validation:** Strict validation of environment variables on boot.
+*   **Logger Redaction:** Pino logger redacts sensitive information.
+*   **DB Graceful Fallback:** Handles missing `DATABASE_URL` gracefully.
+*   **SEO & Accessibility:** Open Graph tags, descriptions, and skip-to-content links.
 
 ## External Dependencies
 
-- **PostgreSQL**: Primary database.
-- **OpenAI**: Powers the Alloy Nuro Engine (gpt-5.2 via Replit AI Integrations).
-- **Microsoft Entra External ID (MSAL)**: For enterprise Single Sign-On (SSO).
-- **Stripe**: Payment processing integration (Beacon, Lutar).
-- **Plaid**: Financial data aggregation (Lutar).
-- **Meta (Facebook/Instagram)**, **Twitter**, **LinkedIn**: Social media integration for content publishing and analytics (DreamEra).
-- **Azure Application Insights**: For monitoring and telemetry, if `APPLICATIONINSIGHTS_CONNECTION_STRING` is configured.
-- **Azure Key Vault**: Centralized secrets management when `AZURE_KEY_VAULT_URL` is set (falls back to env vars).
-- **Azure Managed Redis**: Session storage and caching when `AZURE_REDIS_URL` is set (falls back to in-memory).
-- **Azure Blob Storage**: File uploads/exports when `AZURE_STORAGE_CONNECTION_STRING` or `AZURE_STORAGE_ACCOUNT_NAME` is set.
-
-## Azure Infrastructure
-
-Infrastructure-as-code (Bicep) templates in `infra/` define the full Azure production stack:
-- Front Door + WAF, Static Web Apps (×11), Container Apps, Key Vault, PostgreSQL Flexible Server, Redis Cache, Blob Storage, Application Insights.
-- Dockerfile at repo root builds the entire monorepo into a single container image.
-- GitHub Actions CI/CD workflow at `.github/workflows/deploy.yml`.
-- See `infra/README.md` for provisioning instructions, parameters, and cost estimates.
-
-## GitHub Packages
-
-All 5 GitHub Packages registries are configured. Shared libraries use `@szl-holdings` scoped names (e.g., `@szl-holdings/ui`, `@szl-holdings/platform`). Workflows use `GITHUB_TOKEN` for authentication.
-
-- **npm**: `.github/workflows/publish-npm.yml` — publishes all 9 shared libs from `lib/` on release or manual dispatch.
-- **Containers**: `.github/workflows/publish-container.yml` — builds Dockerfile and pushes to `ghcr.io` on push to main.
-- **Maven**: `.github/workflows/publish-maven.yml` — scaffolded at `packages/maven-example/`.
-- **NuGet**: `.github/workflows/publish-nuget.yml` — scaffolded at `packages/nuget-example/`.
-- **RubyGems**: `.github/workflows/publish-rubygems.yml` — scaffolded at `packages/rubygems-example/`.
-- See `PACKAGES.md` for full usage documentation.
+*   **PostgreSQL**: Primary database for data persistence.
+*   **OpenAI**: Powers the Alloy Nuro Engine (via Replit AI Integrations).
+*   **Microsoft Entra External ID (MSAL)**: For enterprise Single Sign-On (SSO).
+*   **Stripe**: Payment processing (Beacon, Lutar).
+*   **Plaid**: Financial data aggregation (Lutar).
+*   **Meta (Facebook/Instagram), Twitter, LinkedIn**: Social media integration for DreamEra.
+*   **Azure Application Insights**: For monitoring and telemetry.
+*   **Azure Key Vault**: Centralized secrets management.
+*   **Azure Managed Redis**: Session storage and caching.
+*   **Azure Blob Storage**: File uploads and exports.

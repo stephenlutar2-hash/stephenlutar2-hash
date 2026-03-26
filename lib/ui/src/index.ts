@@ -62,3 +62,7 @@ export * from "./components/toast";
 export * from "./components/toggle-group";
 export * from "./components/toggle";
 export * from "./components/tooltip";
+
+// Domain Chat
+export { DomainChatWidget } from "./components/domain-chat-widget";
+export type { DomainChatWidgetProps } from "./components/domain-chat-widget";

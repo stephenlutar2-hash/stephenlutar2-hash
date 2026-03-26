@@ -12,3 +12,9 @@ export type {
   UseAlloyChatOptions,
   UseAlloyChatReturn,
 } from "./use-alloy-chat";
+export { useDomainChat } from "./use-domain-chat";
+export type {
+  DomainChatMessage,
+  UseDomainChatOptions,
+  UseDomainChatReturn,
+} from "./use-domain-chat";

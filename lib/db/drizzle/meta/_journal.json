@@ -29,6 +29,13 @@
       "when": 1774498527430,
       "tag": "0003_stale_archangel",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1774515301328,
+      "tag": "0004_secret_jamie_braddock",
+      "breakpoints": true
     }
   ]
 }

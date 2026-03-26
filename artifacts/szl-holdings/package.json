@@ -24,6 +24,7 @@
     "react-dom": "catalog:",
     "tailwindcss": "catalog:",
     "vite": "catalog:",
-    "@szl-holdings/domain-utils": "workspace:*"
+    "@szl-holdings/domain-utils": "workspace:*",
+    "@szl-holdings/ui": "workspace:*"
   }
 }

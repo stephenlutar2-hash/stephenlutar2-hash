@@ -670,6 +670,9 @@ importers:
       '@replit/vite-plugin-runtime-error-modal':
         specifier: 'catalog:'
         version: 0.0.6
+      '@szl-holdings/ui':
+        specifier: workspace:*
+        version: link:../../lib/ui
       '@tailwindcss/vite':
         specifier: 'catalog:'
         version: 4.2.1(vite@7.3.1(@types/node@25.3.5)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2))
@@ -1025,6 +1028,9 @@ importers:
       '@szl-holdings/api-client-react':
         specifier: workspace:*
         version: link:../../lib/api-client-react
+      '@szl-holdings/ui':
+        specifier: workspace:*
+        version: link:../../lib/ui
       '@tailwindcss/typography':
         specifier: ^0.5.15
         version: 0.5.19(tailwindcss@4.2.1)
@@ -1562,6 +1568,9 @@ importers:
       '@szl-holdings/domain-utils':
         specifier: workspace:*
         version: link:../../lib/domain-utils
+      '@szl-holdings/ui':
+        specifier: workspace:*
+        version: link:../../lib/ui
       '@tailwindcss/vite':
         specifier: 'catalog:'
         version: 4.2.1(vite@7.3.1(@types/node@25.3.5)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2))
@@ -1704,6 +1713,9 @@ importers:
       '@szl-holdings/api-client-react':
         specifier: workspace:*
         version: link:../../lib/api-client-react
+      '@szl-holdings/ui':
+        specifier: workspace:*
+        version: link:../../lib/ui
       '@tailwindcss/typography':
         specifier: ^0.5.15
         version: 0.5.19(tailwindcss@4.2.1)

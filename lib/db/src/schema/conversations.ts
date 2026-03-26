@@ -6,6 +6,7 @@ export const conversations = pgTable("conversations", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   username: text("username").notNull(),
+  agentType: text("agent_type").notNull().default("alloy"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 

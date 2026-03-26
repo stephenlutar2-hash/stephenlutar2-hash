@@ -8,6 +8,7 @@ import ProjectDetail from "@/pages/ProjectDetail";
 import Experiments from "@/pages/Experiments";
 import Insights from "@/pages/Insights";
 import Models from "@/pages/Models";
+import { DomainChatWidget } from "@szl-holdings/ui";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,20 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
         <Router />
+        <DomainChatWidget
+          agentType="inca"
+          agentName="INCA Research Intelligence"
+          accentColor="#6366f1"
+          accentHover="#4f46e5"
+          bgColor="#0f0f23"
+          textColor="#e2e8f0"
+          borderColor="#1e293b"
+          inputBg="#1e1e3a"
+          messageBgUser="#6366f1"
+          messageBgAssistant="#1e1e3a"
+          placeholderText="Ask about experiments, models, accuracy trends, or research projects..."
+          getToken={() => localStorage.getItem("szl_token")}
+        />
       </WouterRouter>
     </QueryClientProvider>
   );

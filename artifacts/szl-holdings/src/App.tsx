@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react";
 import Navigation from "./components/Navigation";
 import Hero from "./sections/Hero";
 import Footer from "./components/Footer";
+import { DomainChatWidget } from "@szl-holdings/ui";
 
 const Vision = lazy(() => import("./sections/Vision"));
 const EcosystemConstellation = lazy(() => import("./sections/EcosystemConstellation"));
@@ -48,6 +49,19 @@ function App() {
         </Suspense>
       </main>
       <Footer />
+      <DomainChatWidget
+        agentType="szl-holdings"
+        agentName="SZL Portfolio Concierge"
+        accentColor="#d4a84b"
+        accentHover="#c49a3a"
+        bgColor="#0a0a0f"
+        textColor="#e8e4dd"
+        borderColor="#2a2520"
+        inputBg="#141218"
+        messageBgUser="#d4a84b"
+        messageBgAssistant="#1a1820"
+        placeholderText="Ask about SZL Holdings ventures, platforms, or how we can help..."
+      />
     </div>
   );
 }
