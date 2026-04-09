@@ -1,9 +1,5 @@
 <p align="center">
-    <img src="https://readme-typing-svg.demolab.com?font=Inter&weight=700&size=32&duration=3000&pause=1000&color=D4A054&center=true&vCenter=true&width=700&lines=Stephen+Lutar;Founder+%26+CEO+—+SZL+Holdings;16+Live+Applications.+One+Architect.;Business+Observability+%26+Intelligence" alt="Typing SVG" />
-  </p>
-
-  <p align="center">
-    <img src="hero.svg" width="100%" />
+    <img src="https://capsule-render.vercel.app/api?type=waving&color=0:080c14,50:1a1a2e,100:d4a054&height=200&section=header&text=Stephen%20Lutar&fontSize=42&fontColor=e2e8f0&fontAlignY=35&desc=Founder%20%26%20CEO%20—%20SZL%20Holdings&descSize=16&descColor=d4a054&descAlignY=55&animation=fadeIn" width="100%" />
   </p>
 
   <p align="center">
@@ -20,11 +16,9 @@
 
   ---
 
-  ## About
+  <h3 align="center">One holding company. Six platforms. 16 live applications. One founder.</h3>
 
-  **Founder & CEO** at [SZL Holdings](https://szlholdings.com) — a strategic holding company operating six purpose-built intelligence platforms on a single TypeScript monorepo.
-
-  Building governed operational intelligence software for industries where silent failures, invisible risk, and unaccountable AI are not acceptable.
+  <p align="center"><i>Building governed operational intelligence software for industries where silent failures, invisible risk, and unaccountable AI are not acceptable.</i></p>
 
   ---
 
@@ -100,6 +94,10 @@
   - **Medium:** [Stephen Lutar](https://medium.com/@stephen_38454) — long-form thinking on architecture, domain intelligence, and operating philosophy
 
   ---
+
+  <p align="center">
+    <img src="https://capsule-render.vercel.app/api?type=waving&color=0:080c14,50:1a1a2e,100:d4a054&height=100&section=footer" width="100%" />
+  </p>
 
   <p align="center">
     <i>Open to design partner conversations, enterprise evaluation, and investment introductions.</i>
