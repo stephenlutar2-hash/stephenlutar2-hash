@@ -1,2 +1,0 @@
-szl-holdings-project.tar.gz filter=lfs diff=lfs merge=lfs -text
-szl-holdings-full.tar.gz filter=lfs diff=lfs merge=lfs -text
