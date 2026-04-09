@@ -1,1 +1,0 @@
-ALTER TABLE "sessions" ADD COLUMN "role" text DEFAULT 'viewer' NOT NULL;
