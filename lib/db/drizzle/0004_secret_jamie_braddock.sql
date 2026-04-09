@@ -1,1 +1,0 @@
-ALTER TABLE "conversations" ADD COLUMN "agent_type" text DEFAULT 'alloy' NOT NULL;
