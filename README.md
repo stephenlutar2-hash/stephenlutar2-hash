@@ -18,7 +18,7 @@
 
 ### Builder-operator behind SZL Holdings.
 
-One holding company. Six platforms. 16 live applications. One architect.
+One holding company. One platform. 14 registered artifacts. One architect.
 
 I build governed operational intelligence software for industries where silent failures, invisible risk, and unaccountable AI are not acceptable. Everything ships from a single TypeScript monorepo. Every improvement compounds across every platform.
 
@@ -59,8 +59,8 @@ I build governed operational intelligence software for industries where silent f
   </tr>
   <tr>
     <td width="50%" align="center">
-      <strong>PRISM Counsel — Legal Matter Command</strong><br/>
-      Deadline tracking, pressure scoring, proof chain export<br/><br/>
+      <strong>Counsel — Legal Matter Command</strong><br/>
+      Matter command, obligation tracking, exposure quantification, legal intelligence<br/><br/>
       <img src="screenshots/prism-counsel.jpg" width="100%" alt="PRISM Counsel" />
     </td>
     <td width="50%" align="center">
@@ -94,10 +94,10 @@ I build governed operational intelligence software for industries where silent f
 ### The Numbers
 
 ```
-16    applications live              8 web + 8 mobile (Expo)
-446   database tables                one shared PostgreSQL schema
-1,618+ API endpoints                 full TypeScript, zero JavaScript
-6     operating platforms            one compounding architecture
+14    registered artifacts           11 web + 1 mobile (Expo) + 1 video + 1 design
+798   database tables                one shared PostgreSQL schema
+2,816 API endpoints                  full TypeScript, zero JavaScript
+8     domain verticals               one compounding architecture
 1     founder                        builder-operator
 ```
 
