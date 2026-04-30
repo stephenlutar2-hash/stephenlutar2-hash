@@ -45,17 +45,17 @@
 
   <rect x="150" y="170" width="600" height="1" fill="url(#lineGrad)"/>
 
-  <text x="186" y="206" fill="#d4a054" font-family="system-ui, -apple-system, sans-serif" font-size="24" font-weight="700" filter="url(#glow)">16</text>
-  <text x="186" y="222" fill="#94a3b8" font-family="system-ui, -apple-system, sans-serif" font-size="9" text-anchor="middle" letter-spacing="1">LIVE APPS</text>
+  <text x="186" y="206" fill="#d4a054" font-family="system-ui, -apple-system, sans-serif" font-size="24" font-weight="700" filter="url(#glow)">14</text>
+  <text x="186" y="222" fill="#94a3b8" font-family="system-ui, -apple-system, sans-serif" font-size="9" text-anchor="middle" letter-spacing="1">ARTIFACTS</text>
 
-  <text x="350" y="206" fill="#d4a054" font-family="system-ui, -apple-system, sans-serif" font-size="24" font-weight="700" filter="url(#glow)">446</text>
+  <text x="350" y="206" fill="#d4a054" font-family="system-ui, -apple-system, sans-serif" font-size="24" font-weight="700" filter="url(#glow)">798</text>
   <text x="356" y="222" fill="#94a3b8" font-family="system-ui, -apple-system, sans-serif" font-size="9" text-anchor="middle" letter-spacing="1">DB TABLES</text>
 
-  <text x="510" y="206" fill="#d4a054" font-family="system-ui, -apple-system, sans-serif" font-size="24" font-weight="700" filter="url(#glow)">1,618+</text>
+  <text x="510" y="206" fill="#d4a054" font-family="system-ui, -apple-system, sans-serif" font-size="24" font-weight="700" filter="url(#glow)">2,816</text>
   <text x="530" y="222" fill="#94a3b8" font-family="system-ui, -apple-system, sans-serif" font-size="9" text-anchor="middle" letter-spacing="1">API ENDPOINTS</text>
 
-  <text x="700" y="206" fill="#d4a054" font-family="system-ui, -apple-system, sans-serif" font-size="24" font-weight="700" filter="url(#glow)">6</text>
-  <text x="700" y="222" fill="#94a3b8" font-family="system-ui, -apple-system, sans-serif" font-size="9" text-anchor="middle" letter-spacing="1">PLATFORMS</text>
+  <text x="700" y="206" fill="#d4a054" font-family="system-ui, -apple-system, sans-serif" font-size="24" font-weight="700" filter="url(#glow)">8</text>
+  <text x="700" y="222" fill="#94a3b8" font-family="system-ui, -apple-system, sans-serif" font-size="9" text-anchor="middle" letter-spacing="1">VERTICALS</text>
 
   <rect x="150" y="240" width="600" height="1" fill="url(#lineGrad)"/>
 
