@@ -1,101 +1,80 @@
-<h1 align="center">Stephen Paul Lutar Jr.</h1>
+# Stephen Lutar
 
-  <p align="center">
-    <strong>Founder & CEO, SZL Holdings</strong><br/>
-    <em>Building governed decision infrastructure for high-consequence enterprise operations.</em>
-  </p>
+**Founder and CEO — SZL Holdings**
 
-  <p align="center">
-    <a href="https://szlholdings.com">Website</a>&ensp;&middot;&ensp;<a href="https://linkedin.com/in/stephen-l-279315240">LinkedIn</a>&ensp;&middot;&ensp;<a href="https://medium.com/@szlholdings">Medium</a>&ensp;&middot;&ensp;<a href="https://szlholdings.substack.com">Substack</a>&ensp;&middot;&ensp;<a href="mailto:inquiries@szlholdings.com">Contact</a>
-  </p>
+Building governed decision infrastructure software. Systems where AI-assisted decisions require human accountability, and where observability connects to action — not just visualization.
 
-  ---
+---
 
-  ### The thesis
+## About
 
-  Enterprise AI has an accountability gap. Systems generate recommendations without governance, execute actions without proof, and create risk without attribution. The gap is not insight — it is accountability.
+I build governed, production-ready command software for organizations that cannot afford silent failures, invisible risk, or unaccountable AI. Every system I build has explicit audit trails, human-in-the-loop controls, and traceable decision paths.
 
-  SZL Holdings closes that gap. We build the infrastructure layer where every AI recommendation carries source citations and confidence scores, every consequential action requires human confirmation, and every outcome produces cryptographic proof.
+AI outputs without traceability create noise, not trust. Signal to routing to approval gate to audit trail. That is the model.
 
-  ---
+---
 
-  ### What I'm building
+## Current Build
 
-  **A11oy** is the governed agentic execution layer — the fabric that sits between enterprise data and enterprise decisions. It senses, structures, correlates, recommends, approves, executes, and preserves an immutable record of every step. No material action runs without human confirmation.
+**SZL Holdings Platform** — pnpm monorepo. TypeScript throughout.
 
-  The intelligence packs extend the same governance infrastructure across regulated verticals:
+**KORA** — Flagship command surface. Surfaces execution risk, ownership drift, and workflow friction before they compound. PRAXIS framework: People, Revenue, Infrastructure, Security, Market.
 
-  | Product | Domain |
-  |:--------|:-------|
-  | **A11oy** | Governed agentic execution fabric — signal-to-proof across all verticals |
-  | **Sentra** | Cyber resilience command — exposure mapping, recovery readiness, incident command |
-  | **Vessels** | Maritime fleet command — AIS tracking, sanctions screening, voyage economics |
-  | **Terra** | Real estate intelligence — distress signals, ownership graph, deal pipeline |
-  | **Counsel** | Legal matter command — diligence, evidence, AI-assisted contract risk |
-  | **Aegis** | Defense and intelligence command — SOC, SOAR playbooks, threat intelligence |
-  | **Lyte** | Decision intelligence — PRAXIS framework command surface |
-  | **Pulse** | AI executive briefing — daily intelligence digest, fully source-cited |
-  | **Amaru** | Convergent reverse-ETL — sync loops that converge to canonical state |
-  | **Carlota Jo** | Premium advisory operations for UHNW clients |
-  | **Mobile Command** | Unified iOS + Android command (React Native + Expo) |
+**A11oy** — Governed agentic execution fabric. Senses, structures, correlates, explains, recommends, approves, executes, verifies, and preserves cryptographic proof in real time across all SZL domain packs.
 
-  ```
-  15 registered artifacts    92 packages    51 shared libraries
-   9 domain verticals        20 CI/CD workflows
-   1 TypeScript monorepo — React 19, Vite 7, PostgreSQL 16, Expo SDK 53
-  ```
+---
 
-  ---
+## Domain Packs and Product Surfaces
 
-  ### Loop-native research — what makes us different
+**Domain packs** (TENAX, Counsel, PARAGON, SEXTANT, DOMAINE, Carlota Jo) own a vertical of business data and operations. **Cross-domain surfaces** (LUMINA, FORGE Command Portal, SZL Holdings dashboard) aggregate signals across packs.
 
-  Most enterprise AI platforms run a single forward pass and call the answer done. We don't. Every consequential decision in our platform runs through the **Ouroboros Loop kernel** — a bounded recursive process with cross-step consistency, adaptive depth, and entropy-regularized exit. The answer is the *converged* answer, not the first one.
+| Product | Domain | Status |
+|---------|--------|--------|
+| **TENAX** | Cyber resilience command | Active (domain pack) |
+| **Counsel** | Legal matter command | Active (domain pack) |
+| **SEXTANT** | Maritime fleet command | Active (domain pack) |
+| **DOMAINE** | Real estate intelligence | Active (domain pack) |
+| **Carlota Jo** | Premium advisory operations | Active (domain pack) |
+| **LUMINA** | AI executive briefing — synthesizes signals across all domain packs | Active (cross-domain surface) |
+| **PARAGON** | Security and defense intelligence domain pack (API routes active); `artifacts/aegis` web artifact is the investor pitch deck + ATLAS runtime | API domain active; pitch deck active |
+| **A11oy** | Governed agentic execution fabric — seven-layer runtime across all verticals | Active (Phase 1 Foundation) |
 
-  The kernel is grounded in seven papers we read together:
+---
 
-  - **Kaplan 2020** — width vs. depth fungibility (the permission slip for looped depth)
-  - **Villalobos 2022** — public text exhausts between 2026 and 2032 (loop = data efficiency)
-  - **Yue 2025** — RL polishes more than it extends (so we bias toward distillation-shaped loops)
-  - **Universal Transformers (Dehghani 2018)** — Turing-complete weight-tied recurrence
-  - **PonderNet (Banino 2021)** — ELBO-based adaptive halting
-  - **Parcae (Prairie 2026)** — spectral stability, first scaling laws for looped LMs
-  - **Ouro (ByteDance 2025)** — synthesis: 7.7T tokens, sandwich norm, 4-stage curriculum
+## Architecture Principles
 
-  We ship that research as `@workspace/ouroboros` — wired into A11oy (Loop Reasoner, Andean Orchestration), Sentra (Recursive Threat Modeler), and Amaru (Convergent Sync). Full thesis: [`docs/ouroboros-thesis.md`](https://github.com/szl-holdings/szl-holdings-platform/blob/main/docs/ouroboros-thesis.md).
+**AI governance by design.** Advisory agents cannot execute consequential actions without explicit human confirmation. Enforced at the A11oy governance layer — not just the UI.
 
-  ---
+**Evidence-backed decisions.** Every AI recommendation includes source citations, confidence scores, and retrieval provenance. No opaque outputs.
 
-  ### Current focus
+**Explicit over implicit.** Platform state is always visible. No silent fallbacks. Failures surface, not hide.
 
-  - **A11oy Phase 2** — Workcell engine with live AI reasoning and proof-carrying execution
-  - **Amaru convergence runtime** — Loop-native reverse-ETL with measurable consistency guarantees
-  - **Sentra Crisis Simulator** — Live red-team game day engine with Bayesian resilience scoring
-  - **Mobile Command** — iOS/Android unified command surface (Expo, offline-first, biometric sign-in)
-  - **Platform hardening** — Circuit breakers, idempotency, load shedding, dependency health endpoint
+**Shared fabric, domain specialization.** KORA and A11oy are not product-specific — they are platform infrastructure. Domain packs are structured applications built on the same foundation.
 
-  ---
+---
 
-  ### Building in public
+## Stack
 
-  I write about what I'm building, what I'm learning, and what's actually working:
+```
+TypeScript  React  Express  PostgreSQL  Drizzle ORM
+pnpm monorepo  Expo / React Native  Azure  OIDC/PKCE
+OpenAI  Anthropic  Gemini  Apollo GraphQL  Vite
+```
 
-  - **Substack** — Long-form build logs and operational reflections
-  - **Medium** — Technical deep-dives on governance, testing, and production-grade AI systems
-  - **LinkedIn** — Weekly proof-of-work: what shipped, what broke, what changed
+---
 
-  The work is real. The screenshots are from the live platform. The lessons are earned.
+## Featured Repository
 
-  ---
+**[szl-holdings-platform](https://github.com/szl-holdings/szl-holdings-platform)** — Full platform monorepo. TypeScript throughout.
 
-  ### Contact
+[Security Policy](https://github.com/szl-holdings/szl-holdings-platform/blob/master/SECURITY.md) · [Architecture](https://github.com/szl-holdings/szl-holdings-platform/blob/master/docs/architecture/architecture.md) · [Platform Primitives](https://github.com/szl-holdings/szl-holdings-platform/blob/master/docs/architecture/platform-primitives.md)
 
-  Open to investor conversations, enterprise evaluation, and design partner introductions.
+---
 
-  **Email:** [inquiries@szlholdings.com](mailto:inquiries@szlholdings.com)
-  **LinkedIn:** [linkedin.com/in/stephen-l-279315240](https://linkedin.com/in/stephen-l-279315240)
-  **Platform:** [szlholdings.com](https://szlholdings.com)
+## Connect
 
-  ---
+**LinkedIn:** [linkedin.com/in/stephen-l-279315240](https://linkedin.com/in/stephen-l-279315240)
+**Website:** [szlholdings.com](https://szlholdings.com)
+**Email:** inquiries@szlholdings.com
 
-  <sub>Copyright &copy; 2024–2026 SZL Holdings. All rights reserved.</sub>
-  
+Open to design partner conversations, enterprise evaluation, and investment introductions.
