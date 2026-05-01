@@ -5,9 +5,11 @@
   Building governed decision infrastructure software. Systems where AI-assisted decisions require human accountability, and where observability connects to action — not just visualization.
 
   [![szlholdings.com](https://img.shields.io/badge/web-szlholdings.com-0a0a0a?style=flat-square)](https://szlholdings.com)
-  [![Ouroboros tests](https://img.shields.io/badge/runtime%20tests-133%2F133-2da44e?style=flat-square)](https://github.com/szl-holdings/ouroboros)
+  [![Ouroboros tests](https://img.shields.io/badge/runtime%20tests-1%2C372%2F1%2C372-2da44e?style=flat-square)](https://github.com/szl-holdings/ouroboros)
   [![NYSTEC audit](https://img.shields.io/badge/NYSTEC%20audit-2026--04--30-2b6cb0?style=flat-square)](https://github.com/szl-holdings/ouroboros/blob/main/docs/audit/szl-government-readiness.md)
   [![ORCID](https://img.shields.io/badge/ORCID-0009--0001--0110--4173-A6CE39?style=flat-square&logo=orcid&logoColor=white)](https://orcid.org/0009-0001-0110-4173)
+  [![DOI v1](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.19867281-blue?style=flat-square)](https://doi.org/10.5281/zenodo.19867281)
+  [![DOI v2](https://img.shields.io/badge/DOI%20v2-10.5281%2Fzenodo.19934129-blue?style=flat-square)](https://doi.org/10.5281/zenodo.19934129)
 
   ---
 
@@ -42,7 +44,7 @@
 
   ### Runtime + thesis
 
-  - **[`@szl-holdings/ouroboros`](https://github.com/szl-holdings/ouroboros)** — bounded loops with measurable convergence, v6 ecosystem layer, government readiness module. **133/133 tests passing.**
+  - **[`@szl-holdings/ouroboros`](https://github.com/szl-holdings/ouroboros)** — bounded loops with measurable convergence, v6 ecosystem layer, government readiness module. **1,372 tests passing across 24 packages.** v6.1.0 runtime + paper-v2 empirical companion.
   - **[The Ouroboros Thesis](https://github.com/szl-holdings/ouroboros-thesis)** — architectural rationale + v6 operational contract JSON.
 
   ---
