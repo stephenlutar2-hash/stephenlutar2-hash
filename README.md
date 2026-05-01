@@ -7,6 +7,7 @@
   [![szlholdings.com](https://img.shields.io/badge/web-szlholdings.com-0a0a0a?style=flat-square)](https://szlholdings.com)
   [![Ouroboros tests](https://img.shields.io/badge/runtime%20tests-133%2F133-2da44e?style=flat-square)](https://github.com/szl-holdings/ouroboros)
   [![NYSTEC audit](https://img.shields.io/badge/NYSTEC%20audit-2026--04--30-2b6cb0?style=flat-square)](https://github.com/szl-holdings/ouroboros/blob/main/docs/audit/szl-government-readiness.md)
+  [![ORCID](https://img.shields.io/badge/ORCID-0009--0001--0110--4173-A6CE39?style=flat-square&logo=orcid&logoColor=white)](https://orcid.org/0009-0001-0110-4173)
 
   ---
 
