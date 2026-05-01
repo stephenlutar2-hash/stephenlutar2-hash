@@ -8,8 +8,10 @@
   [![Ouroboros tests](https://img.shields.io/badge/runtime%20tests-1%2C372%2F1%2C372-2da44e?style=flat-square)](https://github.com/szl-holdings/ouroboros)
   [![NYSTEC audit](https://img.shields.io/badge/NYSTEC%20audit-2026--04--30-2b6cb0?style=flat-square)](https://github.com/szl-holdings/ouroboros/blob/main/docs/audit/szl-government-readiness.md)
   [![ORCID](https://img.shields.io/badge/ORCID-0009--0001--0110--4173-A6CE39?style=flat-square&logo=orcid&logoColor=white)](https://orcid.org/0009-0001-0110-4173)
-  [![DOI v1](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.19867281-blue?style=flat-square)](https://doi.org/10.5281/zenodo.19867281)
+  [![DOI v3](https://img.shields.io/badge/DOI%20v3-10.5281%2Fzenodo.19951520-blue?style=flat-square)](https://doi.org/10.5281/zenodo.19951520)
   [![DOI v2](https://img.shields.io/badge/DOI%20v2-10.5281%2Fzenodo.19934129-blue?style=flat-square)](https://doi.org/10.5281/zenodo.19934129)
+  [![DOI v1](https://img.shields.io/badge/DOI%20v1-10.5281%2Fzenodo.19867281-blue?style=flat-square)](https://doi.org/10.5281/zenodo.19867281)
+  [![Concept DOI](https://img.shields.io/badge/Concept%20DOI-10.5281%2Fzenodo.19944926-1f6feb?style=flat-square)](https://doi.org/10.5281/zenodo.19944926)
 
   ---
 
