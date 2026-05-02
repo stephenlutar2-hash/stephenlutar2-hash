@@ -1,12 +1,10 @@
 # Stephen Lutar
 
-  **Founder and CEO — SZL Holdings**
+  **Founder, SZL Holdings**
 
   Building governed decision infrastructure software. Systems where AI-assisted decisions require human accountability, and where observability connects to action — not just visualization.
 
-  [![szlholdings.com](https://img.shields.io/badge/web-szlholdings.com-0a0a0a?style=flat-square)](https://szlholdings.com)
-  [![Ouroboros tests](https://img.shields.io/badge/runtime%20tests-1%2C372%2F1%2C372-2da44e?style=flat-square)](https://github.com/szl-holdings/ouroboros)
-  [![NYSTEC audit](https://img.shields.io/badge/NYSTEC%20audit-2026--04--30-2b6cb0?style=flat-square)](https://github.com/szl-holdings/ouroboros/blob/main/docs/audit/szl-government-readiness.md)
+  [![Ouroboros tests](https://img.shields.io/badge/runtime%20tests-150%20declared-2da44e?style=flat-square)](https://github.com/szl-holdings/ouroboros)
   [![ORCID](https://img.shields.io/badge/ORCID-0009--0001--0110--4173-A6CE39?style=flat-square&logo=orcid&logoColor=white)](https://orcid.org/0009-0001-0110-4173)
   [![DOI v3](https://img.shields.io/badge/DOI%20v3-10.5281%2Fzenodo.19951520-blue?style=flat-square)](https://doi.org/10.5281/zenodo.19951520)
   [![DOI v2](https://img.shields.io/badge/DOI%20v2-10.5281%2Fzenodo.19934129-blue?style=flat-square)](https://doi.org/10.5281/zenodo.19934129)
@@ -17,61 +15,49 @@
 
   ## About
 
-  I build governed, production-ready command software for organizations that cannot afford silent failures, invisible risk, or unaccountable AI. Every system I build has explicit audit trails, human-in-the-loop controls, and traceable decision paths.
-
-  AI outputs without traceability create noise, not trust. Signal to routing to approval gate to audit trail. That is the model.
+  I work on governed runtime infrastructure for AI-assisted decisions. The thesis: AI outputs without traceability create noise, not trust. Signal to routing to approval gate to audit trail. That is the model.
 
   ---
 
   ## Current build — SZL Holdings
 
-  A **three-platform stack** plus four product surfaces, sitting on a shared replay-safe runtime.
+  A small portfolio of repos under [`szl-holdings`](https://github.com/szl-holdings) at varying stages of completion. The shipped, open-source piece is the runtime; the product surfaces are at design / scaffold / private-build stages.
 
-  ### Three-platform stack
+  ### Runtime + thesis (shipped, open-source)
 
-  | Platform | Role | Government readiness |
-  |---|---|---|
-  | **[A11oy](https://github.com/szl-holdings/a11oy)** | Orchestration control plane — agent ecosystem brain, validator registry, approval gate | **72/100** |
-  | **[Sentra](https://github.com/szl-holdings/sentra)** | Governed security and threat intelligence — recursive threat modeling, evidence packs | **68/100** |
-  | **[Amaru](https://github.com/szl-holdings/amaru)** | Convergent data sync — append-only delta log, consistency gates, hash-verified ingest | **65/100** |
+  - **[`@szl-holdings/ouroboros`](https://github.com/szl-holdings/ouroboros)** — bounded-loop runtime implementing the Lutar Invariant Λ. v6.1.0. **150 declared Vitest tests** at the release commit, in the single `@szl-holdings/ouroboros` package.
+  - **[The Ouroboros Thesis](https://github.com/szl-holdings/ouroboros-thesis)** — papers (v1 position, v2 empirical, v3 closed-form scalar law), v6 operational contract JSON, and a falsification ledger. v3 is the current paper.
 
-  ### Domain product surfaces
+  ### Product surfaces (varying stages, mostly placeholder)
 
-  | Product | Domain |
+  | Repo | Status |
   |---|---|
-  | **[Counsel](https://github.com/szl-holdings/counsel)** | Legal matter command — policy-gated human review |
-  | **[Terra](https://github.com/szl-holdings/terra)** | NYC distress pipeline + AI-assisted real-estate workflow |
-  | **[Vessels](https://github.com/szl-holdings/vessels)** | Maritime fleet intelligence — sanctions screening, dark-vessel detection |
-  | **[Carlota Jo](https://github.com/szl-holdings/carlota-jo)** | Premium UHNW advisory operations portal with Proof-Chain delivery |
-
-  ### Runtime + thesis
-
-  - **[`@szl-holdings/ouroboros`](https://github.com/szl-holdings/ouroboros)** — bounded loops with measurable convergence, v6 ecosystem layer, government readiness module. **1,372 tests passing across 24 packages.** v6.1.0 runtime + paper-v2 empirical companion.
-  - **[The Ouroboros Thesis](https://github.com/szl-holdings/ouroboros-thesis)** — architectural rationale + v6 operational contract JSON.
+  | [a11oy](https://github.com/szl-holdings/a11oy) | Public repo, README-stage |
+  | [sentra](https://github.com/szl-holdings/sentra) | Public repo, README-stage |
+  | [amaru](https://github.com/szl-holdings/amaru) | Public repo, README-stage |
+  | [counsel](https://github.com/szl-holdings/counsel) | Public repo, README-stage |
+  | [terra](https://github.com/szl-holdings/terra) | Public repo, README-stage |
+  | [vessels](https://github.com/szl-holdings/vessels) | Public repo, README-stage |
+  | [carlota-jo](https://github.com/szl-holdings/carlota-jo) | Public repo, README-stage |
+  | [szl-holdings-platform](https://github.com/szl-holdings/szl-holdings-platform) | Public monorepo, in active development; CI is currently flaky on master |
 
   ---
 
-  ## Government readiness — NYSTEC pre-briefing (2026-04-30)
+  ## Math (the part that is finished)
 
-  Empire APEX Accelerator audit with Mercy McInnis, Procurement Counselor. Full report: [`docs/audit/szl-government-readiness.md`](https://github.com/szl-holdings/ouroboros/blob/main/docs/audit/szl-government-readiness.md).
+  The Ouroboros Thesis v3 introduces the **Lutar Invariant Λ**, a closed-form scalar in [0, 1] that aggregates nine independent runtime-trust axes (Cleanliness, Horizon, Resonance, Frustum, Geometry, Invariance, Moral, Being, Non-measurability) into a single auditable number. v3 proves uniqueness under four axioms (monotonicity, zero-pinning, Egyptian inspectability, Page-curve concavity).
 
-  - **NIST AI RMF**: full coverage across GOVERN / MAP / MEASURE / MANAGE
-  - **DoD Responsible AI Tenets**: 4 of 5 covered (Equitable in 30-day roadmap)
-  - **GSAR 552.239-7001 (proposed)**: 5 of 10 requirements covered, 5 documented gaps (all documentation, no architectural rework)
-  - **NAICS codes scoped**: 541511, 541512, 541519, 541690, 541715
-  - **Open security alerts across 11 org repos**: 0
+  The 150-test reference implementation pins the runtime contract, the v6 ecosystem layer (services, halts, routing, permissions, sandbox, agent registry), and the government readiness schema.
 
   ---
 
   ## Architecture principles
 
-  **AI governance by design.** Advisory agents cannot execute consequential actions without explicit human confirmation. Enforced at the A11oy governance layer — not just the UI.
+  **AI governance by design.** Advisory agents cannot execute consequential actions without explicit human confirmation.
 
-  **Evidence-backed decisions.** Every AI recommendation includes source citations, confidence scores, and retrieval provenance. No opaque outputs.
+  **Evidence-backed decisions.** Every recommendation includes source citations, confidence scores, retrieval provenance. No opaque outputs.
 
-  **Explicit over implicit.** Platform state is always visible. No silent fallbacks. Failures surface, they don't hide.
-
-  **Shared fabric, domain specialization.** A11oy, Sentra, and Amaru are platform infrastructure. Domain packs are structured applications built on the same governed substrate.
+  **Explicit over implicit.** Platform state is visible. No silent fallbacks. Failures surface.
 
   ---
 
@@ -79,25 +65,15 @@
 
   ```
   TypeScript  React 19  Express 5  PostgreSQL 16  Drizzle ORM
-  pnpm monorepo  Expo / React Native  Azure  OIDC/PKCE
-  OpenAI  Anthropic  Gemini  Apollo GraphQL  Vite 7
+  pnpm monorepo  Vite  Vitest  OIDC/PKCE
   ```
-
-  ---
-
-  ## Featured repository
-
-  **[szl-holdings-platform](https://github.com/szl-holdings/szl-holdings-platform)** — full platform monorepo. Latest release: [`v1.0.2-codex-kernel`](https://github.com/szl-holdings/szl-holdings-platform/releases) (2026-04-30).
-
-  [Security Policy](https://github.com/szl-holdings/szl-holdings-platform/blob/master/SECURITY.md) · [Architecture](https://github.com/szl-holdings/szl-holdings-platform/blob/master/docs/architecture/architecture.md) · [Platform Primitives](https://github.com/szl-holdings/szl-holdings-platform/blob/master/docs/architecture/platform-primitives.md)
 
   ---
 
   ## Connect
 
+  **Email:** stephenlutar2@gmail.com
+  **ORCID:** [0009-0001-0110-4173](https://orcid.org/0009-0001-0110-4173)
   **LinkedIn:** [linkedin.com/in/stephen-l-279315240](https://linkedin.com/in/stephen-l-279315240)
-  **Website:** [szlholdings.com](https://szlholdings.com)
-  **Email:** inquiries@szlholdings.com
 
-  Open to design partner conversations, enterprise evaluation, and investment introductions.
-  
+  Open to honest conversation about the runtime, the math, and the work.
