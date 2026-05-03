@@ -1,75 +1,24 @@
-# Stephen Lutar
+# Stephen P. Lutar Jr.
 
-  **Founder, SZL Holdings**
+  > Founder & CEO, [SZL Holdings](https://github.com/szl-holdings) — building governed decision infrastructure for enterprises that need their AI to be auditable by construction.
 
-  Building governed decision infrastructure software. Systems where AI-assisted decisions require human accountability, and where observability connects to action — not just visualization.
-
-  [![Ouroboros tests](https://img.shields.io/badge/runtime%20tests-150%20passing-2da44e?style=flat-square)](https://github.com/szl-holdings/ouroboros)
-  [![ORCID](https://img.shields.io/badge/ORCID-0009--0001--0110--4173-A6CE39?style=flat-square&logo=orcid&logoColor=white)](https://orcid.org/0009-0001-0110-4173)
-  [![DOI v2](https://img.shields.io/badge/DOI%20v2-10.5281%2Fzenodo.19934129-blue?style=flat-square)](https://doi.org/10.5281/zenodo.19934129)
-  [![DOI v1](https://img.shields.io/badge/DOI%20v1-10.5281%2Fzenodo.19867281-blue?style=flat-square)](https://doi.org/10.5281/zenodo.19867281)
+  ORCID: [0009-0001-0110-4173](https://orcid.org/0009-0001-0110-4173) · Email: [stephenlutar2@gmail.com](mailto:stephenlutar2@gmail.com)
 
   ---
 
-  ## About
+  ## What I work on
 
-  I work on governed runtime infrastructure for AI-assisted decisions. The thesis: AI outputs without traceability create noise, not trust. Signal to routing to approval gate to audit trail. That is the model.
+  - **[Ouroboros](https://github.com/szl-holdings/ouroboros)** — bounded-loop runtime that turns a recursion into a measurable convergence problem. Reference implementation of the Lutar Invariant. `v6.2.0`, **172/172 tests passing**.
+  - **[Ouroboros Thesis](https://github.com/szl-holdings/ouroboros-thesis)** — the peer-style paper that formalizes what the runtime implements. v3 paper "The Loop Is the Product" published on Zenodo, May 2 2026. Concept DOI [10.5281/zenodo.19944926](https://doi.org/10.5281/zenodo.19944926) (always resolves to the latest version).
+  - **[A11oy](https://github.com/szl-holdings/a11oy)** — the operator-facing orchestration product, with policy gates, audit trails, human review checkpoints, and a working Claude-backed advisory chat.
+  - **[SZL Holdings Platform](https://github.com/szl-holdings/szl-holdings-platform)** — the working pnpm monorepo: A11oy plus seven domain surfaces (Sentra for cyber, Amaru for data, Counsel for legal, Terra for real estate, Vessels for maritime, Carlota Jo for consulting, plus the SZL API server).
 
-  ---
+  ## Status
 
-  ## Current build — SZL Holdings
+  Platform-development stage. Runtime is GA; thesis is published with a DOI on Zenodo; the seven domain surfaces are working integrated artifacts in the monorepo. SZL Holdings has engaged the Empire APEX Accelerator (administered by NYSTEC) for procurement counseling — advisory work, not a third-party audit.
 
-  A small portfolio of repos under [`szl-holdings`](https://github.com/szl-holdings) at varying stages of completion. The shipped, open-source piece is the runtime; the product surfaces are at design / scaffold / private-build stages.
+  ## Reach me
 
-  ### Runtime + thesis (shipped, open-source)
-
-  - **[`@szl-holdings/ouroboros`](https://github.com/szl-holdings/ouroboros)** — bounded-loop runtime with measurable convergence. v6.1.0. **150 Vitest tests passing** at the release commit, in the single `@szl-holdings/ouroboros` package.
-  - **[The Ouroboros Thesis](https://github.com/szl-holdings/ouroboros-thesis)** — v1 position paper and v2 empirical companion, plus the v6 operational contract JSON. v2 is the current published paper. v3 ("The Lutar Invariant") was retracted by the author on 2026-05-02 after self-audit; a rewritten v3 with verifiable claims is planned.
-
-  ### Product surfaces (varying stages, mostly placeholder)
-
-  | Repo | Status |
-  |---|---|
-  | [a11oy](https://github.com/szl-holdings/a11oy) | Public repo, README-stage |
-  | [sentra](https://github.com/szl-holdings/sentra) | Public repo, README-stage |
-  | [amaru](https://github.com/szl-holdings/amaru) | Public repo, README-stage |
-  | [counsel](https://github.com/szl-holdings/counsel) | Public repo, README-stage |
-  | [terra](https://github.com/szl-holdings/terra) | Public repo, README-stage |
-  | [vessels](https://github.com/szl-holdings/vessels) | Public repo, README-stage |
-  | [carlota-jo](https://github.com/szl-holdings/carlota-jo) | Public repo, README-stage |
-  | [szl-holdings-platform](https://github.com/szl-holdings/szl-holdings-platform) | Public monorepo, in active development; CI is currently flaky on master |
-
-  ---
-
-  ## What the runtime ships
-
-  The 150-test reference implementation pins the loop kernel, depth allocator, consistency scoring, proof-route resolver, risk-tier escalation gate, almanac cycle advancer, the v6 ecosystem layer (services, halts, routing, permissions, sandbox, agent registry), and a structured government-procurement readiness schema. All tests verifiable by running `pnpm exec vitest run` against the release commit.
-
-  ---
-
-  ## Architecture principles
-
-  **AI governance by design.** Advisory agents cannot execute consequential actions without explicit human confirmation.
-
-  **Evidence-backed decisions.** Every recommendation includes source citations, confidence scores, retrieval provenance. No opaque outputs.
-
-  **Explicit over implicit.** Platform state is visible. No silent fallbacks. Failures surface.
-
-  ---
-
-  ## Stack
-
-  ```
-  TypeScript  React 19  Express 5  PostgreSQL 16  Drizzle ORM
-  pnpm monorepo  Vite  Vitest  OIDC/PKCE
-  ```
-
-  ---
-
-  ## Connect
-
-  **Email:** stephenlutar2@gmail.com
-  **ORCID:** [0009-0001-0110-4173](https://orcid.org/0009-0001-0110-4173)
-  **LinkedIn:** [linkedin.com/in/stephen-l-279315240](https://linkedin.com/in/stephen-l-279315240)
-
-  Open to honest conversation about the runtime, the math, and the work.
+  - Email: stephenlutar2@gmail.com
+  - ORCID: 0009-0001-0110-4173
+  
