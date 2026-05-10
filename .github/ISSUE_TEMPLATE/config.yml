@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Bug or feature request on an SZL Holdings product
+    url: https://github.com/szl-holdings
+    about: Please file product issues on the relevant product repository.
+  - name: Security vulnerability
+    url: https://github.com/szl-holdings/.github/security/policy
+    about: Report security issues privately. Do not open a public issue.
+  - name: Ouroboros Thesis discussion
+    url: https://github.com/szl-holdings/ouroboros-thesis/discussions
+    about: Academic and methodology questions on the published papers.
+  - name: General inquiries
+    url: mailto:inquiries@szlholdings.com
+    about: Press, partnerships, hiring, and other non-bug questions.
