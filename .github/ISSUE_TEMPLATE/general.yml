@@ -1,0 +1,27 @@
+name: General feedback on this profile
+description: Typo, broken link, or factual correction on the profile README.
+title: "docs: "
+labels: ["docs", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This template is only for issues with **this profile README** itself.
+        For product bugs or feature requests, please use the relevant
+        SZL Holdings product repository.
+  - type: textarea
+    id: what
+    attributes:
+      label: What needs to change
+      description: Describe the typo, broken link, or factual error.
+    validations:
+      required: true
+  - type: input
+    id: location
+    attributes:
+      label: Where (line, section, or link)
+      placeholder: "Section 'Research highlights' — second bullet"
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested fix (optional)
