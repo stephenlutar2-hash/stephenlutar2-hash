@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 610" width="900" height="610" role="img" aria-label="SZL Holdings governed intelligence stack diagram — dark mode" font-family="'Segoe UI', Arial, sans-serif">
+  <rect width="900" height="610" rx="10" fill="#171614"/>
+  <text x="450" y="30" text-anchor="middle" font-size="14" font-weight="700" fill="#CDCCCA">SZL Holdings — Governed Intelligence Stack</text>
+  <text x="450" y="46" text-anchor="middle" font-size="10" fill="#5A5957">Stephen P. Lutar Jr. · Founder &amp; CEO · stephen@szlholdings.com · ORCID 0009-0001-0110-4173</text>
+  <rect x="24" y="52" width="650" height="76" rx="7" fill="#1C1B19" stroke="#4F98A3" stroke-width="1.5"/>
+  <text x="349" y="74" text-anchor="middle" font-size="12" font-weight="700" fill="#4F98A3">PRODUCT SURFACES</text>
+  <text x="349" y="91" text-anchor="middle" font-size="10" fill="#4F98A3">substrate-mcp-gateway  ·  Vessels  ·  Terra  ·  Carlota Jo  ·  Counsel  ·  A11oy  ·  Sentra  ·  Amaru</text>
+  <line x1="349" y1="128" x2="349" y2="140" stroke="#4F98A3" stroke-width="2"/>
+  <polygon points="344,138 349,146 354,138" fill="#4F98A3"/>
+  <rect x="24" y="158" width="650" height="76" rx="7" fill="#006494" stroke="#4F98A3" stroke-width="1.5"/>
+  <text x="349" y="180" text-anchor="middle" font-size="12" font-weight="700" fill="#CDCCCA">THREE ARISTOTELIAN RUNTIMES</text>
+  <text x="349" y="197" text-anchor="middle" font-size="10" fill="#CDCCCA">A11oy (governed agents)  ·  Amaru (data sync, 12/12 tests)  ·  Sentra (cyber, 21/21 tests)</text>
+  <text x="349" y="215" text-anchor="middle" font-size="9.5" font-style="italic" fill="#BCE2E7">Λ(s) = 𝟙[evidence(s) ≥ τ_policy]</text>
+  <line x1="349" y1="234" x2="349" y2="246" stroke="#4F98A3" stroke-width="2"/>
+  <polygon points="344,244 349,252 354,244" fill="#4F98A3"/>
+  <rect x="24" y="264" width="650" height="76" rx="7" fill="#0C4E54" stroke="#4F98A3" stroke-width="1.5"/>
+  <text x="349" y="286" text-anchor="middle" font-size="12" font-weight="700" fill="#CDCCCA">OUROBOROS-LOOP SPINE</text>
+  <text x="349" y="303" text-anchor="middle" font-size="10" fill="#CDCCCA">bounded convergence primitive  ·  audit-closure operator  ·  v6.2.0  ·  16/16 tests</text>
+  <text x="349" y="321" text-anchor="middle" font-size="9.5" font-style="italic" fill="#BCE2E7">ẋ = lim_{Δt→0} Δx/Δt   (Newton fluxion)</text>
+  <line x1="349" y1="340" x2="349" y2="352" stroke="#4F98A3" stroke-width="2"/>
+  <polygon points="344,350 349,358 354,350" fill="#4F98A3"/>
+  <rect x="24" y="370" width="650" height="76" rx="7" fill="#5A2B8B" stroke="#A86FDF" stroke-width="1.5"/>
+  <text x="349" y="392" text-anchor="middle" font-size="12" font-weight="700" fill="#CDCCCA">SZL HOLDINGS PLATFORM  (monorepo)</text>
+  <text x="349" y="409" text-anchor="middle" font-size="10" fill="#CDCCCA">127 packages · 137 deployables · 2,400 tests / 74 packages · v1.0.0-codex-kernel</text>
+  <text x="349" y="427" text-anchor="middle" font-size="9.5" font-style="italic" fill="#BCE2E7">x̂ = (HᵀR⁻¹H)⁻¹HᵀR⁻¹z   (Gauss LSQ / sensor fusion)</text>
+  <line x1="349" y1="446" x2="349" y2="458" stroke="#4F98A3" stroke-width="2"/>
+  <polygon points="344,456 349,464 354,456" fill="#4F98A3"/>
+  <rect x="24" y="476" width="650" height="76" rx="7" fill="#28251D" stroke="#C8B26A" stroke-width="1.5"/>
+  <text x="349" y="498" text-anchor="middle" font-size="12" font-weight="700" fill="#CDCCCA">OUROBOROS THESIS  (11 papers · paper-v11 latest)</text>
+  <text x="349" y="515" text-anchor="middle" font-size="10" fill="#CDCCCA">Lean 4 kernel-checked proofs  ·  Concept DOI 10.5281/zenodo.19944926  ·  ORCID 0009-0001-0110-4173</text>
+  <text x="349" y="533" text-anchor="middle" font-size="9.5" font-style="italic" fill="#C8B26A">S ≤ 2πkRE/ℏc   (Bekenstein bound)</text>
+  <rect x="686" y="348" width="190" height="120" rx="7" fill="#1B474D" stroke="#4F98A3" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <text x="781" y="366" text-anchor="middle" font-size="11" font-weight="700" fill="#CDCCCA">LEAN KERNEL</text>
+  <text x="781" y="381" text-anchor="middle" font-size="10" fill="#BCE2E7">lutar-lean</text>
+  <text x="781" y="400" text-anchor="middle" font-size="9" fill="#BCE2E7">Axioms A1–A4</text>
+  <text x="781" y="415" text-anchor="middle" font-size="9" fill="#BCE2E7">Uniqueness + Bound</text>
+  <text x="781" y="430" text-anchor="middle" font-size="9" fill="#BCE2E7">Egyptian-exactness</text>
+  <line x1="686" y1="408" x2="674" y2="302" stroke="#4F98A3" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="450" y="604" text-anchor="middle" font-size="8.5" fill="#5A5957">© 2026 Stephen P. Lutar Jr. · SZL Holdings · Code: MIT · Research: CC BY 4.0</text>
+</svg>
