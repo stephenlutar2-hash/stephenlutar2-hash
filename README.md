@@ -55,9 +55,9 @@ Org page: [github.com/szl-holdings](https://github.com/szl-holdings)
 - Software DOI: [`10.5281/zenodo.20434308`](https://doi.org/10.5281/zenodo.20434308)
 - Concept DOI (always latest): [`10.5281/zenodo.19944926`](https://doi.org/10.5281/zenodo.19944926)
 
-**Warhacker 2026 (June 16–20)** — SZL Governance Receipts on UDS. k3d + uds-cli + Pepr DSSE receipt policy. Tracked in [`szl-uds-deployment`](https://github.com/szl-holdings/szl-uds-deployment).
+**Warhacker 2026 (June 16–20)** — SZL Governance Receipts on UDS. k3d + uds-cli + Pepr DSSE receipt policy. Tracked in `szl-holdings/platform` (Warhacker deployment branch).
 
-**AIMS@COLM26** — T4 / T13 extended abstracts queued in [`ouroboros-thesis/aims_colm26/`](https://github.com/szl-holdings/ouroboros-thesis/tree/main/aims_colm26).
+**AIMS@COLM26** — T4 / T13 extended abstracts queued in `ouroboros-thesis/aims_colm26/` (in-progress).
 
 **Runtime overhead** — ≤ 0.59 ms median per request. Measured across 24,800 paired HTTP calls (v11 bench, [`10.5281/zenodo.20119582`](https://doi.org/10.5281/zenodo.20119582)).
 
