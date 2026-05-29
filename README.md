@@ -1,31 +1,84 @@
 <!--
   Personal profile README — stephenlutar2-hash/stephenlutar2-hash
-  Style: researcher-founder. Hydra Teal brand. No emojis.
-  Every number on this page is verifiable. See /assets and audit logs.
+  Doctrine v6. No marketing superlatives. Every number verifiable.
+  Last substantive update: 2026-05-29 (aligned to v18.0, 30 GREEN modules)
+  Stats auto-refreshed daily by .github/workflows/update-stats.yml
 -->
 
-# Stephen P. Lutar Jr.
+<div align="center">
+  <img src="assets/banner.svg" alt="Stephen P. Lutar Jr. — Founder & CEO, SZL Holdings" width="100%"/>
+</div>
 
-> Founder & CEO, [SZL Holdings](https://github.com/szl-holdings).
-> Building **governed decision intelligence** for regulated enterprises — AI that is auditable by construction, not by promise.
-
-<p>
+<p align="center">
   <a href="https://orcid.org/0009-0001-0110-4173"><img alt="ORCID" src="https://img.shields.io/badge/ORCID-0009--0001--0110--4173-A6CE39?style=flat-square&logo=orcid&logoColor=white"></a>
-  <a href="https://doi.org/10.5281/zenodo.19944926"><img alt="Concept DOI" src="https://img.shields.io/badge/DOI-10.5281%2Fzenodo.19944926-01696F?style=flat-square&logo=doi&logoColor=white"></a>
-  <a href="https://github.com/szl-holdings/ouroboros-thesis"><img alt="Papers" src="https://img.shields.io/badge/papers-v1%E2%86%92v11%20published%20%C2%B7%20v12%20in%20review-805AD5?style=flat-square&logo=readthedocs&logoColor=white"></a>
-  <a href="https://github.com/szl-holdings/lutar-lean"><img alt="Lean kernel" src="https://img.shields.io/badge/Lean%204-kernel--verified-2D5BB9?style=flat-square&logo=lean&logoColor=white"></a>
-  <a href="https://github.com/szl-holdings/szl-holdings-platform"><img alt="Platform tests" src="https://img.shields.io/badge/platform-1%2C220%20tests%20%C2%B7%2076%20packages-2DA44E?style=flat-square&logo=vitest&logoColor=white"></a>
-  <a href="https://github.com/szl-holdings/szl-holdings-platform"><img alt="Gateway e2e" src="https://img.shields.io/badge/MCP%20gateway-27%2F27%20e2e-2DA44E?style=flat-square&logo=node.js&logoColor=white"></a>
-  <a href="https://securityscorecards.dev/viewer/?uri=github.com/szl-holdings/ouroboros"><img alt="OpenSSF Scorecard" src="https://api.securityscorecards.dev/projects/github.com/szl-holdings/ouroboros/badge"></a>
-  <a href="https://www.bestpractices.dev/projects/szl-holdings"><img alt="CII Best Practices" src="https://img.shields.io/badge/CII%20Best%20Practices-in%20review-FFC107?style=flat-square"></a>
+  <a href="https://doi.org/10.5281/zenodo.19944926"><img alt="Concept DOI" src="https://img.shields.io/badge/concept%20DOI-10.5281%2Fzenodo.19944926-01696F?style=flat-square&logo=doi&logoColor=white"></a>
+  <a href="https://doi.org/10.5281/zenodo.20434276"><img alt="v18.0 master DOI" src="https://img.shields.io/badge/v18.0%20DOI-10.5281%2Fzenodo.20434276-805AD5?style=flat-square&logo=doi&logoColor=white"></a>
+  <a href="https://github.com/szl-holdings/lutar-lean"><img alt="Lean kernel" src="https://img.shields.io/badge/Lean%204-30%20GREEN%20modules-2D5BB9?style=flat-square&logo=lean&logoColor=white"></a>
+  <a href="https://github.com/szl-holdings/ouroboros-thesis"><img alt="Thesis" src="https://img.shields.io/badge/thesis-v1%20%E2%86%92%20v18%20published-805AD5?style=flat-square&logo=readthedocs&logoColor=white"></a>
+  <a href="https://huggingface.co/SZLHOLDINGS"><img alt="HF Spaces" src="https://img.shields.io/badge/HF%20Spaces-19%20live-FF9D00?style=flat-square&logo=huggingface&logoColor=white"></a>
   <a href="https://linkedin.com/in/stephen-l-279315240"><img alt="LinkedIn" src="https://img.shields.io/badge/LinkedIn-Stephen%20Lutar-0A66C2?style=flat-square&logo=linkedin&logoColor=white"></a>
+  <a href="https://securityscorecards.dev/viewer/?uri=github.com/szl-holdings/ouroboros"><img alt="OpenSSF Scorecard" src="https://api.securityscorecards.dev/projects/github.com/szl-holdings/ouroboros/badge"></a>
 </p>
 
 ---
 
 ## What I build
 
-**[SZL Holdings](https://github.com/szl-holdings)** — a governed operational-intelligence stack for regulated enterprises. Seven vertical operator surfaces, one spine, one set of papers.
+**[SZL Holdings](https://github.com/szl-holdings)** is a governed decision-intelligence substrate for regulated enterprises — a Λ-axis audit-closure operator, proved in Lean 4 (Mathlib v4.13.0), running at sub-millisecond overhead, emitting a SHA-pinned receipt for every decision.
+
+Org page: [github.com/szl-holdings](https://github.com/szl-holdings)
+
+---
+
+## Substrate at a glance
+
+<div align="center">
+  <img src="assets/substrate-summary.svg" alt="SZL substrate by the numbers — v18.0" width="100%"/>
+</div>
+
+| Metric | Count | Source |
+|---|---|---|
+| Named Lean theorems | **76** | [`lutar-lean`](https://github.com/szl-holdings/lutar-lean) |
+| Lake-verified proofs | **134** | Mathlib v4.13.0 |
+| GREEN Lean modules | **30 / 30** | CI · [`lutar-lean`](https://github.com/szl-holdings/lutar-lean) |
+| HF Spaces (live) | **19** | [SZLHOLDINGS](https://huggingface.co/SZLHOLDINGS) |
+| Zenodo DOIs | **7** | concept + v18 master + v18 software + v17/v16/v15/v14 |
+| Thesis versions published | **18** | v1 → v18 · [ouroboros-thesis](https://github.com/szl-holdings/ouroboros-thesis) |
+| Org repos | **19** | [szl-holdings](https://github.com/szl-holdings) |
+
+---
+
+## Current focus
+
+**Thesis v18.0** — published 2026-05-29.
+- Master DOI: [`10.5281/zenodo.20434276`](https://doi.org/10.5281/zenodo.20434276)
+- Software DOI: [`10.5281/zenodo.20434308`](https://doi.org/10.5281/zenodo.20434308)
+- Concept DOI (always latest): [`10.5281/zenodo.19944926`](https://doi.org/10.5281/zenodo.19944926)
+
+**Warhacker 2026 (June 16–20)** — SZL Governance Receipts on UDS. k3d + uds-cli + Pepr DSSE receipt policy. Tracked in [`szl-uds-deployment`](https://github.com/szl-holdings/szl-uds-deployment).
+
+**AIMS@COLM26** — T4 / T13 extended abstracts queued in [`ouroboros-thesis/aims_colm26/`](https://github.com/szl-holdings/ouroboros-thesis/tree/main/aims_colm26).
+
+**Runtime overhead** — ≤ 0.59 ms median per request. Measured across 24,800 paired HTTP calls (v11 bench, [`10.5281/zenodo.20119582`](https://doi.org/10.5281/zenodo.20119582)).
+
+---
+
+## Pinned repos
+
+Six repos pinned in GitHub UI. Pin them at [github.com/stephenlutar2-hash](https://github.com/stephenlutar2-hash):
+
+| Repo | What it is |
+|---|---|
+| [`szl-holdings/a11oy`](https://github.com/szl-holdings/a11oy) | Brand orchestration + AI governance surface |
+| [`szl-holdings/lutar-lean`](https://github.com/szl-holdings/lutar-lean) | Lean 4 + Mathlib kernel proofs · 30 GREEN modules |
+| [`szl-holdings/ouroboros`](https://github.com/szl-holdings/ouroboros) | Bounded-recursion runtime · Λ-gate · receipt emission |
+| [`szl-holdings/ouroboros-thesis`](https://github.com/szl-holdings/ouroboros-thesis) | DOI-pinned thesis substrate · v1 → v18 |
+| [`szl-holdings/uds-mesh`](https://github.com/szl-holdings/uds-mesh) | UDS span schemas + governance receipts |
+| [`szl-holdings/sentra`](https://github.com/szl-holdings/sentra) | Cyber-resilience command surface |
+
+---
+
+## Architecture
 
 ```mermaid
 flowchart TD
@@ -33,12 +86,12 @@ flowchart TD
     classDef kernel   fill:#1F3B73,stroke:#2D5BB9,color:#F7F6F2;
     classDef runtime  fill:#1B474D,stroke:#01696F,color:#F7F6F2;
     classDef platform fill:#01696F,stroke:#C8B26A,color:#F7F6F2;
-    classDef surface  fill:#F7F6F2,stroke:#01696F,color:#1B474D;
+    classDef surface  fill:#0a0a0f,stroke:#00d4ff,color:#e0e8ef;
 
-    T["Ouroboros Thesis<br/>v1 → v11 published · v12 in review<br/>11 Zenodo DOIs"]:::research
-    L["Lutar-Lean<br/>Lean 4 + Mathlib · kernel-verified Λ"]:::kernel
-    R["Ouroboros Loop<br/>Λ-gate · fluxions-receipt · Gauss<br/>witness-diversity · forecast · Bekenstein"]:::runtime
-    P["SZL Holdings Platform<br/>137 deployables · 1,220 tests"]:::platform
+    T["Ouroboros Thesis<br/>v1 → v18 published<br/>concept DOI 10.5281/zenodo.19944926"]:::research
+    L["Lutar-Lean<br/>Lean 4 + Mathlib v4.13.0<br/>30 GREEN modules · 76 theorems"]:::kernel
+    R["Ouroboros Runtime<br/>Λ-gate · receipt bus · Bekenstein<br/>≤ 0.59 ms median overhead"]:::runtime
+    P["SZL Holdings Platform<br/>19 public repos · 7 vertical surfaces"]:::platform
     A["A11oy"]:::surface
     S["Sentra"]:::surface
     AM["Amaru"]:::surface
@@ -51,165 +104,90 @@ flowchart TD
     T --> R
     L -.bit-exact JSON.-> R
     R --> P
-    P --> A
-    P --> S
-    P --> AM
-    P --> V
-    P --> TE
-    P --> C
-    P --> CJ
+    P --> A & S & AM & V & TE & C & CJ
 ```
 
-| Layer | What it is | Status |
+---
+
+## Research — DOI-pinned
+
+18 published versions. Every claim terminates in a DOI, a commit SHA, a Lean theorem, or a CI run.
+
+| Version | Title | DOI |
 |---|---|---|
-| [Ouroboros Thesis](https://github.com/szl-holdings/ouroboros-thesis) | Canonical papers v1 → v11, DOI lineage, every formula bound to running code | v11 published · v12 PR #25 open · v13 in writing |
-| [Lutar-Lean](https://github.com/szl-holdings/lutar-lean) | Lean 4 + Mathlib formalisation of the Lutar Invariant Λ_k uniqueness theorem | Kernel builds clean · ref-vectors check in CI |
-| [Ouroboros Loop](https://github.com/szl-holdings/szl-holdings-platform/tree/main/packages/ouroboros-loop) | Closure operator `O : X → X` with Λ-gate, Gauss forecast, witness-diversity, Bekenstein, dual-witness | 19/19 tests · published bit-exact ref-vectors |
-| [Platform monorepo](https://github.com/szl-holdings/szl-holdings-platform) | TypeScript spine + 7 surfaces + workers + apps + services | **1,220 tests across 76 packages · 0 failures** |
-| [MCP gateway](https://github.com/szl-holdings/szl-holdings-platform/tree/main/services/substrate-mcp-gateway) | Streamable HTTP, SSE, OAuth 2.1, extension negotiation | **27/27 e2e tests** including session lifecycle + extension RPC |
-
----
-
-## Mechanisms (what's load-bearing)
-
-Each mechanism has a paper, a Lean-side proof obligation, and a TypeScript implementation with tests. Every link below points to running, verifiable code.
-
-| # | Mechanism | Paper | Lean | TypeScript |
-|---|---|---|---|---|
-| I | Λ-invariant family (Λ₅ / Λ₇ / Λ₉) | [v3](https://doi.org/10.5281/zenodo.19983066), [v9](https://doi.org/10.5281/zenodo.20053148), [v10](https://doi.org/10.5281/zenodo.20053163) | [`Lutar/Invariant.lean`](https://github.com/szl-holdings/lutar-lean/blob/main/Lutar/Invariant.lean), [`Lutar/Bound.lean`](https://github.com/szl-holdings/lutar-lean/blob/main/Lutar/Bound.lean) | [`@workspace/ouroboros-invariant`](https://github.com/szl-holdings/szl-holdings-platform/tree/main/packages/ouroboros-invariant) · 52/52 tests |
-| II | Newton fluxions-receipt | [v4 §3](https://doi.org/10.5281/zenodo.20020841) | (sketch) | [`@workspace/ouroboros-newton`](https://github.com/szl-holdings/szl-holdings-platform/tree/main/packages/ouroboros-newton) · 29/29 |
-| III | Gauss class-number witness-diversity | v12 (in review), v13 (in writing) | (in progress) | [`@workspace/ouroboros-gauss`](https://github.com/szl-holdings/szl-holdings-platform/tree/main/packages/ouroboros-gauss) · 64/64 |
-| IV | Gauss least-squares forecast | v12 | — | `ouroboros-loop.gaussForecast` |
-| V | Bekenstein-bounded cascade | v4, v6, v12 | — | `lutar-formulas.bekenstein` |
-| VI | Dual-witness verdict | v2, v12 | — | `@workspace/ouroboros-adapters` |
-
-All six mechanisms compose inside [`@workspace/ouroboros-loop`](https://github.com/szl-holdings/szl-holdings-platform/tree/main/packages/ouroboros-loop) as a single closure operator `O : X → X` with a SHA-256 receipt for every terminal verdict.
-
----
-
-## Products on the platform
-
-Seven vertical operator surfaces. Each consumes the same Ouroboros loop spine.
-
-| Surface | Domain | Repo | Runtime status |
-|---|---|---|---|
-| **A11oy** | Brand orchestration & AI governance | [`a11oy`](https://github.com/szl-holdings/a11oy) | [`a11oy-runtime`](https://github.com/szl-holdings/szl-holdings-platform/tree/main/packages/a11oy-runtime) · 32/32 tests |
-| **Sentra** | Cyber resilience command | [`sentra`](https://github.com/szl-holdings/sentra) | [`sentra-runtime`](https://github.com/szl-holdings/szl-holdings-platform/tree/main/packages/sentra-runtime) · 21/21 tests |
-| **Amaru** | Convergent data sync (Andean ouroboros) | [`amaru`](https://github.com/szl-holdings/amaru) | [`amaru-runtime`](https://github.com/szl-holdings/szl-holdings-platform/tree/main/packages/amaru-runtime) · 12/12 tests |
-| **Vessels** | Maritime fleet intelligence | [`vessels`](https://github.com/szl-holdings/vessels) | v1.0.0-alpha |
-| **Terra** | Real-estate intelligence | [`terra`](https://github.com/szl-holdings/terra) | v1.0.0-alpha |
-| **Counsel** | Legal matter command | [`counsel`](https://github.com/szl-holdings/counsel) | v1.0.0-alpha |
-| **Carlota Jo** | UHNW advisory operations | [`carlota-jo`](https://github.com/szl-holdings/carlota-jo) | v1.0.0-alpha |
-
----
-
-## Research
-
-11 published papers + 1 in review + 1 in writing, every claim bound to running TypeScript and (where applicable) machine-verified Lean.
-
-| # | Title | DOI |
-|---|---|---|
-| v13 | The Unified Ouroboros Spine *(in writing)* | — |
-| v12 | The Λ-Ouroboros Substrate — Four Machine-Verified Mechanisms *(PR #25 open)* | — |
-| v11 | APPLIED-Λ — Measured per-request overhead of the audit-closure operator | [`10.5281/zenodo.20119582`](https://doi.org/10.5281/zenodo.20119582) |
-| v10 | EXHAUSTIVE-AUDIT — Audit Closure Operator Λ₁₀ | [`10.5281/zenodo.20053163`](https://doi.org/10.5281/zenodo.20053163) |
-| v9 | UNIFIED-OPERATIONAL — Lutar family v1→v7 + Ω with Bianchi closure | [`10.5281/zenodo.20053148`](https://doi.org/10.5281/zenodo.20053148) |
-| v8 | Free-Energy Active Inference + Predictive Coding + Cognitive Maps | [`10.5281/zenodo.20020849`](https://doi.org/10.5281/zenodo.20020849) |
-| v7 | Sefirot Memory + Hopfield Associative Retrieval | [`10.5281/zenodo.20020848`](https://doi.org/10.5281/zenodo.20020848) |
-| v6 | Hermetic Safety + Chinchilla-Lutar Scaling + Bifurcation | [`10.5281/zenodo.20020845`](https://doi.org/10.5281/zenodo.20020845) |
-| v5 | Prisca-GraphRAG + Tawa SAE Interpretability | [`10.5281/zenodo.20020846`](https://doi.org/10.5281/zenodo.20020846) |
-| v4 | Omega Formalism + EPR-Bell + Sacred Geometry | [`10.5281/zenodo.20020841`](https://doi.org/10.5281/zenodo.20020841) |
+| **v18.0** | Λ-Axis Substrate for Verifiable Agentic AI — doctrine v6, 11 axioms, 30 GREEN modules | [`10.5281/zenodo.20434276`](https://doi.org/10.5281/zenodo.20434276) |
+| **v18.0.0** (software) | Reference runtime + Lean kernel for v18 | [`10.5281/zenodo.20434308`](https://doi.org/10.5281/zenodo.20434308) |
+| v17 | | [`10.5281/zenodo.20431181`](https://doi.org/10.5281/zenodo.20431181) |
+| v16 | | [`10.5281/zenodo.20424996`](https://doi.org/10.5281/zenodo.20424996) |
+| v15 | | [`10.5281/zenodo.20424995`](https://doi.org/10.5281/zenodo.20424995) |
+| v14 | | [`10.5281/zenodo.20424992`](https://doi.org/10.5281/zenodo.20424992) |
+| v11 | APPLIED-Λ — Measured per-request overhead | [`10.5281/zenodo.20119582`](https://doi.org/10.5281/zenodo.20119582) |
+| v10 | EXHAUSTIVE-AUDIT — Λ₁₀ audit closure | [`10.5281/zenodo.20053163`](https://doi.org/10.5281/zenodo.20053163) |
+| v9 | UNIFIED-OPERATIONAL — Lutar family + Bianchi closure | [`10.5281/zenodo.20053148`](https://doi.org/10.5281/zenodo.20053148) |
 | v3 | The Lutar Invariant — axiomatic trust aggregator | [`10.5281/zenodo.19983066`](https://doi.org/10.5281/zenodo.19983066) |
-| v2 | Empirical companion — A11oy / Sentra / Amaru case studies | [`10.5281/zenodo.19934129`](https://doi.org/10.5281/zenodo.19934129) |
+| v2 | Empirical companion — A11oy / Sentra / Amaru | [`10.5281/zenodo.19934129`](https://doi.org/10.5281/zenodo.19934129) |
 | v1 | Position paper — bounded looped computation | [`10.5281/zenodo.19867281`](https://doi.org/10.5281/zenodo.19867281) |
 
-**Concept DOI** [`10.5281/zenodo.19944926`](https://doi.org/10.5281/zenodo.19944926) always resolves to the latest version.
-
-### What this work claims and does not claim
-
-- ✅ A Lean-kernel proof that `Λ_k(x) = (∏ xᵢ)^(1/k)` is the unique aggregator satisfying axioms A1–A4 (monotone · homogeneous · Egyptian-exact · bounded). [Source](https://github.com/szl-holdings/lutar-lean/blob/main/Lutar/Uniqueness.lean).
-- ✅ Bit-exact reproduction of Λ₉ on 10 published golden vectors across **three production runtimes** (a11oy / amaru / sentra) and the Lean Float implementation. [Reference vectors](https://github.com/szl-holdings/szl-holdings-platform/blob/main/packages/ouroboros-invariant/reference-vectors/reference-vectors.json).
-- ✅ Measured per-request overhead of the audit-closure operator across 24,800 paired HTTP calls (v11 paper).
-- ❌ Not a quantum computer. The quantum modules use the math of quantum analogy to derive bounds, on classical hardware.
-- ❌ Not a free-energy device. The free-energy term is Friston variational FEP, not thermodynamic free energy.
-- ❌ Not perpetual inference. The "free tokens" framing in marketing decks is shorthand for "calls refused before they hit a paid provider"; nothing is generated for free.
+Concept DOI (always latest): [`10.5281/zenodo.19944926`](https://doi.org/10.5281/zenodo.19944926)
 
 ---
 
-## Engineering principles
+## What this work claims and does not claim
 
-- **Determinism over plausibility.** Loops are bounded with measurable convergence; outputs carry SHA-256 audit closure.
-- **Supply-chain hygiene as a feature.** SHA-pinned actions, harden-runner egress policy, signed releases (sigstore/cosign), SBOM on every build, OpenSSF Scorecard tracked publicly.
-- **Falsifiability.** Every paper has a *how this could be wrong* section. Every claim has a test or a Lean proof obligation.
-- **One spine, many surfaces.** Vertical surfaces share infrastructure, governance, and provenance.
+- Lean-kernel proof that `Λ_k(x) = (∏ xᵢ)^(1/k)` is the unique aggregator satisfying axioms A1–A4 (monotone · homogeneous · Egyptian-exact · bounded). [Source](https://github.com/szl-holdings/lutar-lean/blob/main/Lutar/Uniqueness.lean).
+- Bit-exact reproduction of Λ₉ on published golden vectors across three production runtimes (a11oy / amaru / sentra) and the Lean Float implementation. [Reference vectors](https://github.com/szl-holdings/platform/blob/main/packages/ouroboros-invariant/reference-vectors/reference-vectors.json).
+- Measured per-request overhead across 24,800 paired HTTP calls (v11 paper, [`10.5281/zenodo.20119582`](https://doi.org/10.5281/zenodo.20119582)).
+- Not a quantum computer. Quantum modules use quantum-analogy math to derive bounds on classical hardware.
+- Not a free-energy device. "Free-energy" is Friston variational FEP, not thermodynamic free energy.
 
 ---
 
-## Stack & tooling
+## Stack
 
-**Languages.** TypeScript · Python · Lean 4 · Bash
-**Runtime.** Node.js 24 · pnpm 10 · React · Vite
-**Data.** PostgreSQL (Neon) · Drizzle ORM · Redis · pgvector
-**Cloud.** Hetzner · Cloudflare · Sigstore · Zenodo
-**Quality.** Vitest · Playwright · CodeQL · Trivy · Gitleaks · OpenSSF Scorecard · Lean kernel
-**Observability.** OpenTelemetry · Pino · PM2
+<div align="center">
+  <img src="assets/tech-stack.svg" alt="SZL stack — TypeScript · Python · Lean 4 · Node 24" width="100%"/>
+</div>
 
-```mermaid
-graph LR
-    subgraph "Layer 0 — Research"
-        L["Lean 4<br/>Mathlib4"]
-        T["LaTeX / Markdown<br/>papers"]
-    end
-    subgraph "Layer 1 — Spine"
-        I["ouroboros-invariant<br/>Λ₅ · Λ₇ · Λ₉"]
-        N["ouroboros-newton<br/>fluxions"]
-        G["ouroboros-gauss<br/>forecast · class-number"]
-        OL["ouroboros-loop<br/>closure operator O"]
-    end
-    subgraph "Layer 2 — Runtimes"
-        A["a11oy-runtime"]
-        AM["amaru-runtime"]
-        S["sentra-runtime"]
-    end
-    subgraph "Layer 3 — Gateway"
-        MCP["substrate-mcp-gateway<br/>MCP · OAuth 2.1 · SSE"]
-    end
-    subgraph "Layer 4 — Surfaces"
-        SS["A11oy · Sentra · Amaru · Vessels · Terra · Counsel · Carlota Jo"]
-    end
-    L -.proves.-> I
-    I --> OL
-    N --> OL
-    G --> OL
-    OL --> A
-    OL --> AM
-    OL --> S
-    A --> MCP
-    AM --> MCP
-    S --> MCP
-    MCP --> SS
-```
+**Languages:** TypeScript · Python · Lean 4 · Bash
+**Runtime:** Node.js 24 · pnpm 10 · React · Vite
+**Data:** PostgreSQL (Neon) · Drizzle ORM · Redis · pgvector
+**Cloud:** Hetzner · Cloudflare · Sigstore · Zenodo
+**Quality:** Vitest · Playwright · CodeQL · Trivy · Gitleaks · OpenSSF Scorecard · Lean kernel
+**Observability:** OpenTelemetry · Pino · PM2
 
 ---
 
 ## Activity
 
-<p>
-  <a href="https://github.com/stephenlutar2-hash">
-    <img height="160" src="https://github-readme-stats.vercel.app/api?username=stephenlutar2-hash&show_icons=true&theme=transparent&hide_border=true&title_color=01696F&icon_color=01696F&text_color=28251D&include_all_commits=true&count_private=true" alt="GitHub stats">
-  </a>
-  <a href="https://github.com/stephenlutar2-hash">
-    <img height="160" src="https://github-readme-stats.vercel.app/api/top-langs/?username=stephenlutar2-hash&layout=compact&theme=transparent&hide_border=true&title_color=01696F&text_color=28251D&langs_count=8" alt="Top languages">
-  </a>
+<!-- STATS_START — auto-updated daily by .github/workflows/update-stats.yml -->
+| Metric | Value |
+|---|---|
+| Today's commits across szl-holdings | <!-- DAILY_COMMITS -->see workflow<!-- /DAILY_COMMITS --> |
+| Active PRs | <!-- ACTIVE_PRS -->see workflow<!-- /ACTIVE_PRS --> |
+| Latest thesis DOI | [`10.5281/zenodo.20434276`](https://doi.org/10.5281/zenodo.20434276) (v18.0) |
+<!-- STATS_END -->
+
+<p align="center">
+  <img height="160" src="https://github-readme-stats.vercel.app/api?username=stephenlutar2-hash&show_icons=true&theme=transparent&hide_border=true&title_color=00d4ff&icon_color=00d4ff&text_color=8ba3b8&include_all_commits=true&count_private=true" alt="GitHub stats">
+  <img height="160" src="https://github-readme-stats.vercel.app/api/top-langs/?username=stephenlutar2-hash&layout=compact&theme=transparent&hide_border=true&title_color=00d4ff&text_color=8ba3b8&langs_count=8" alt="Top languages">
 </p>
 
 ---
 
-## Contact
+## Contact + credentials
 
-**Stephen P. Lutar Jr.** — Principal · SZL Holdings
-[`stephen@szlholdings.com`](mailto:stephen@szlholdings.com) · [ORCID `0009-0001-0110-4173`](https://orcid.org/0009-0001-0110-4173) · [LinkedIn](https://linkedin.com/in/stephen-l-279315240) · [`szlholdings.com`](https://szlholdings.com)
+**Stephen P. Lutar Jr.** — Founder & CEO, SZL Holdings
 
-For security disclosures, see the [SZL Holdings security policy](https://github.com/szl-holdings/.github/security/policy) or email `security@szlholdings.com`.
+| | |
+|---|---|
+| Email | [`stephen@szlholdings.com`](mailto:stephen@szlholdings.com) |
+| ORCID | [`0009-0001-0110-4173`](https://orcid.org/0009-0001-0110-4173) |
+| LinkedIn | [stephen-l-279315240](https://linkedin.com/in/stephen-l-279315240) |
+| HF | [huggingface.co/betterwithage](https://huggingface.co/betterwithage) · org [SZLHOLDINGS](https://huggingface.co/SZLHOLDINGS) |
+| Zenodo | [zenodo.org/communities/szl-holdings](https://zenodo.org/communities/szl-holdings) |
+| Web | [`szlholdings.com`](https://szlholdings.com) |
+| Security | [`security@szlholdings.com`](mailto:security@szlholdings.com) · [security policy](https://github.com/szl-holdings/.github/security/policy) |
 
-<sub>© 2026 Stephen P. Lutar Jr. — Code released under Apache-2.0. Research released under CC BY 4.0. Every test count on this page is verifiable; see the linked audit logs and reference-vectors.json.</sub>
+---
+
+<sub>© 2026 Stephen P. Lutar Jr. — Code: Apache-2.0. Research: CC BY 4.0. Every test count and DOI on this page is verifiable; see linked audit logs and reference-vectors.json. Profile auto-refreshed by <a href=".github/workflows/update-stats.yml">update-stats.yml</a>.</sub>
