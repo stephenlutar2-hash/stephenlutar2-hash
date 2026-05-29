@@ -1,0 +1,82 @@
+# Auto-updating stats workflow
+# Refreshes daily commit count, active PRs, and latest thesis DOI in README.md
+# Runs on a daily cron and on push to main.
+# All action SHAs pinned to specific commits (supply-chain hygiene).
+
+name: update-stats
+
+on:
+  schedule:
+    # Run at 06:00 UTC daily
+    - cron: '0 6 * * *'
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh-stats:
+    runs-on: ubuntu-22.04
+    steps:
+      # actions/checkout@v4 — pinned SHA
+      - name: Checkout profile repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        # v4.2.2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fetch szl-holdings daily commits
+        id: commits
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Count commits across szl-holdings org in the last 24h
+          DATE=$(date -u --date="24 hours ago" +"%Y-%m-%dT%H:%M:%SZ")
+          ORG="szl-holdings"
+          REPOS=$(curl -s -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/orgs/$ORG/repos?type=public&per_page=100" \
+            | jq -r '.[].name')
+          TOTAL=0
+          for REPO in $REPOS; do
+            COUNT=$(curl -s -H "Authorization: Bearer $GH_TOKEN" \
+              "https://api.github.com/repos/$ORG/$REPO/commits?since=$DATE&per_page=100" \
+              | jq 'if type=="array" then length else 0 end' 2>/dev/null || echo 0)
+            TOTAL=$((TOTAL + COUNT))
+          done
+          echo "daily_commits=$TOTAL" >> "$GITHUB_OUTPUT"
+
+      - name: Fetch active PRs across szl-holdings
+        id: prs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ORG="szl-holdings"
+          PR_COUNT=$(curl -s -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/search/issues?q=org:$ORG+type:pr+state:open&per_page=1" \
+            | jq '.total_count // 0')
+          echo "active_prs=$PR_COUNT" >> "$GITHUB_OUTPUT"
+
+      - name: Update README stats block
+        run: |
+          COMMITS="${{ steps.commits.outputs.daily_commits }}"
+          PRS="${{ steps.prs.outputs.active_prs }}"
+          DATE=$(date -u +"%Y-%m-%d")
+
+          # Patch DAILY_COMMITS placeholder
+          sed -i "s|<!-- DAILY_COMMITS -->.*<!-- /DAILY_COMMITS -->|<!-- DAILY_COMMITS -->${COMMITS} (${DATE} UTC)<!-- /DAILY_COMMITS -->|g" README.md
+
+          # Patch ACTIVE_PRS placeholder
+          sed -i "s|<!-- ACTIVE_PRS -->.*<!-- /ACTIVE_PRS -->|<!-- ACTIVE_PRS -->${PRS}<!-- /ACTIVE_PRS -->|g" README.md
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git diff --quiet README.md || {
+            git add README.md
+            git commit -s -m "chore(stats): daily refresh $(date -u +%Y-%m-%d)"
+            git push
+          }

@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 160" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0a0a0f"/>
+      <stop offset="100%" stop-color="#0d1520"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="160" rx="6" fill="url(#bg)"/>
+  <rect width="800" height="160" rx="6" stroke="#00d4ff" stroke-width="0.5" stroke-opacity="0.2" fill="none"/>
+
+  <!-- Title -->
+  <text x="400" y="28" font-family="'Segoe UI', Arial, sans-serif" font-size="12" fill="#00d4ff" text-anchor="middle" opacity="0.7" letter-spacing="2">SUBSTRATE AT A GLANCE — v18.0 · Doctrine v6 · 2026-05-29</text>
+  <line x1="40" y1="36" x2="760" y2="36" stroke="#00d4ff" stroke-width="0.4" stroke-opacity="0.2"/>
+
+  <!-- Stat 1: Theorems -->
+  <g transform="translate(40, 55)">
+    <text x="0" y="0" font-family="'Segoe UI', Arial, sans-serif" font-size="36" font-weight="700" fill="#00d4ff">76</text>
+    <text x="0" y="18" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#6b8fa3">named theorems</text>
+    <text x="0" y="32" font-family="'Courier New', monospace" font-size="9" fill="#3a5a70">lutar-lean · Lean 4</text>
+  </g>
+
+  <!-- Divider -->
+  <line x1="160" y1="55" x2="160" y2="125" stroke="#00d4ff" stroke-width="0.4" stroke-opacity="0.15"/>
+
+  <!-- Stat 2: Lake verified -->
+  <g transform="translate(175, 55)">
+    <text x="0" y="0" font-family="'Segoe UI', Arial, sans-serif" font-size="36" font-weight="700" fill="#00d4ff">134</text>
+    <text x="0" y="18" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#6b8fa3">lake-verified</text>
+    <text x="0" y="32" font-family="'Courier New', monospace" font-size="9" fill="#3a5a70">Mathlib v4.13.0</text>
+  </g>
+
+  <!-- Divider -->
+  <line x1="295" y1="55" x2="295" y2="125" stroke="#00d4ff" stroke-width="0.4" stroke-opacity="0.15"/>
+
+  <!-- Stat 3: GREEN modules -->
+  <g transform="translate(310, 55)">
+    <text x="0" y="0" font-family="'Segoe UI', Arial, sans-serif" font-size="36" font-weight="700" fill="#2DA44E">30</text>
+    <text x="0" y="18" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#6b8fa3">GREEN modules</text>
+    <text x="0" y="32" font-family="'Courier New', monospace" font-size="9" fill="#3a5a70">CI · 30/30</text>
+  </g>
+
+  <!-- Divider -->
+  <line x1="420" y1="55" x2="420" y2="125" stroke="#00d4ff" stroke-width="0.4" stroke-opacity="0.15"/>
+
+  <!-- Stat 4: HF Spaces -->
+  <g transform="translate(435, 55)">
+    <text x="0" y="0" font-family="'Segoe UI', Arial, sans-serif" font-size="36" font-weight="700" fill="#805AD5">19</text>
+    <text x="0" y="18" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#6b8fa3">HF Spaces</text>
+    <text x="0" y="32" font-family="'Courier New', monospace" font-size="9" fill="#3a5a70">SZLHOLDINGS · live</text>
+  </g>
+
+  <!-- Divider -->
+  <line x1="545" y1="55" x2="545" y2="125" stroke="#00d4ff" stroke-width="0.4" stroke-opacity="0.15"/>
+
+  <!-- Stat 5: DOIs -->
+  <g transform="translate(560, 55)">
+    <text x="0" y="0" font-family="'Segoe UI', Arial, sans-serif" font-size="36" font-weight="700" fill="#01696F">7</text>
+    <text x="0" y="18" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#6b8fa3">Zenodo DOIs</text>
+    <text x="0" y="32" font-family="'Courier New', monospace" font-size="9" fill="#3a5a70">v18.0 concept + version</text>
+  </g>
+
+  <!-- Divider -->
+  <line x1="670" y1="55" x2="670" y2="125" stroke="#00d4ff" stroke-width="0.4" stroke-opacity="0.15"/>
+
+  <!-- Stat 6: Thesis versions -->
+  <g transform="translate(685, 55)">
+    <text x="0" y="0" font-family="'Segoe UI', Arial, sans-serif" font-size="36" font-weight="700" fill="#C8B26A">18</text>
+    <text x="0" y="18" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#6b8fa3">thesis versions</text>
+    <text x="0" y="32" font-family="'Courier New', monospace" font-size="9" fill="#3a5a70">v1 → v18 published</text>
+  </g>
+
+  <!-- Bottom line -->
+  <line x1="40" y1="135" x2="760" y2="135" stroke="#00d4ff" stroke-width="0.4" stroke-opacity="0.15"/>
+  <text x="400" y="150" font-family="'Courier New', monospace" font-size="9" fill="#3a5a70" text-anchor="middle">All figures verifiable · github.com/szl-holdings · DOI 10.5281/zenodo.20434276</text>
+</svg>
