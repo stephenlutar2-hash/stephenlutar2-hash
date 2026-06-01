@@ -1,0 +1,254 @@
+/* The Provenanced Notebook — personal profile, Stephen Lutar / SZL Holdings
+   Design system: KANCHAY tokens (tokens.css) + Inter / IBM Plex Sans / JetBrains Mono.
+   Signed: Yachay. Apache-2.0 (code) · ORCID 0009-0001-0110-4173.
+   No trackers, no analytics, no third-party CDNs at runtime — sovereign + GDPR-safe by design. */
+
+/* ---------- self-hosted fonts ---------- */
+@font-face{font-family:Inter;src:url(../assets/fonts/inter-400.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:Inter;src:url(../assets/fonts/inter-600.woff2) format("woff2");font-weight:600;font-display:swap}
+@font-face{font-family:Inter;src:url(../assets/fonts/inter-700.woff2) format("woff2");font-weight:700;font-display:swap}
+@font-face{font-family:"IBM Plex Sans";src:url(../assets/fonts/plex-600.woff2) format("woff2");font-weight:600;font-display:swap}
+@font-face{font-family:"IBM Plex Sans";src:url(../assets/fonts/plex-700.woff2) format("woff2");font-weight:700;font-display:swap}
+@font-face{font-family:"JetBrains Mono";src:url(../assets/fonts/jbmono-400.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"JetBrains Mono";src:url(../assets/fonts/jbmono-500.woff2) format("woff2");font-weight:500;font-display:swap}
+
+:root{
+  --font-body:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --font-head:"IBM Plex Sans",Inter,system-ui,sans-serif;
+  --font-mono:"JetBrains Mono","IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --bg:var(--color-a11oy-bg);          /* #0a0f1e */
+  --deep:var(--color-a11oy-deep);      /* #10151c */
+  --surface:var(--color-a11oy-surface);/* #1b222c */
+  --overlay:var(--color-a11oy-overlay);
+  --border:var(--color-a11oy-border);
+  --ink:var(--color-a11oy-text);
+  --sub:var(--color-a11oy-text-sub);
+  --ghost:var(--color-a11oy-text-ghost);
+  --gold:var(--color-hatun-300);
+  --teal:var(--color-yuyay-300);
+  --teal-deep:var(--color-yuyay-500);
+  --yawar:var(--color-yawar-400);
+  --ok:var(--color-success);
+  --max:1080px;
+  --rhythm:clamp(3.5rem,8vw,6rem);
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{
+  margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);
+  font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(800px 400px at 80% -10%,rgba(92,196,191,.06),transparent),
+                   radial-gradient(700px 380px at 0% 30%,rgba(228,207,153,.04),transparent);
+}
+a{color:var(--teal);text-decoration:none}
+a:hover{text-decoration:underline;text-underline-offset:3px}
+::selection{background:rgba(92,196,191,.28)}
+
+/* ---------- ruled-notebook spine ---------- */
+.page{max-width:var(--max);margin:0 auto;padding:0 clamp(1rem,4vw,2rem)}
+.entry{position:relative;padding:var(--rhythm) 0;border-top:1px solid color-mix(in srgb,var(--border) 50%,transparent)}
+.entry:first-of-type{border-top:none}
+.entry::before{ /* the red margin rule of a notebook */
+  content:"";position:absolute;left:calc(-1*clamp(1rem,4vw,2rem));top:0;bottom:0;
+  width:2px;background:linear-gradient(var(--yawar),transparent 40%);opacity:.32}
+.stamp{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ghost);display:flex;gap:.6rem;align-items:center;margin-bottom:1rem}
+.stamp .dot{width:6px;height:6px;border-radius:50%;background:var(--teal)}
+h1,h2,h3{font-family:var(--font-head);line-height:1.15;letter-spacing:-.01em;margin:.2rem 0}
+h2{font-size:clamp(1.6rem,3.4vw,2.4rem)}
+h3{font-size:clamp(1.15rem,2vw,1.45rem);color:var(--ink)}
+p{color:var(--sub);max-width:62ch}
+.lede{font-size:1.2rem;color:var(--ink)}
+code,.mono{font-family:var(--font-mono)}
+.hash{font-family:var(--font-mono);font-size:.8rem;color:var(--gold);word-break:break-all}
+
+/* ---------- header / receipt bar ---------- */
+header.bar{position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);
+  background:color-mix(in srgb,var(--bg) 82%,transparent);
+  border-bottom:1px solid color-mix(in srgb,var(--border) 45%,transparent)}
+.bar-in{max-width:var(--max);margin:0 auto;display:flex;align-items:center;gap:1rem;
+  padding:.6rem clamp(1rem,4vw,2rem);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:.55rem;font-family:var(--font-head);font-weight:700}
+.brand img{width:26px;height:26px;border-radius:7px}
+.brand small{font-family:var(--font-mono);font-weight:400;color:var(--ghost);font-size:.7rem}
+.receipt{margin-left:auto;font-family:var(--font-mono);font-size:.7rem;color:var(--sub);
+  border:1px solid var(--border);border-radius:999px;padding:.3rem .7rem;background:var(--deep);
+  display:flex;gap:.5rem;align-items:center;cursor:help}
+.receipt b{color:var(--gold)}
+.receipt .live{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 rgba(31,157,87,.6);
+  animation:pulse 2.4s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(31,157,87,.5)}70%{box-shadow:0 0 0 8px rgba(31,157,87,0)}100%{box-shadow:0 0 0 0 rgba(31,157,87,0)}}
+nav.toc{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.8rem;font-family:var(--font-mono)}
+nav.toc a{color:var(--ghost)}
+nav.toc a:hover{color:var(--teal);text-decoration:none}
+
+/* ---------- hero ---------- */
+.hero{padding:clamp(3rem,8vw,5.5rem) 0 1rem}
+.hero h1{font-family:var(--font-head);font-weight:700;font-size:clamp(2.2rem,6vw,3.6rem);line-height:1.05}
+.hero .role{font-family:var(--font-mono);color:var(--teal);font-size:.85rem;letter-spacing:.06em;text-transform:uppercase}
+.hero .one-line{font-size:clamp(1.05rem,2.3vw,1.35rem);color:var(--ink);max-width:54ch;margin-top:1.1rem}
+.idmeta{display:flex;flex-wrap:wrap;gap:.5rem .9rem;margin-top:1.4rem;font-family:var(--font-mono);font-size:.78rem;color:var(--ghost)}
+.idmeta span b{color:var(--sub);font-weight:500}
+
+/* ---------- cards / panels ---------- */
+.panel{background:linear-gradient(180deg,var(--surface),var(--deep));border:1px solid var(--border);
+  border-radius:14px;padding:1.4rem;margin-top:1.2rem}
+.grid{display:grid;gap:1rem}
+@media(min-width:760px){.grid.c2{grid-template-columns:1fr 1fr}.grid.c3{grid-template-columns:repeat(3,1fr)}}
+.badge{font-family:var(--font-mono);font-size:.68rem;padding:.18rem .5rem;border-radius:6px;letter-spacing:.04em}
+.badge.proved{background:color-mix(in srgb,var(--ok) 18%,transparent);color:#7fe0a8;border:1px solid color-mix(in srgb,var(--ok) 40%,transparent)}
+.badge.sorry{background:color-mix(in srgb,var(--gold) 14%,transparent);color:var(--gold);border:1px solid color-mix(in srgb,var(--gold) 38%,transparent)}
+.badge.running{background:color-mix(in srgb,var(--teal) 16%,transparent);color:var(--teal);border:1px solid color-mix(in srgb,var(--teal) 38%,transparent)}
+.badge.starting{background:color-mix(in srgb,var(--gold) 12%,transparent);color:var(--gold)}
+.badge.down{background:color-mix(in srgb,var(--yawar) 16%,transparent);color:#f0a3a3}
+
+/* ---------- numbers row ---------- */
+.nums{display:grid;grid-template-columns:repeat(2,1fr);gap:.8rem;margin-top:1rem}
+@media(min-width:680px){.nums{grid-template-columns:repeat(5,1fr)}}
+.num{background:var(--deep);border:1px solid var(--border);border-radius:12px;padding:1rem;text-align:center}
+.num .v{font-family:var(--font-mono);font-weight:500;font-size:1.7rem;color:var(--gold)}
+.num .k{font-size:.7rem;color:var(--ghost);text-transform:uppercase;letter-spacing:.06em;margin-top:.25rem}
+
+/* ---------- PURIQ derivation workbench ---------- */
+.bench{display:grid;gap:1rem}
+@media(min-width:760px){.bench{grid-template-columns:240px 1fr}}
+.tray{display:flex;flex-direction:column;gap:.6rem}
+.prim{cursor:grab;user-select:none;background:var(--deep);border:1px solid var(--border);border-radius:10px;
+  padding:.7rem .8rem;font-family:var(--font-mono);font-size:.8rem;transition:.15s;touch-action:none}
+.prim:hover{border-color:var(--teal);transform:translateX(3px)}
+.prim small{display:block;color:var(--ghost);font-family:var(--font-body);font-size:.72rem;margin-top:.2rem}
+.drop{min-height:140px;border:1.5px dashed var(--border);border-radius:12px;padding:1rem;display:flex;flex-wrap:wrap;gap:.5rem;align-content:flex-start}
+.drop.over{border-color:var(--teal);background:color-mix(in srgb,var(--teal) 6%,transparent)}
+.chip{background:var(--overlay);border:1px solid var(--teal-deep);border-radius:999px;padding:.3rem .7rem;
+  font-family:var(--font-mono);font-size:.75rem;display:flex;gap:.4rem;align-items:center}
+.chip button{background:none;border:none;color:var(--yawar);cursor:pointer;font-size:.9rem;line-height:1}
+.derived{margin-top:1rem;background:var(--deep);border:1px solid var(--border);border-radius:12px;padding:1rem;min-height:56px}
+.derived .label{font-family:var(--font-mono);font-size:.7rem;color:var(--ghost);text-transform:uppercase;margin-bottom:.5rem}
+.btn{font-family:var(--font-mono);font-size:.8rem;cursor:pointer;background:var(--teal-deep);color:#eafffb;
+  border:none;border-radius:8px;padding:.55rem .9rem;transition:.15s}
+.btn:hover{filter:brightness(1.12)}
+.btn.ghost{background:transparent;border:1px solid var(--border);color:var(--sub)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-top:.8rem}
+
+/* ---------- PURIQ calculator ---------- */
+.calc label{display:block;font-family:var(--font-mono);font-size:.74rem;color:var(--sub);margin:.7rem 0 .25rem}
+.calc input[type=range]{width:100%;accent-color:var(--teal)}
+.calc .val{font-family:var(--font-mono);color:var(--gold);float:right}
+.calc .out{margin-top:1rem;font-family:var(--font-mono);font-size:1.3rem;color:var(--teal)}
+.calc .out .sel{color:var(--gold)}
+
+/* ---------- lean theorem ---------- */
+pre.lean{background:#070b16;border:1px solid var(--border);border-radius:10px;padding:1rem;overflow:auto;
+  font-family:var(--font-mono);font-size:.82rem;line-height:1.55;color:#d7dde8}
+.lean .kw{color:#5cc4bf}.lean .ty{color:#e4cf99}.lean .cm{color:#76859b;font-style:italic}.lean .st{color:#f0a3a3}
+.checkline{font-family:var(--font-mono);font-size:.8rem;margin-top:.6rem}
+
+/* ---------- flagships ---------- */
+.flag{display:flex;gap:.9rem;align-items:flex-start}
+.flag .thumb{width:64px;height:64px;border-radius:10px;flex:0 0 auto;background:var(--deep);
+  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);
+  font-size:1.4rem;color:var(--teal)}
+.flag h3{font-size:1rem;margin:0}
+.flag p{font-size:.85rem;margin:.3rem 0 0}
+
+/* ---------- 3D ---------- */
+#bench3d{width:100%;height:300px;border-radius:12px;border:1px solid var(--border);display:block;background:var(--deep)}
+.cap{font-family:var(--font-mono);font-size:.72rem;color:var(--ghost);margin-top:.5rem}
+
+/* ---------- stacked-notes drawer (Matuschak) ---------- */
+.stacker{position:fixed;right:0;top:0;bottom:0;width:min(420px,92vw);z-index:60;transform:translateX(105%);
+  transition:transform .28s cubic-bezier(.22,1,.36,1);background:var(--deep);border-left:1px solid var(--border);
+  box-shadow:-20px 0 60px rgba(0,0,0,.45);display:flex;flex-direction:column}
+.stacker.open{transform:none}
+.stacker header{display:flex;align-items:center;gap:.6rem;padding:.9rem 1rem;border-bottom:1px solid var(--border);
+  font-family:var(--font-mono);font-size:.8rem;color:var(--sub)}
+.stacker .body{overflow:auto;padding:1rem}
+.stacker .x{margin-left:auto;background:none;border:none;color:var(--ghost);cursor:pointer;font-size:1.1rem}
+.stk-item{border:1px solid var(--border);border-radius:10px;padding:.8rem;margin-bottom:.8rem;background:var(--surface)}
+.openstk{font-family:var(--font-mono);font-size:.72rem;color:var(--teal);cursor:pointer;border:1px dashed var(--border);
+  border-radius:6px;padding:.15rem .45rem;background:none}
+
+footer{padding:var(--rhythm) 0;border-top:1px solid color-mix(in srgb,var(--border) 50%,transparent);
+  font-family:var(--font-mono);font-size:.78rem;color:var(--ghost)}
+footer a{color:var(--sub)}
+.sig{color:var(--gold);font-weight:500}
+.todo{font-family:var(--font-mono);font-size:.7rem;color:var(--ghost);opacity:.7;border-left:2px solid var(--gold);padding-left:.6rem;margin-top:.6rem}
+.contact{display:flex;flex-wrap:wrap;gap:.6rem 1.4rem;font-family:var(--font-mono);font-size:.85rem}
+
+/* ============================================================
+   Genius-profile additions (additive) — Yachay 2026-06-01
+   Doctrine v11 LOCKED 749/14/163 · Apache-2.0
+   ============================================================ */
+
+/* --- Series-A doctrine ribbon (above the fold) --- */
+.doc-ribbon{font-family:var(--font-mono);font-size:.8rem;color:var(--gold);margin-top:1.2rem;
+  border:1px solid color-mix(in srgb,var(--gold) 34%,transparent);border-radius:8px;
+  padding:.5rem .8rem;background:color-mix(in srgb,var(--gold) 7%,transparent);
+  display:inline-flex;flex-wrap:wrap;gap:.35rem .7rem;align-items:center;letter-spacing:.02em}
+.doc-ribbon b{color:var(--gold)}
+.doc-ribbon .sep{color:var(--ghost)}
+.doc-ribbon .lock{color:var(--ok)}
+
+/* --- 3D Org Map (above the fold) --- */
+#orgmap3d{width:100%;height:60vh;max-height:480px;min-height:300px;border-radius:14px;
+  border:1px solid var(--border);display:block;background:radial-gradient(circle at 50% 40%,#101a26,#070b16);
+  touch-action:none;-webkit-tap-highlight-color:transparent}
+@media(min-width:760px){#orgmap3d{height:80vh;max-height:560px}}
+.orgmap-legend{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.8rem}
+.orgmap-leg{display:flex;align-items:center;gap:.45rem;font-family:var(--font-mono);font-size:.74rem;
+  color:var(--sub);border:1px solid var(--border);border-radius:999px;padding:.35rem .7rem;
+  background:var(--deep);min-height:34px;cursor:default}
+.orgmap-leg .swatch{width:10px;height:10px;border-radius:50%}
+.orgmap-leg .ohb{font-size:.66rem;padding:.08rem .4rem;border-radius:5px;color:var(--ghost);
+  border:1px solid var(--border)}
+.orgmap-leg .ohb.ok{color:#7fe0a8;border-color:color-mix(in srgb,var(--ok) 40%,transparent)}
+.orgmap-leg .ohb.down{color:#f0a3a3;border-color:color-mix(in srgb,var(--yawar) 40%,transparent)}
+
+/* --- live signed-receipt counter --- */
+.rc-card{display:flex;flex-direction:column;gap:.3rem;align-items:flex-start}
+.rc-val{font-family:var(--font-mono);font-weight:500;font-size:clamp(2.2rem,7vw,3.6rem);color:var(--gold);
+  line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.rc-sub{font-family:var(--font-mono);font-size:.74rem;color:var(--ghost)}
+.rc-sub b{color:var(--teal)}
+
+/* --- live Lean proof tree --- */
+.pt-wrap{display:grid;gap:.9rem;margin-top:1rem;grid-template-columns:1fr}
+@media(min-width:680px){.pt-wrap{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:980px){.pt-wrap{grid-template-columns:repeat(3,1fr)}}
+.pt-branch{background:var(--deep);border:1px solid var(--border);border-radius:12px;padding:.9rem}
+.pt-head{display:flex;flex-direction:column;gap:.15rem;margin-bottom:.6rem}
+.pt-head code{font-family:var(--font-mono);font-size:.78rem;color:var(--teal)}
+.pt-bt{font-size:.72rem;color:var(--ghost)}
+.pt-kids{display:flex;flex-direction:column;gap:.4rem}
+.pt-node{display:flex;align-items:center;gap:.5rem;min-height:38px;padding:.35rem .55rem;border-radius:8px;
+  border:1px solid var(--border);background:var(--surface);text-decoration:none}
+.pt-node:hover{text-decoration:none;border-color:var(--teal)}
+.pt-node code{font-family:var(--font-mono);font-size:.72rem;color:var(--ink);word-break:break-all;flex:1}
+.pt-dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+.pt-tag{font-family:var(--font-mono);font-size:.6rem;padding:.1rem .35rem;border-radius:4px;flex:0 0 auto}
+.pt-node.proved .pt-dot{background:var(--gold);box-shadow:0 0 8px color-mix(in srgb,var(--gold) 70%,transparent)}
+.pt-node.proved .pt-tag{color:var(--gold);border:1px solid color-mix(in srgb,var(--gold) 40%,transparent)}
+.pt-node.open{opacity:.55}
+.pt-node.open .pt-dot{background:var(--ghost)}
+.pt-node.open .pt-tag{color:var(--ghost);border:1px solid var(--border)}
+
+/* --- What I built (commit feed) --- */
+.builtfeed{display:flex;flex-direction:column;gap:.55rem;margin-top:1rem}
+.bf-row{display:flex;gap:.7rem;align-items:baseline;padding:.55rem .7rem;border:1px solid var(--border);
+  border-radius:9px;background:var(--deep);min-height:44px}
+.bf-row .sha{font-family:var(--font-mono);font-size:.72rem;color:var(--teal);flex:0 0 auto}
+.bf-row .msg{font-size:.84rem;color:var(--sub);flex:1}
+.bf-row .repo{font-family:var(--font-mono);font-size:.66rem;color:var(--ghost)}
+.bf-row .when{font-family:var(--font-mono);font-size:.66rem;color:var(--ghost);flex:0 0 auto}
+
+/* --- How it works (architecture) --- */
+.arch{display:grid;gap:.8rem;margin-top:1rem;grid-template-columns:1fr}
+@media(min-width:760px){.arch{grid-template-columns:repeat(2,1fr)}}
+.arch .step{background:var(--deep);border:1px solid var(--border);border-radius:12px;padding:1rem}
+.arch .step h4{font-family:var(--font-head);font-size:.95rem;margin:.1rem 0 .4rem;color:var(--ink)}
+.arch .step .tag{font-family:var(--font-mono);font-size:.66rem;color:var(--teal);text-transform:uppercase;letter-spacing:.05em}
+.arch .step p{font-size:.82rem;margin:.3rem 0 0;color:var(--sub)}
+.arch .step code{font-family:var(--font-mono);color:var(--gold);font-size:.8rem}

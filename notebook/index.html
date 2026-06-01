@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0e14">
+<title>Stephen Lutar — The Provenanced Notebook</title>
+<meta name="description" content="The interior of one mind: formulas you can rearrange, proofs you can re-check, this morning's thought — and a Khipu receipt proving you were here.">
+<meta name="robots" content="index,follow">
+<!-- sovereign + privacy-preserving: no analytics, no trackers, no cookies, self-hosted assets -->
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<!-- Inca avatar (Amaru) · additive · Yachay · 2026-06-01.
+     Adds animated GIF as an alternate favicon + social share image (og/twitter).
+     Existing assets/favicon.svg and assets/kanchay-glyph.svg are untouched. -->
+<link rel="icon" href="assets/szl-avatar-animated.gif" type="image/gif" sizes="400x400">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Stephen Lutar — The Provenanced Notebook">
+<meta property="og:description" content="The interior of one mind: formulas you can rearrange, proofs you can re-check, and a Khipu receipt proving you were here.">
+<meta property="og:image" content="assets/szl-avatar-animated.gif">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="assets/szl-avatar-animated.gif">
+<meta name="twitter:title" content="Stephen Lutar — The Provenanced Notebook">
+<link rel="preload" href="assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/jbmono-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="assets/katex/katex.min.css">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<header class="bar">
+  <div class="bar-in">
+    <a class="brand" href="#top" aria-label="Stephen Lutar — home">
+      <img src="assets/kanchay-glyph.svg" alt="">
+      <span>Stephen&nbsp;Lutar <small>// the provenanced notebook</small></span>
+    </a>
+    <nav class="toc" aria-label="sections">
+      <a href="#orgmap">org map</a><a href="#today">today</a><a href="#built">built</a>
+      <a href="#proofs">proofs</a><a href="#puriq">formula</a><a href="#derive">derive</a>
+      <a href="#doctrine">doctrine</a><a href="#how">how</a><a href="#flagships">flagships</a><a href="#contact">contact</a>
+    </nav>
+    <div class="receipt" id="receipt" tabindex="0">
+      <span class="live" aria-hidden="true"></span>
+      you are receipt <b class="idx">#…</b> · <span class="rh hash">…</span>
+    </div>
+  </div>
+</header>
+
+<main class="page" id="top">
+
+  <!-- ===================== IDENTITY / HERO ===================== -->
+  <section class="entry hero" id="identity">
+    <div class="role">Founder · SZL Holdings</div>
+    <h1>Stephen Lutar</h1>
+    <p class="one-line lede">I build machines that prove they are trustworthy — and this page is one of them.</p>
+    <div class="idmeta">
+      <span><b>ORCID</b> <a href="https://orcid.org/0009-0001-0110-4173">0009-0001-0110-4173</a></span>
+      <span><b>where</b> Shrub Oak, NY</span>
+      <span><b>role</b> Founder, SZL Holdings</span>
+      <span><b>license</b> Apache-2.0 · open assets only</span>
+    </div>
+    <div class="doc-ribbon" role="status" aria-label="Doctrine v11 locked counts">
+      <span class="lock">Doctrine v11 LOCKED</span><span class="sep">·</span>
+      <span><b>749</b> declarations</span><span class="sep">·</span>
+      <span><b>14</b> unique axioms</span><span class="sep">·</span>
+      <span><b>163</b> sorries</span>
+    </div>
+    <p style="margin-top:1.3rem;color:var(--ghost);font-family:var(--font-mono);font-size:.8rem">
+      This is not a résumé. It is the inside of the workshop. Everything below <em>runs</em>:
+      the formula computes, the theorem re-checks in a kernel, and your visit just minted a receipt
+      <span class="hash" id="echoreceipt"></span> in the same Khipu chain the work is about.
+    </p>
+  </section>
+
+  <!-- ===================== 3D ORG MAP (above the fold) ===================== -->
+  <section class="entry" id="orgmap">
+    <div class="stamp"><span class="dot"></span> org map · live mesh · 3D</div>
+    <h2>The five organs, wired live</h2>
+    <p>An interactive 3D chord map of the SZL mesh. Five organ nodes, the Wire D/E/F/G traces that
+       carry receipts between them, and a heartbeat pulse driven by each organ's <code>/healthz</code>
+       (polled every 5&nbsp;seconds). Drag to rotate; tap a node to open its Space.</p>
+    <canvas id="orgmap3d" aria-label="Interactive 3D map of the five SZL organs (amaru, sentra, rosie, killinchu, a11oy) connected by live mesh wires; drag to rotate, tap a node to open its Space"></canvas>
+    <div class="orgmap-legend" aria-label="organ health legend">
+      <span class="orgmap-leg" data-organ="amaru"><span class="swatch" style="background:#e4cf99"></span>amaru <span class="ohb">…</span></span>
+      <span class="orgmap-leg" data-organ="sentra"><span class="swatch" style="background:#5cc4bf"></span>sentra <span class="ohb">…</span></span>
+      <span class="orgmap-leg" data-organ="rosie"><span class="swatch" style="background:#ff9a7a"></span>rosie <span class="ohb">…</span></span>
+      <span class="orgmap-leg" data-organ="killinchu"><span class="swatch" style="background:#8fb6ff"></span>killinchu <span class="ohb">…</span></span>
+      <span class="orgmap-leg" data-organ="a11oy"><span class="swatch" style="background:#d4a444"></span>a11oy <span class="ohb">…</span></span>
+    </div>
+    <div class="cap">Wire D/E/F/G are the real inter-organ receipt traces. Health badges read each organ's live <code>/healthz</code> from this device; when an organ is unreachable from your network the badge shows “—”.</div>
+  </section>
+
+  <!-- ===================== TODAY ===================== -->
+  <section class="entry" id="today">
+    <div class="stamp"><span class="dot"></span> today · auto-pulled</div>
+    <h2>What I shipped most recently</h2>
+    <div class="grid c2">
+      <div class="panel">
+        <div class="badge running" style="margin-bottom:.6rem">latest commit</div>
+        <div id="today-commit" class="mono" style="font-size:.85rem;color:var(--sub)">loading from GitHub…</div>
+      </div>
+      <div class="panel">
+        <div class="badge sorry" style="margin-bottom:.6rem">this morning's thought</div>
+        <p style="margin:0">PURIQ &mdash; the agentic layer &mdash; only ships once the 13-axis Yuyay gate
+        and the HUKLLA tripwire penalty are both Lean-stateable. A thought that can't be stated as a
+        proof obligation isn't done; it's a draft wearing a suit.</p>
+        <div class="todo">P1 hook: this line will be machine-pulled from the private <code>journal</code> repo (feature #5).</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== WHAT I BUILT (live commit feed) ===================== -->
+  <section class="entry" id="built">
+    <div class="stamp"><span class="dot"></span> what I built · last 10 commits</div>
+    <h2>The work, as it lands</h2>
+    <p>The ten most recent commits across the <a href="https://github.com/szl-holdings" target="_blank" rel="noopener noreferrer">szl-holdings</a>
+       organization, pulled live from the public GitHub API — no auth, no cache.</p>
+    <div class="builtfeed" id="builtfeed"><div class="cap">loading recent commits from GitHub…</div></div>
+  </section>
+
+  <!-- ===================== LIVE SIGNED-RECEIPT COUNTER ===================== -->
+  <section class="entry" id="receipts">
+    <div class="stamp"><span class="dot"></span> receipts · live counter</div>
+    <h2>Signed receipts, minted across the mesh</h2>
+    <p>Every governed action emits a signed Khipu receipt. This counter sums the
+       <code>*_receipts_total</code> metric from each organ's <code>/metrics</code> endpoint, live.
+       The chain is append-only and Reed-Solomon coded on disk — error-correcting parity, not magic.</p>
+    <div class="panel">
+      <div class="rc-card" id="receipt-counter">
+        <div class="rc-val">…</div>
+        <div class="rc-sub">summing live from organ <code>/metrics</code> endpoints…</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== THESIS ===================== -->
+  <section class="entry" id="thesis">
+    <div class="stamp"><span class="dot"></span> thesis · ouroboros v20</div>
+    <h2>The Ouroboros Thesis</h2>
+    <p>The argument: a system can carry its own proof of trustworthiness as a verifiable artifact,
+       so that every act it takes leaves a checkable receipt. The PDF is below; each theorem in it has a
+       machine-checkable obligation.</p>
+    <div class="row">
+      <a class="btn" href="https://doi.org/10.5281/zenodo.19944926" target="_blank" rel="noopener">Concept DOI · 10.5281/zenodo.19944926</a>
+      <button class="openstk btn ghost" data-stk="stk-thesis">stack the abstract →</button>
+    </div>
+    <div class="panel" style="padding:0;overflow:hidden;margin-top:1rem">
+      <object data="assets/thesis_v20.pdf" type="application/pdf" width="100%" height="520" aria-label="Ouroboros Thesis v20 PDF">
+        <div style="padding:1.4rem"><p style="margin:0">Inline PDF unsupported here —
+          <a href="assets/thesis_v20.pdf">open the thesis v20 PDF</a> or read it via the
+          <a href="https://doi.org/10.5281/zenodo.19944926" target="_blank" rel="noopener">Zenodo concept DOI</a>.</p></div>
+      </object>
+    </div>
+    <div class="todo">P1 hook: HTML thesis where every theorem is clickable → shows its Lean code (feature #6). Theorem heads already wired to the kernel below.</div>
+  </section>
+
+  <!-- ===================== PURIQ MASTER FORMULA (interactive) ===================== -->
+  <section class="entry" id="puriq">
+    <div class="stamp"><span class="dot"></span> formula · live calculator</div>
+    <h2>PURIQ Master Formula</h2>
+    <p>The agentic decision rule. Move the sliders — the per-action score recomputes live. Break the
+       Khipu chain (set provenance to 0) and the score is forced to zero: provenance is not optional.</p>
+    <div class="panel">
+      <div class="eq-block" style="margin-bottom:1rem">
+        $$ P(x,t)=\underset{a\in\mathcal{A}}{\arg\max}\ \Big[\ \Lambda(x)\cdot Y_{13}(a)\cdot e^{-\beta\,\mathrm{HUKLLA}(a)}\cdot \textstyle\prod_i \mathrm{Khipu}_i(a)\ \Big] $$
+      </div>
+      <div class="calc grid c2" id="calc">
+        <div>
+          <label>Λ(x) — spine aggregator <span class="val" id="lamv">1.00</span></label>
+          <input id="lam" type="range" min="0" max="2" step="0.01" value="1.0">
+          <label>Y₁₃(a) — 13-axis wisdom <span class="val" id="yuyayv">0.92</span></label>
+          <input id="yuyay" type="range" min="0" max="1" step="0.01" value="0.92">
+          <label>β — tripwire penalty weight <span class="val" id="betav">2.0</span></label>
+          <input id="beta" type="range" min="0" max="8" step="0.1" value="2.0">
+        </div>
+        <div>
+          <label>HUKLLA(a) — tripwire violations <span class="val" id="hukllav">0</span></label>
+          <input id="huklla" type="range" min="0" max="5" step="1" value="0">
+          <label>∏ Khipu(a) — chain integrity <span class="val" id="khipuv">1.00</span></label>
+          <input id="khipu" type="range" min="0" max="1" step="0.01" value="1.0">
+          <div class="out" id="score">P(a) = …</div>
+          <div class="checkline" id="calcnote" style="color:var(--ghost)"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== GENIUS #1: DERIVATION WORKBENCH ===================== -->
+  <section class="entry" id="derive">
+    <div class="stamp"><span class="dot"></span> derive · drag-to-compose</div>
+    <h2>Compose a new law from ancient primitives</h2>
+    <p>Drag (or tap) up to four primitives onto the bench. The page composes them with a real symbolic
+       algebra into a new objective, renders the LaTeX, names the resulting law — then hands the obligation
+       to the Lean kernel below.</p>
+    <div class="panel bench">
+      <div class="tray" id="tray">
+        <div class="prim" data-k="lambda">Λ-Spine <small>homogeneous aggregator</small></div>
+        <div class="prim" data-k="yuyay">Yuyay-13 <small>13-axis wisdom</small></div>
+        <div class="prim" data-k="noether">Noether <small>conserved quantity</small></div>
+        <div class="prim" data-k="shannon">Shannon <small>information</small></div>
+        <div class="prim" data-k="khipu">Khipu <small>provenance</small></div>
+        <div class="prim" data-k="bekenstein">Bekenstein <small>action bound</small></div>
+      </div>
+      <div>
+        <div class="drop" id="drop"></div>
+        <div class="derived" id="derived">
+          <div class="label"><span class="law">—</span></div>
+          <div class="eq"></div>
+        </div>
+        <div class="row">
+          <button class="btn" id="verifyDeriv" disabled>verify in Lean ↓</button>
+          <button class="btn ghost" id="clearBench">clear bench</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== GENIUS #2: THEOREM OF THE WEEK ===================== -->
+  <section class="entry" id="thm">
+    <div class="stamp"><span class="dot"></span> theorem of the week · lutar-lean</div>
+    <h2>Halting safety holds</h2>
+    <p>One proved theorem, re-checked in a <code>lutar-lean</code>-lite kernel running in a Web Worker
+       (real CPU, off the main thread). Edit-and-recheck: add <code>sorry</code> and watch the badge flip.</p>
+    <pre class="lean">-- lutar-lean · doctrine v11 · halting safety
+theorem huklla_penalty_collapses
+    (a : Action) (beta : Real) (h : HUKLLA a > 0) (hb : beta > 3) :
+    puriq_score a &lt; epsilon := by
+  -- large beta with any tripwire drives exp(-beta*HUKLLA) below epsilon
+  have hp : Real.exp (-beta * HUKLLA a) &lt; epsilon := by
+    apply exp_neg_lt ; positivity
+  calc puriq_score a = lambda * yuyay * Real.exp (-beta * HUKLLA a) * khipu := rfl
+    _ &lt; epsilon := by nlinarith [hp]</pre>
+    <div class="row">
+      <button class="btn" id="recheck">re-check in kernel</button>
+      <span class="checkline" id="leanout"></span>
+    </div>
+    <div class="todo">P1 hook: each Monday auto-pull one PROVED theorem from lutar-lean + plain-English narration via Wallpa voice (feature #2 full / #7).</div>
+  </section>
+
+  <!-- ===================== LIVE LEAN PROOF TREE ===================== -->
+  <section class="entry" id="proofs">
+    <div class="stamp"><span class="dot"></span> proof tree · live from lutar-lean</div>
+    <h2>The proofs, as a tree</h2>
+    <p>Each node is a real <code>theorem</code> or <code>lemma</code> in
+       <a href="https://github.com/szl-holdings/lutar-lean" target="_blank" rel="noopener noreferrer">szl-holdings/lutar-lean</a>.
+       The page fetches the live Lean source, checks each declaration's body for an open
+       <code>sorry</code>, and renders proven nodes in gold. Click any node to jump to its exact line.</p>
+    <div id="prooftree"></div>
+  </section>
+
+  <!-- ===================== DOCTRINE v11 LOCKED ===================== -->
+  <section class="entry" id="doctrine">
+    <div class="stamp"><span class="dot"></span> doctrine · v11 LOCKED · v12/v13 in flight</div>
+    <h2>The doctrine, by the numbers</h2>
+    <p>These are not marketing figures. They are the locked counts from the v11 replay — the same numbers
+       the 3D khipu below knots into its cords.</p>
+    <div class="nums">
+      <div class="num"><div class="v">749</div><div class="k">declarations</div></div>
+      <div class="num"><div class="v">14</div><div class="k">unique axioms</div></div>
+      <div class="num"><div class="v">163</div><div class="k">sorries (open)</div></div>
+      <div class="num"><div class="v">13</div><div class="k">axis yuyay_v3</div></div>
+      <div class="num"><div class="v">v11</div><div class="k">LOCKED</div></div>
+    </div>
+    <div class="panel" style="margin-top:1rem">
+      <div class="label mono" style="font-size:.7rem;color:var(--ghost);text-transform:uppercase">yuyay_v3 replay hash</div>
+      <div class="hash">bacf54434f1a3bf2d758b27a62d5fd580ca4c8d3b180693573eeebcaea631fc5</div>
+    </div>
+    <!-- 3D khipu — genius feature #3 entry point -->
+    <h3 style="margin-top:2rem">The doctrine as a khipu — drag to rotate, click to enter</h3>
+    <canvas id="bench3d" aria-label="Interactive 3D khipu encoding doctrine counts; click to enter the 3D anatomy space"></canvas>
+    <div class="cap" id="bench3d-cap">loading 3D khipu…</div>
+  </section>
+
+  <!-- ===================== HOW IT WORKS ===================== -->
+  <section class="entry" id="how">
+    <div class="stamp"><span class="dot"></span> how it works · architecture</div>
+    <h2>How the mesh actually works</h2>
+    <p>No mysticism — just an event-sourced, cryptographically-signed control plane. The Quechua names
+       are brand naming for the components; the mechanics underneath are standard, auditable systems.</p>
+    <div class="arch">
+      <div class="step">
+        <span class="tag">decision</span>
+        <h4>Λ-aggregator + Yuyay-13</h4>
+        <p>Every candidate action is scored by the <code>Λ</code> spine aggregator (a proven homogeneous,
+           monotone, bounded mean) weighted across the 13 axes of <code>Yuyay-13</code>. The score and its
+           bounds are Lean-proved in <code>lutar-lean</code> (see the proof tree above).</p>
+      </div>
+      <div class="step">
+        <span class="tag">gate</span>
+        <h4>HUKLLA tripwire</h4>
+        <p>A violation drives <code>e^(-β·HUKLLA)</code> toward zero, collapsing the action's score below
+           threshold. Provenance is multiplicative: break the Khipu chain and the product is forced to 0.</p>
+      </div>
+      <div class="step">
+        <span class="tag">record</span>
+        <h4>Khipu DAG + Wire D</h4>
+        <p>Each governed act appends a signed receipt to the <code>Khipu</code> directed-acyclic log.
+           <code>Wire D</code> (and E/F/G) carry receipts between organs. The log is append-only and
+           event-sourced — a replayable history, not “time travel.”</p>
+      </div>
+      <div class="step">
+        <span class="tag">durability</span>
+        <h4>Reed-Solomon parity</h4>
+        <p>Receipts are stored with Reed-Solomon error-correcting codes so the chain survives disk
+           corruption. That is coding theory — redundancy and recovery — not anything holographic.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FLAGSHIPS ===================== -->
+  <section class="entry" id="flagships">
+    <div class="stamp"><span class="dot"></span> flagships · live status from HF</div>
+    <h2>The fleet</h2>
+    <p>Five flagships, two 3D Spaces, one org card. Each status badge is polled live from Hugging Face
+       (with a sovereign offline fallback to last-known stage).</p>
+    <div class="grid c2">
+      <div class="panel flag" data-space="SZLHOLDINGS/a11oy"><div class="thumb">a</div><div><h3>a11oy <span class="badge starting">…</span></h3><p>Unified open-LLM router + governance substrate.</p><a href="https://huggingface.co/spaces/SZLHOLDINGS/a11oy" target="_blank" rel="noopener">open space →</a></div></div>
+      <div class="panel flag" data-space="SZLHOLDINGS/amaru"><div class="thumb">A</div><div><h3>amaru <span class="badge starting">…</span></h3><p>Memory + attestation conduit.</p><a href="https://huggingface.co/spaces/SZLHOLDINGS/amaru" target="_blank" rel="noopener">open space →</a></div></div>
+      <div class="panel flag" data-space="SZLHOLDINGS/sentra"><div class="thumb">S</div><div><h3>sentra <span class="badge running">…</span></h3><p>Security gates + tripwire enforcement.</p><a href="https://huggingface.co/spaces/SZLHOLDINGS/sentra" target="_blank" rel="noopener">open space →</a></div></div>
+      <div class="panel flag" data-space="SZLHOLDINGS/vessels"><div class="thumb">V</div><div><h3>vessels <span class="badge running">…</span></h3><p>Receipt-chained transport + session fabric.</p><a href="https://huggingface.co/spaces/SZLHOLDINGS/vessels" target="_blank" rel="noopener">open space →</a></div></div>
+      <div class="panel flag" data-space="SZLHOLDINGS/rosie"><div class="thumb">R</div><div><h3>rosie <span class="badge starting">…</span></h3><p>Operator console + live mesh dashboard.</p><a href="https://huggingface.co/spaces/SZLHOLDINGS/rosie" target="_blank" rel="noopener">open space →</a></div></div>
+      <div class="panel flag" data-space="SZLHOLDINGS/anatomy-3d"><div class="thumb">3D</div><div><h3>anatomy-3d <span class="badge running">…</span></h3><p>3D anatomy Space — the cathedral entry point.</p><a href="https://huggingface.co/spaces/SZLHOLDINGS/anatomy-3d" target="_blank" rel="noopener">open space →</a></div></div>
+      <div class="panel flag" data-space="SZLHOLDINGS/uds-demo"><div class="thumb">3D</div><div><h3>uds-demo <span class="badge running">…</span></h3><p>Unified deployment / mesh demo (3D).</p><a href="https://huggingface.co/spaces/SZLHOLDINGS/uds-demo" target="_blank" rel="noopener">open space →</a></div></div>
+      <div class="panel flag" data-space="SZLHOLDINGS/README"><div class="thumb">◆</div><div><h3>org card <span class="badge running">…</span></h3><p>The empire's ledger — distinct from this notebook by design.</p><a href="https://huggingface.co/SZLHOLDINGS" target="_blank" rel="noopener">open org →</a></div></div>
+    </div>
+  </section>
+
+  <!-- ===================== CONTACT ===================== -->
+  <section class="entry" id="contact">
+    <div class="stamp"><span class="dot"></span> contact</div>
+    <h2>Reach the workshop</h2>
+    <div class="contact">
+      <a href="mailto:stephenlutar2@gmail.com">stephenlutar2@gmail.com</a>
+      <a href="mailto:yachay@szlholdings.dev">yachay@szlholdings.dev</a>
+      <a href="https://orcid.org/0009-0001-0110-4173" target="_blank" rel="noopener">ORCID 0009-0001-0110-4173</a>
+      <a href="https://github.com/stephenlutar2-hash" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://huggingface.co/SZLHOLDINGS" target="_blank" rel="noopener">Hugging Face</a>
+      <a href="https://www.linkedin.com/" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+  </section>
+
+  <footer>
+    <p>Sovereign by design — self-hosted fonts, math, and 3D; no analytics, no cookies, no trackers; GDPR-safe by construction.
+       Your Khipu receipt was computed locally and never left this device.</p>
+    <p>Built with Three.js · KaTeX · vanilla ES modules. Open assets only (SIL OFL / Apache-2.0).
+       WebGPU Baseline Jan-2026 with WebGL2 fallback. — signed <span class="sig">Yachay</span>.</p>
+  </footer>
+</main>
+
+<!-- stacked-notes drawer (Matuschak) -->
+<aside class="stacker" id="stacker" aria-label="stacked notes">
+  <header>stacked artifacts <button class="x" aria-label="close">×</button></header>
+  <div class="body"></div>
+</aside>
+
+<!-- templates for stacking -->
+<template id="stk-thesis">
+  <h3 style="margin-top:0;font-size:1rem">Ouroboros Thesis v20 — abstract</h3>
+  <p style="font-size:.85rem">A system can carry its own proof of trustworthiness as a first-class, verifiable
+  artifact. Every agentic act emits a Khipu receipt; the receipt chain is the audit trail; the audit trail is
+  Lean-checkable. We formalize the decision rule $P(x,t)=\arg\max_a \Lambda(x)\,Y_{13}(a)\,e^{-\beta H(a)}\prod_i K_i(a)$
+  and prove halting safety, Λ-monotonicity, and chain-integrity necessity.</p>
+  <p style="font-size:.78rem;color:var(--ghost)">Concept DOI 10.5281/zenodo.19944926</p>
+</template>
+
+<script src="assets/katex/katex.min.js"></script>
+<script src="assets/katex/auto-render.min.js"></script>
+<script src="js/app.js"></script>
+<script type="module" src="js/scene.js"></script>
+<script type="module" src="js/org-map.js"></script>
+<script src="js/proof-tree.js"></script>
+<script src="js/receipts.js"></script>
+<script>
+/* Live "Today" — machine-pull latest commit from GitHub public API (visible, no auth). */
+(async ()=>{
+  const tgt=document.getElementById('today-commit');
+  const echo=document.getElementById('echoreceipt');
+  try{
+    const r=await fetch('https://api.github.com/repos/szl-holdings/a11oy/commits?per_page=1');
+    if(r.ok){const j=await r.json();const c=j[0];
+      tgt.innerHTML=`<a href="${c.html_url}" target="_blank" rel="noopener">${c.sha.slice(0,7)}</a> — `+
+        `${(c.commit.message.split('\n')[0]||'').slice(0,90)}<br><span style="color:var(--ghost)">`+
+        `${new Date(c.commit.author.date).toUTCString()} · ${c.commit.author.name}</span>`;
+    } else throw 0;
+  }catch(e){
+    tgt.innerHTML='<span style="color:var(--ghost)">offline — last known: szl-holdings/a11oy main · doctrine v11 lock window (2026-06-01)</span>';
+  }
+  // echo this visit's receipt hash into the hero line once minted
+  const rec=document.getElementById('receipt');
+  const sync=()=>{ if(rec.dataset.full && echo){echo.textContent='#'+Number(rec.dataset.idx).toLocaleString()+' · '+rec.dataset.full.slice(0,10);} };
+  setTimeout(sync,400); setTimeout(sync,1200);
+})();
+
+/* "What I built" — last 10 commits across the szl-holdings org via the public GitHub
+   events API (PushEvents carry commit metadata). No auth, no cache. */
+(async ()=>{
+  const feed=document.getElementById('builtfeed');
+  if(!feed) return;
+  const fmt=iso=>{const d=new Date(iso),s=(Date.now()-d)/1000;
+    if(s<3600)return Math.max(1,Math.round(s/60))+'m ago';
+    if(s<86400)return Math.round(s/3600)+'h ago';
+    return Math.round(s/86400)+'d ago';};
+  try{
+    const r=await fetch('https://api.github.com/orgs/szl-holdings/events?per_page=30',{cache:'no-store'});
+    if(!r.ok) throw 0;
+    const ev=await r.json();
+    const rows=[];
+    for(const e of ev){
+      if(e.type!=='PushEvent'||!e.payload||!e.payload.commits) continue;
+      const repo=(e.repo&&e.repo.name||'').replace('szl-holdings/','');
+      for(const c of e.payload.commits.slice().reverse()){
+        rows.push({sha:c.sha.slice(0,7),msg:(c.message||'').split('\n')[0].slice(0,96),repo,when:e.created_at,
+          url:`https://github.com/${e.repo.name}/commit/${c.sha}`});
+        if(rows.length>=10) break;
+      }
+      if(rows.length>=10) break;
+    }
+    if(!rows.length) throw 0;
+    feed.innerHTML=rows.map(r=>
+      `<a class="bf-row" href="${r.url}" target="_blank" rel="noopener noreferrer" style="text-decoration:none">`+
+      `<span class="sha">${r.sha}</span>`+
+      `<span class="msg">${r.msg.replace(/</g,'&lt;')}</span>`+
+      `<span class="repo">${r.repo}</span>`+
+      `<span class="when">${fmt(r.when)}</span></a>`).join('');
+  }catch(e){
+    feed.innerHTML='<div class="cap">offline — commit feed lives at '+
+      '<a href="https://github.com/szl-holdings" target="_blank" rel="noopener noreferrer">github.com/szl-holdings</a>. '+
+      'Last known: lutar-lean @ tag lutar-v18.0.0 (c7c0ba17), doctrine v11 LOCKED 749/14/163.</div>';
+  }
+})();
+</script>
+</body>
+</html>
