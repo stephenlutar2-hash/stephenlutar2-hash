@@ -56,13 +56,13 @@
         branch.kids.forEach(name => {
           // find the declaration line + whether its body still contains `sorry`
           let line = 0, proved = true;
-          const re = new RegExp('^\\s*(theorem|lemma|def)\\s+' + name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+          const re = new RegExp('^\\s*(theorem|lemma|def|structure|abbrev|axiom)\\s+' + name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
           for (let i = 0; i < lines.length; i++) {
             if (re.test(lines[i])) {
               line = i + 1;
               // scan the body until the next top-level decl for a `sorry`
               for (let j = i; j < lines.length; j++) {
-                if (j > i && /^\s*(theorem|lemma|def|axiom|end|namespace)\b/.test(lines[j])) break;
+                if (j > i && /^\s*(theorem|lemma|def|structure|abbrev|axiom|end|namespace)\b/.test(lines[j])) break;
                 if (/\bsorry\b/.test(lines[j])) { proved = false; break; }
               }
               break;
@@ -80,7 +80,7 @@
       .catch(err => {
         // sovereign offline fallback: render known-proved (these files have 0 sorry at HEAD)
         branch.kids.forEach(name => {
-          const proved = !(branch.file === 'Uniqueness.lean' && name === 'lutar_unique');
+          const proved = !(branch.file === 'Uniqueness.lean' && name === 'lutar_is_geomean');
           if (proved) provedTotal++; else openTotal++;
           list.appendChild(nodeEl(name, branch.file, proved, 0));
         });
