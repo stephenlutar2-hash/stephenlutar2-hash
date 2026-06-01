@@ -8,6 +8,10 @@
 
 <div align="center">
 
+<!-- Inca avatar (Amaru) inline mark · additive · Yachay · 2026-06-01.
+     Small 180px mark; Provenanced Notebook and all sections below untouched. -->
+<img src="assets/szl-avatar-animated.gif" alt="SZL Holdings — Amaru animated mark" width="180" height="180" />
+
 # Stephen P. Lutar Jr.
 
 ### Founder & CEO, SZL Holdings — formally-verified governance substrate for agentic AI
