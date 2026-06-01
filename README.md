@@ -14,6 +14,33 @@
 
 </div>
 
+<div align="center">
+
+<!-- genius-hero (Doctrine v11) · let the work speak -->
+<a href="https://stephenlutar2-hash.github.io/stephenlutar2-hash/"><img src="assets/genius/personal_card.svg" alt="the work, in numbers — 749 declarations · 14 unique axioms · 163 sorries · 13-axis yuyay_v3" width="880"></a>
+
+<b><a href="https://stephenlutar2-hash.github.io/stephenlutar2-hash/">▶ Walk the live 3D build timeline</a></b>  ·  <b><a href="https://szl-holdings.github.io/.github/">▶ Open the live SZL constellation</a></b>
+
+</div>
+
+<!-- PURIQ governance functional — renders natively in GitHub LaTeX -->
+$$\Lambda(x) \;=\; \sum_{i=1}^{13} w_i\,\phi_i(x), \qquad \sum_{i=1}^{13} w_i = 1,\quad w_i \ge 0, \qquad \texttt{receipts.in} \equiv \texttt{receipts.out}$$
+
+<div align="center"><sub>The 13-axis <code>yuyay_v3</code> aggregator. A2 = <code>IsHomogeneous</code>, A4 = <code>IsBounded</code>. Λ-uniqueness is <a href="https://github.com/szl-holdings/lutar-lean">Conjecture 1</a>, not a closed theorem.</sub></div>
+
+```lean
+-- theorem of the week · machine-checked in lutar-lean@main
+theorem lambda_bounded (x : ReceiptBus) : ‖Λ x‖ ≤ 1 := by
+  simpa using isBounded_lambda x   -- A4 : IsBounded
+```
+
+<div align="center">
+
+> *Math + story together. No mysticism.* — **Yachay**
+
+</div>
+
+
 > ### ◆ [**The Provenanced Notebook**](https://www.perplexity.ai/computer/a/stephen-lutar-the-provenanced-_PQEUZ3zTKG.pfgCyepiTQ) — my live personal site
 > Not a résumé — the inside of the workshop. The PURIQ formula **computes** live, a theorem **re-checks** in a Lean kernel, and **your visit mints a Khipu receipt**. This README is just the gateway; the thinking happens there.
 
