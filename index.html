@@ -1,0 +1,75 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Khipu Timeline — the work, as a chain</title>
+<meta name="description" content="A scrubable Khipu chain: each cord is a shipped surface. Math + story together. No mysticism."/>
+<style>
+ :root{--bg:#070912;--fg:#e8ecf6;--accent:#5ad1ff;--accent2:#8b7bff;--green:#7CFFB2;--dim:#5b6478;}
+ html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',system-ui,sans-serif;overflow:hidden;}
+ #c{position:fixed;inset:0;display:block;}
+ .hud{position:fixed;left:18px;top:16px;z-index:5;pointer-events:none;}
+ .hud h1{font-size:15px;font-weight:600;letter-spacing:.12em;margin:0;text-transform:uppercase;}
+ .hud p{margin:4px 0 0;font-size:12px;color:var(--dim);font-family:'JetBrains Mono',monospace;}
+ #scrub{position:fixed;left:50%;bottom:38px;transform:translateX(-50%);width:60%;z-index:6;accent-color:#5ad1ff;}
+ .tip{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:5;font-size:11px;color:var(--dim);font-family:'JetBrains Mono',monospace;}
+ #lab{position:fixed;left:18px;bottom:60px;z-index:6;font-size:13px;color:var(--accent);font-family:'JetBrains Mono',monospace;}
+</style></head><body>
+<canvas id="c"></canvas>
+<div class="hud"><h1>Khipu Timeline</h1><p>the work, as a chain · drag to orbit · scrub to replay</p></div>
+<div id="lab"></div>
+<input id="scrub" type="range" min="0" max="100" value="100"/>
+<div class="tip">each knot is a shipped surface · math + story together · no mysticism</div>
+<script type="importmap">{ "imports": {
+ "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+ "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" }}</script>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+// the chain — real milestones, no bio prose
+const KNOTS=[
+ {t:"lutar-lean", d:"749 declarations formalized"},
+ {t:"ouroboros", d:"bounded-loop runtime"},
+ {t:"a11oy", d:"policy + receipt substrate"},
+ {t:"amaru", d:"cortex memory + reasoner"},
+ {t:"sentra", d:"policy immune system"},
+ {t:"rosie", d:"operator console"},
+ {t:"vessels", d:"UDS governed-AI bundle"},
+ {t:"killinchu", d:"counter-UAS rule engine"},
+ {t:"Zenodo DOIs", d:"DOI-pinned thesis line"},
+ {t:"doctrine v11", d:"749 / 14 / 163 LOCKED"},
+];
+const canvas=document.getElementById('c');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+const scene=new THREE.Scene(); scene.fog=new THREE.FogExp2(0x070912,0.018);
+const camera=new THREE.PerspectiveCamera(58,1,0.1,400); camera.position.set(6,4,26);
+const controls=new OrbitControls(camera,canvas); controls.enableDamping=true; controls.target.set(0,0,0);
+controls.minDistance=10; controls.maxDistance=80;
+// main cord
+const N=KNOTS.length, span=4.2;
+const cordPts=[]; for(let i=0;i<N;i++) cordPts.push(new THREE.Vector3(i*span-(N-1)*span/2, Math.sin(i*0.6)*1.2, Math.cos(i*0.5)*1.2));
+const cord=new THREE.Line(new THREE.BufferGeometry().setFromPoints(cordPts), new THREE.LineBasicMaterial({color:0x5ad1ff,transparent:true,opacity:0.6}));
+scene.add(cord);
+const knotMeshes=[];
+KNOTS.forEach((k,i)=>{ const m=new THREE.Mesh(new THREE.IcosahedronGeometry(0.8,1),
+  new THREE.MeshStandardMaterial({color:0x5ad1ff,emissive:0x153a4d,emissiveIntensity:1.3,metalness:.3,roughness:.4}));
+  m.position.copy(cordPts[i]); m.userData=k; scene.add(m); knotMeshes.push(m);
+  // pendant cords hanging down (khipu)
+  for(let j=0;j<3;j++){ const len=0.8+j*0.5; const p=new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.04,len,6),new THREE.MeshBasicMaterial({color:0x8b7bff,transparent:true,opacity:0.5}));
+   p.position.set(cordPts[i].x+(j-1)*0.3, cordPts[i].y-len/2-0.5, cordPts[i].z); scene.add(p); }
+});
+scene.add(new THREE.AmbientLight(0x3a557f,1.1));
+const l=new THREE.PointLight(0x8b7bff,200,200); l.position.set(0,20,20); scene.add(l);
+scene.add(new THREE.PointLight(0x5ad1ff,120,200).translateZ(20));
+const labEl=document.getElementById('lab'), scrub=document.getElementById('scrub');
+function applyScrub(){ const v=+scrub.value/100; const upto=Math.round(v*(N-1));
+ knotMeshes.forEach((m,i)=>{ const on=i<=upto; m.visible=on; m.material.emissiveIntensity=on?1.3:0; });
+ const k=KNOTS[upto]; labEl.textContent=`${upto+1}/${N}  ${k.t} — ${k.d}`; }
+scrub.addEventListener('input',applyScrub); applyScrub();
+function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
+addEventListener('resize',resize);resize();
+const clock=new THREE.Clock();
+function animate(){requestAnimationFrame(animate);const t=clock.getElapsedTime();
+ knotMeshes.forEach((m,i)=>{m.rotation.y=t*0.4+i; if(m.visible)m.material.emissiveIntensity=1.0+0.5*Math.sin(t*2+i);});
+ controls.update(); renderer.render(scene,camera);}
+animate();
+</script></body></html>
