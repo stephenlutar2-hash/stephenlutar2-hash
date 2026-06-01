@@ -14,6 +14,9 @@
 
 </div>
 
+> ### ◆ [**The Provenanced Notebook**](https://www.perplexity.ai/computer/a/stephen-lutar-the-provenanced-_PQEUZ3zTKG.pfgCyepiTQ) — my live personal site
+> Not a résumé — the inside of the workshop. The PURIQ formula **computes** live, a theorem **re-checks** in a Lean kernel, and **your visit mints a Khipu receipt**. This README is just the gateway; the thinking happens there.
+
 <p align="center">
   <a href="https://orcid.org/0009-0001-0110-4173"><img alt="ORCID" src="https://img.shields.io/badge/ORCID-0009--0001--0110--4173-A6CE39?style=flat-square&logo=orcid&logoColor=white"></a>
   <a href="https://www.linkedin.com/in/stephen-l-279315240/"><img alt="LinkedIn" src="https://img.shields.io/badge/LinkedIn-stephen--l--279315240-0A66C2?style=flat-square&logo=linkedin&logoColor=white"></a>
