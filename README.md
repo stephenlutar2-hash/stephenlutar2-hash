@@ -46,7 +46,7 @@ theorem lambda_bounded (x : ReceiptBus) : ‖Λ x‖ ≤ 1 := by
 
 
 > ### ◆ [**The Provenanced Notebook**](https://stephenlutar2-hash.github.io/stephenlutar2-hash/) — my live personal site
-> &nbsp;&nbsp;&nbsp;&nbsp;<sub>also mirrored at [szl-holdings.github.io/founder-page](https://szl-holdings.github.io/founder-page/) · [perplexity preview](https://www.perplexity.ai/computer/a/stephen-lutar-the-provenanced-_PQEUZ3zTKG.pfgCyepiTQ)</sub>
+> &nbsp;&nbsp;&nbsp;&nbsp;<sub>also mirrored at [szl-holdings.github.io/founder-page](https://szl-holdings.github.io/founder-page/)</sub>
 > Not a résumé — the inside of the workshop. The PURIQ formula **computes** live, a theorem **re-checks** in a Lean kernel, and **your visit mints a Khipu receipt**. This README is just the gateway; the thinking happens there.
 
 <p align="center">
