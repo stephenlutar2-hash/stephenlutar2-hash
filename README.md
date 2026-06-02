@@ -90,7 +90,7 @@ Building in public: org at [github.com/szl-holdings](https://github.com/szl-hold
 | [`szl-holdings/ouroboros`](https://github.com/szl-holdings/ouroboros) | Bounded-recursion runtime · Λ-gate · receipt emission |
 | [`szl-holdings/a11oy`](https://github.com/szl-holdings/a11oy) | Brand orchestration — policy + receipt substrate |
 | [`szl-holdings/lutar-lean`](https://github.com/szl-holdings/lutar-lean) | Lean 4 + Mathlib kernel · 749 decl / 14 axioms / 163 sorries |
-| [`szl-holdings/killinchu`](https://github.com/szl-holdings/killinchu) | Drone intelligence — counter-UAS rule engine *(NEW)* |
+| `szl-holdings/killinchu` (private) — see [HF Space](https://huggingface.co/spaces/SZLHOLDINGS/killinchu) | Drone intelligence — counter-UAS rule engine *(NEW)* |
 | [`szl-holdings/ouroboros-thesis`](https://github.com/szl-holdings/ouroboros-thesis) | DOI-pinned written thesis |
 
 ---
