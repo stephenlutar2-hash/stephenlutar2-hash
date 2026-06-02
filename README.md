@@ -100,7 +100,7 @@ Building in public: org at [github.com/szl-holdings](https://github.com/szl-hold
 - 🛡️ **[a11oy](https://huggingface.co/spaces/SZLHOLDINGS/a11oy)** — brand orchestration layer
 - 🧠 **[amaru](https://huggingface.co/spaces/SZLHOLDINGS/amaru)** — cortex / conduit
 - 🦠 **[sentra](https://huggingface.co/spaces/SZLHOLDINGS/sentra)** — immune / policy
-- 🦅 **[killinchu](https://huggingface.co/spaces/SZLHOLDINGS/killinchu)** — drone intelligence (air sibling of [vessels](https://huggingface.co/spaces/SZLHOLDINGS/vessels))
+- 🦅 **[killinchu](https://huggingface.co/spaces/SZLHOLDINGS/killinchu)** — drone intelligence
 - 🪢 **[rosie](https://huggingface.co/spaces/SZLHOLDINGS/rosie)** — cross-session memory
 - 🧬 **[anatomy-3d](https://szlholdings-anatomy-3d.static.hf.space/)** · **[rosie-3d](https://szlholdings-rosie-3d.static.hf.space/)** — interactive 3D substrate
 
