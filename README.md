@@ -45,7 +45,7 @@ theorem lambda_bounded (x : ReceiptBus) : ‖Λ x‖ ≤ 1 := by
 </div>
 
 
-> ### ◆ [**The Provenanced Notebook**](https://stephenlutar2-hash.github.io/stephenlutar2-hash/notebook/) — my live personal site
+> ### ◆ [**The Provenanced Notebook**](https://stephenlutar2-hash.github.io/stephenlutar2-hash/) — my live personal site
 > &nbsp;&nbsp;&nbsp;&nbsp;<sub>also mirrored at [szl-holdings.github.io/founder-page](https://szl-holdings.github.io/founder-page/) · [perplexity preview](https://www.perplexity.ai/computer/a/stephen-lutar-the-provenanced-_PQEUZ3zTKG.pfgCyepiTQ)</sub>
 > Not a résumé — the inside of the workshop. The PURIQ formula **computes** live, a theorem **re-checks** in a Lean kernel, and **your visit mints a Khipu receipt**. This README is just the gateway; the thinking happens there.
 
@@ -54,7 +54,7 @@ theorem lambda_bounded (x : ReceiptBus) : ‖Λ x‖ ≤ 1 := by
   <a href="https://www.linkedin.com/in/stephen-l-279315240/"><img alt="LinkedIn" src="https://img.shields.io/badge/LinkedIn-stephen--l--279315240-0A66C2?style=flat-square&logo=linkedin&logoColor=white"></a>
   <a href="https://huggingface.co/SZLHOLDINGS"><img alt="HF Spaces" src="https://img.shields.io/badge/%F0%9F%A4%97%20Spaces-10%20live-FF9D00?style=flat-square"></a>
   <a href="https://doi.org/10.5281/zenodo.19944926"><img alt="Concept DOI" src="https://img.shields.io/badge/concept%20DOI-10.5281%2Fzenodo.19944926-01696F?style=flat-square"></a>
-  <a href="https://github.com/szl-holdings/.github/blob/main/DOCTRINE_V11.md"><img alt="Doctrine v11" src="https://img.shields.io/badge/Doctrine-v11-3b82f6?style=flat-square"></a>
+  <a href="https://github.com/szl-holdings/.github/tree/main/doctrine"><img alt="Doctrine v11" src="https://img.shields.io/badge/Doctrine-v11-3b82f6?style=flat-square"></a>
   <a href="https://slsa.dev/spec/v1.0/levels"><img alt="SLSA" src="https://img.shields.io/badge/SLSA-L1_honest-eab308?style=flat-square"></a>
 </p>
 
@@ -160,7 +160,7 @@ I ship the governance substrate in the open and post progress as it lands.
 | ORCID | [`0009-0001-0110-4173`](https://orcid.org/0009-0001-0110-4173) |
 | LinkedIn | [stephen-l-279315240](https://www.linkedin.com/in/stephen-l-279315240/) |
 | Hugging Face | org [SZLHOLDINGS](https://huggingface.co/SZLHOLDINGS) |
-| Web | [`szlholdings.com`](https://szlholdings.com) |
+
 | Security | [`security@szlholdings.com`](mailto:security@szlholdings.com) · [policy](https://github.com/szl-holdings/.github/security/policy) |
 
 ---
