@@ -1,7 +1,7 @@
 <!--
   Personal profile README — stephenlutar2-hash/stephenlutar2-hash
   Doctrine v11. No marketing superlatives. Every number verifiable against lutar-lean@main.
-  Last substantive update: 2026-06-01 (Series-A alignment with Hugging Face + killinchu flagship)
+  Last substantive update: 2026-06-02 (3D visualizations — all 6 betterwithage spaces verified 200)
   Canonical numbers: 749 declarations / 14 unique axioms / 163 sorries — source of truth:
   https://github.com/szl-holdings/.github/blob/main/.github/data/lean_numbers.json
 -->
@@ -97,12 +97,28 @@ Building in public: org at [github.com/szl-holdings](https://github.com/szl-hold
 
 ## Flagship surfaces (live on 🤗)
 
-- 🛡️ **[a11oy](https://huggingface.co/spaces/SZLHOLDINGS/a11oy)** — brand orchestration layer
-- 🧠 **[amaru](https://huggingface.co/spaces/SZLHOLDINGS/amaru)** — cortex / conduit
-- 🦠 **[sentra](https://huggingface.co/spaces/SZLHOLDINGS/sentra)** — immune / policy
-- 🦅 **[killinchu](https://huggingface.co/spaces/SZLHOLDINGS/killinchu)** — drone intelligence
-- 🪢 **[rosie](https://huggingface.co/spaces/SZLHOLDINGS/rosie)** — cross-session memory
-- 🧬 **[anatomy-3d](https://szlholdings-anatomy-3d.static.hf.space/)** · **[rosie-3d](https://szlholdings-rosie-3d.static.hf.space/)** — interactive 3D substrate
+| Space | What it does |
+|---|---|
+| 🛡️ **[a11oy](https://huggingface.co/spaces/SZLHOLDINGS/a11oy)** | Brand orchestration — policy + receipt substrate |
+| 🧠 **[amaru](https://huggingface.co/spaces/SZLHOLDINGS/amaru)** | Cortex / conduit — reasoning that cites sources |
+| 🦠 **[sentra](https://huggingface.co/spaces/SZLHOLDINGS/sentra)** | Immune / policy — cryptographic claim verification |
+| 🦅 **[killinchu](https://huggingface.co/spaces/SZLHOLDINGS/killinchu)** | Drone intelligence — counter-UAS rule engine |
+| 🪢 **[rosie](https://huggingface.co/spaces/SZLHOLDINGS/rosie)** | Operator console — cross-session memory |
+
+---
+
+## 3D Visualizations — live static Three.js (all verified 200)
+
+Interactive WebGL explorations of the governed-AI substrate, served from Hugging Face static spaces.
+
+| Space | What you see |
+|---|---|
+| 🫀 **[anatomy-3d](https://betterwithage-anatomy-3d.static.hf.space)** | 3D anatomy of the governed-AI organs — Λ-gate, Khipu DAG, Ouroboros loop |
+| 🎛️ **[rosie-3d](https://betterwithage-rosie-3d.static.hf.space)** | 3D operator console — live mesh of cross-session receipt routing |
+| ⭕ **[mesh-cathedral](https://betterwithage-mesh-cathedral.static.hf.space)** | Ouroboros loop geometry — 5-chakra bounded-recursion visualization |
+| 🌐 **[khipu-constellation](https://betterwithage-khipu-constellation.static.hf.space)** | 3D Merkle-DAG receipt visualizer — Khipu knot-graph in space |
+| ⛪ **[doctrine-cathedral](https://betterwithage-doctrine-cathedral.static.hf.space)** | 3D doctrine visualization — 749 declarations rendered as cathedral geometry |
+| 🔀 **[llm-router-live](https://betterwithage-llm-router-live.static.hf.space)** | Live model-routing topology — real-time LLM dispatch mesh |
 
 ---
 
