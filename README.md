@@ -8,11 +8,13 @@
     SLSA Build L2 verified on service images (NOT L3)
   Aligned to the two-product Hugging Face end-state: a11oy (command platform) + killinchu (drones & vessels).
   Zero user-facing dead-organ references; zero broken links to retired Spaces.
+  IMAGE POLICY: all raster assets referenced by ABSOLUTE raw.githubusercontent URLs (relative
+  paths can break on the profile render); the proof-flow diagram uses native mermaid so it ALWAYS renders.
 -->
 
 <div align="center">
 
-<img src="assets/szl-avatar-animated.gif" alt="SZL Holdings — animated mark" width="180" height="180" />
+<img src="https://raw.githubusercontent.com/stephenlutar2-hash/stephenlutar2-hash/main/assets/szl-avatar-animated.gif" alt="SZL Holdings — animated mark" width="180" height="180" />
 
 # Stephen P. Lutar Jr.
 
@@ -22,7 +24,7 @@
 
 <div align="center">
 
-<a href="https://stephenlutar2-hash.github.io/stephenlutar2-hash/"><img src="assets/genius/personal_card.svg" alt="the work, in numbers — 749 declarations · 14 unique axioms · 163 sorries · 13-axis yuyay_v3" width="880"></a>
+<a href="https://stephenlutar2-hash.github.io/stephenlutar2-hash/"><img src="https://raw.githubusercontent.com/stephenlutar2-hash/stephenlutar2-hash/main/assets/png/personal_card.png" alt="the work, in numbers — 5 formulas proven · 749 declarations · 14 unique axioms · 163 sorries · Λ = Conjecture 1" width="880"></a>
 
 <b><a href="https://stephenlutar2-hash.github.io/stephenlutar2-hash/">▶ Walk the live 3D build timeline</a></b>  ·  <b><a href="https://szl-holdings.github.io/.github/">▶ Open the live SZL constellation</a></b>
 
@@ -50,7 +52,21 @@ The entire SZL stack is a machine for producing that proof — a DSSE-enveloped,
 
 I publish the numbers honestly: **749** Lean declarations, **14** axioms, **163** tracked sorries. **Exactly 5 formulas** are formally proven in the locked kernel; everything newer is labeled experimental. **Λ-uniqueness is Conjecture 1** — I don't claim theorems I haven't proved. That honesty is a deliberate competitive choice: at DoD-adjacent events where overclaiming gets punished, credibility is the moat.
 
-**Defense Unicorns published this as an unsolved problem at Warhacker 2026:** *“When a drone loses contact mid-mission — is the AI still operating within its authorized parameters, or has it gone off script? There’s no independent system today that can monitor AI behavior in real time, catch the moment a line gets crossed, and back it up with a permanent, tamper-evident record.”* That is the Cannonico problem. **SZL is the Cannonico answer.**
+**Defense Unicorns published this as an unsolved problem at Warhacker 2026:** *“When a drone loses contact mid-mission — is the AI still operating within its authorized parameters, or has it gone off script? There’s no independent system today that can monitor AI behavior in real time, catch the moment a line gets crossed, and back it up with a permanent, tamper-evident record.”* That is the Cannonico problem. **SZL is the Cannonico answer** — and the answer is now machine-checked as a *system*: untrusted, off-script input **provably cannot** flip a safety verdict (non-interference, Goguen–Meseguer), proven axiom-free in [PR #188](https://github.com/szl-holdings/lutar-lean/pull/188).
+
+```mermaid
+flowchart LR
+  SIG([drone signal / off-script input]) --> POLICY[POLICY gate<br/>deny-by-default]
+  POLICY --> EVID[EVIDENCE<br/>recorded · quarantined]
+  EVID --> LAMBDA["Λ score<br/>(advisory · Conjecture 1)"]
+  LAMBDA --> RCPT[DSSE receipt<br/>cosign-signed]
+  RCPT --> DAG[(Khipu Merkle DAG<br/>tamper-evident · replayable)]
+  DAG -. "verify offline · trust no one" .-> SIG
+  classDef g fill:#0d1322,stroke:#5ad1ff,color:#e8ecf6;
+  classDef gold fill:#0d1322,stroke:#c9a227,color:#e8ecf6;
+  classDef green fill:#0d1322,stroke:#7CFFB2,color:#e8ecf6;
+  class SIG,POLICY,EVID g; class LAMBDA gold; class RCPT,DAG green;
+```
 
 ---
 
@@ -118,6 +134,16 @@ curl -s https://szlholdings-killinchu.hf.space/api/killinchu/v1/receipt/export >
 | Doctrine | **v11 LOCKED** | [szl-holdings/.github](https://github.com/szl-holdings/.github) |
 
 > I do not claim “zero sorry,” “fully verified,” or “Λ proven.” Every number above regenerates from `lutar-lean@main`. SLSA L3 is not claimed.
+
+### Proven formulas — what's locked vs. experimental (honest)
+
+| Set | What | Maturity |
+|---|---|---|
+| **Locked (5)** | `F1` replay determinism · `F11` Ayni reciprocity · `F12` Kuramoto (additive fragment) · `F18` Reed–Solomon RS(10,6) recovery · `F19` Bekenstein (additive scaffolding) | **PROVEN**, sorry-free @ `c7c0ba17` |
+| **Experimental, CI-green** | agentic-loop P1–P6 ([#188](https://github.com/szl-holdings/lutar-lean/pull/188)) · wave-5 ([#186](https://github.com/szl-holdings/lutar-lean/pull/186)) · wave-6 ([#189](https://github.com/szl-holdings/lutar-lean/pull/189)) · wave-7 ([#190](https://github.com/szl-holdings/lutar-lean/pull/190)) · Λ-uniqueness Set α+δ ([#192](https://github.com/szl-holdings/lutar-lean/pull/192)) | kernel-verified, **never** in the locked 5 |
+| **Λ-uniqueness** | unique only *conditionally* within strengthened axiom classes (CI-green); unconditional uniqueness machine-checked **false** | **Conjecture 1** |
+
+Full proof table with verbatim `#print axioms` → **[PROVEN_FORMULAS.md](https://github.com/szl-holdings/lutar-lean/blob/main/PROVEN_FORMULAS.md)**.
 
 ---
 
