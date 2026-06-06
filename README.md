@@ -1,13 +1,18 @@
 <!--
   Personal profile README — stephenlutar2-hash/stephenlutar2-hash
-  Updated: 2026-06-04 — SLSA L2 verified (was L1 honest); Warhacker narrative anchored on Cannonico.
-  Canonical numbers: 749 declarations / 14 unique axioms / 163 sorries — source of truth:
-  https://github.com/szl-holdings/.github/blob/main/.github/data/lean_numbers.json
+  Genius Series-A grade. Honesty doctrine v11 LOCKED.
+  Canonical numbers (source of truth: lutar-lean@main, kernel c7c0ba17):
+    749 declarations / 14 unique axioms / 163 tracked sorries
+    Proven (locked kernel) = exactly 5 formulas {F1, F11, F12, F18, F19}
+    Lambda-uniqueness = Conjecture 1 (never a theorem)
+    SLSA Build L2 verified on service images (NOT L3)
+  Aligned to the two-product Hugging Face end-state: a11oy (command platform) + killinchu (drones & vessels).
+  Zero user-facing dead-organ references; zero broken links to retired Spaces.
 -->
 
 <div align="center">
 
-<img src="assets/szl-avatar-animated.gif" alt="SZL Holdings — Amaru animated mark" width="180" height="180" />
+<img src="assets/szl-avatar-animated.gif" alt="SZL Holdings — animated mark" width="180" height="180" />
 
 # Stephen P. Lutar Jr.
 
@@ -28,7 +33,7 @@ $$\Lambda(x) \;=\; \sum_{i=1}^{13} w_i\,\phi_i(x), \qquad \sum_{i=1}^{13} w_i = 
 <div align="center"><sub>The 13-axis <code>yuyay_v3</code> aggregator. A2 = <code>IsHomogeneous</code>, A4 = <code>IsBounded</code>. Λ-uniqueness is <a href="https://github.com/szl-holdings/lutar-lean">Conjecture 1</a>, not a closed theorem. Open bounty at <a href="https://github.com/szl-holdings/lutar-lean/blob/main/BOUNTY.md">BOUNTY.md</a>.</sub></div>
 
 ```lean
--- machine-checked in lutar-lean@main
+-- machine-checked in lutar-lean@main (kernel c7c0ba17)
 theorem lambda_bounded (x : ReceiptBus) : ‖Λ x‖ ≤ 1 := by
   simpa using isBounded_lambda x   -- A4 : IsBounded
 ```
@@ -43,54 +48,56 @@ Defense, healthcare, finance — operators are deploying AI that affects real ou
 
 The entire SZL stack is a machine for producing that proof — a DSSE-enveloped, hash-linked Khipu receipt that any auditor can verify on their own hardware, using public tooling, after the fact. The math is pinned in Lean 4. The supply chain is SLSA Build L2 verified. The shipping artifact is a signed UDS bundle deployable into any air-gapped cluster in one command.
 
-I publish the numbers honestly: 749 Lean declarations, 14 axioms, 163 tracked sorries. Λ-uniqueness is Conjecture 1 — I don't claim theorems I haven't proved. That honesty is a deliberate competitive choice: at DoD-adjacent events where overclaiming gets punished, credibility is the moat.
+I publish the numbers honestly: **749** Lean declarations, **14** axioms, **163** tracked sorries. **Exactly 5 formulas** are formally proven in the locked kernel; everything newer is labeled experimental. **Λ-uniqueness is Conjecture 1** — I don't claim theorems I haven't proved. That honesty is a deliberate competitive choice: at DoD-adjacent events where overclaiming gets punished, credibility is the moat.
 
-**Defense Unicorns published this as an unsolved problem at Warhacker 2026:** *"When a drone loses contact mid-mission — is the AI still operating within its authorized parameters, or has it gone off script? There's no independent system today that can monitor AI behavior in real time, catch the moment a line gets crossed, and back it up with a permanent, tamper-evident record."* That is the Cannonico problem. **SZL is the Cannonico answer.**
+**Defense Unicorns published this as an unsolved problem at Warhacker 2026:** *“When a drone loses contact mid-mission — is the AI still operating within its authorized parameters, or has it gone off script? There’s no independent system today that can monitor AI behavior in real time, catch the moment a line gets crossed, and back it up with a permanent, tamper-evident record.”* That is the Cannonico problem. **SZL is the Cannonico answer.**
 
 ---
 
 <p align="center">
   <a href="https://orcid.org/0009-0001-0110-4173"><img alt="ORCID" src="https://img.shields.io/badge/ORCID-0009--0001--0110--4173-A6CE39?style=flat-square&logo=orcid&logoColor=white"></a>
   <a href="https://www.linkedin.com/in/stephen-l-279315240/"><img alt="LinkedIn" src="https://img.shields.io/badge/LinkedIn-stephen--l--279315240-0A66C2?style=flat-square&logo=linkedin&logoColor=white"></a>
-  <a href="https://huggingface.co/SZLHOLDINGS"><img alt="HF Spaces" src="https://img.shields.io/badge/%F0%9F%A4%97%20Spaces-5%20live%20flagships-FF9D00?style=flat-square"></a>
+  <a href="https://huggingface.co/SZLHOLDINGS"><img alt="HF Spaces" src="https://img.shields.io/badge/%F0%9F%A4%97%20Spaces-a11oy%20%2B%20killinchu-FF9D00?style=flat-square"></a>
   <a href="https://doi.org/10.5281/zenodo.19944926"><img alt="Concept DOI" src="https://img.shields.io/badge/concept%20DOI-10.5281%2Fzenodo.19944926-01696F?style=flat-square"></a>
   <a href="https://github.com/szl-holdings/.github/tree/main/doctrine"><img alt="Doctrine v11" src="https://img.shields.io/badge/Doctrine-v11%20LOCKED-3b82f6?style=flat-square"></a>
   <a href="https://github.com/szl-holdings/a11oy/attestations"><img alt="SLSA L2 Verified" src="https://img.shields.io/badge/SLSA-L2%20Verified-2C5F2D?style=flat-square"></a>
-  <a href="https://github.com/szl-holdings/uds-mesh"><img alt="UDS bundle" src="https://img.shields.io/badge/UDS%20bundle-szl--mesh%3Av0.4.0-4a4a8a?style=flat-square"></a>
+  <a href="https://github.com/szl-holdings/szl-mesh"><img alt="UDS bundle" src="https://img.shields.io/badge/UDS%20bundle-szl--mesh%3A0.4.0-4a4a8a?style=flat-square"></a>
 </p>
 
 ---
 
 ## What I'm building
 
-**[SZL Holdings](https://github.com/szl-holdings)** — five production organs, one signed mesh bundle:
+**[SZL Holdings](https://github.com/szl-holdings)** — two live products on one signed substrate:
 
-| Organ | Role | Live demo |
+| Product | What it does | Live |
 |---|---|---|
-| [a11oy](https://huggingface.co/spaces/SZLHOLDINGS/a11oy) | Signed-receipt substrate; `receipts.in ≡ receipts.out` audit-fiber | [![HF](https://img.shields.io/badge/%F0%9F%A4%97%20Live-a11oy-FF9D00?style=flat-square)](https://huggingface.co/spaces/SZLHOLDINGS/a11oy) |
-| [sentra](https://huggingface.co/spaces/SZLHOLDINGS/sentra) | 8-gate deny-by-default policy immune system; signed verdicts | [![HF](https://img.shields.io/badge/%F0%9F%A4%97%20Live-sentra-FF9D00?style=flat-square)](https://huggingface.co/spaces/SZLHOLDINGS/sentra) |
-| [amaru](https://huggingface.co/spaces/SZLHOLDINGS/amaru) | Cited reasoning; refuses to fabricate; every answer receipted | [![HF](https://img.shields.io/badge/%F0%9F%A4%97%20Live-amaru-FF9D00?style=flat-square)](https://huggingface.co/spaces/SZLHOLDINGS/amaru) |
-| [killinchu](https://huggingface.co/spaces/SZLHOLDINGS/killinchu) | Counter-UAS edge organ; 13-axis Λ-gate; DSSE receipt per interdiction | [![HF](https://img.shields.io/badge/%F0%9F%A4%97%20Live-killinchu-FF9D00?style=flat-square)](https://huggingface.co/spaces/SZLHOLDINGS/killinchu) |
-| [rosie](https://huggingface.co/spaces/SZLHOLDINGS/rosie) | Operator console; human-on-the-loop; cross-Space receipt verifier | [![HF](https://img.shields.io/badge/%F0%9F%A4%97%20Live-rosie-FF9D00?style=flat-square)](https://huggingface.co/spaces/SZLHOLDINGS/rosie) |
+| [**a11oy** — Command Platform](https://huggingface.co/spaces/SZLHOLDINGS/a11oy) | One pane of glass for governed AI: ask &amp; act, deny-by-default safety gates, trust scoring, a live decision feed, readiness / compliance, forecasting, signed receipts, formal-proof status, a live CVE / KEV / MITRE threat library, and model routing. Its reasoning, policy, and operator capabilities are built in as one receipt-bound fabric. | [![HF](https://img.shields.io/badge/%F0%9F%A4%97%20Live-a11oy-FF9D00?style=flat-square)](https://szlholdings-a11oy.hf.space/) |
+| [**killinchu** — Drones &amp; Vessels](https://huggingface.co/spaces/SZLHOLDINGS/killinchu) | Autonomous-systems field tool for air and sea: live track board, multi-sensor fusion, maritime picture (sanctions + dark-vessel detection), engagement rules, swarm / autonomy governance, and **verify-it-yourself** signed engagement receipts. | [![HF](https://img.shields.io/badge/%F0%9F%A4%97%20Live-killinchu-FF9D00?style=flat-square)](https://szlholdings-killinchu.hf.space/elite) |
 
-All five ship as a single signed UDS bundle: `uds deploy oci://ghcr.io/szl-holdings/szl-mesh:v0.4.0 --confirm`
+Both ship as a single signed UDS bundle: `uds deploy oci://ghcr.io/szl-holdings/szl-mesh:0.4.0 --confirm`
 
 ---
 
 ## The proof — verifiable now
 
 ```bash
-# Verify SLSA L2 provenance on any flagship (all five have it):
-gh attestation verify oci://ghcr.io/szl-holdings/a11oy@sha256:1cfd28e03e6f1fb4b0827f2281f5016ebde8122d8c9ecb00d73145c77dd02cd7 \
+# Verify SLSA L2 provenance on the command platform image:
+gh attestation verify oci://ghcr.io/szl-holdings/a11oy:latest \
   --repo szl-holdings/a11oy
 # ✓ Verification succeeded
 
-# Verify the signed bundle:
-cosign verify oci://ghcr.io/szl-holdings/szl-mesh:v0.4.0 \
+# Verify the signed mesh bundle:
+cosign verify oci://ghcr.io/szl-holdings/szl-mesh:0.4.0 \
   --certificate-identity-regexp="^https://github.com/szl-holdings/" \
   --certificate-oidc-issuer="https://token.actions.githubusercontent.com"
 
-# Full guide: https://github.com/szl-holdings/developers/blob/main/VERIFY.md
+# Verify a killinchu engagement receipt offline — trust no one:
+curl -s https://szlholdings-killinchu.hf.space/cosign.pub -o cosign.pub
+curl -s https://szlholdings-killinchu.hf.space/api/killinchu/v1/receipt/export > receipt.json
+# verify the DSSE signature offline -> "Verified OK"; tamper one byte -> "Verification failure"
+
+# Full guide: https://github.com/szl-holdings/developers
 ```
 
 ---
@@ -101,24 +108,25 @@ cosign verify oci://ghcr.io/szl-holdings/szl-mesh:v0.4.0 \
 |---|---|---|
 | Lean 4 declarations | **749** | [`lutar-lean@main`](https://github.com/szl-holdings/lutar-lean) |
 | Unique axioms | **14** (15 raw, 1 duplicate) | [`lean_numbers.json`](https://github.com/szl-holdings/.github/blob/main/.github/data/lean_numbers.json) |
-| Tracked sorries | **163** (112 baseline + 51 Putnam) | regenerated by `lean_numbers.py` |
+| Tracked sorries | **163** | regenerated by `lean_numbers.py` |
+| Formulas proven (locked kernel) | **exactly 5** — `F1, F11, F12, F18, F19` | machine-checked in `lutar-lean` |
+| Experimental proof waves | labeled, **not** in the locked count | open PRs [#188](https://github.com/szl-holdings/lutar-lean/pull/188) · [#189](https://github.com/szl-holdings/lutar-lean/pull/189) · [#190](https://github.com/szl-holdings/lutar-lean/pull/190) |
 | Λ uniqueness | **Conjecture 1** (open bounty) | not a closed theorem |
-| SLSA posture | **Build L2 verified** — all 5 flagships | `gh attestation verify` |
-| UDS bundle | **`szl-mesh:v0.4.0`** — signed, real baked images | GHCR |
+| SLSA posture | **Build L2 verified** on service images | `gh attestation verify` |
+| UDS bundle | **`szl-mesh:0.4.0`** — signed, real baked images | GHCR |
 | Kernel commit | **`c7c0ba17`** | `lutar-lean@main` |
 | Doctrine | **v11 LOCKED** | [szl-holdings/.github](https://github.com/szl-holdings/.github) |
 
-> I do not claim "zero sorry," "fully verified," or "Λ proven." Every number above regenerates from `lutar-lean@main`. SLSA L3 is not claimed.
+> I do not claim “zero sorry,” “fully verified,” or “Λ proven.” Every number above regenerates from `lutar-lean@main`. SLSA L3 is not claimed.
 
 ---
 
-## 3D Visualizations — live WebGL (all verified 200)
+## 3D visualizations — live WebGL
 
-| Space | What you see |
+| Scene | What you see |
 |---|---|
 | [anatomy-3d](https://betterwithage-anatomy-3d.static.hf.space) | 3D anatomy — Λ-gate, Khipu DAG, Ouroboros loop |
-| [rosie-3d](https://betterwithage-rosie-3d.static.hf.space) | 3D operator console — cross-session receipt routing |
-| [mesh-cathedral](https://betterwithage-mesh-cathedral.static.hf.space) | Ouroboros loop — 5-organ bounded-recursion |
+| [mesh-cathedral](https://betterwithage-mesh-cathedral.static.hf.space) | The Ouroboros loop — bounded-recursion substrate |
 | [khipu-constellation](https://betterwithage-khipu-constellation.static.hf.space) | 3D Merkle-DAG — Khipu knot-graph in space |
 | [doctrine-cathedral](https://betterwithage-doctrine-cathedral.static.hf.space) | 749 declarations as cathedral geometry |
 | [llm-router-live](https://betterwithage-llm-router-live.static.hf.space) | Live LLM dispatch mesh topology |
@@ -150,7 +158,7 @@ Concept DOI (always latest): [`10.5281/zenodo.19944926`](https://doi.org/10.5281
 **Data:** PostgreSQL · Drizzle ORM · Redis · pgvector  
 **Supply chain:** Sigstore (SLSA L2) · Zenodo · CodeQL · Trivy · Gitleaks · OpenSSF Scorecard · SBOM  
 **Observability:** OpenTelemetry · 13-axis Λ-spans  
-**Deployment:** UDS Core / Zarf v0.77.0 · uds-cli v0.32.0 · Kubernetes / Istio Ambient
+**Deployment:** UDS Core / Zarf · uds-cli · Kubernetes / Istio Ambient
 
 <p align="center">
   <img height="155" src="https://github-readme-stats.vercel.app/api?username=stephenlutar2-hash&show_icons=true&theme=transparent&hide_border=true&title_color=00d4ff&icon_color=00d4ff&text_color=8ba3b8&include_all_commits=true&count_private=true" alt="GitHub stats">
@@ -170,6 +178,6 @@ Concept DOI (always latest): [`10.5281/zenodo.19944926`](https://doi.org/10.5281
 
 ---
 
-<sub>© 2026 Stephen P. Lutar Jr. · Code: Apache-2.0 · Research: CC BY 4.0 · Doctrine v11 LOCKED · Every count and DOI on this page verifiable against <a href="https://github.com/szl-holdings/lutar-lean">lutar-lean@main</a>. Λ uniqueness is Conjecture 1. SLSA L2 verified (not L3).</sub>
+<sub>© 2026 Stephen P. Lutar Jr. · Code: Apache-2.0 · Research: CC BY 4.0 · Doctrine v11 LOCKED · Every count and DOI on this page is verifiable against <a href="https://github.com/szl-holdings/lutar-lean">lutar-lean@main</a>. Λ-uniqueness is Conjecture 1. SLSA L2 verified (not L3).</sub>
 
-Signed-off-by: stephenlutar2-hash <stephenlutar2@gmail.com>
+Signed-off-by: Stephen P. Lutar Jr. <stephenlutar2@gmail.com>
