@@ -4,10 +4,12 @@
   Canonical numbers (source of truth: lutar-lean@main):
     LOCKED kernel (c7c0ba17, Lean v4.13.0): 749 declarations / 14 unique axioms / 163 tracked sorries
     locked-proven = EXACTLY 5 formulas {F1, F11, F12, F18, F19} (machine-enforced, no-axiom theorem)
-    EXPERIMENTAL tier (CI-green on main, Lean v4.18.0): ~119 kernel-clean theorems across Waves 11-19,
+    EXPERIMENTAL tier (CI-green on main @ 880c803e, Lean v4.18.0): ~170 kernel-clean theorems across Waves 11-21,
       every #print axioms ⊆ {propext, Classical.choice, Quot.sound}; NEVER folded into the locked 5.
     Λ-uniqueness = Conjecture 1 (unconditional uniqueness machine-checked FALSE);
       proven CONDITIONAL on slice-multiplicativity/separability (CUT-2, axiom-free).
+      CUT-1: conditional Λ-uniqueness chain now AXIOM-CLEAN END-TO-END on its stated hypotheses;
+      reduced to ONE honest structural hypothesis ((C-order) gap-shift ordering, documented NOT faked).
     Byzantine BFT safety = Conjecture 2 (faulty organ can equivocate).
     SLSA = Build L1 honest posture / L2 build-attestation present; L2-verified + L3 + FedRAMP = roadmap.
   Two products: a11oy (orchestration / Command Platform, incl. a11oy.code) + killinchu (maritime + counter-UAS C2).
@@ -51,7 +53,7 @@ Defense, healthcare, finance — operators are deploying AI that affects real ou
 
 The entire SZL stack is a machine for producing that proof — a DSSE-enveloped, hash-linked Khipu receipt that any auditor can verify on their own hardware, with public tooling, after the fact. The trust math is pinned in **Lean 4**. The supply chain has cosign-signed, Rekor-anchored build provenance. The shipping artifact is a signed UDS bundle deployable into an air-gapped cluster in one command.
 
-I publish the numbers honestly, because at a DoD-adjacent venue overclaiming gets punished and **credibility is the moat.** The **locked kernel** (Lean `v4.13.0`, `c7c0ba17`) is **749** declarations, **14** unique axioms, **163** tracked sorries, and **exactly 5 formulas formally proven** — `{F1, F11, F12, F18, F19}` — a count that is itself a no-axiom Lean theorem (`locked_count_five`), so the locked set cannot silently grow. On top of that floor sit **~119 kernel-clean experimental theorems** across **Waves 11–19**, CI-green on `main` (Lean `v4.18.0`), every one with `#print axioms ⊆ {propext, Classical.choice, Quot.sound}` — labeled experimental and **never** folded into the locked five.
+I publish the numbers honestly, because at a DoD-adjacent venue overclaiming gets punished and **credibility is the moat.** The **locked kernel** (Lean `v4.13.0`, `c7c0ba17`) is **749** declarations, **14** unique axioms, **163** tracked sorries, and **exactly 5 formulas formally proven** — `{F1, F11, F12, F18, F19}` — a count that is itself a no-axiom Lean theorem (`locked_count_five`), so the locked set cannot silently grow. On top of that floor sit **~170 kernel-clean experimental theorems** across **Waves 11–21**, CI-green on `main` (`880c803e`, Lean `v4.18.0`), every one with `#print axioms ⊆ {propext, Classical.choice, Quot.sound}` — labeled experimental and **never** folded into the locked five.
 
 **Λ-uniqueness is Conjecture 1.** Unconditional uniqueness under the base axioms A1–A5 is machine-checked **false** (`Round13.maxAgg_ne_Lambda`). What I *did* prove is the strongest axiom-free **conditional** uniqueness — slice-multiplicativity (separability) ⇒ Λ — **CUT-2** (`lambda_unique_of_separable`). I don't claim theorems I haven't proved.
 
@@ -85,7 +87,7 @@ flowchart LR
   <a href="https://orcid.org/0009-0001-0110-4173"><img alt="ORCID" src="https://img.shields.io/badge/ORCID-0009--0001--0110--4173-A6CE39?style=flat-square&logo=orcid&logoColor=white"></a>
   <a href="https://huggingface.co/SZLHOLDINGS"><img alt="HF Spaces" src="https://img.shields.io/badge/%F0%9F%A4%97%20Spaces-a11oy%20%2B%20killinchu-FF9D00?style=flat-square"></a>
   <a href="https://doi.org/10.5281/zenodo.19944926"><img alt="Concept DOI" src="https://img.shields.io/badge/concept%20DOI-10.5281%2Fzenodo.19944926-01696F?style=flat-square"></a>
-  <a href="https://github.com/szl-holdings/lutar-lean"><img alt="Lean 4" src="https://img.shields.io/badge/Lean%204-5%20locked%20%2B%20~119%20experimental-c9b787?style=flat-square"></a>
+  <a href="https://github.com/szl-holdings/lutar-lean"><img alt="Lean 4" src="https://img.shields.io/badge/Lean%204-5%20locked%20%2B%20~170%20experimental-c9b787?style=flat-square"></a>
   <a href="https://github.com/szl-holdings/lutar-lean/blob/main/BOUNTY.md"><img alt="Λ = Conjecture 1" src="https://img.shields.io/badge/%CE%9B-Conjecture%201-b3541e?style=flat-square"></a>
   <a href="https://slsa.dev/spec/v1.0/levels"><img alt="SLSA" src="https://img.shields.io/badge/SLSA-Build%20L1%20honest%20%C2%B7%20L2%20roadmap-2C5F2D?style=flat-square"></a>
 </p>
@@ -133,7 +135,7 @@ curl -s https://szlholdings-killinchu.hf.space/api/killinchu/v1/receipt/export >
 |---|---|---|
 | Locked kernel | **749** declarations / **14** unique axioms / **163** tracked sorries · Lean `v4.13.0` | [`lutar-lean@main`](https://github.com/szl-holdings/lutar-lean) `c7c0ba17` |
 | Formulas proven (locked) | **exactly 5** — `F1, F11, F12, F18, F19` | machine-checked `locked_count_five` (no axioms) |
-| Experimental theorems (CI-green) | **~119** kernel-clean across **Waves 11–19**, labeled, **not** in the locked count | `main`, Lean `v4.18.0`, `#print axioms ⊆ {propext, Classical.choice, Quot.sound}` |
+| Experimental theorems (CI-green) | **~170** kernel-clean across **Waves 11–21**, labeled, **not** in the locked count | `main` `880c803e`, Lean `v4.18.0`, `#print axioms ⊆ {propext, Classical.choice, Quot.sound}` |
 | Λ unconditional uniqueness | **Conjecture 1** — machine-checked **false** under A1–A5 | `Round13.maxAgg_ne_Lambda` |
 | Λ conditional uniqueness | **CUT-2** — `lambda_unique_of_separable`, **axiom-free** | slice-multiplicativity (separability) ⇒ Λ |
 | Byzantine BFT safety | **Conjecture 2** (faulty organ can equivocate) | honestly open |
@@ -142,14 +144,14 @@ curl -s https://szlholdings-killinchu.hf.space/api/killinchu/v1/receipt/export >
 
 > I do not claim "zero sorry," "fully verified," "Λ proven," or "SLSA L2-verified." Every number regenerates from `lutar-lean@main`.
 
-### Selected experimental headlines (Waves 11–19, all kernel-clean)
+### Selected experimental headlines (Waves 11–21, all kernel-clean)
 
 | Result | What it is |
 |---|---|
 | **CUT-2** `lambda_unique_of_separable` | Λ uniqueness as a theorem **conditional** on {A1,A2,A3,A5 + separability}, axiom-free — Λ off bare conjecture |
 | **CF-22** `dpo_klDivergence_nonneg_on_simplex` | conditionally **repairs** the FALSE-as-stated DPO axiom (KL ≥ 0 **on the simplex**), axiom-free |
 | **CF-23** `binary_pinsker` | full **binary Pinsker**: `2(p−q)² ≤ KL` — the long-sought headline, kernel-clean |
-| **CUT-1** reduced | full Λ-uniqueness route now hinges on **one published lemma** — `dyadic_image_dense` (BKS, [arXiv:2208.07083](https://arxiv.org/abs/2208.07083)) |
+| **CUT-1** reduced | conditional Λ-uniqueness chain now **axiom-clean end-to-end** on its stated hypotheses (Waves 19–21); reduced to **one honest structural hypothesis** — the `(C-order)` gap-shift ordering (BKS, [arXiv:2208.07083](https://arxiv.org/abs/2208.07083)), documented, not faked |
 
 Full proof table with verbatim `#print axioms` → **[PROVEN_FORMULAS.md](https://github.com/szl-holdings/lutar-lean/blob/main/PROVEN_FORMULAS.md)**.
 
