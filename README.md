@@ -13,7 +13,7 @@
 
 <div align="center">
 
-<img src="assets/banner-personal.png" alt="Stephen P. Lutar Jr. — provable AI governance" width="100%" />
+<img src="https://raw.githubusercontent.com/stephenlutar2-hash/stephenlutar2-hash/main/assets/banner-personal.png" alt="Stephen P. Lutar Jr. — provable AI governance" width="100%" />
 
 # Stephen P. Lutar Jr.
 
