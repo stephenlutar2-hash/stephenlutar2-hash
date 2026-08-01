@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/stephenlutar2-hash/stephenlutar2-hash/main/assets/banner-khipu-prism-2026.png" alt="Khipu Prism — governed intelligence and verifiable provenance" width="100%" />
+<img src="./assets/banner-khipu-prism-2026.png" alt="Khipu Prism — governed intelligence and verifiable provenance" width="100%" />
 
 # Stephen P. Lutar Jr.
 
